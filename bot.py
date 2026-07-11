@@ -1,30 +1,23 @@
 import telebot, os, json
 from flask import Flask
 from threading import Thread
-from datetime import datetime
 
-# قراءة المفاتيح من إعدادات السيرفر مباشرة
+# قراءة الإعدادات من السيرفر مباشرة للأمان
 TOKEN = os.environ.get('BOT_TOKEN')
-ADMIN_CHAT_ID = os.environ.get('ADMIN_ID')
+ADMIN_ID = os.environ.get('ADMIN_ID')
 bot = telebot.TeleBot(TOKEN)
+DATA_FILE = "gold_data.json"
 
-# (أضف هنا كود الـ Flask كما فعلنا سابقاً ليعمل السيرفر)
-# ... [كود الـ Flask هنا] ...
+# نظام الخداع البصري للسيرفر (Flask)
+app = Flask(__name__)
+@app.route('/')
+def home(): return "Bot is Active"
+def run(): app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+Thread(target=run).start()
 
-def is_admin(cid): return str(cid) == ADMIN_CHAT_ID
+# نظام حفظ البيانات لضمان عدم ضياعها
+def save_data(data):
+    with open(DATA_FILE, "w") as f: json.dump(data, f)
 
-@bot.message_handler(func=lambda m: True)
-def main_handler(message):
-    cid = str(message.chat.id)
-    
-    # 1. استثناء الأدمن
-    if is_admin(cid):
-        process_gold(message)
-        return
-
-    # 2. فحص الاشتراك الإجباري
-    if not is_subscribed(cid):
-        bot.reply_to(message, "⚠️ اشتراكك منتهي. يرجى الضغط على 'تفعيل اشتراك' للاستمرار.")
-        return
-
-    # تنفيذ باقي الأوامر...
+# (هنا يوضع باقي الكود الخاص باللغات، الحاسبة، والاشتراكات)
+# عند كل عملية تفعيل، استدعِ دالة save_data() ليتم حفظ التعديلات في الملف
