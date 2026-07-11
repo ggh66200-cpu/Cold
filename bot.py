@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 TOKEN = '8656689517:AAEjDWKpXpKGa_OXaxBz45QLMNp3ps2JUBs'
 bot = telebot.TeleBot(TOKEN)
 DATA_FILE = "gold_data.json"
-ADMIN_CHAT_ID = "ضع_رقم_الآيدي_الخاص_بك" # ضع الآيدي الخاص بك هنا
+ADMIN_CHAT_ID = "7305704935" # ضع الآيدي الخاص بك هنا
 
 user_data = {}
 
