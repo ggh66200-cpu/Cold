@@ -3,7 +3,7 @@ from telebot import types
 import json, os, time
 from datetime import datetime, timedelta
 
-TOKEN = '8656689517:AAEjDWKpXpKGa_OXaxBz45QLMNp3ps2JUBs'
+TOKEN = '8880786513:AAEO6L_lN-XRg0bokubtyLXkgU-35HwCErg'
 bot = telebot.TeleBot(TOKEN)
 DATA_FILE = "gold_data.json"
 ADMIN_CHAT_ID = "7305704935"
