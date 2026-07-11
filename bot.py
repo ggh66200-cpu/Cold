@@ -2,23 +2,23 @@ import telebot, os, time, math
 from flask import Flask
 from threading import Thread
 
-# استدعاء الملفات المعزولة التي صنعناها
+# استدعاء الملفات المعزولة
 from langs import LANG
 from sub import is_subscribed
 
 TOKEN = os.environ.get('BOT_TOKEN')
 bot = telebot.TeleBot(TOKEN)
 
-# السيرفر الوهمي (الخداع البصري للريندر)
+# السيرفر الوهمي
 app = Flask(__name__)
 @app.route('/')
 def home(): return "Dubai Master - System Online"
 def run(): app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
 Thread(target=run).start()
 
-user_prefs = {}     # لحفظ لغة كل مستخدم
-daily_settings = {} # لحفظ الإعدادات الصباحية لكل مستخدم (الدولار والمثقال)
-calc_temp = {}      # لحفظ الحسبة المؤقتة (العيار والوزن)
+user_prefs = {}     
+daily_settings = {} 
+calc_temp = {}      
 
 # ==========================================
 # 1. لوحة التحكم
@@ -41,30 +41,36 @@ def start(message):
     bot.send_message(cid, f"**Dubai Master System** 💎\nمرحباً بك في نظام سوق الذهب.", reply_markup=markup, parse_mode="Markdown")
 
 # ==========================================
-# 2. الإعدادات الصباحية (الدولار والمثقال)
+# 2. الإعدادات الصباحية (نظام الرسالة الواحدة السريع)
 # ==========================================
 @bot.message_handler(func=lambda m: m.text in [LANG['ar']['settings'], LANG['ku']['settings'], LANG['en']['settings']])
 def morning_settings(message):
     cid = message.chat.id
-    msg = bot.send_message(cid, "☀️ **الإعدادات الصباحية:**\nأدخل سعر صرف الـ 100$ اليوم (مثال: 155000):", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, set_usd)
+    msg = bot.send_message(cid, """☀️ **الإعدادات الصباحية:**
 
-def set_usd(message):
-    cid = message.chat.id
-    daily_settings[cid] = {'usd_100': float(message.text)}
-    msg = bot.send_message(cid, "⚖️ أدخل سعر **المثقال عيار 21** بالدينار (مثال: 480000):", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, set_m21)
+أرسل الأسعار الثلاثة في رسالة واحدة فقط (يفصل بينها مسافة)، بالترتيب التالي:
+1️⃣ سعر 100$
+2️⃣ سعر مثقال 21
+3️⃣ سعر مثقال 18
 
-def set_m21(message):
-    cid = message.chat.id
-    daily_settings[cid]['m21'] = float(message.text)
-    msg = bot.send_message(cid, "⚖️ أدخل سعر **المثقال عيار 18** بالدينار (مثال: 410000):", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, set_m18)
+**مثال للنسخ والتعديل:**
+`155000 480000 410000`""", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, save_all_settings)
 
-def set_m18(message):
+def save_all_settings(message):
     cid = message.chat.id
-    daily_settings[cid]['m18'] = float(message.text)
-    bot.send_message(cid, "✅ **تم حفظ الإعدادات الصباحية بنجاح! يمكنك الآن بدء الشراء والبيع بسرعة.**", parse_mode="Markdown")
+    try:
+        # تنظيف النص وفصل الأرقام
+        text = message.text.replace('\n', ' ').replace('-', ' ').strip()
+        parts = [float(x) for x in text.split() if x]
+        
+        if len(parts) >= 3:
+            daily_settings[cid] = {'usd_100': parts[0], 'm21': parts[1], 'm18': parts[2]}
+            bot.send_message(cid, f"✅ **تم حفظ الإعدادات بنجاح!**\n\n💵 الدولار: {parts[0]:,.0f}\n⚖️ مثقال 21: {parts[1]:,.0f}\n⚖️ مثقال 18: {parts[2]:,.0f}\n\nالنظام الآن جاهز للعمل السريع ⚡️", parse_mode="Markdown")
+        else:
+            bot.send_message(cid, "⚠️ خطأ! يرجى إرسال 3 أرقام بالضبط كما في المثال.")
+    except Exception as e:
+        bot.send_message(cid, "⚠️ حدث خطأ في الإدخال، تأكد من كتابة الأرقام فقط بمسافات.")
 
 # ==========================================
 # 3. نظام الحاسبة السريع (شراء)
@@ -73,7 +79,7 @@ def set_m18(message):
 def start_buy(message):
     cid = message.chat.id
     if cid not in daily_settings:
-        bot.send_message(cid, "⚠️ يرجى ضبط **الإعدادات الصباحية ☀️** أولاً قبل الشراء!", parse_mode="Markdown")
+        bot.send_message(cid, "⚠️ يرجى ضبط **الإعدادات الصباحية ☀️** أولاً!", parse_mode="Markdown")
         return
         
     markup = telebot.types.InlineKeyboardMarkup()
@@ -88,24 +94,25 @@ def select_carat(call):
     calc_temp[cid] = {'carat': carat}
     
     bot.delete_message(cid, call.message.message_id)
-    msg = bot.send_message(cid, f"⚖️ العيار المختار: **{carat}**\n✏️ **أدخل وزن الذهب بالغرام (مثال: 12.5):**", parse_mode="Markdown")
+    msg = bot.send_message(cid, f"⚖️ العيار المختار: **{carat}**\n✏️ **أرسل الوزن بالغرام فقط:**", parse_mode="Markdown")
     bot.register_next_step_handler(msg, final_invoice)
 
 def final_invoice(message):
     cid = message.chat.id
-    weight = float(message.text)
+    try:
+        weight = float(message.text)
+    except:
+        bot.send_message(cid, "⚠️ خطأ! يرجى إرسال أرقام فقط.")
+        return
+
     carat = calc_temp[cid]['carat']
-    
-    # جلب الإعدادات الصباحية
     rate_100 = daily_settings[cid]['usd_100']
     mithqal_price = daily_settings[cid]['m21'] if carat == '21' else daily_settings[cid]['m18']
-    gram_price = mithqal_price / 5  # المثقال 5 غرام
+    gram_price = mithqal_price / 5  
     
-    # خدعة بصرية (جاري التحميل)
-    loading_msg = bot.send_message(cid, "⏳ **جاري التصفية واستخراج الفاتورة...**", parse_mode="Markdown")
+    loading_msg = bot.send_message(cid, "⏳ **جاري التصفية...**", parse_mode="Markdown")
     time.sleep(1.5)
     
-    # العمليات الحسابية
     total_iqd = weight * gram_price
     papers_needed = math.ceil(total_iqd / rate_100) * 100
     paid_iqd_value = (papers_needed / 100) * rate_100
