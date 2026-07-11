@@ -2,41 +2,26 @@ import telebot, os, time, math
 from flask import Flask
 from threading import Thread
 
-# ==========================================
-# 1. إعدادات السيرفر
-# ==========================================
+# استدعاء الملفات المعزولة التي صنعناها
+from langs import LANG
+from sub import is_subscribed
+
 TOKEN = os.environ.get('BOT_TOKEN')
-ADMIN_ID = os.environ.get('ADMIN_ID')
 bot = telebot.TeleBot(TOKEN)
 
+# السيرفر الوهمي (الخداع البصري للريندر)
 app = Flask(__name__)
 @app.route('/')
-def home(): return "Dubai Master Bot is Running"
+def home(): return "Dubai Master - System Online"
 def run(): app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
 Thread(target=run).start()
 
-# ==========================================
-# 2. ملف اللغات (العربية، الكردية السورانية، الإنكليزية)
-# ==========================================
-LANG = {
-    'ar': {'buy': '⚖️ شراء من زبون', 'sell': '💰 بيع للزبون', 'lang': '🌐 تغيير اللغة', 'sub': '💳 الاشتراك'},
-    'ku': {'buy': '⚖️ کڕینی زێڕ', 'sell': '💰 فرۆشتنی زێڕ', 'lang': '🌐 گۆڕینی زمان', 'sub': '💳 بەشداریکردن'},
-    'en': {'buy': '⚖️ Buy Gold', 'sell': '💰 Sell Gold', 'lang': '🌐 Language', 'sub': '💳 Subscription'}
-}
-user_prefs = {}
-user_data = {} # لحفظ الأرقام أثناء الحساب
+user_prefs = {}     # لحفظ لغة كل مستخدم
+daily_settings = {} # لحفظ الإعدادات الصباحية لكل مستخدم (الدولار والمثقال)
+calc_temp = {}      # لحفظ الحسبة المؤقتة (العيار والوزن)
 
 # ==========================================
-# 3. قسم الاشتراك الإجباري (المعزول)
-# ==========================================
-# هنا يمكنك مستقبلاً ربط قاعدة بيانات، حالياً سنسمح للكل بالتجربة
-def is_subscribed(user_id):
-    # إذا كان المستخدم هو الأدمن، فهو مشترك دائماً
-    if str(user_id) == str(ADMIN_ID): return True
-    return True # غيرها إلى False لاحقاً لتفعيل الحظر على غير المشتركين
-
-# ==========================================
-# 4. لوحة التحكم واللغات
+# 1. لوحة التحكم
 # ==========================================
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -50,102 +35,105 @@ def start(message):
     
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(LANG[lang]['buy'], LANG[lang]['sell'])
+    markup.add(LANG[lang]['settings'])
     markup.add(LANG[lang]['lang'], LANG[lang]['sub'])
     
-    bot.send_message(cid, f"**Dubai Master System**\nمرحباً بك في نظام تصفية الحسابات المتقدم 📊", reply_markup=markup, parse_mode="Markdown")
-
-@bot.message_handler(func=lambda m: m.text in [LANG['ar']['lang'], LANG['ku']['lang'], LANG['en']['lang']])
-def choose_lang(message):
-    markup = telebot.types.InlineKeyboardMarkup()
-    markup.add(telebot.types.InlineKeyboardButton("العربية 🇮🇶", callback_data="lang_ar"))
-    markup.add(telebot.types.InlineKeyboardButton("Kurdî (Sorani) ☀️", callback_data="lang_ku"))
-    markup.add(telebot.types.InlineKeyboardButton("English 🇬🇧", callback_data="lang_en"))
-    bot.reply_to(message, "اختر اللغة / زمان هەڵبژێرە / Select Language:", reply_markup=markup)
-
-@bot.callback_query_handler(func=lambda call: call.data.startswith('lang_'))
-def set_lang(call):
-    cid = call.message.chat.id
-    user_prefs[cid] = call.data.split('_')[1]
-    bot.delete_message(cid, call.message.message_id)
-    start(call.message)
+    bot.send_message(cid, f"**Dubai Master System** 💎\nمرحباً بك في نظام سوق الذهب.", reply_markup=markup, parse_mode="Markdown")
 
 # ==========================================
-# 5. نظام الحاسبة والخدع البصرية والفاتورة
+# 2. الإعدادات الصباحية (الدولار والمثقال)
+# ==========================================
+@bot.message_handler(func=lambda m: m.text in [LANG['ar']['settings'], LANG['ku']['settings'], LANG['en']['settings']])
+def morning_settings(message):
+    cid = message.chat.id
+    msg = bot.send_message(cid, "☀️ **الإعدادات الصباحية:**\nأدخل سعر صرف الـ 100$ اليوم (مثال: 155000):", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, set_usd)
+
+def set_usd(message):
+    cid = message.chat.id
+    daily_settings[cid] = {'usd_100': float(message.text)}
+    msg = bot.send_message(cid, "⚖️ أدخل سعر **المثقال عيار 21** بالدينار (مثال: 480000):", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, set_m21)
+
+def set_m21(message):
+    cid = message.chat.id
+    daily_settings[cid]['m21'] = float(message.text)
+    msg = bot.send_message(cid, "⚖️ أدخل سعر **المثقال عيار 18** بالدينار (مثال: 410000):", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, set_m18)
+
+def set_m18(message):
+    cid = message.chat.id
+    daily_settings[cid]['m18'] = float(message.text)
+    bot.send_message(cid, "✅ **تم حفظ الإعدادات الصباحية بنجاح! يمكنك الآن بدء الشراء والبيع بسرعة.**", parse_mode="Markdown")
+
+# ==========================================
+# 3. نظام الحاسبة السريع (شراء)
 # ==========================================
 @bot.message_handler(func=lambda m: m.text in [LANG['ar']['buy'], LANG['ku']['buy'], LANG['en']['buy']])
-def start_calc(message):
+def start_buy(message):
     cid = message.chat.id
-    msg = bot.send_message(cid, "✏️ **أدخل وزن الذهب بالغرام (مثال: 12.5):**", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, get_weight)
+    if cid not in daily_settings:
+        bot.send_message(cid, "⚠️ يرجى ضبط **الإعدادات الصباحية ☀️** أولاً قبل الشراء!", parse_mode="Markdown")
+        return
+        
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.add(telebot.types.InlineKeyboardButton("عيار 21", callback_data="carat_21"))
+    markup.add(telebot.types.InlineKeyboardButton("عيار 18", callback_data="carat_18"))
+    bot.send_message(cid, "👇 **اختر عيار الذهب:**", reply_markup=markup, parse_mode="Markdown")
 
-def get_weight(message):
-    cid = message.chat.id
-    try:
-        user_data[cid] = {'weight': float(message.text)}
-        msg = bot.send_message(cid, "✏️ **أدخل سعر الغرام بالدينار (مثال: 49000):**", parse_mode="Markdown")
-        bot.register_next_step_handler(msg, get_gram_price)
-    except:
-        bot.send_message(cid, "⚠️ خطأ! أرسل رقماً فقط. حاول مرة أخرى.")
+@bot.callback_query_handler(func=lambda call: call.data.startswith('carat_'))
+def select_carat(call):
+    cid = call.message.chat.id
+    carat = call.data.split('_')[1]
+    calc_temp[cid] = {'carat': carat}
+    
+    bot.delete_message(cid, call.message.message_id)
+    msg = bot.send_message(cid, f"⚖️ العيار المختار: **{carat}**\n✏️ **أدخل وزن الذهب بالغرام (مثال: 12.5):**", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, final_invoice)
 
-def get_gram_price(message):
+def final_invoice(message):
     cid = message.chat.id
-    try:
-        user_data[cid]['gram_price'] = float(message.text)
-        msg = bot.send_message(cid, "💵 **أدخل سعر صرف الـ 100 دولار اليوم (مثال: 155000):**", parse_mode="Markdown")
-        bot.register_next_step_handler(msg, final_calculation)
-    except:
-        bot.send_message(cid, "⚠️ خطأ! أرسل رقماً فقط.")
-
-def final_calculation(message):
-    cid = message.chat.id
-    try:
-        rate_100 = float(message.text)
-        weight = user_data[cid]['weight']
-        gram_price = user_data[cid]['gram_price']
-        
-        # --- الخدعة البصرية (التحميل الوهمي) ---
-        loading_msg = bot.send_message(cid, "⏳ **جاري الاتصال ببيانات السوق...**", parse_mode="Markdown")
-        time.sleep(1)
-        bot.edit_message_text("🧮 **يتم الآن تصفية الحساب واستخراج الفاتورة...**", cid, loading_msg.message_id, parse_mode="Markdown")
-        time.sleep(1)
-        
-        # --- العمليات الحسابية (الطريقة العراقية) ---
-        total_iqd = weight * gram_price
-        # حساب كم ورقة 100$ يحتاج (نجبر الكسر للأعلى)
-        papers_needed = math.ceil(total_iqd / rate_100) * 100
-        # حساب الباقي الذي يجب إرجاعه للزبون بالدينار
-        paid_iqd_value = (papers_needed / 100) * rate_100
-        change_iqd = paid_iqd_value - total_iqd
-        change_usd_fraction = change_iqd / (rate_100 / 100)
-        
-        # رقم الترند الوهمي
-        trend_num = int(time.time()) % 1000 + 1000
-        
-        # --- تصميم الفاتورة (أرتب من الصورة) ---
-        invoice = f"""
+    weight = float(message.text)
+    carat = calc_temp[cid]['carat']
+    
+    # جلب الإعدادات الصباحية
+    rate_100 = daily_settings[cid]['usd_100']
+    mithqal_price = daily_settings[cid]['m21'] if carat == '21' else daily_settings[cid]['m18']
+    gram_price = mithqal_price / 5  # المثقال 5 غرام
+    
+    # خدعة بصرية (جاري التحميل)
+    loading_msg = bot.send_message(cid, "⏳ **جاري التصفية واستخراج الفاتورة...**", parse_mode="Markdown")
+    time.sleep(1.5)
+    
+    # العمليات الحسابية
+    total_iqd = weight * gram_price
+    papers_needed = math.ceil(total_iqd / rate_100) * 100
+    paid_iqd_value = (papers_needed / 100) * rate_100
+    change_iqd = paid_iqd_value - total_iqd
+    change_usd = change_iqd / (rate_100 / 100)
+    
+    trend_num = int(time.time()) % 1000 + 1000
+    
+    invoice = f"""
 <b>Dubai Master System | الترند: {trend_num}</b>
 ━━━━━━━━━━━━━━━━━━
-<b>📊 تصفية الحسبة النهائية (سوق الذهب):</b>
+<b>📊 تصفية الحسبة (سوق الذهب):</b>
 
 🔄 <b>العملية:</b> 🔴 شراء من زبون
-⚖️ <b>الوزن:</b> {weight} غرام
-💎 <b>سعر الغرام:</b> {gram_price:,.0f} د.ع
-💵 <b>سعر صرف الـ 100$:</b> {rate_100:,.0f} د.ع
+⚖️ <b>الوزن:</b> {weight} غرام (عيار {carat})
+💎 <b>سعر الغرام:</b> {gram_price:,.0f} د.ع <i>(المثقال: {mithqal_price:,.0f})</i>
+💵 <b>سعر 100$:</b> {rate_100:,.0f} د.ع
 ━━━━━━━━━━━━━━━━━━
 💰 <b>الصافي بالدينار:</b> <b>{total_iqd:,.0f} د.ع</b>
 
-<b>💵 في حال الدفع بالدولار (التصفية):</b>
-💵 المستلم بالورق الصافي: <b>{papers_needed}$</b>
-↩️ يُرجع للزبون بالدينار: <b>{change_iqd:,.0f} د.ع</b>
-<i>*(قيمة الـ {change_usd_fraction:.2f}$ المتبقية بالكسر)*</i>
+<b>💵 التصفية بالدولار:</b>
+💵 المستلم ورقي: <b>{papers_needed}$</b>
+↩️ يُرجع بالدينار: <b>{change_iqd:,.0f} د.ع</b>
+<i>*(كسر الدولار المتبقي: {change_usd:.2f}$)*</i>
 ━━━━━━━━━━━━━━━━━━
 ✅ <i>تم إنجاز الحسبة بدقة.</i>
 """
-        bot.delete_message(cid, loading_msg.message_id)
-        bot.send_message(cid, invoice, parse_mode="HTML")
-        
-    except Exception as e:
-        bot.send_message(cid, "⚠️ حدث خطأ في الأرقام، حاول مجدداً.")
+    bot.delete_message(cid, loading_msg.message_id)
+    bot.send_message(cid, invoice, parse_mode="HTML")
 
 bot.polling(none_stop=True)
-    
