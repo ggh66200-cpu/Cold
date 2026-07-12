@@ -2,7 +2,9 @@ import telebot, buy, sell, settings, random, time
 from flask import Flask
 from threading import Thread
 
-bot = telebot.TeleBot("YOUR_TOKEN") # ضع التوكن الخاص بك
+# امسح القديم وضع هذا السطر فقط:
+bot = telebot.TeleBot(os.environ.get('BOT_TOKEN'))
+
 
 # تفعيل السيرفر
 Thread(target=lambda: Flask(__name__).run(host='0.0.0.0', port=8080)).start()
