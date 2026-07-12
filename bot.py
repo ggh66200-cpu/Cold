@@ -7,34 +7,48 @@ from sub import is_subscribed
 TOKEN = os.environ.get('BOT_TOKEN')
 bot = telebot.TeleBot(TOKEN)
 
-# --- تفعيل السيرفر (لا تلمسه) ---
+# --- إعداد السيرفر ---
 app = Flask(__name__)
 @app.route('/')
-def home(): return "Online"
+def home(): return "Dubai Master - System Online"
 Thread(target=lambda: app.run(host='0.0.0.0', port=8080)).start()
 
-# --- القائمة الرئيسية (سريعة جداً) ---
+# --- القائمة الرئيسية (شاملة) ---
+def get_main_markup(lang='ar'):
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    markup.add(LANG[lang]['buy'], LANG[lang]['sell'])
+    markup.add(LANG[lang]['settings'])
+    markup.add(LANG[lang]['lang'], LANG[lang]['sub'])
+    return markup
+
 @bot.message_handler(commands=['start'])
 def start(message):
     cid = message.chat.id
-    lang = 'ar' # الافتراضي
-    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    markup.add(LANG[lang]['buy'], LANG[lang]['sell'])
-    markup.add(LANG[lang]['settings'], LANG[lang]['lang'])
-    bot.send_message(cid, "💎 **Dubai Master**\nنظام تصفية الحسابات السريع:", reply_markup=markup, parse_mode="Markdown")
+    # البوت سيعرض القائمة بالعربية افتراضياً، وسيظهر كل شيء
+    bot.send_message(cid, "💎 **Dubai Master System**\nمرحباً بك في النظام الرئيسي.", reply_markup=get_main_markup('ar'))
 
-# --- زر بيع للزبون (منفصل ومستقل) ---
-@bot.message_handler(func=lambda m: m.text == LANG['ar']['sell'])
-def sell_process(message):
-    # لمسة جمالية: رسالة فورية ومختلفة
-    bot.reply_to(message, "💰 **أهلاً بك في قسم البيع للزبون**\nيرجى إرسال الوزن المطلوب:")
-    # هنا ستكمل البرمجة الخاصة بالبيع ليكون مستقلاً عن الشراء
+# --- معالجة الأزرار (شاملة لكل اللغات) ---
+@bot.message_handler(func=lambda m: True)
+def handle_all_messages(message):
+    cid = message.chat.id
+    text = message.text
+    
+    # تحديد اللغة بناءً على الزر المضغوط
+    lang = 'ar'
+    if text in [LANG['ku']['buy'], LANG['ku']['sell']]: lang = 'ku'
+    elif text in [LANG['en']['buy'], LANG['en']['sell']]: lang = 'en'
+    
+    # 1. زر الإعدادات الصباحية
+    if text in [LANG['ar']['settings'], LANG['ku']['settings'], LANG['en']['settings']]:
+        bot.send_message(cid, "أرسل (سعر الدولار) و (سعر مثقال 21) و (سعر مثقال 18) بمسافات.")
+        
+    # 2. زر البيع والشراء
+    elif text in [LANG['ar']['buy'], LANG['ku']['buy'], LANG['en']['buy']]:
+        bot.send_message(cid, "قسم الشراء: اختر العيار...")
+        
+    elif text in [LANG['ar']['sell'], LANG['ku']['sell'], LANG['en']['sell']]:
+        bot.send_message(cid, "قسم البيع للزبون: أدخل الوزن.")
 
-# --- إصلاح زر اللغات (استجابة فورية) ---
-@bot.message_handler(func=lambda m: m.text == LANG['ar']['lang'])
-def lang_menu(message):
-    markup = telebot.types.InlineKeyboardMarkup()
-    markup.add(telebot.types.InlineKeyboardButton("العربية 🇮🇶", callback_data="lang_ar"))
-    bot.reply_to(message, "اختر اللغة:", reply_markup=markup)
-
-bot.polling(none_stop=True)
+# --- التشغيل الاحترافي (بدون خطأ 409) ---
+bot.remove_webhook()
+bot.infinity_polling(timeout=60, long_polling_timeout=60)
