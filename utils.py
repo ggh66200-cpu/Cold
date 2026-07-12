@@ -6,7 +6,7 @@ DATA_FILE = 'data.json'
 
 def get_data():
     if not os.path.exists(DATA_FILE):
-        return {"subs": {}, "usd_100": 150000} # قيم افتراضية
+        return {"subs": {}, "users": {}, "total_count": 0, "usd_100": 150000}
     with open(DATA_FILE, 'r', encoding='utf-8') as f:
         return json.load(f)
 
@@ -14,30 +14,35 @@ def save_data(data):
     with open(DATA_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
-# دالة فحص الاشتراك
-def is_subscribed(user_id):
+# تسجيل دخول مستخدم جديد وتفعيل الفترة المجانية
+def register_user(user_id):
     data = get_data()
-    subs = data.get('subs', {})
-    expiry = subs.get(str(user_id), 0)
-    return time.time() < expiry
+    if str(user_id) not in data['users']:
+        data['users'][str(user_id)] = {"usage": 0, "trial_end": time.time() + (3 * 86400)}
+        data['total_count'] += 1
+        save_data(data)
+    return data['users'][str(user_id)]
 
-# دالة إضافة اشتراك (للأدمن)
+# فحص الوصول (100 مستخدم مجاني -> 3 أيام تجربة -> اشتراك)
+def check_access(user_id):
+    data = get_data()
+    # إذا عدد المستخدمين أقل من 100، الكل مجاني
+    if data['total_count'] <= 100: return True
+    
+    # فحص الاشتراك المدفوع
+    if time.time() < data['subs'].get(str(user_id), 0): return True
+    
+    # فحص الفترة التجريبية (3 أيام)
+    user = data['users'].get(str(user_id))
+    if user and time.time() < user['trial_end']: return True
+    
+    return False
+
 def add_subscription(user_id, days):
     data = get_data()
-    if 'subs' not in data: data['subs'] = {}
     data['subs'][str(user_id)] = time.time() + (int(days) * 86400)
     save_data(data)
 
-# دالة الفاتورة المرتبة
-def generate_invoice(operation, weight, karat, total, usd_rate, papers, remaining, fractional_dollars):
-    return (f"**📊 تصفية الحسبة النهائية (سوق الذهب):**\n"
-            "_________________________\n"
-            f"🔄 العملية: {operation}\n"
-            f"⚖️ الوزن: {weight} غرام (عيار {karat})\n"
-            f"💵 سعر صرف الـ $100: {usd_rate:,.0f} د.ع\n"
-            "_________________________\n"
-            f"💰 صافي السعر بالدينار: **{total:,.0f} د.ع**\n\n"
-            f"💵 **في حال الدفع بالدولار (التصفية):**\n"
-            f"💵 المستلم بالورق الصافي: **{papers}$**\n"
-            f"↩️ يُرجع باقي للزبون بالدينار: **{remaining:,.0f} د.ع**\n"
-            f"* (قيمة الـ {fractional_dollars:,.2f}$ المتبقية بالكسر)*")
+def get_stats():
+    data = get_data()
+    return f"عدد المستخدمين الكلي: {data['total_count']}\nالمشتركين الفعليين: {len(data['subs'])}"
