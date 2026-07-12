@@ -1,15 +1,13 @@
-import json
-
-def get_data():
-    with open('data.json', 'r', encoding='utf-8') as f:
-        return json.load(f)
-
-def save_data(data):
-    with open('data.json', 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
-
-def format_invoice(invoice_id, weight, total, papers=None, rem=None, type="buy"):
-    if type == "buy":
-        return f"🧾 **فاتورة شراء من زبون**\n\nرقم الفاتورة: `#{invoice_id}`\nالوزن: {weight} غرام ⚖️\nالسعر الكلي: {total:,.0f} د.ع 💰\n\n**تفاصيل الدفع:**\nالاستلام بالدولار: {papers}$ 💵\nالباقي بالعراقي: {rem:,.0f} د.ع 💴\n\n✅ *تم توثيق الفاتورة*"
-    else:
-        return f"🧾 **فاتورة بيع للزبون**\n\nرقم الفاتورة: `#{invoice_id}`\nالوزن: {weight} غرام ⚖️\nالسعر المطلوب: {total:,.0f} د.ع 💰\n\n✅ *تم توثيق الفاتورة*"
+def generate_invoice(operation, weight, karat, total, usd_rate, papers, remaining, fractional_dollars):
+    msg = f"**📊 تصفية الحسبة النهائية (سوق الذهب):**\n"
+    msg += "_________________________\n"
+    msg += f"🔄 العملية: {operation}\n"
+    msg += f"⚖️ الوزن: {weight} غرام (عيار {karat})\n"
+    msg += f"💵 سعر صرف الـ $100: {usd_rate:,.0f} د.ع\n"
+    msg += "_________________________\n"
+    msg += f"💰 صافي السعر بالدينار: **{total:,.0f} د.ع**\n\n"
+    msg += f"💵 **في حال الدفع بالدولار (التصفية):**\n"
+    msg += f"💵 المستلم بالورق الصافي: **{papers}$**\n"
+    msg += f"↩️ يُرجع باقي للزبون بالدينار: **{remaining:,.0f} د.ع**\n"
+    msg += f"* (قيمة الـ {fractional_dollars:,.2f}$ المتبقية بالكسر)*"
+    return msg
