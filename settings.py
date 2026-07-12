@@ -1,22 +1,14 @@
 import utils
 
 def handle(m, bot):
-    msg = bot.send_message(m.chat.id, "☀️ **الإعدادات الصباحية**\nأرسل الأسعار بهذا الترتيب (بينها مسافة):\n\nسعر الـ100$  شراء21  بيع21\n\nمثال: 150000 480000 485000")
+    msg = bot.send_message(m.chat.id, "أرسل الأسعار (سعر الـ100$ | شراء21 | بيع21 | شراء18 | بيع18):")
     bot.register_next_step_handler(msg, process, bot)
 
 def process(m, bot):
     try:
-        prices = m.text.split()
-        if len(prices) != 3:
-            bot.reply_to(m, "⚠️ يجب إرسال 3 أرقام بالضبط.")
-            return
-        
-        data = utils.get_data()
-        data['usd_100'] = int(prices[0])
-        data['buy_21'] = int(prices[1])
-        data['sell_21'] = int(prices[2])
-        
-        utils.save_data(data)
-        bot.reply_to(m, "✅ تم تحديث الأسعار بنجاح وتم حفظها في النظام.")
-    except:
-        bot.reply_to(m, "⚠️ خطأ في الإدخال، تأكد من كتابة الأرقام بشكل صحيح.")
+        p = [int(x) for x in m.text.split()]
+        d = utils.get_data()
+        d.update({'usd_100': p[0], 'buy_21': p[1], 'sell_21': p[2], 'buy_18': p[3], 'sell_18': p[4]})
+        utils.save_data(d)
+        bot.reply_to(m, "✅ تم تحديث الأسعار.")
+    except: bot.reply_to(m, "⚠️ خطأ! أرسل 5 أرقام مفصولة بمسافة.")
