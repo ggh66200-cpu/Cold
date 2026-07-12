@@ -1,20 +1,15 @@
-import utils
-import time
-
+import utils, time
 def handle(m, bot):
-    msg = bot.send_message(m.chat.id, "💰 أدخل وزن الذهب (بيع للزبون):")
+    msg = bot.send_message(m.chat.id, "💰 اختر العيار والوزن وأجور الصياغة (مثال: 21 10 5000):")
     bot.register_next_step_handler(msg, process, bot)
 
 def process(m, bot):
     try:
-        weight = float(m.text)
-        load_msg = bot.send_message(m.chat.id, "⏳ جاري حساب فاتورة البيع...")
+        karat, weight, ujra = m.text.split()
+        d = utils.get_data()
+        # سعر الغرام (السعر الصافي + الأجور)
+        price_g = (d[f'sell_{karat}'] / 5) + int(ujra)
+        total = float(weight) * price_g
         
-        data = utils.get_data()
-        total = weight * (data['sell_21'] / 5)
-        
-        invoice = utils.format_invoice(int(time.time()), weight, total, type="sell")
-        
-        bot.edit_message_text(invoice, m.chat.id, load_msg.message_id, parse_mode="Markdown")
-    except:
-        bot.reply_to(m, "⚠️ خطأ في الإدخال، يرجى كتابة الأرقام فقط.")
+        bot.reply_to(m, f"🧾 فاتورة بيع:\nالسعر الكلي: {total:,.0f} د.ع\n(شامل صياغة {ujra} للغرام)")
+    except: bot.reply_to(m, "⚠️ خطأ! أرسل العيار، الوزن، والأجور بمسافات.")
