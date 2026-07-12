@@ -1,20 +1,15 @@
-import time
+import json
 
-def loading(bot, chat_id, text="جاري المعالجة..."):
-    msg = bot.send_message(chat_id, f"⏳ {text}")
-    time.sleep(1)
-    return msg
+def get_data():
+    with open('data.json', 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-def format_invoice(trend, weight, total, papers, rem):
-    return f"""
-✨ **فاتورة رسمية | Dubai Master**
-━━━━━━━━━━━━━━
-🆔 **الترند:** `{trend}`
-⚖️ **الوزن:** {weight} غرام
-💵 **المبلغ:** {total:,.0f} د.ع
-━━━━━━━━━━━━━━
-💰 **التصفية:** {papers}$
-↩️ **الباقي:** {rem:,.0f} د.ع
-━━━━━━━━━━━━━━
-✅ *تم الحفظ في السجلات.*
-"""
+def save_data(data):
+    with open('data.json', 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+def format_invoice(invoice_id, weight, total, papers=None, rem=None, type="buy"):
+    if type == "buy":
+        return f"🧾 **فاتورة شراء من زبون**\n\nرقم الفاتورة: `#{invoice_id}`\nالوزن: {weight} غرام ⚖️\nالسعر الكلي: {total:,.0f} د.ع 💰\n\n**تفاصيل الدفع:**\nالاستلام بالدولار: {papers}$ 💵\nالباقي بالعراقي: {rem:,.0f} د.ع 💴\n\n✅ *تم توثيق الفاتورة*"
+    else:
+        return f"🧾 **فاتورة بيع للزبون**\n\nرقم الفاتورة: `#{invoice_id}`\nالوزن: {weight} غرام ⚖️\nالسعر المطلوب: {total:,.0f} د.ع 💰\n\n✅ *تم توثيق الفاتورة*"
