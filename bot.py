@@ -1,6 +1,22 @@
 import telebot
 import os
+from flask import Flask
+from threading import Thread
 import buy, sell, settings, utils
+
+# --- كود السيرفر الوهمي (لضمان استمرار عمل البوت) ---
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "البوت يعمل بكفاءة!"
+
+def run():
+    app.run(host='0.0.0.0', port=8080)
+
+t = Thread(target=run)
+t.start()
+# ----------------------------------------------------
 
 # التوكن يتم سحبه من إعدادات السيرفر
 token = os.environ.get('BOT_TOKEN')
@@ -42,7 +58,7 @@ def show_payment(m):
             "اشتراك أسبوعي: 8,000 د.ع\n"
             "اشتراك شهري: 30,000 د.ع\n\n"
             "يرجى تحويل المبلغ على الماستر كارد التالية:\n"
-            "`910400201646`\n"  # <--- ضيف رقم الماستر كارد هنا
+            "`910400201646`\n"  # رقم الماستر كارد الخاص بك
             "بعد التحويل أرسل الوصل.")
     bot.send_message(m.chat.id, text, parse_mode="Markdown")
 
