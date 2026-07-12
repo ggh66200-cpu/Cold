@@ -1,17 +1,14 @@
-import utils, time
-def handle(m, bot):
-    msg = bot.send_message(m.chat.id, "⚖️ اختر العيار (21 أو 18) ثم الوزن (مثال: 21 10):")
-    bot.register_next_step_handler(msg, process, bot)
+# داخل دالة ask_weight
+msg = bot.send_message(m.chat.id, "⚖️ تدلل، شكد وزن الذهب اللي تريد تشتريه؟ (بالغرام)")
 
-def process(m, bot):
-    try:
-        karat, weight = m.text.split()
-        d = utils.get_data()
-        price_g = d[f'buy_{karat}'] / 5
-        total = float(weight) * price_g
-        
-        papers = (total // d['usd_100']) * 100
-        rem = total - (papers / 100 * d['usd_100'])
-        
-        bot.reply_to(m, f"🧾 فاتورة شراء:\nالسعر الكلي: {total:,.0f} د.ع\n\nيدفع للزبون:\n💵 {papers}$ \n💴 {rem:,.0f} د.ع")
-    except: bot.reply_to(m, "⚠️ خطأ! أرسل العيار والوزن بمسافة.")
+# داخل دالة process
+# بعد الحساب، نستخدم الدالة الجديدة:
+papers = (total // usd_100_price) * 100
+rem = total - ((papers / 100) * usd_100_price)
+frac_dollars = (rem / usd_100_price) * 100 # هذا الكسر المتبقي
+
+invoice = utils.generate_invoice(
+    "🔴 شراء من زبون", weight, karat, total, 
+    usd_100_price, int(papers), rem, frac_dollars
+)
+bot.send_message(m.chat.id, invoice, parse_mode="Markdown")
