@@ -35,3 +35,4 @@ def toggle(m):
 def router(m):
     if m.text == "⚖️ شراء من زبون": buy.handle(m, bot)
     elif m.text == "💰 بيع للزبون": sell.handle(m, bot)
+bot.infinity_polling()
