@@ -1,14 +1,11 @@
 {
   "total_count": 80,
   "users": {},
-  "settings": {
-    "buy_btn": true,
-    "sell_btn": true,
-    "sub_btn": false
-  },
-  "buy_18": 75000,
-  "sell_18": 77000,
+  "settings": {"buy_btn": true, "sell_btn": true, "sub_btn": false},
   "buy_21": 85000,
   "sell_21": 87000,
-  "usd_100": 150000
+  "buy_18": 75000,
+  "sell_18": 77000,
+  "usd_100": 150000,
+  "labor_fees": 5000
 }
