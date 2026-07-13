@@ -1,12 +1,12 @@
-import time
 import json
 import os
+import time
 
 DATA_FILE = 'data.json'
 
 def get_data():
     if not os.path.exists(DATA_FILE):
-        return {"subs": {}, "users": {}, "total_count": 0}
+        return {"total_count": 0, "subs": {}, "users": {}, "settings": {"buy_btn": True, "sell_btn": True, "settings_btn": True}}
     with open(DATA_FILE, 'r', encoding='utf-8') as f:
         return json.load(f)
 
@@ -16,13 +16,8 @@ def save_data(data):
 
 def check_access(user_id):
     data = get_data()
-    uid = str(user_id)
-    # إذا لم يصل العدد لـ 100، الكل مجاني
     if data['total_count'] < 100: return True
-    # فحص الاشتراك
-    if time.time() < data['subs'].get(uid, 0): return True
-    # إذا انتهى الاشتراك أو الفترة التجريبية
-    return False
+    return data['subs'].get(str(user_id), 0) > time.time()
 
 def register_user(user_id):
     data = get_data()
@@ -31,5 +26,19 @@ def register_user(user_id):
         data['total_count'] += 1
         data['users'][uid] = {"usage": 0}
         save_data(data)
-        return True # مستخدم جديد
+        return True
     return False
+
+def add_subscription(user_id, days):
+    data = get_data()
+    data['subs'][str(user_id)] = time.time() + (int(days) * 86400)
+    save_data(data)
+
+def get_stats():
+    data = get_data()
+    return f"👥 عدد المستخدمين الكلي: {len(data['users'])}\n🛠 حالة الأزرار: {data['settings']}"
+
+def toggle_button(btn_name, status):
+    data = get_data()
+    data['settings'][btn_name] = status
+    save_data(data)
