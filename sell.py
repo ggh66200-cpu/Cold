@@ -1,38 +1,42 @@
-import telebot, os, utils, buy, sell
-from flask import Flask
-from threading import Thread
+import utils
+from telebot import types
 
-Thread(target=lambda: Flask('').run(host='0.0.0.0', port=8080)).start()
-bot = telebot.TeleBot(os.environ.get('BOT_TOKEN'))
-ADMIN_ID = 123456789 # ضع الـ ID الخاص بك هنا
+def show_menu(m, bot):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add("⚖️ شراء من زبون", "💰 بيع للزبون")
+    bot.send_message(m.chat.id, "العودة للقائمة الرئيسية:", reply_markup=markup)
 
-@bot.message_handler(commands=['start'])
-def start(m):
-    utils.register_user(m.chat.id)
-    data = utils.get_data()
-    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-    if data['settings'].get('buy_btn'): markup.add("⚖️ شراء من زبون")
-    if data['settings'].get('sell_btn'): markup.add("💰 بيع للزبون")
-    bot.send_message(m.chat.id, "أهلاً بك في نظام الذهب الاحترافي.", reply_markup=markup)
+def handle(m, bot):
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+    markup.add("عيار 21", "عيار 18")
+    msg = bot.send_message(m.chat.id, "💰 اختر عيار الذهب للبيع للزبون:", reply_markup=markup)
+    bot.register_next_step_handler(msg, lambda m: ask_weight(m, bot, "sell"))
 
-@bot.message_handler(commands=['setprice'])
-def set_price(m):
-    if m.chat.id != ADMIN_ID: return
+def ask_weight(m, bot, action):
+    karat = "21" if "21" in m.text else "18"
+    msg = bot.send_message(m.chat.id, f"✅ اخترت عيار {karat}. أرسل الوزن بالمثقال:")
+    bot.register_next_step_handler(msg, lambda m: calc(m, bot, action, karat))
+
+def calc(m, bot, action, karat):
     try:
-        _, key, val = m.text.split()
-        utils.update_price(key, val)
-        bot.reply_to(m, f"✅ تم تحديث {key} إلى {val}")
-    except: bot.reply_to(m, "⚠️ خطأ! استخدم: /setprice [المفتاح] [القيمة]")
-
-@bot.message_handler(commands=['stats'])
-def stats(m):
-    if m.chat.id != ADMIN_ID: return
-    data = utils.get_data()
-    bot.reply_to(m, f"📊 عدد المستخدمين: {data['total_count']}")
-
-@bot.message_handler(func=lambda m: True)
-def router(m):
-    if m.text == "⚖️ شراء من زبون": buy.handle(m, bot)
-    elif m.text == "💰 بيع للزبون": sell.handle(m, bot)
-
-bot.infinity_polling()
+        mithqal = float(m.text)
+        weight_grams = mithqal * 5 
+        data = utils.get_data()
+        price = data.get(f"{action}_{karat}", 87000)
+        fees = data.get('labor_fees', 5000) * mithqal # أجور الصياغة للمثقال الواحد
+        rate_100 = data.get('usd_100', 150000)
+        
+        total_iqd = (weight_grams * price) + fees
+        usd_count = int(total_iqd // rate_100)
+        remainder = int(total_iqd % rate_100)
+        
+        reply = (f"💎 **فاتورة البيع (للزبون)**\n"
+                 f"--------------------------\n"
+                 f"💠 العيار: {karat}\n"
+                 f"⚖️ الوزن: {mithqal} مثقال\n"
+                 f"🏷 سعر الصياغة: {fees:,} د.ع\n"
+                 f"💰 الإجمالي (ذهب + صياغة): {total_iqd:,} د.ع\n"
+                 f"💵 المبلغ: {usd_count} ورقة ($100) + {remainder:,} د.ع")
+        bot.send_message(m.chat.id, reply, parse_mode="Markdown")
+        show_menu(m, bot)
+    except: bot.send_message(m.chat.id, "⚠️ خطأ! أرسل رقماً صحيحاً.")
