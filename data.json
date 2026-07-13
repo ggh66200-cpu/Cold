@@ -1,10 +1,12 @@
 {
-    "total_count": 0,
-    "subs": {},
+    "total_count": 80,
     "users": {},
     "settings": {
         "buy_btn": true,
         "sell_btn": true,
-        "settings_btn": true
-    }
+        "sub_btn": false
+    },
+    "buy_21": 85000,
+    "sell_21": 87000,
+    "usd_100": 150000
 }
