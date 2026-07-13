@@ -5,7 +5,7 @@ from threading import Thread
 # تشغيل السيرفر
 Thread(target=lambda: Flask('').run(host='0.0.0.0', port=8080)).start()
 bot = telebot.TeleBot(os.environ.get('BOT_TOKEN'))
-ADMIN_ID = 123456789 # <--- ضع الـ ID الخاص بك
+ADMIN_ID = 7305704935 # <--- ضع الـ ID الخاص بك
 
 @bot.message_handler(commands=['start'])
 def start(m):
