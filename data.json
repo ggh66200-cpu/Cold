@@ -6,6 +6,5 @@
         "buy_btn": true,
         "sell_btn": true,
         "settings_btn": true
-    },
-    "usd_100": 150000
+    }
 }
