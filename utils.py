@@ -42,3 +42,7 @@ def toggle_button(btn_name, status):
     data = get_data()
     data['settings'][btn_name] = status
     save_data(data)
+# هذا الجسر سيحل مشكلة الأزرار فوراً
+def is_subscribed(user_id):
+    return check_access(user_id)
+    
