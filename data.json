@@ -2,8 +2,10 @@
     "total_count": 0,
     "subs": {},
     "users": {},
-    "usd_100": 150000,
-    "buy_21": 400000,
-    "sell_21": 485000,
-    "welcome_msg": "مرحباً بك في نظام الذهب الذكي **اختر العملية من القائمة أدناه**"
+    "settings": {
+        "buy_btn": true,
+        "sell_btn": true,
+        "settings_btn": true
+    },
+    "usd_100": 150000
 }
