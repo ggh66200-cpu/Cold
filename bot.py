@@ -1,28 +1,97 @@
-# استبدل دالة set_setting القديمة بهذه النسخة:
+import telebot, os, utils, buy, sell
+from flask import Flask
+from threading import Thread
+
+# تشغيل السيرفر وحل مشكلة البورت تلقائياً لمنع النوم نهائياً
+app = Flask(__name__)
+@app.route('/')
+def home(): return "Bot is Active & Sleeping Disabled"
+
+def run_server():
+    # جلب البورت الديناميكي الذي يفرضه Render
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host='0.0.0.0', port=port)
+
+Thread(target=run_server).start()
+
+bot = telebot.TeleBot(os.environ.get('BOT_TOKEN'))
+bot.remove_webhook()
+
+def get_keyboard():
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add("💰 بيع للزبون", "⚖️ شراء من زبون")
+    markup.add("⚙️ إعدادات الصباح")
+    return markup
+
+def show_main_menu(m, bot, text_to_send):
+    bot.send_message(m.chat.id, text_to_send, parse_mode="Markdown", reply_markup=get_keyboard())
+
+@bot.message_handler(commands=['start'])
+def start(m):
+    # فحص المستخدم والعداد الذكي دون تكرار
+    is_active, count = utils.check_user(m.chat.id)
+    if not is_active:
+        bot.send_message(m.chat.id, "⚠️ عذراً، انتهت الفترة التجريبية المجانية (7 أيام). يرجى الاشتراك لتفعيل الخدمة.")
+        return
+        
+    welcome_text = (
+        f"👋 **أهلاً بك في نظام الصياغة الذكي**\n\n"
+        f"👥 أنت العميل رقم: `{count}` في نظامنا المتكامل.\n"
+        f"🎁 لقد حصلت على اشتراك تجريبي مجاني لمدة **7 أيام**.\n\n"
+        f"استخدم الأزرار بالأسفل لبدء العمليات فوراً وبكل دقة 👇"
+    )
+    bot.send_message(m.chat.id, welcome_text, parse_mode="Markdown", reply_markup=get_keyboard())
+
+@bot.message_handler(func=lambda m: m.text == "⚙️ إعدادات الصباح")
+def morning_settings(m):
+    is_active, _ = utils.check_user(m.chat.id)
+    if not is_active: return
+    
+    data = utils.get_data()
+    s = data['settings']
+    
+    msg = (f"⚙️ **إعدادات الصباح الحالية**\n"
+           f"━━━━━━━━━━━━━━━━━━\n"
+           f"🔹 سعر مثقال 21: {s['mithqal_21']:,.0f} د.ع\n"
+           f"🔹 سعر مثقال 18: {s['mithqal_18']:,.0f} د.ع\n"
+           f"🔨 صياغة غرام 21: {s['labor_21']:,.0f} د.ع\n"
+           f"🔨 صياغة غرام 18: {s['labor_18']:,.0f} د.ع\n"
+           f"💵 سعر الـ 100 دولار: {s['usd_100']:,.0f} د.ع\n"
+           f"━━━━━━━━━━━━━━━━━━\n"
+           f"💡 لتحديث أي قيمة، أرسل الأمر التالي:\n"
+           f"`/set [المفتاح] [السعر]`\n\n"
+           f"⚙️ **المفاتيح المتاحة:**\n"
+           f"• `mithqal_21`\n"
+           f"• `mithqal_18`\n"
+           f"• `labor_21`\n"
+           f"• `labor_18`\n"
+           f"• `usd_100`\n\n"
+           f"مثال لتحديث الدولار:\n`/set usd_100 153500`")
+    bot.send_message(m.chat.id, msg, parse_mode="Markdown")
+
 @bot.message_handler(commands=['set'])
-def set_setting(m):
+def update_val(m):
     try:
-        # نقسم الرسالة (مثلاً: /set mithqal_21 450000)
         parts = m.text.split()
         if len(parts) != 3:
-            bot.reply_to(m, "⚠️ خطأ! استخدم الأمر كالتالي:\n`/set [المفتاح] [القيمة]`\nمثال: `/set mithqal_21 450000`")
+            bot.reply_to(m, "⚠️ صيغة خاطئة. اكتبها هكذا: `/set usd_100 153000`")
             return
-            
         key, val = parts[1], parts[2]
         utils.update_setting(key, val)
-        bot.reply_to(m, f"✅ تم تحديث {key} إلى {val} بنجاح!")
-    except Exception as e:
-        bot.reply_to(m, f"⚠️ حدث خطأ: {e}")
+        bot.reply_to(m, f"✅ تم تحديث الإعداد `{key}` إلى `{int(val):,}` بنجاح!")
+    except:
+        bot.reply_to(m, "⚠️ حدث خطأ في إدخال البيانات.")
 
-# وتأكد أن دالة الإعدادات (⚙️ إعدادات الصباح) تظهر للجميع أيضاً:
-@bot.message_handler(func=lambda m: m.text == "⚙️ إعدادات الصباح")
-def show_settings(m):
-    data = utils.get_data()
-    msg = (f"⚙️ **إعدادات المحل الحالية:**\n"
-           f"💰 مثقال 21: {data['settings']['mithqal_21']:,}\n"
-           f"💰 مثقال 18: {data['settings']['mithqal_18']:,}\n"
-           f"🔨 أجور الغرام: {data['settings']['labor_gram']:,}\n"
-           f"💵 سعر الدولار: {data['settings']['usd_100']:,}\n\n"
-           f"💡 لتغيير أي سعر، أرسل:\n"
-           f"`/set [المفتاح] [القيمة]`")
-    bot.send_message(m.chat.id, msg, parse_mode="Markdown")
+@bot.message_handler(func=lambda m: True)
+def router(m):
+    is_active, _ = utils.check_user(m.chat.id)
+    if not is_active:
+        bot.send_message(m.chat.id, "⚠️ انتهى اشتراكك. يرجى التواصل مع الدعم لتفعيل الحساب.")
+        return
+
+    if m.text == "💰 بيع للزبون":
+        sell.handle(m, bot)
+    elif m.text == "⚖️ شراء من زبون":
+        buy.handle(m, bot)
+
+bot.infinity_polling(timeout=60, long_polling_timeout=60, skip_pending=True)
