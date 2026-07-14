@@ -4,8 +4,8 @@
   "settings": {
     "mithqal_21": 450000,
     "mithqal_18": 380000,
-    "labor_gram": 10000,
+    "labor_21": 10000,
+    "labor_18": 10000,
     "usd_100": 150000
-  },
-  "admin_id": 7305704935 
+  }
 }
