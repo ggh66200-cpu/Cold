@@ -2,11 +2,13 @@ import os
 import json
 import telebot
 from telebot import types
+from flask import Flask
+import threading
 
 # 🔑 جلب المفاتيح الخاصة بالبوت بأمان تام من السيرفر
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 
-# إذا لم يجد التوكن في البيئة الآمنة، يحاول قراءته من ملف settings.py الخاص بك لضمان عدم التوقف
+# إذا لم يجد التوكن في البيئة الآمنة، يحاول قراءته من ملف settings.py
 if not TOKEN:
     try:
         import settings
@@ -14,11 +16,22 @@ if not TOKEN:
     except ImportError:
         TOKEN = None
 
-# إذا لم يعثر على التوكن نهائياً، يطبع تنبيهاً واضحاً في السيرفر
+# إذا لم يعثر على التوكن نهائياً
 if not TOKEN:
-    raise ValueError("⚠️ خطأ أمني: لم يتم العثور على توكن البوت (TELEGRAM_TOKEN) في إعدادات السيرفر أو ملف settings.py!")
+    raise ValueError("⚠️ خطأ أمني: لم يتم العثور على توكن البوت (TELEGRAM_TOKEN)!")
 
 bot = telebot.TeleBot(TOKEN)
+
+# 🌐 إنشاء سيرفر ويب وهمي لإرضاء منصة Render ومنع خطأ الـ Port
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is running successfully! 🚀"
+
+def run_web():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
 
 # 📂 مسار ملف البيانات لإعدادات الصباح
 DATA_FILE = "data.json"
@@ -36,8 +49,7 @@ try:
 except ImportError:
     HAS_ADMIN_SYSTEM = False
 
-
-# دالة تحميل الإعدادات من السيرفر لضمان قراءة أحدث قيم دائماً
+# دالة تحميل الإعدادات من السيرفر
 def load_settings():
     default_settings = {
         "mithqal_21": 450000,
@@ -54,12 +66,11 @@ def load_settings():
             return default_settings
     return default_settings
 
-# دالة حفظ الإعدادات على السيرفر
+# دالة حفظ الإعدادات
 def save_settings(settings):
     with open(DATA_FILE, 'w', encoding='utf-8') as f:
         json.dump(settings, f, ensure_ascii=False, indent=4)
 
-# الحالات المؤقتة للمستخدمين
 user_states = {}
 user_data = {}
 
@@ -110,15 +121,13 @@ def send_welcome(message):
     user_states[message.chat.id] = None
     user_data[message.chat.id] = {}
     
-    # التحقق من الاشتراك إذا كان ملف sub.py مفعلاً وموجوداً بالسيرفر
     if HAS_SUB_SYSTEM:
         try:
             if not sub.check_user_subscription(message.chat.id):
-                # إذا كان غير مشترك ينقله لصفحة الاشتراك الخاصة بنظامك
                 sub.send_subscription_prompt(bot, message.chat.id)
                 return
         except Exception as e:
-            print(f"Sub check bypass error: {e}")
+            print(f"Sub check error: {e}")
 
     welcome_text = (
         "✨ **يا فتاح يا عليم يا رزاق يا كريم** ✨\n\n"
@@ -140,7 +149,7 @@ def handle_messages(message):
         send_welcome(message)
         return
 
-    # إعدادات الصباح بدون إنجليزي
+    # إعدادات الصباح
     if text == "⚙️ إعدادات الصباح":
         settings_data = load_settings()
         morning_text = (
@@ -236,7 +245,7 @@ def handle_messages(message):
         
         if "مثقال" in current_type:
             weight_in_grams = weight * 5.0
-            display_weight = f"{weight} مثقال ({weight_in_grams:.2f} غرام)"
+            display_weight = f"{weight} - مثقال ({weight_in_grams:.2f} غرام)"
         else:
             weight_in_grams = weight
             display_weight = f"{weight:.2f} غرام"
@@ -389,7 +398,7 @@ def handle_messages(message):
             bot.send_message(chat_id, "⚠️ يرجى إدخال وزن صحيح بالأرقام فقط:")
         return
 
-    # معالجة المعالج المتتالي لتحديث أسعار الصباح (Wizard)
+    # معالجة تحديث الأسعار (Wizard)
     state = user_states.get(chat_id)
     if state and state.startswith("WIZARD_"):
         try:
@@ -459,5 +468,10 @@ def callback_update_settings(call):
     )
 
 if __name__ == '__main__':
+    # تشغيل سيرفر ويب وهمي في خيط منفصل لإرضاء منصة Render ومنع تعليق الـ Port
+    t = threading.Thread(target=run_web)
+    t.daemon = True
+    t.start()
+    
     print("🤖 البوت متصل الآن بنجاح ويعمل بأقصى سرعة...")
     bot.infinity_polling()
