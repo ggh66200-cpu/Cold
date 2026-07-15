@@ -54,8 +54,6 @@ def check_user(user_id):
     data = get_data()
     uid = str(user_id)
     
-    # 🔥 الترميم التلقائي وحماية البيانات القديمة:
-    # إذا كان الحساب غير مسجل، أو مسجل بصيغة قديمة تالفة (ليست قاموساً)
     if uid not in data['users'] or not isinstance(data['users'][uid], dict):
         if uid not in data['users']:
             data['total_count'] += 1
@@ -63,7 +61,6 @@ def check_user(user_id):
         save_data(data)
         return True, data['total_count']
     
-    # إذا كان الحساب مسجلاً كقاموس ولكنه يفتقد تاريخ الانضمام
     user_record = data['users'][uid]
     if 'join_date' not in user_record:
         user_record['join_date'] = time.time()
@@ -84,6 +81,13 @@ def get_keyboard():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add("💰 بيع للزبون", "⚖️ شراء من زبون")
     markup.add("⚙️ إعدادات الصباح")
+    return markup
+
+def get_karat_unit_keyboard():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add("غرام عيار 21", "غرام عيار 18")
+    markup.add("مثقال عيار 21", "مثقال عيار 18")
+    markup.add("⬅️ الرجوع للرئيسية")
     return markup
 
 def send_main_menu(bot, chat_id, text_to_send):
