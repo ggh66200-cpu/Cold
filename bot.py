@@ -2,33 +2,24 @@ import telebot, os, utils, buy, sell
 from flask import Flask
 from threading import Thread
 
-# تشغيل السيرفر وحل مشكلة البورت تلقائياً لمنع النوم نهائياً
 app = Flask(__name__)
 @app.route('/')
 def home(): return "Bot is Active & Sleeping Disabled"
 
 def run_server():
-    # جلب البورت الديناميكي الذي يفرضه Render
     port = int(os.environ.get("PORT", 8080))
+    print(f"🔥 Flask server is starting on port {port}...")
     app.run(host='0.0.0.0', port=port)
 
 Thread(target=run_server).start()
 
+print("🔑 Connecting to Telegram API...")
 bot = telebot.TeleBot(os.environ.get('BOT_TOKEN'))
 bot.remove_webhook()
-
-def get_keyboard():
-    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add("💰 بيع للزبون", "⚖️ شراء من زبون")
-    markup.add("⚙️ إعدادات الصباح")
-    return markup
-
-def show_main_menu(m, bot, text_to_send):
-    bot.send_message(m.chat.id, text_to_send, parse_mode="Markdown", reply_markup=get_keyboard())
+print("🤖 Telegram Bot has started polling successfully and is ready to receive messages!")
 
 @bot.message_handler(commands=['start'])
 def start(m):
-    # فحص المستخدم والعداد الذكي دون تكرار
     is_active, count = utils.check_user(m.chat.id)
     if not is_active:
         bot.send_message(m.chat.id, "⚠️ عذراً، انتهت الفترة التجريبية المجانية (7 أيام). يرجى الاشتراك لتفعيل الخدمة.")
@@ -40,7 +31,7 @@ def start(m):
         f"🎁 لقد حصلت على اشتراك تجريبي مجاني لمدة **7 أيام**.\n\n"
         f"استخدم الأزرار بالأسفل لبدء العمليات فوراً وبكل دقة 👇"
     )
-    bot.send_message(m.chat.id, welcome_text, parse_mode="Markdown", reply_markup=get_keyboard())
+    utils.send_main_menu(bot, m.chat.id, welcome_text)
 
 @bot.message_handler(func=lambda m: m.text == "⚙️ إعدادات الصباح")
 def morning_settings(m):
@@ -80,7 +71,7 @@ def update_val(m):
         utils.update_setting(key, val)
         bot.reply_to(m, f"✅ تم تحديث الإعداد `{key}` إلى `{int(val):,}` بنجاح!")
     except:
-        bot.reply_to(m, "⚠️ حدث خطأ في إدخال البيانات.")
+        bot.reply_to(m, "⚠️ حدث خطأ في إدراج البيانات.")
 
 @bot.message_handler(func=lambda m: True)
 def router(m):
