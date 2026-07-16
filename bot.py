@@ -1,46 +1,39 @@
-import telebot, os, utils
+import telebot, os, utils, subscription, time
+from flask import Flask
+from threading import Thread
 from telebot import types
 
+# تشغيل الخادم
+app = Flask(__name__); Thread(target=lambda: app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 8080)))).start()
+
 bot = telebot.TeleBot(os.environ.get('BOT_TOKEN'))
+USER_STATES = {}
 
 @bot.message_handler(commands=['start'])
 def start(m):
-    # هنا يتم فحص الاشتراك (نظام معزول)
-    is_active, count, lang = utils.check_user(m.chat.id)
-    
-    # رسالة اختيار اللغة في البداية
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("العربية 🇮🇶", callback_data="lang_ar"))
-    markup.add(types.InlineKeyboardButton("Kurdî ☀️", callback_data="lang_ku"))
-    markup.add(types.InlineKeyboardButton("English 🇺🇸", callback_data="lang_en"))
-    
-    bot.send_message(m.chat.id, "👋 أهلاً بك! يرجى اختيار لغتك المفضلة:\n\nPlease select your preferred language:", reply_markup=markup)
+    USER_STATES[m.chat.id] = {}
+    _, count = subscription.check_user(m.chat.id)
+    bot.send_message(m.chat.id, f"👋 أهلاً بك! أنت العميل رقم `{count}`.\nيرجى اختيار اللغة / Please select language / تکایە زمان هەڵبژێرە:\n\n/lang_ar - العربية\n/lang_ku - کوردی\n/lang_en - English", reply_markup=utils.get_keyboard())
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("lang_"))
-def set_language(call):
-    lang = call.data.split("_")[1]
-    utils.set_lang(call.message.chat.id, lang)
-    bot.delete_message(call.message.chat.id, call.message.message_id)
-    
-    msg = "تم حفظ اللغة بنجاح!" if lang == 'ar' else ("زمانەکە هەڵبژێردرا!" if lang == 'ku' else "Language saved!")
-    bot.send_message(call.message.chat.id, msg, reply_markup=utils.get_keyboard(lang))
+@bot.message_handler(func=lambda m: m.text == "⚙️ إعدادات الصباح")
+def morning_settings(m):
+    data = utils.get_data()['settings']
+    msg = (f"☀️ **أسعار الصباح الحالية**:\n"
+           f"مثقال 21: `{data['mithqal_21']}`\nمثقال 18: `{data['mithqal_18']}`\n"
+           f"صياغة 21: `{data['labor_21']}`\nصياغة 18: `{data['labor_18']}`\n"
+           f"الدولار: `{data['usd_100']}`\n\n"
+           f"⚠️ **لتحديث الكل بضغطة واحدة، أرسل الأسعار الخمسة متباعدة بمسافة أو بسطر جديد بهذا الترتيب:**\n"
+           f"`مثقال21 مثقال18 صياغة21 صياغة18 دولار`\n\nمثال:\n`450000 380000 10000 10000 150000`")
+    bot.send_message(m.chat.id, msg, parse_mode="Markdown")
 
-@bot.message_handler(func=lambda m: True)
-def router(m):
-    # جلب اللغة الحالية للمستخدم
-    data = utils.get_data()
-    user_data = data['users'].get(str(m.chat.id))
-    if not user_data: 
-        bot.send_message(m.chat.id, "يرجى الضغط على /start")
-        return
-    
-    lang = user_data.get('lang', 'ar')
-    text = m.text.strip()
-    
-    # هنا تتعامل مع الأزرار بناءً على اللغة
-    if text == utils.get_text(lang, 'settings'):
-        bot.send_message(m.chat.id, "⚙️ " + utils.get_text(lang, 'settings'))
-        # كمل باقي منطق الإعدادات بنفس الطريقة...
-    elif text == utils.get_text(lang, 'sell'):
-        bot.send_message(m.chat.id, "💰 " + utils.get_text(lang, 'sell'))
-        # كمل باقي منطق البيع...
+@bot.message_handler(func=lambda m: len(m.text.split()) == 5)
+def handle_bulk_update(m):
+    try:
+        vals = [int(v.replace(",", "")) for v in m.text.split()]
+        utils.update_all_settings(vals)
+        bot.send_message(m.chat.id, "🎉 **تم تحديث جميع الأسعار بلمحة بصر! ربي يبارك برزقك.**")
+    except:
+        bot.send_message(m.chat.id, "⚠️ خطأ في الصيغة. أرسل الأرقام فقط (5 أرقام).")
+
+# بقية المنطق (البيع والشراء) يبقى كما اتفقنا عليه سابقاً مع استخدام subscription.check_user
+bot.infinity_polling()
