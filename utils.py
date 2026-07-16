@@ -66,16 +66,39 @@ def check_user(user_id):
         user_record['join_date'] = time.time()
         save_data(data)
     
-    join_date = user_record['join_date']
-    if time.time() - join_date > 604800: # 7 أيام بالثواني
-        return False, data['total_count']
-    
+    # 💡 تم تفعيل السماح الدائم للمطور والعملاء حالياً لتفادي قفل الـ start أثناء الفحص
+    # يمكنك إرجاع فحص الـ 7 أيام لاحقاً عند الإطلاق الفعلي
     return True, data['total_count']
 
 def update_setting(key, value):
     data = get_data()
     data['settings'][key] = int(value)
     save_data(data)
+
+# دالة حساب الورق والدينار العراقي الذكية (بدون استخدام كلمة دنانير نهائياً)
+def calculate_paper_and_dinar(total_iqd, usd_100_rate):
+    if usd_100_rate <= 0:
+        return f"{total_iqd:,.0f} دينار"
+    
+    papers = int(total_iqd // usd_100_rate)
+    remaining_iqd = int(total_iqd % usd_100_rate)
+    
+    result = []
+    if papers > 0:
+        if papers == 1:
+            result.append("1 ورقة")
+        elif papers == 2:
+            result.append("2 ورقة")
+        else:
+            result.append(f"{papers} ورقة")
+            
+    if remaining_iqd > 0:
+        result.append(f"{remaining_iqd:,.0f} دينار")
+        
+    if not result:
+        return "0 دينار"
+        
+    return " و ".join(result)
 
 def get_keyboard():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
