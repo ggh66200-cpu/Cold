@@ -5,19 +5,19 @@ DATA_FILE = 'data.json'
 
 TRANSLATIONS = {
     "ar": {
-        "welcome": "✨ **يا فتاح يا عليم يا رزاق يا كريم** ✨\n\nمرحباً بك في نظام الصياغة الذكي الأسرع والأدق في العراق! 👑\n\n📍 **محلكم العامر:** `{shop_name}`\n👥 **الصاغة النشطين حالياً:** `{count} صائغ`\n\nنسأل الله العلي القدير أن يبارك في تجارتكم ويفتح لكم أبواب الرزق الحلال الوفير. 🌸\nيرجى اختيار العملية المطلوبة من الأزرار أدناه 👇",
+        "welcome": "✨ **يا فتاح يا عليم يا رزاق يا كريم** ✨\n\nمرحباً بك في نظام الصياغة الذكي الأسرع والأدق في العراق! 👑\n\n🔢 **رقم الصائغ المخول:** `#{shop_num}`\n📍 **محلكم العامر:** `{shop_name}`\n🗺️ **الموقع الحالي:** `{shop_location}`\n📞 **رقم التواصل:** `{shop_phone}`\n\n👥 **الصاغة النشطين حالياً:** `{count} صائغ`\n\nنسأل الله العلي القدير أن يبارك في تجارتكم ويفتح لكم أبواب الرزق الحلال الوفير. 🌸\nيرجى اختيار العملية المطلوبة من الأزرار أدناه 👇",
         "sell": "💰 بيع للزبون",
         "buy": "⚖️ شراء من زبون",
         "settings": "⚙️ إعدادات الصباح",
         "back": "⬅️ الرجوع للرئيسية",
-        "lang_saved": "🎉 تم تفعيل اللغة العربية بنجاح يا طيب! عساها فاتحة خير عليك ورزق وفير. 🌸",
-        "req_shop_name": "📝 **خطوة أخيرة يا طيب!**\n\nيرجى إرسال اسم مكتبك أو محل الصياغة الخاص بك لتسجيله في النظام وتخصيص فواتيرك باسمك العامر (مثال: صياغة البركة):",
-        "shop_saved": "🎉 تم تسجيل محلك باسم **{shop_name}** بنجاح! أهلاً بك في عائلتنا. 🌸",
+        "lang_saved": "🎉 تم تفعيل اللغة العربية بنجاح يا طيب! عساها فاتحة خير عليك. 🌸",
+        "req_shop_name": "📝 **خطوة التسجيل الرسمية للمحل**\n\nأخي الغالي وصاحب المحل الطيب، يرجى إرسال معلومات محلك الصائغ الرسمي في **رسالة واحدة تفصل بينها علامة (-)** بهذا الترتيب الدقيق:\n\n`[اسم المحل] - [الموقع أو المدينة] - [رقم الهاتف]`\n\n💡 **مثال للنسخ والتعديل وإرساله مباشرة:**\n`صياغة النجاح - بغداد، الكاظمية - 07701234567`",
+        "shop_saved": "🎉 تم تسجيل محلك باسم **{shop_name}** وتأمين بياناتك الرسمية بنجاح في السيرفر! 🌸",
         "morning_title": "☀️ **صباح الرزق والبركة والسعادة يا طيب!** ☀️\n\nنسأل الله أن يجعل هذا اليوم يوماً مباركاً، مليئاً بالزبائن والخير الوفير لعملكم وحلالكم الطيب. 🌸✨\n\n📋 **إعدادات الصباح الحالية لمحلك:**\n━━━━━━━━━━━━━━━━━━\n🔹 سعر مثقال عيار 21: `{mithqal_21:,.0f} دينار`\n🔹 سعر مثقال عيار 18: `{mithqal_18:,.0f} دينار`\n🔨 أجور صياغة غرام 21: `{labor_21:,.0f} دينار`\n🔨 أجور صياغة غرام 18: `{labor_18:,.0f} دينار`\n💵 سعر الـ 100 دولار: `{usd_100:,.0f} دينار`\n━━━━━━━━━━━━━━━━━━\n💡 لتحديث جميع هذه الأسعار بلمحة بصر وسؤال واحد، اضغط على الزر أدناه! 👇",
         "update_btn": "📝 تحديث الأسعار دفعة واحدة",
         "wizard_prompt": "⚙️ **تحديث أسعار الصباح بلمحة واحدة**\n\nيا مية هلا بيك! أرسل لي الأسعار الـ 5 الجديدة في رسالة واحدة متباعدة بمسافات بهذا الترتيب الدقيق:\n\n`[مثقال 21] [مثقال 18] [صياغة 21] [صياغة 18] [الدولار]`\n\n💡 **ملاحظة:** يجب أن يكون سعر عيار 18 أقل دائماً من عيار 21.\n\n**مثال للنسخ والتعديل:**\n`450000 380000 10000 10000 153000`",
-        "sweet_success": "🎉 **يا مية هلا وغلا بعيوني! تم حفظ الأسعار والحمد لله بنجاح تام** 🌸✨\n\nتم تحديث كافة أسعار الصباح في السيرفر وتأمينها بالكامل.\n\nعساها فاتحة خير ورزق وفير يملي حلالك وأيامك بركة وسعادة! 💸\nربي يفتحها بوجهك ويجعل كل عملية تسويها اليوم عملية مباركة تسعد خاطرك الطيب وتفرح گلبك الدافئ! 🥰☕",
-        "error_format": "⚠️ خطأ في الصيغة أو القيم! يرجى إدخال 5 أرقام صحيحة متباعدة بمسافات، وتأكد أن سعر عيار 18 أقل دائماً من عيار 21!\n\nمثال:\n`450000 380000 10000 10000 153000`",
+        "sweet_success": "🎉 **تم حفظ الأسعار والحمد لله بنجاح تام** 🌸✨\n\nتم تحديث كافة أسعار الصباح في السيرفر وتأمينها بالكامل وعساها فاتحة خير ورزق وفير! 💸",
+        "error_format": "⚠️ خطأ في الصيغة! يرجى إدخل 5 أرقام صحيحة متباعدة بمسافات، وتأكد أن سعر عيار 18 أقل من عيار 21!\n\nمثال:\n`450000 380000 10000 10000 153000`",
         "choose_karat": "💰 **بيع للزبون**\n\nاختر طريقة الحساب والعيار المطلوب من الأزرار أدناه 👇",
         "choose_karat_buy": "⚖️ **شراء من زبون**\n\nاختر طريقة الحساب والعيار المطلوب من الأزرار أدناه 👇",
         "karat_21_g": "غرام عيار 21",
@@ -26,15 +26,15 @@ TRANSLATIONS = {
         "karat_18_m": "مثقال عيار 18",
         "req_weight": "⚖️ لقد اخترت **{text}**.\n\nالرجاء إرسال الوزن المطلوب بيعه لزبون ({unit_text}):",
         "req_weight_buy": "⚖️ أدخل الوزن المراد شراؤه من الزبون ({unit_text}):",
-        "req_price_buy": "💰 لقد اخترت **{text}**.\n\nالرجاء إدخال سعر شراء المثقال المتفق عليه حالياً بالدينار:\n(أو اضغط على زر السعر الصباحي المقترح أدناه 👇)",
+        "req_price_buy": "💰 لقد اخترت **{text}**.\n\nالرجاء إدخال سعر شراء المثقال المتفق عليه حالياً بالدينار:",
         "use_morning_price": "استخدام السعر الصباحي ({price:,} دينار)",
         "use_morning_labor": "استخدام الأجور الصباحية ({labor:,} دينار)",
-        "req_labor_buy": "🔥 أدخل أجور الخصم أو الصهر للغرام الواحد بالدينار:\n(اكتب 0 إذا لا يوجد خصم)",
-        "req_labor_sell": "🔨 أرسل أجور صياغة الغرام الواحد بالدينار:\n(أو اضغط على زر الصياغة الصباحية المعتادة أدناه 👇)",
+        "req_labor_buy": "🔥 أدخل أجور الخصم أو الصهر للغرام الواحد بالدينار:",
+        "req_labor_sell": "🔨 أرسل أجور صياغة الغرام الواحد بالدينار:",
         "loading_sell": "⚖️ جاري حساب الوزن الإجمالي والورق والدينار الحالي... ⚡📊",
         "loading_buy": "🔥 جاري فحص الذهب وخصم أجور الصهر والورق... ⚖️✨",
-        "invalid_price": "⚠️ يرجى كتابة السعر كأرقام فقط (مثال: 450000) أو الضغط على السعر المقترح!",
-        "invalid_labor": "⚠️ يرجى كتابة الأجور كأرقام فقط (مثال: 10000)!",
+        "invalid_price": "⚠️ يرجى كتابة السعر كأرقام فقط أو الضغط على السعر المقترح!",
+        "invalid_labor": "⚠️ يرجى كتابة الأجور كأرقام فقط!",
         "invalid_weight": "⚠️ خطأ! يرجى إدخال رقم صحيح للوزن (مثال: 12.345):",
         "expired_msg": "🚫 **انتهت الفترة التجريبية للنظام!**\n\nأخي الغالي وصاحب المحل الطيب، لتفعيل اشتراكك الشهري والاستمرار بالاستفادة من حاسبة الصائغ الذكية، يرجى إرسال قيمة الاشتراك وقدرها **105,000 دينار عراقي**.\n\n💳 **طريقة الدفع يدوياً:**\nيرجى التحويل إلى الماستر كارد التالي:\n`5123456789012345` (باسم صانع النظام)\n\n📸 **خطوة التفعيل:**\nبعد التحويل، قم بالضغط على زر **'إرسال وصل الدفع 📸'** أدناه وأرسل صورة الوصل، وسيقوم فريق الدعم بتفعيل حسابك مباشرة ✅.\n\n📞 **للدعم الفني والاستفسار:** `{support_phone}`",
         "send_receipt_btn": "📸 إرسال وصل الدفع",
@@ -44,208 +44,94 @@ TRANSLATIONS = {
         "buy_invoice": "🧾 **فاتورة شراء ذهب من زبون**\n━━━━━━━━━━━━━━━━━━\n🔹 **المحل العامر**: `{shop_name}`\n🔹 **العيار وطريقة الشراء**: عيار {karat} ({unit_arabic})\n🔹 **الوزن المستلم**: `{weight}` {unit_text}\n⚖️ **الوزن الإجمالي بالجرام**: `{total_grams:.3f}` غرام\n🔥 **خصم الصهر/أجور الجرام**: `{labor:,.0f} دينار`\n━━━━━━━━━━━━━━━━━━\n💰 **سعر الشراء المعتمد للمثقال**: `{mithqal_price:,.0f} دينار`\n💰 **سعر غرام الشراء الصافي**: `{net_gram_price:,.0f} دينار`\n━━━━━━━━━━━━━━━━━━\n💵 **المبلغ الكلي المدفوع بالدينار العراقي**:\n👉 **`{total_iqd:,.0f} دينار`**\n\n💵 **صافي الحساب بالورق والدينار**:\n👉 **`{paper_and_dinar_text}`**\n━━━━━━━━━━━━━━━━━━\n🌸 **تمت عملية الشراء بنجاح وشفافية مطلقة! ربي يعوضكم بالخير والرزق الوفير!** ✨"
     },
     "ku": {
-        "welcome": "✨ **یا فەتاح یا عەلیم یا ڕەزاق یا کەریم** ✨\n\nبەخێربێن بۆ سیستەمی زیرەکی زێڕینگەری، خێراترین و دقیقترین لە عێراق! 👑\n\n📍 **دوکانی ئێوە:** `{shop_name}`\n👥 **ژمارەی کڕیارانی چالاک ئێستا:** `{count} زێڕینگەر`\n\nداواکارین لە خوای گەورە بەرەکەت بخاتە ناو بازرگانییەکەتانەوە. 🌸\nتکایە کردارەکە لە دوگمەکانی خوارەوە هەڵبژێرە 👇",
-        "sell": "💰 فرۆشتن بە کڕیار",
-        "buy": "⚖️ کڕین لە کڕیار",
-        "settings": "⚙️ ڕێکخستنەکانی بەیانی",
-        "back": "⬅️ گەڕانەوە بۆ سەرەکی",
-        "lang_saved": "🎉 زمانی کوردی بە سەرکەوتوویی چالاککرا! هیوای سەرکەوتنت بۆ دەخوازم لە کار و کاسبیتدا. 🌸",
-        "req_shop_name": "📝 **هەنگاوی کۆتایی هاوڕێم!**\n\nتکایە ناوی دوکان یان نوسینگەکەت بنێرە بۆ تۆمارکردن لە سیستەمەکەدا (بۆ نموونە: زێڕینگەری بەرەکەت):",
+        "welcome": "✨ **یا فەتاح یا عەلیم یا ڕەزاق یا کەریم** ✨\n\nبەخێربێن بۆ سیستەمی زیرەکی زێڕینگەری، خێراترین و دقیقترین لە عێراق! 👑\n\n🔢 **ژمارەی فەرمی زێڕینگەر:** `#{shop_num}`\n📍 **دوکانی ئێوە:** `{shop_name}`\n🗺️ **شوێن:** `{shop_location}`\n📞 **ژمارەی مۆبایل:** `{shop_phone}`\n\n👥 **ژمارەی کڕیارانی چالاک ئێستا:** `{count} زێڕینگەر`\n\nداواکارین لە خوای گەورە بەرەکەت بخاتە ناو بازرگانییەکەتانەوە. 🌸\nتکایە کردارەکە لە دوگمەکانی خوارەوە هەڵبژێرە 👇",
+        "sell": "💰 فرۆشتن بە کڕیار", "buy": "⚖️ کڕین لە کڕیار", "settings": "⚙️ ڕێکخستنەکانی بەیانی", "back": "⬅️ گەڕانەوە بۆ سەرەکی", "lang_saved": "🎉 زمانی کوردی بە سەرکەوتوویی چالاککرا!",
+        "req_shop_name": "📝 **هەنگاوی تۆمارکردنی فەرمی دوکان**\n\nتکایە زانیاری دوکانەکەت بە یەک نامە بنێرە و نیشانەی (-) دابنێ لە نێوانیان بەم شێوازە:\n\n`[ناوی دوکان] - [شوێن یان شار] - [ژمارەی مۆبایل]`\n\n💡 **نموونە بۆ کۆپیکردن:**\n`صیاغة النجاح - بغداد، الكاظمية - 07701234567`",
         "shop_saved": "🎉 دوکانەکەت بە ناوی **{shop_name}** بە سەرکەوتوویی تۆمارکرا! 🌸",
-        "morning_title": "☀️ **بەیانیت باش و پڕ لە بەرەکەت بێت هاوڕێی ئازیز!** ☀️\n\nداواکارین لە خودا ئەم ڕۆژە بکاتە ڕۆژێکی پیرۆز و پڕ لە کڕیار و خێر بۆ کارەکەتان. 🌸✨\n\n📋 **ڕێکخستنەکانی بەیانی ئێستای دوکانەکەت:**\n━━━━━━━━━━━━━━━━━━\n🔹 نرخی مسقاڵی ٢١: `{mithqal_21:,.0f} دینار`\n🔹 نرخی مسقاڵی ١٨: `{mithqal_18:,.0f} دینار`\n🔨 کرێی دروستکردنی گرام ٢١: `{labor_21:,.0f} دینار`\n🔨 کرێی دروستکردنی گرام ١٨: `{labor_18:,.0f} دینار`\n💵 نرخی ١٠٠ دۆلار: `{usd_100:,.0f} دینار`\n━━━━━━━━━━━━━━━━━━\n💡 بۆ نوێکردنەوەی هەموو ئەم نرخانە بە ئاسانی بە یەک نامە، کلیک لەسەر دوگمەی خوارەوە بکە! 👇",
+        "morning_title": "☀️ **بەیانیت باش و پڕ لە بەرەکەت بێت هاوڕێی ئازیز!** ☀️\n\n📋 **ڕێکخستنەکانی بەیانی ئێستای دوکانەکەت:**\n━━━━━━━━━━━━━━━━━━\n🔹 نرخی مسقاڵی ٢١: `{mithqal_21:,.0f} دينار`\n🔹 نرخی مسقاڵی ١٨: `{mithqal_18:,.0f} دينار`\n🔨 کرێی دروستکردنی گرام ٢١: `{labor_21:,.0f} دینار`\n🔨 کرێی دروستکردنی گرام ١٨: `{labor_18:,.0f} دینار`\n💵 نرخی ١٠٠ دۆلار: `{usd_100:,.0f} دینار`\n━━━━━━━━━━━━━━━━━━\n💡 بۆ نوێکردنەوەی نرخەکان، کلیک لەسەر دوگمەی خوارەوە بکە! 👇",
         "update_btn": "📝 نوێکردنەوەی نرخەکان بە یەکجار",
-        "wizard_prompt": "⚙️ **نوێکردنەوەی نرخەکانی بەیانی بە یەک نامە**\n\nبەخێر بێیت چاوەکانم! هەر ٥ نرخە نوێیەکە لە یەک نامەدا بنێرە کە بە بۆشایی لێک جیاکرابێتنەوە بەم ڕیزبەندییە:\n\n`[مسقاڵ ٢١] [مسقاڵ ١٨] [کرێی ٢١] [کرێی ١٨] [دۆلار]`\n\n**نموونە بۆ کۆپیکردن و دەستکاریکردن:**\n`450000 380000 10000 10000 153000`",
-        "sweet_success": "🎉 **بژیت چاوەکانم! نرخەکان بە سەرکەوتوویی پاشەکەوت کران** 🌸✨\n\nهەموو نرخەکانی بەیانی لە سێرڤەردا نوێکرانەوە و پارێزراون.\n\nهیوادارم ببێتە مایەی خێر و دەروازەی ڕۆزییەکی فراوان بۆتان! 💸\nخودا دەرگای خێرتان لێ بکاتەوە و هەموو مامەڵەیەکتان پڕ لە بەرەکەت بکات! 🥰☕",
-        "error_format": "⚠️ هەڵە لە نووسیندا هەیە! تکایە ٥ ژمارەی دروست بنێرە و دڵنیابە نرخی عەیاری ١٨ کەمتر بێت لە ٢١.\nنموونە:\n`450000 380000 10000 10000 153000`",
-        "choose_karat": "💰 **فرۆشتن بە کڕیار**\n\nشێوازی حیسابکردن و عەیاری داواکراو لە دوگمەکانی خوارەوە هەڵبژێرە 👇",
-        "choose_karat_buy": "⚖️ **کڕین لە کڕیار**\n\nشێوازی حیسابکردن و عەیاری داواکراو لە دوگمەکانی خوارەوە هەڵبژێرە 👇",
-        "karat_21_g": "گرام عەیار 21",
-        "karat_18_g": "گرام عەیار 18",
-        "karat_21_m": "مسقاڵ عەیار 21",
-        "karat_18_m": "مسقاڵ عەیار 18",
-        "req_weight": "⚖️ تۆ **{text}**ت هەڵبژارد.\n\nتکایە کێشی داواکراو بنێرە بۆ فرۆشتن ({unit_text}):",
+        "wizard_prompt": "⚙️ **نوێکردنەوەی نرخەکانی بەیانی بە یەک نامە**\n\nنرخە نوێیەکان بە یەک نامە بنێرە بەم ڕیزبەندییە:\n`[مسقاڵ ٢١] [مسقاڵ ١٨] [کرێی ٢١] [کرێی ١٨] [دۆلار]`",
+        "sweet_success": "🎉 **نرخەکان بە سەرکەوتوویی پاشەکەوت کران** 🌸✨", "error_format": "⚠️ هەڵە لە نووسیندا هەیە! تکایە ٥ ژمارەی دروست بنێرە.",
+        "choose_karat": "💰 **فرۆشتن بە کڕیار**", "choose_karat_buy": "⚖️ **کڕین لە کڕیار**",
+        "karat_21_g": "گرام عەیار 21", "karat_18_g": "گرام عەیار 18", "karat_21_m": "مسقاڵ عەیار 21", "karat_18_m": "مسقاڵ عەیار 18",
+        "req_weight": "⚖️ تۆ **{text}**ت هەڵبژارد. کێشی داواکراو بنێرە ({unit_text}):",
         "req_weight_buy": "⚖️ کێشی کڕین لە کڕیار بنێرە ({unit_text}):",
-        "req_price_buy": "💰 تۆ **{text}**ت هەڵبژارد.\n\nتکایە نرخی کڕینی مسقاڵی ڕێککەوتوو بنێرە بە دینار:\n(یاخود کلیک لەسەر نرخی پێشنیارکراوی بەیانی بکە لە خوارەوە 👇)",
-        "use_morning_price": "بەکارهێنانی نرخی بەیانی ({price:,} دینار)",
-        "use_morning_labor": "بەکارهێنانی کرێی بەیانی ({labor:,} دینار)",
-        "req_labor_buy": "🔥 تێچووی توانەوە/داشکاندنی هەر گرامێک بنێرە بە دینار:\n(بنووسە 0 ئەگەر داشکاندن نییە)",
-        "req_labor_sell": "🔨 کرێی دروستکردنی هەر گرامێک بنێرە بە دینار:\n(یاخود کلیک لەسەر کرێی بەیانی بکە لە خوارەوە 👇)",
-        "loading_sell": "⚖️ کێش و بڕی پارە و دۆلار حیساب دەکرێت... ⚡📊",
-        "loading_buy": "🔥 پشکنینی زێڕ و داشکاندنی تێچووی توانەوە... ⚖️✨",
-        "invalid_price": "⚠️ تکایە تەنها ژمارە بنووسە (نموونە: 450000) یاخود کلیک لەسەر نرخی پێشنیارکراو بکە!",
-        "invalid_labor": "⚠️ تکایە کرێ تەنها بە ژمارە بنووسە (نموونە: 10000)!",
-        "invalid_weight": "⚠️ هەڵە! تکایە کێش بە ژمارەیەکی دروست بنێرە (نموونە: 12.345):",
-        "expired_msg": "🚫 **ماوەی تاقیکردنەوەی سیستەم کۆتایی هات!**\n\nهاوڕێی خۆشەویستم، بۆ چالاککردنی بەشداری مانگانە و بەردەوامبوون لە بەکارهێنان، تکایە بڕی **105,000 دینار** بنێرە.\n\n💳 **شێوازی پارەدان بە دەست:**\nتکایە بڕەکە بنێرە بۆ ئەم ماستەرکارتە:\n`5123456789012345`\n\n📸 دوای ناردنی بڕەکە، کلیک لەسەر دوگمەی ناردنی پسوڵە بکە و وێنەی پسوڵەکە بنێرە بۆ چالاککردنی ئەکاونتەکەت ✅.\n\n📞 **پشتیوانی تەکنیکی:** `{support_phone}`",
-        "send_receipt_btn": "📸 ناردنی پسوڵەی پارەدان",
-        "awaiting_receipt": "📝 تکایە ئێستا وێنەی پسوڵەکە بنێرە بۆ ئەوەی ڕاستەوخۆ ڕەوانەی بەڕێوبەرایەتی بکرێت بۆ چالاککردنی ئەکاونتەکەت 👇",
-        "receipt_sent_admin": "🎉 پسوڵەکەت بە سەرکەوتوویی نێردرا! لە کەمترین کاتدا کارەکەت چالاک دەکرێت. سوپاس بۆ متمانەتان! 🌸",
-        "sell_invoice": "🧾 **فاکتۆری فرۆشتنی زێڕ بە کڕیار**\n━━━━━━━━━━━━━━━━━━\n🔹 **زێڕینگەری**: `{shop_name}`\n🔹 **عەیار و شێوازی حیسابکردن**: عەیار {karat} ({unit_arabic})\n🔹 **کێشی داواکراو**: `{weight}` {unit_text}\n⚖️ **کۆی گشتی کێش بە گرام**: `{total_grams:.3f}` گرام\n🔨 **کرێی دروستکردنی گرام**: `{labor:,.0f} دینار`\n━━━━━━━━━━━━━━━━━━\n💰 **نرخی گرامێکی زێڕی ساف**: `{gram_price:,.0f} دینار`\n💵 **کۆی گشتی بە دیناری عێراقی**:\n👉 **`{total_iqd:,.0f} دینار`**\n\n💵 **کۆی گشتی بە دەفتەر (وەرەقە) و دینار**:\n👉 **`{paper_and_dinar_text}`**\n━━━━━━━━━━━━━━━━━━\n🌸 **پیرۆز بێت و بەخێر بێت! خوای گەورە بەرەکەت بخاتە کار و کاسبیتانەوە!** ✨💛",
-        "buy_invoice": "🧾 **فاکتۆری کڕینی زێڕ لە کڕیار**\n━━━━━━━━━━━━━━━━━━\n🔹 **زێڕینگەری**: `{shop_name}`\n🔹 **عەیار و شێوازی کڕین**: عەیار {karat} ({unit_arabic})\n🔹 **کێشی وەرگیراو**: `{weight}` {unit_text}\n⚖️ **کۆی گشتی کێش بە گرام**: `{total_grams:.3f}` گرام\n🔥 **داشکاندنی توانەوە بۆ گرام**: `{labor:,.0f} دینار`\n━━━━━━━━━━━━━━━━━━\n💰 **نرخی کڕینی ڕێککەوتوو بۆ مسقاڵ**: `{mithqal_price:,.0f} دینار`\n💰 **نرخی گرامێکی ساف بۆ کڕین**: `{net_gram_price:,.0f} دینار`\n━━━━━━━━━━━━━━━━━━\n💵 **کۆی گشتی بڕی پارەی دراو بە دیناری عێراقی**:\n👉 **`{total_iqd:,.0f} دینار`**\n\n💵 **کۆی گشتی بە دەفتەر (وەرەقە) و دینار**:\n👉 **`{paper_and_dinar_text}`**\n━━━━━━━━━━━━━━━━━━\n🌸 **کرداری کڕین بە سەرکەوتوویی و بە تەواوی ڕوونی ئەنجامدرا! خوای گەورە قەرەبووتان بکاتەوە بە خێر!** ✨"
-    },
-    "en": {
-        "welcome": "✨ **Welcome to the Smart Goldsmith System** ✨\n\nThe fastest and most accurate system in Iraq! 👑\n\n📍 **Shop Name:** `{shop_name}`\n👥 **Active users in the system:** `{count}`\n\nMay Allah bless your trade and grant you success. 🌸\nPlease select your operation from the menu below 👇",
-        "sell": "💰 Sell to Customer",
-        "buy": "⚖️ Buy from Customer",
-        "settings": "⚙️ Morning Settings",
-        "back": "⬅️ Back to Main",
-        "lang_saved": "🎉 English language activated successfully! 🌸",
-        "req_shop_name": "📝 **One last step!**\n\nPlease send your Shop or Goldsmith Office Name to register it in the system (e.g., Al-Baraka Jewelry):",
-        "shop_saved": "🎉 Your shop has been registered as **{shop_name}** successfully! 🌸",
-        "morning_title": "☀️ **Good morning, wishing you a blessed and successful day!** ☀️\n\nMay Allah bless your trade and business. 🌸✨\n\n📋 **Current Morning Settings:**\n━━━━━━━━━━━━━━━━━━\n🔹 Price of Mithqal 21: `{mithqal_21:,.0f} IQD`\n🔹 Price of Mithqal 18: `{mithqal_18:,.0f} IQD`\n🔨 Labor per Gram 21: `{labor_21:,.0f} IQD`\n🔨 Labor per Gram 18: `{labor_18:,.0f} IQD`\n💵 USD 100 Rate: `{usd_100:,.0f} IQD`\n━━━━━━━━━━━━━━━━━━\n💡 To update all settings in one go, click the button below! 👇",
-        "update_btn": "📝 Update All Prices at Once",
-        "wizard_prompt": "⚙️ **Update Morning Prices in One Message**\n\nWelcome! Please send the 5 new prices separated by spaces in this exact order:\n\n`[Mithqal 21] [Mithqal 18] [Labor 21] [Labor 18] [USD 100 Rate]`\n\n💡 *Note: Karat 18 price must be lower than Karat 21.*\n\n**Example to copy:**\n`450000 380000 10000 10000 153000`",
-        "sweet_success": "🎉 **Awesome! Prices saved successfully** 🌸✨\n\nAll morning prices have been updated in the server.\n\nMay this be the start of abundant success and blessings for your business! 💸💛 🥰☕",
-        "error_format": "⚠️ Format error! Please enter exactly 5 numbers separated by spaces, and ensure Karat 18 is lower than Karat 21.\nExample:\n`450000 380000 10000 10000 153000`",
-        "choose_karat": "💰 **Sell to Customer**\n\nSelect calculation method and Karat below 👇",
-        "choose_karat_buy": "⚖️ **Buy from Customer**\n\nSelect calculation method and Karat below 👇",
-        "karat_21_g": "Gram Karat 21",
-        "karat_18_g": "Gram Karat 18",
-        "karat_21_m": "Mithqal Karat 21",
-        "karat_18_m": "Mithqal Karat 18",
-        "req_weight": "⚖️ You selected **{text}**.\n\nPlease enter the weight to sell ({unit_text}):",
-        "req_weight_buy": "⚖️ Enter the weight to buy from customer ({unit_text}):",
-        "req_price_buy": "💰 You selected **{text}**.\n\nPlease enter the agreed purchase price of Mithqal in IQD:\n(Or click the suggested morning price button below 👇)",
-        "use_morning_price": "Use Morning Price ({price:,} IQD)",
-        "use_morning_labor": "Use Morning Labor ({labor:,} IQD)",
-        "req_labor_buy": "🔥 Enter melting/discount cost per gram in IQD:\n(Enter 0 if no discount)",
-        "req_labor_sell": "🔨 Send labor per gram in IQD:\n(Or click the suggested morning labor button below 👇)",
-        "loading_sell": "⚖️ Calculating total weight, papers, and IQD... ⚡📊",
-        "loading_buy": "🔥 Checking gold and deducting melting cost... ⚖️✨",
-        "invalid_price": "⚠️ Please enter numbers only (e.g., 450000) or press the suggested price button!",
-        "invalid_labor": "⚠️ Please enter labor as numbers only (e.g., 10000)!",
-        "invalid_weight": "⚠️ Error! Please enter a valid weight (e.g., 12.345):",
-        "expired_msg": "🚫 **Trial period expired!**\n\nPlease activate your monthly subscription of **105,000 IQD** to continue using the system.\n\n💳 **Manual Payment:**\nTransfer to Mastercard:\n`5123456789012345`\n\n📸 Click **'Send Receipt 📸'** below to upload your transaction receipt.",
-        "send_receipt_btn": "📸 Send Payment Receipt",
-        "awaiting_receipt": "📝 Please send the image of your payment receipt now 👇",
-        "receipt_sent_admin": "🎉 Receipt sent successfully to administration! Your account will be activated shortly. Thank you! 🌸",
-        "sell_invoice": "🧾 **Gold Sale Invoice**\n━━━━━━━━━━━━━━━━━━\n🔹 **Shop**: `{shop_name}`\n🔹 **Karat & Method**: Karat {karat} ({unit_arabic})\n🔹 **Requested Weight**: `{weight}` {unit_text}\n⚖️ **Total Weight in Grams**: `{total_grams:.3f}` grams\n🔨 **Labor per Gram**: `{labor:,.0f} IQD`\n━━━━━━━━━━━━━━━━━━\n💰 **Pure Gold Gram Price**: `{gram_price:,.0f} IQD`\n💵 **Total Price in Iraqi Dinar**:\n👉 **`{total_iqd:,.0f} IQD`**\n\n💵 **Total in Papers and Dinar**:\n👉 **`{paper_and_dinar_text}`**\n━━━━━━━━━━━━━━━━━━\n🌸 **Congratulations! May Allah bless your purchase and trade!** ✨💛",
-        "buy_invoice": "🧾 **Gold Purchase Invoice**\n━━━━━━━━━━━━━━━━━━\n🔹 **Shop**: `{shop_name}`\n🔹 **Karat & Method**: Karat {karat} ({unit_arabic})\n🔹 **Received Weight**: `{weight}` {unit_text}\n⚖️ **Total Weight in Grams**: `{total_grams:.3f}` grams\n🔥 **Melting/Gram Discount**: `{labor:,.0f} IQD`\n━━━━━━━━━━━━━━━━━━\n💰 **Agreed Mithqal Purchase Price**: `{mithqal_price:,.0f} IQD`\n💰 **Net Gram Purchase Price**: `{net_gram_price:,.0f} IQD`\n━━━━━━━━━━━━━━━━━━\n💵 **Total Amount Paid in Iraqi Dinar**:\n👉 **`{total_iqd:,.0f} IQD`**\n\n💵 **Total in Papers and Dinar**:\n👉 **`{paper_and_dinar_text}`**\n━━━━━━━━━━━━━━━━━━\n🌸 **Purchase completed successfully with complete transparency! May Allah bless you with abundance!** ✨"
+        "req_price_buy": "💰 تکایە نرخی کڕینی مسقاڵ بنێرە بە دینار:",
+        "use_morning_price": "بەکارهێنانی نرخی بەیانی ({price:,} دینار)", "use_morning_labor": "بەکارهێنانی کرێی بەیانی ({labor:,} دینار)",
+        "req_labor_buy": "🔥 تێچووی توانەوە بۆ هەر گرامێک بنێرە:", "req_labor_sell": "🔨 کرێی دروستکردنی هەر گرامێک بنێرە:",
+        "loading_sell": "⚖️ کێش و بڕی پارە حیساب دەکرێت...", "loading_buy": "🔥 پشکنینی زێڕ و داشکاندنی تێچووی توانەوە...",
+        "invalid_price": "⚠️ تەنها ژمارە بنووسە!", "invalid_labor": "⚠️ کرێ تەنها بە ژمارە بنووسە!", "invalid_weight": "⚠️ هەڵە! کێش بە ژمارە بنێرە:",
+        "expired_msg": "🚫 **ماوەی تاقیکردنەوەی سیستەم کۆتایی هات!**\n\nتکایە بڕی **105,000 دینار** بنێرە بۆ ئەم ماستەرکارتە:\n`5123456789012345`\n\n📞 **پشتیوانی تەکنیکی:** `{support_phone}`",
+        "send_receipt_btn": "📸 ناردنی پسوڵەی پارەدان", "awaiting_receipt": "📝 تکایە ئێستا وێنەی پسوڵەکە بنێرە 👇",
+        "receipt_sent_admin": "🎉 پسوڵەکەت بە سەرکەوتوویی نێردرا! لە کەمترین کاتدا کارەکەت چالاک دەکرێت. 🌸",
+        "sell_invoice": "🧾 **فاکتۆری فرۆشتنی زێڕ بە کڕیار**\n━━━━━━━━━━━━━━━━━━\n🔹 **زێڕینگەری**: `{shop_name}`\n🔹 **عەیار**: عەیار {karat} ({unit_arabic})\n🔹 **کێش**: `{weight}` {unit_text}\n⚖️ **کۆی گشتی کێش بە گرام**: `{total_grams:.3f}` گرام\n🔨 **کرێی دروستکردنی گرام**: `{labor:,.0f} دینار`\n━━━━━━━━━━━━━━━━━━\n💰 **کۆی گشتی بە دیناری عێراقی**:\n👉 **`{total_iqd:,.0f} دينار`**\n👉 **`{paper_and_dinar_text}`**",
+        "buy_invoice": "🧾 **فاکتۆری کڕینی زێڕ لە کڕیار**\n━━━━━━━━━━━━━━━━━━\n🔹 **زێڕینگەری**: `{shop_name}`\n🔹 **عەیار**: عەیار {karat}\n🔹 **کێش**: `{weight}` {unit_text}\n⚖️ **کۆی گشتی کێش**: `{total_grams:.3f}` گرام\n━━━━━━━━━━━━━━━━━━\n💵 **کۆی گشتی بڕی پارەی دراو**:\n👉 **`{total_iqd:,.0f} دينار`**\n👉 **`{paper_and_dinar_text}`**"
     }
 }
 
 def get_data():
-    """
-    يقرأ البيانات بأمان تام مع أخذ نسخة احتياطية ومعالجة أخطاء الانهيار. (نظام حماية وطوارئ)
-    """
-    default_settings = {
-        "mithqal_21": 450000,
-        "mithqal_18": 380000,
-        "labor_21": 10000,
-        "labor_18": 10000,
-        "usd_100": 150000
-    }
-    
-    # حماية طوارئ: أخذ نسخة احتياطية للملف إذا كان موجوداً
+    default_settings = {"mithqal_21": 450000, "mithqal_18": 380000, "labor_21": 10000, "labor_18": 10000, "usd_100": 150000}
     if os.path.exists(DATA_FILE) and os.path.getsize(DATA_FILE) > 0:
-        try:
-            shutil.copy(DATA_FILE, DATA_FILE + '.bak')
-        except:
-            pass
-            
+        try: shutil.copy(DATA_FILE, DATA_FILE + '.bak')
+        except: pass
     if not os.path.exists(DATA_FILE) or os.path.getsize(DATA_FILE) == 0:
-        # استرجاع تلقائي من النسخة الاحتياطية في حال تلف الملف الرئيسي
         if os.path.exists(DATA_FILE + '.bak') and os.path.getsize(DATA_FILE + '.bak') > 0:
             shutil.copy(DATA_FILE + '.bak', DATA_FILE)
         else:
-            default_data = {
-                "total_count": 166,
-                "trial_days": 7,                # فترة تجريبية ديناميكية بالكامل
-                "system_broadcast": "",          # رسالة عامة تحذيرية تظهر لجميع المشتركين
-                "support_phone": "07700000000", # رقم الدعم الفني الافتراضي
-                "users": {},
-                "settings": default_settings
-            }
+            default_data = {"base_count": 166, "trial_days": 7, "system_broadcast": "", "support_phone": "07700000000", "users": {}, "settings": default_settings}
             save_data(default_data)
             return default_data
-            
     try:
-        with open(DATA_FILE, 'r', encoding='utf-8') as f: 
-            data = json.load(f)
+        with open(DATA_FILE, 'r', encoding='utf-8') as f: data = json.load(f)
     except:
-        # استرجاع تلقائي طارئ
         if os.path.exists(DATA_FILE + '.bak'):
             try:
-                with open(DATA_FILE + '.bak', 'r', encoding='utf-8') as f:
-                    data = json.load(f)
+                with open(DATA_FILE + '.bak', 'r', encoding='utf-8') as f: data = json.load(f)
                 shutil.copy(DATA_FILE + '.bak', DATA_FILE)
-            except:
-                data = {}
-        else:
-            data = {}
-
-    # تعبئة الحقول المفقودة لضمان عدم حدوث خطأ KeyError بالتشغيل
+            except: data = {}
+        else: data = {}
     if 'settings' not in data: data['settings'] = default_settings
-    if 'total_count' not in data: data['total_count'] = 166
+    if 'base_count' not in data: data['base_count'] = 166
     if 'trial_days' not in data: data['trial_days'] = 7
     if 'system_broadcast' not in data: data['system_broadcast'] = ""
     if 'support_phone' not in data: data['support_phone'] = "07700000000"
     if 'users' not in data: data['users'] = {}
-        
     return data
 
 def save_data(data):
-    """
-    نظام الكتابة الذرية (Atomic Write): يمنع تصفير الملف وتلف قاعدة البيانات حتى لو طفأ السيرفر أثناء الحفظ.
-    """
     dir_name = os.path.dirname(os.path.abspath(DATA_FILE))
     try:
         with tempfile.NamedTemporaryFile('w', dir=dir_name, delete=False, encoding='utf-8') as tf:
             json.dump(data, tf, ensure_ascii=False, indent=4)
             temp_name = tf.name
         os.replace(temp_name, DATA_FILE)
-    except Exception as e:
-        print(f"❌ Error during Atomic Write: {e}")
+    except Exception as e: print(f"❌ Save Error: {e}")
 
 def get_user_lang(user_id):
     data = get_data()
-    uid = str(user_id)
-    if uid in data['users'] and isinstance(data['users'][uid], dict):
-        return data['users'][uid].get('lang', 'ar')
-    return 'ar'
+    return data['users'].get(str(user_id), {}).get('lang', 'ar')
 
 def set_user_lang(user_id, lang):
     data = get_data()
     uid = str(user_id)
-    if uid not in data['users'] or not isinstance(data['users'][uid], dict):
-        data['users'][uid] = {}
+    if uid not in data['users']: data['users'][uid] = {}
     data['users'][uid]['lang'] = lang
     save_data(data)
 
 def update_all_settings(vals):
     data = get_data()
     keys = ["mithqal_21", "mithqal_18", "labor_21", "labor_18", "usd_100"]
-    for i, k in enumerate(keys):
-        data['settings'][k] = int(vals[i])
+    for i, k in enumerate(keys): data['settings'][k] = int(vals[i])
     save_data(data)
 
 def calculate_paper_and_dinar(total_iqd, usd_100_rate, lang='ar'):
-    if usd_100_rate <= 0:
-        return f"{total_iqd:,.0f} دينار" if lang in ['ar', 'ku'] else f"{total_iqd:,.0f} IQD"
-    
+    if usd_100_rate <= 0: return f"{total_iqd:,.0f} دينار"
     papers = int(total_iqd // usd_100_rate)
     remaining_iqd = int(total_iqd % usd_100_rate)
-    
     result = []
-    if papers > 0:
-        if lang == 'ar':
-            result.append("1 ورقة" if papers == 1 else ("2 ورقة" if papers == 2 else f"{papers} ورقة"))
-        elif lang == 'ku':
-            result.append(f"{papers} وەرەقە")
-        else:
-            result.append(f"{papers} Paper" if papers == 1 else f"{papers} Papers")
-            
-    if remaining_iqd > 0:
-        if lang == 'ar':
-            result.append(f"{remaining_iqd:,.0f} دينار")
-        elif lang == 'ku':
-            result.append(f"{remaining_iqd:,.0f} دینار")
-        else:
-            result.append(f"{remaining_iqd:,.0f} IQD")
-        
-    if not result:
-        return "0 دينار" if lang in ['ar', 'ku'] else "0 IQD"
-        
-    return " و ".join(result) if lang in ['ar', 'ku'] else " and ".join(result)
+    if papers > 0: result.append(f"{papers} ورقة" if lang=='ar' else f"{papers} وەرەقە")
+    if remaining_iqd > 0: result.append(f"{remaining_iqd:,.0f} دينار" if lang=='ar' else f"{remaining_iqd:,.0f} دینار")
+    return " و ".join(result) if result else "0 دينار"
 
 def get_keyboard(lang="ar"):
     t = TRANSLATIONS[lang]
@@ -264,11 +150,7 @@ def get_karat_unit_keyboard(lang="ar"):
 
 def send_main_menu(bot, chat_id, text_to_send, lang="ar"):
     data = get_data()
-    
-    # دمج الرسائل التحذيرية أو الملاحظات العامة (Broadcast) إذا كانت موجودة في الأعلى بشكل منظم
     broadcast = data.get("system_broadcast", "")
     final_text = text_to_send
-    if broadcast:
-        final_text = f"📢 **تنويه هام من الإدارة:**\n⚠️ _{broadcast}_\n\n━━━━━━━━━━━━━━━━━━\n\n" + text_to_send
-        
+    if broadcast: final_text = f"📢 **تنويه هام:**\n⚠️ _{broadcast}_\n\n━━━━━━━━━━━━━━━━━━\n\n" + text_to_send
     bot.send_message(chat_id, final_text, parse_mode="Markdown", reply_markup=get_keyboard(lang))
