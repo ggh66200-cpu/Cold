@@ -26,21 +26,26 @@ CANCEL_COMMANDS = [
     "💰 فرۆشتن بە کڕیار", "⚖️ کڕین لە کڕیار", "⚙️ ڕێکخستنەکانی بەیانی", "⬅️ گەڕانەوە بۆ سەرەکی"
 ]
 
-# 👑 واجهة لوحة تحكم الأدمن بالأزرار التفاعلية المباشرة
+# لوحة التحكم التفاعلية للآدمن - بدون قفل للملفات
 @bot.message_handler(commands=['admin'])
 def admin_panel(m):
     if str(m.chat.id) != str(ADMIN_ID): return
+    USER_STATES[m.chat.id] = {} # تصفير فوري لمنع أي حالة معلقة
+    data = utils.get_data()
+    current_trial = data.get("trial_days", 7)
     
     markup = types.InlineKeyboardMarkup(row_width=1)
-    btn_stats = types.InlineKeyboardButton("📊 عرض الإحصائيات والأعداد", callback_data="adm_view_stats")
-    btn_shops = types.InlineKeyboardButton("🏪 كشف أسماء مكاتب الصاغة", callback_data="adm_view_shops")
-    btn_broadcast = types.InlineKeyboardButton("📢 تعميم رسالة تحذير عامة", callback_data="adm_trigger_bc")
+    btn_stats = types.InlineKeyboardButton("📊 إحصائيات وأعداد المشتركين", callback_data="adm_view_stats")
+    btn_shops = types.InlineKeyboardButton("🏪 كشف المكاتب والشركات المسجلة", callback_data="adm_view_shops")
+    btn_trial = types.InlineKeyboardButton(f"⏳ تعديل الوقت المجاني (الحالي: {current_trial} أيام)", callback_data="adm_manage_trial")
+    btn_broadcast = types.InlineKeyboardButton("📢 تعميم تنويه عام على الواجهة", callback_data="adm_trigger_bc")
     btn_clear_bc = types.InlineKeyboardButton("❌ حذف التنويه العام الحالي", callback_data="adm_clear_bc")
-    markup.add(btn_stats, btn_shops, btn_broadcast, btn_clear_bc)
+    markup.add(btn_stats, btn_shops, btn_trial, btn_broadcast, btn_clear_bc)
     
     msg = (
-        "👑 **أهلاً بك في منظومة التحكم المركزية لـ (حاسبة الصائغ الذكية)**\n\n"
-        "اختر الإجراء الإداري المطلوب من الأزرار التفاعلية أدناه 👇"
+        f"👑 **مرحباً بك يا مدير النظام في أرامكي للحلول الرقمية**\n"
+        f"فرع نواة الذهب ⚜️\n━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"تستطيع التحكم الكامل بالمنظومة والأوقات التجريبية بالكامل عبر الأزرار أدناه 👇"
     )
     bot.send_message(m.chat.id, msg, parse_mode="Markdown", reply_markup=markup)
 
@@ -53,59 +58,83 @@ def handle_admin_callbacks(call):
     trial_duration = data.get("trial_days", 7) * 24 * 60 * 60
     
     if action == "adm_view_stats":
-        trial_count = 0
-        premium_count = 0
-        expired_count = 0
-        
+        trial_count, premium_count, expired_count = 0, 0, 0
         for uid, u in data['users'].items():
             if not isinstance(u, dict): continue
             is_premium = u.get("is_active", False) and (u.get("expiry_date", 0) > now)
             is_trial = not is_premium and ((now - u.get("join_date", now)) < trial_duration)
-            
             if is_premium: premium_count += 1
             elif is_trial: trial_count += 1
             else: expired_count += 1
             
         stat_msg = (
-            "📊 **إحصائيات المنظومة الحالية بالتفصيل:**\n━━━━━━━━━━━━━━━━━━\n"
-            f"🔹 إجمالي الصاغة في النظام: `{len(data['users'])}`\n"
-            f"🟢 مشتركين بالدفع (فعالين): `{premium_count}`\n"
-            f"⏳ في الفترة التجريبية المجانية: `{trial_count}`\n"
-            f"🔴 حسابات منتهية الصلاحية: `{expired_count}`\n━━━━━━━━━━━━━━━━━━\n"
-            f"⚙️ فترة التجريب الحالية: `{data.get('trial_days')} أيام`\n"
-            f"📢 نص التنويه الحالي: `{(data.get('system_broadcast') or 'لا يوجد')}`"
+            f"📊 **إحصائيات المنظومة الحالية:**\n━━━━━━━━━━━━━━━━━━\n"
+            f"🔹 إجمالي الصاغة والشركات: `{len(data['users'])}`\n"
+            f"🟢 مشتركين فعالين بريميوم: `{premium_count}`\n"
+            f"⏳ في الفترة المجانية: `{trial_count}`\n"
+            f"🔴 مكاتب منتهية الاشتراك: `{expired_count}`"
         )
         bot.send_message(ADMIN_ID, stat_msg, parse_mode="Markdown")
         
     elif action == "adm_view_shops":
-        shop_list = "🏪 **كشف أسماء ومكاتب الصاغة المسجلين:**\n━━━━━━━━━━━━━━━━━━\n"
+        shop_list = "🏪 **كشف أسماء الشركات ومواقعها:**\n━━━━━━━━━━━━━━━━━━\n"
         idx = 1
         for uid, u in data['users'].items():
             if isinstance(u, dict) and u.get("shop_name"):
                 status_icon = "🟢" if u.get("is_active", False) and (u.get("expiry_date", 0) > now) else "⏳"
-                shop_list += f"{idx}. {status_icon} **{u['shop_name']}** -> آيدي: `{uid}`\n"
+                shop_list += f"{idx}. {status_icon} **{u['shop_name']}** (#{u.get('shop_num','---')}) -> 🗺️ {u.get('shop_location','--')} | 📞 {u.get('shop_phone','--')}\n"
                 idx += 1
-        if idx == 1: shop_list += "لا يوجد مكاتب مسجلة حالياً."
+        if idx == 1: shop_list += "لا يوجد مكاتب أو صاغة مسجلين حالياً."
         bot.send_message(ADMIN_ID, shop_list, parse_mode="Markdown")
+        
+    elif action == "adm_manage_trial":
+        markup = types.InlineKeyboardMarkup(row_width=2)
+        btn3 = types.InlineKeyboardButton("3 أيام", callback_data="adm_settrial_3")
+        btn7 = types.InlineKeyboardButton("7 أيام", callback_data="adm_settrial_7")
+        btn15 = types.InlineKeyboardButton("15 يوم", callback_data="adm_settrial_15")
+        btn30 = types.InlineKeyboardButton("30 يوم", callback_data="adm_settrial_30")
+        markup.add(btn3, btn7, btn15, btn30)
+        bot.send_message(ADMIN_ID, "⏳ **تحديث الأيام التجريبية للمشتركين الجدد بضغطة زر:**", reply_markup=markup)
+        
+    elif action.startswith("adm_settrial_"):
+        days = int(action.replace("adm_settrial_", ""))
+        data["trial_days"] = days
+        utils.save_data(data)
+        bot.send_message(ADMIN_ID, f"✅ تم تحديث وتعديل الفترة المجانية للمستخدمين الجدد لتصبح: **{days} أيام** بنجاح.")
         
     elif action == "adm_trigger_bc":
         USER_STATES[call.message.chat.id] = {"action": "ADMIN_BROADCAST"}
-        bot.send_message(ADMIN_ID, "📝 يرجى إرسال نص الرسالة التحذيرية أو الملاحظة العامة الآن ليتم تعميمها فوراً:")
+        bot.send_message(ADMIN_ID, "📢 أرسل نص الملاحظة العامة الآن لتعميمها على كافة واجهات المستخدمين:")
         
     elif action == "adm_clear_bc":
         data["system_broadcast"] = ""
         utils.save_data(data)
-        bot.send_message(ADMIN_ID, "✅ تم مسح التنويه العام بنجاح من شاشات المشتركين.")
+        bot.send_message(ADMIN_ID, "✅ تم مسح وإزالة التنويه العام بنجاح.")
 
-# 🎬 شاشة البداية والتسجيل وفحص الصلاحيات
+    elif action.startswith("adm_approve_"):
+        target_uid = action.replace("adm_approve_", "")
+        if target_uid in data["users"]:
+            data["users"][target_uid]["is_active"] = True
+            data["users"][target_uid]["expiry_date"] = time.time() + (30 * 24 * 60 * 60)
+            utils.save_data(data)
+            bot.edit_message_caption(chat_id=ADMIN_ID, message_id=call.message.message_id, caption=call.message.caption + "\n\n🟢 [تم الاعتماد والترقية بنجاح ✅]", reply_markup=None)
+            try: bot.send_message(target_uid, "🎉 **مبارك يا طيب!** تم فحص وتدقيق الوصل المالي بنجاح، وتم ترقية حسابك وتفعيل النظام بشكل رسمي وآمن في خوادم أرامكي! 🌸")
+            except: pass
+
+    elif action.startswith("adm_reject_"):
+        target_uid = action.replace("adm_reject_", "")
+        bot.edit_message_caption(chat_id=ADMIN_ID, message_id=call.message.message_id, caption=call.message.caption + "\n\n🔴 [تم رفض هذا الوصل ❌]", reply_markup=None)
+        try: bot.send_message(target_uid, "⚠️ **أخي الغالي الطيب صاحب المحل المحترم:**\nنعتذر منك، لم يتم تأكيد صورة هذا الوصل المالي من قبل القسم المختص، يرجى إعادة إرسال الوصل الصحيح مرة أخرى أو التواصل معنا عبر خط الطوارئ.")
+        except: pass
+
 @bot.message_handler(commands=['start'])
 def start(m):
     USER_STATES[m.chat.id] = {}
     welcome_msg = (
-        f"👑 **مرحباً بك في نظام الصياغة الذكي العراقي**\n"
-        f"👋 بەخێربێن بۆ سیستەمی زیرەکی زێڕینگەری\n\n"
-        f"يرجى اختيار لغتك المفضلة لبدء العمل:\n"
-        f"تکایە زمانەکەت لە خوارەوە هەڵبژێرە:"
+        "💎 **ARAMKY | أرامكي للحلول الرقمية** 💎\n"
+        "⚜️ فرع نواة الذهب لأنظمة الصياغة الذكية ⚜️\n\n"
+        "يرجى اختيار لغتك المفضلة لبدء العمل والتحميل رسميًا:\n"
+        "تکایە زمانەکەت لە خوارەوە هەڵبژێرە:"
     )
     markup = types.InlineKeyboardMarkup(row_width=1)
     btn_ar = types.InlineKeyboardButton("العربية 🇮🇶", callback_data="set_lang_ar")
@@ -122,7 +151,7 @@ def callback_language(call):
     
     data = utils.get_data()
     user = data['users'].get(str(chat_id), {})
-    if not user.get("shop_name"):
+    if not user.get("shop_name") or not user.get("shop_location"):
         USER_STATES[chat_id] = {"action": "REGISTER_SHOP"}
         bot.send_message(chat_id, utils.TRANSLATIONS[lang_code]["req_shop_name"], parse_mode="Markdown")
     else:
@@ -135,12 +164,18 @@ def check_access_and_proceed(chat_id, lang):
     
     if has_access:
         user_data = data['users'][str(chat_id)]
-        # العداد الفعلي = الأساسي (166) + عدد مكاتب الصاغة المسجلة حركياً بالسيرفر
         dynamic_count = data.get("base_count", 166) + len(data['users'])
-        main_welcome = t["welcome"].format(shop_name=user_data["shop_name"], count=dynamic_count)
+        
+        main_welcome = t["welcome"].format(
+            shop_num=user_data.get("shop_num", "100"),
+            shop_name=user_data.get("shop_name", "مكتب صياغة"),
+            shop_location=user_data.get("shop_location", "العراق"),
+            shop_phone=user_data.get("shop_phone", "07700000000"),
+            count=dynamic_count
+        )
         utils.send_main_menu(bot, chat_id, main_welcome, lang=lang)
     else:
-        support_phone = data.get("support_phone", "07700000000")
+        support_phone = data.get("support_phone", "07872180902")
         expired_text = t["expired_msg"].format(support_phone=support_phone)
         markup = types.InlineKeyboardMarkup()
         btn_receipt = types.InlineKeyboardButton(t["send_receipt_btn"], callback_data="pay_manual_flow")
@@ -164,34 +199,23 @@ def handle_photo(m):
     if state_data.get("action") == "SENDING_RECEIPT":
         data = utils.get_data()
         shop_name = data['users'].get(str(chat_id), {}).get("shop_name", "غير مسجل")
-        admin_alert = (
-            "🚨 **وصل دفع جديد بانتظار الموافقة!**\n━━━━━━━━━━━━━━━━━━\n"
-            f"👤 **آيدي العميل:** `{chat_id}`\n"
-            f"🏪 **اسم المحل:** `{shop_name}`\n━━━━━━━━━━━━━━━━━━\n"
-            "اضغط على التفعيل لإطلاق صلاحية الحساب يدوياً 👇"
-        )
+        admin_alert = f"🚨 **طلب تفعيل نظام بريميوم جديد!**\n━━━━━━━━━━━━━━━━━━\n👤 **معرف المشترك:** `{chat_id}`\n🏪 **المكتب/الشركة:** `{shop_name}`"
+        
+        # أزرار تحكم تفاعلية فورية ومباشرة للآدمن
         markup = types.InlineKeyboardMarkup()
-        btn_approve = types.InlineKeyboardButton("✅ تفعيل الحساب يدوياً", callback_data=f"adm_approve_{chat_id}")
-        markup.add(btn_approve)
+        btn_approve = types.InlineKeyboardButton("✅ اعتماد وترقية الحساب", callback_data=f"adm_approve_{chat_id}")
+        btn_reject = types.InlineKeyboardButton("❌ رفض وإشعار الصائغ", callback_data=f"adm_reject_{chat_id}")
+        markup.add(btn_approve, btn_reject)
+        
         bot.send_photo(ADMIN_ID, m.photo[-1].file_id, caption=admin_alert, parse_mode="Markdown", reply_markup=markup)
+        
+        # تصفير حالة العميل فوراً بعد استلام الوصل لمنع التداخل
         USER_STATES[chat_id] = {}
+        
+        # إرسال رسالة شكر احترافية للعميل تفيد بأن طلبه قيد المراجعة دون إرجاعه لقفل التنبيه!
         bot.send_message(chat_id, utils.TRANSLATIONS[lang]["receipt_sent_admin"], parse_mode="Markdown")
-        check_access_and_proceed(chat_id, lang)
+        return # تم إيقاف دالة check_access هنا لمنع تكرار رسالة انتهاء الصلاحية!
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("adm_approve_"))
-def approve_user_payment(call):
-    if str(call.message.chat.id) != str(ADMIN_ID): return
-    target_uid = call.data.replace("adm_approve_", "")
-    data = utils.get_data()
-    if target_uid in data["users"]:
-        data["users"][target_uid]["is_active"] = True
-        data["users"][target_uid]["expiry_date"] = time.time() + (30 * 24 * 60 * 60)
-        utils.save_data(data)
-        bot.edit_message_caption(chat_id=ADMIN_ID, message_id=call.message.message_id, caption=call.message.caption + "\n\n🟢 [تم تفعيل الصائغ بنجاح ✅]", reply_markup=None)
-        try: bot.send_message(target_uid, "🎉 مبارك يا طيب! تم فحص وصل الدفع وتفعيل حسابك بنجاح تام. 🌸")
-        except: pass
-
-# 🔄 الموجه الرئيسي والحل الجذري لمشكلة زر الإعدادات الصباحية والفواتير المتناسقة
 @bot.message_handler(func=lambda m: True)
 def router(m):
     chat_id = m.chat.id
@@ -200,63 +224,65 @@ def router(m):
     t = utils.TRANSLATIONS[lang]
     state_data = USER_STATES.get(chat_id, {})
 
-    # معالجة رسائل الأدمن الخاصة بالـ Broadcast والتعميم
     if str(chat_id) == str(ADMIN_ID) and state_data.get("action") == "ADMIN_BROADCAST":
         data = utils.get_data()
         data["system_broadcast"] = text
         utils.save_data(data)
         USER_STATES[chat_id] = {}
-        bot.send_message(ADMIN_ID, "✅ تم حفظ وتعميم الملاحظة العامة على كل المشتركين.")
+        bot.send_message(ADMIN_ID, "✅ تم تعميم الرسالة والتنويه بنجاح.")
         return
 
-    # تسجيل المحل لأول مرة
     if state_data.get("action") == "REGISTER_SHOP":
+        parts = [p.strip() for p in text.split("-")]
+        if len(parts) < 3:
+            bot.send_message(chat_id, "⚠️ **يرجى إدخال المعلومات كاملة وبنفس الترتيب وبينهما علامة (-)**\n\nمثال صحيح للنسخ والتعديل:\n`صياغة النجاح - بغداد، المنصور - 07701234567`")
+            return
+        
         data = utils.get_data()
-        data['users'][str(chat_id)]["shop_name"] = text
+        uid = str(chat_id)
+        generated_num = data.get("base_count", 166) + len(data['users']) + 1
+        
+        if uid not in data['users']:
+            data['users'][uid] = {"join_date": time.time(), "is_active": False, "expiry_date": 0}
+            
+        data['users'][uid]["shop_name"] = parts[0]
+        data['users'][uid]["shop_location"] = parts[1]
+        data['users'][uid]["shop_phone"] = parts[2]
+        data['users'][uid]["shop_num"] = generated_num
+        
         utils.save_data(data)
         USER_STATES[chat_id] = {}
-        bot.send_message(chat_id, t["shop_saved"].format(shop_name=text), parse_mode="Markdown")
+        bot.send_message(chat_id, t["shop_saved"].format(shop_name=parts[0]), parse_mode="Markdown")
         check_access_and_proceed(chat_id, lang)
         return
 
-    # التوجيه عند ضغط أزرار القائمة الرئيسية
     if text in CANCEL_COMMANDS:
         USER_STATES[chat_id] = {}
         if text in ["/start", "⬅️ الرجوع للرئيسية", "⬅️ گەڕانەوە بۆ سەرەکی"]:
             check_access_and_proceed(chat_id, lang)
             return
-            
         elif text in ["💰 بيع للزبون", "💰 فرۆشتن بە کڕیار"]:
             USER_STATES[chat_id] = {"action": "SELL", "state": "CHOOSE_KARAT_OR_UNIT"}
             bot.send_message(chat_id, t["choose_karat"], parse_mode="Markdown", reply_markup=utils.get_karat_unit_keyboard(lang))
             return
-            
         elif text in ["⚖️ شراء من زبون", "⚖️ کڕین لە کڕیار"]:
             USER_STATES[chat_id] = {"action": "BUY", "state": "CHOOSE_KARAT_OR_UNIT"}
             bot.send_message(chat_id, t["choose_karat_buy"], parse_mode="Markdown", reply_markup=utils.get_karat_unit_keyboard(lang))
             return
-            
-        # 🔥 تم حل الخلل هنا: التوجيه المباشر والكامل لواجهة الإعدادات الصباحية (الصورة الثانية)
         elif text in ["⚙️ إعدادات الصباح", "⚙️ ڕێکخستنەکانی بەیانی"]:
             data = utils.get_data()
             settings = data['settings']
             USER_STATES[chat_id] = {"action": "WIZARD", "state": "AWAITING_BULK"}
-            
             morning_layout = t["morning_title"].format(
-                mithqal_21=settings["mithqal_21"],
-                mithqal_18=settings["mithqal_18"],
-                labor_21=settings["labor_21"],
-                labor_18=settings["labor_18"],
-                usd_100=settings["usd_100"]
+                mithqal_21=settings["mithqal_21"], mithqal_18=settings["mithqal_18"],
+                labor_21=settings["labor_21"], labor_18=settings["labor_18"], usd_100=settings["usd_100"]
             )
-            
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
             markup.add(t["update_btn"])
             markup.add(t["back"])
             bot.send_message(chat_id, morning_layout, parse_mode="Markdown", reply_markup=markup)
             return
 
-    # التحقق من صلاحية الاشتراك قبل العمليات الداخلية الحسابية
     has_access, _ = subscription.check_user(chat_id)
     if not has_access:
         check_access_and_proceed(chat_id, lang)
@@ -271,17 +297,15 @@ def router(m):
     data = utils.get_data()
     settings = data['settings']
 
-    # فتح معالج تحديث الأسعار دفعة واحدة عند الضغط على الزر
     if text in ["📝 تحديث الأسعار دفعة واحدة", "📝 نوێکردنەوەی نرخەکان بە یەکجار"]:
         bot.send_message(chat_id, t["wizard_prompt"], parse_mode="Markdown")
         return
 
-    # استقبال وحفظ القيم الـ 5 الصباحية دفعة واحدة وفحصها
     if action == "WIZARD" and state == "AWAITING_BULK":
         try:
             vals = [int(v.replace(",", "")) for v in text.split()]
             if len(vals) != 5: raise ValueError
-            if vals[1] >= vals[0]: raise ValueError # عيار 18 دائماً أقل من عيار 21
+            if vals[1] >= vals[0]: raise ValueError
             utils.update_all_settings(vals)
             USER_STATES[chat_id] = {}
             utils.send_main_menu(bot, chat_id, t["sweet_success"], lang=lang)
@@ -289,7 +313,6 @@ def router(m):
             bot.send_message(chat_id, t["error_format"], parse_mode="Markdown")
         return
 
-    # اختيار نوع العيار وطريقة الحساب
     if state == "CHOOSE_KARAT_OR_UNIT":
         mappings = {
             "غرام عيار 21": (21, "gram"), "غرام عيار 18": (18, "gram"),
@@ -316,7 +339,6 @@ def router(m):
             bot.send_message(chat_id, t["req_price_buy"].format(text=text), parse_mode="Markdown", reply_markup=markup)
         return
 
-    # استلام سعر شراء المثقال المتفق عليه
     if state == "AWAITING_MITHQAL_PRICE" and action == "BUY":
         if text.startswith("استخدام السعر") or text.startswith("بەکارهێنانی"): price = settings[f"mithqal_{state_data['karat']}"]
         else:
@@ -330,7 +352,6 @@ def router(m):
         bot.send_message(chat_id, t["req_labor_buy"], parse_mode="Markdown", reply_markup=markup)
         return
 
-    # استلام أجور الصياغة / الخصم الصباحي
     if state == "AWAITING_LABOR":
         if action == "SELL":
             if text.startswith("استخدام الأجور") or text.startswith("بەکارهێنانی"): labor = settings[f"labor_{state_data['karat']}"]
@@ -350,7 +371,6 @@ def router(m):
             bot.send_message(chat_id, t["req_weight_buy"].format(unit_text=unit_text), parse_mode="Markdown", reply_markup=markup)
         return
 
-    # استلام الوزن (3 مراتب عشرية دقيقة وبدون أي تقريب بالواجهة نهائياً)
     if state == "AWAITING_WEIGHT":
         try: weight = float(text.replace(",", ""))
         except: bot.send_message(chat_id, t["invalid_weight"]); return
@@ -369,16 +389,11 @@ def calculate_and_send_sell_invoice(chat_id, state_data, lang):
     data = utils.get_data()
     t = utils.TRANSLATIONS[lang]
     try:
-        karat = state_data["karat"]
-        unit = state_data["unit"]
-        weight = state_data["weight"]
-        labor = state_data["labor"]
-        
+        karat, unit, weight, labor = state_data["karat"], state_data["unit"], state_data["weight"], state_data["labor"]
         gram_price = data['settings'][f"mithqal_{karat}"] / 5
         total_grams = weight if unit == "gram" else weight * 5
         unit_text = "غرام" if lang=='ar' else "گرام"
         unit_arabic = "حساب بالغرام" if unit == "gram" else "حساب بالمثقال"
-        
         total_iqd = (gram_price + labor) * total_grams
         paper_text = utils.calculate_paper_and_dinar(total_iqd, data['settings']["usd_100"], lang)
         
@@ -395,18 +410,12 @@ def calculate_and_send_buy_invoice(chat_id, state_data, lang):
     data = utils.get_data()
     t = utils.TRANSLATIONS[lang]
     try:
-        karat = state_data["karat"]
-        unit = state_data["unit"]
-        weight = state_data["weight"]
-        labor = state_data["labor"]
-        mithqal_price = state_data["mithqal_price"]
-        
+        karat, unit, weight, labor, mithqal_price = state_data["karat"], state_data["unit"], state_data["weight"], state_data["labor"], state_data["mithqal_price"]
         gram_purchase_price = mithqal_price / 5
         net_gram_price = gram_purchase_price - labor
         total_grams = weight if unit == "gram" else weight * 5
         unit_text = "غرام" if lang=='ar' else "گرام"
         unit_arabic = "حساب بالغرام" if unit == "gram" else "حساب بالمثقال"
-        
         total_iqd = net_gram_price * total_grams
         paper_text = utils.calculate_paper_and_dinar(total_iqd, data['settings']["usd_100"], lang)
         
