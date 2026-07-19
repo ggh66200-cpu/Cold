@@ -1,220 +1,250 @@
+# bot.py
+import os
+import time
 import telebot
 from telebot import types
-import sqlite3
-from datetime import datetime, timedelta
+from utils import (
+    LANG_PACKS, reset_user_session, format_currency_iqd_usd,
+    generate_aramky_invoice, generate_customer_invoice
+)
 
-# توكن البوت الخاص بك
-TOKEN = 'YOUR_BOT_TOKEN'
-bot = telebot.TeleBot(TOKEN)
+# 1️⃣ جلب مفتاح التوكن والآدمن من بيئة السيرفر
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "YOUR_SERVER_HIDDEN_TOKEN")
+ADMIN_ID = int(os.environ.get("ADMIN_ID", "123456789"))
 
-# 1. دالة تصفير الملفات وقاعدة البيانات والبدء من جديد
-def init_db(reset=False):
-    conn = sqlite3.connect('gold_nucleus.db')
-    cursor = conn.cursor()
-    
-    if reset:
-        cursor.execute("DROP TABLE IF EXISTS users")
-        cursor.execute("DROP TABLE IF EXISTS system_config")
-    
-    # جدول المستخدمين (يدعم المناطق، اللغات الثلاث، وحالة الاشتراك الفوري والزمني)
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            user_id INTEGER PRIMARY KEY,
-            name TEXT,
-            shop_name TEXT,
-            region TEXT,
-            language TEXT,
-            status TEXT DEFAULT 'pending', -- pending, active, expired
-            reg_date TEXT,
-            trial_end TEXT
-        )
-    ''')
-    
-    # جدول إعدادات النظام (حفظ الفترة المجانية بالدقائق لتسهيل التحكم بالساعات ونصف الساعة)
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS system_config (
-            key TEXT PRIMARY KEY,
-            value TEXT
-        )
-    ''')
-    
-    # القيمة الافتراضية للفترة المجانية (7 أيام = 10080 دقيقة)
-    cursor.execute("INSERT OR IGNORE INTO system_config (key, value) VALUES ('trial_minutes', '10080')")
-    
-    conn.commit()
-    conn.close()
+bot = telebot.TeleBot(BOT_TOKEN)
 
-# استدعاء الدالة للتأكد من تصفير وبناء النظام بنظافة
-init_db(reset=True)
+# قاعدة البيانات الافتراضية للجلسات
+USERS_DB = {}
+SYSTEM_CONFIG = {
+    'trial_duration_text': "3 أيام",  
+    'trial_seconds': 3 * 24 * 60 * 60
+}
 
-# --- دالات مساعدة لإدارة الوقت والنظام ---
-
-def get_trial_minutes():
-    conn = sqlite3.connect('gold_nucleus.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT value FROM system_config WHERE key='trial_minutes'")
-    res = cursor.fetchone()
-    conn.close()
-    return int(res[0]) if res else 10080
-
-def set_trial_minutes(minutes):
-    conn = sqlite3.connect('gold_nucleus.db')
-    cursor = conn.cursor()
-    cursor.execute("UPDATE system_config SET value=? WHERE key='trial_minutes'", (str(minutes),))
-    conn.commit()
-    conn.close()
-
-def format_duration(minutes):
-    if minutes >= 1440:
-        return f"{minutes // 1440} أيام"
-    elif minutes >= 60:
-        return f"{minutes // 60} ساعة"
-    else:
-        return f"{minutes} دقيقة"
-
-def check_user_status(user_id):
-    conn = sqlite3.connect('gold_nucleus.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT status, trial_end FROM users WHERE user_id=?", (user_id,))
-    user = cursor.fetchone()
-    conn.close()
-    
+# فحص صلاحية المشترك الفورية (حل مشكلة تعليق القفل)
+def check_user_access(user_id):
+    if user_id == ADMIN_ID:
+        return True
+    user = USERS_DB.get(user_id)
     if not user:
-        return "not_registered"
-    
-    status, trial_end_str = user
-    if status == 'active':
-        return "active"
-        
-    # التحقق من الوقت المجاني الديناميكي
-    trial_end = datetime.strptime(trial_end_str, '%Y-%m-%d %H:%M:%S')
-    if datetime.now() < trial_end:
-        return "trial"
-    else:
-        return "expired"
+        return False
+    if user.get('is_active') is True:
+        return True
+    if time.time() < user.get('trial_end', 0):
+        return True
+    return False
 
-# --- تدفق واجهة المستخدم (الترحيب والاستمارة) ---
-
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
-    user_id = message.chat.id
-    status = check_user_status(user_id)
-    trial_min = get_trial_minutes()
-    duration_text = format_duration(trial_min)
+# 2️⃣ دالة إرسال القائمة الرئيسية بنظافة واختصار
+def send_main_menu(user_id):
+    USERS_DB[user_id]['step'] = 'main_menu' # تثبيت الحالة لمنع التداخل
     
-    # رسالة ترحيبية تعريفية متكاملة قبل بدء الاستمارة
-    welcome_text = (
-        f"👑 *مرحباً بك في نظام بوت حسابات الذهب الذكي* 👑\n"
-        f"المطور خصيصاً لخدمة صاغة الذهب والمجوهرات بأعلى سرعة وأقل استهلاك للإنترنت.\n\n"
-        f"✨ *مميزات النظام:*\n"
-        f"• دعم كامل لثلاث لغات (العربية، الكوردية، الإنجليزية).\n"
-        f"• حسابات دقيقة وفورية للأوزان والأجور والأرباح لحظة بلحظة.\n"
-        f"• يعمل بكفاءة استثنائية حتى في ظروف الإنترنت الضعيف.\n\n"
-        f"🎁 نوفر لك فترة تجريبية مجانية بالكامل مدتها: *{duration_text}*.\n\n"
-        f"اضغط على الزر أدناه للبدء في ملء استمارة الاشتراك وتفعيل حسابك فوراً."
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    markup.add(
+        types.InlineKeyboardButton("⚖️ ابدأ حساب عملية ذهبية جديدة", callback_data="op_start_calc"),
+        types.InlineKeyboardButton("⚙️ إعدادات الحساب والدعم", callback_data="op_settings")
     )
-    
-    markup = types.InlineKeyboardMarkup()
-    if status == "not_registered":
-        markup.add(types.InlineKeyboardButton("📝 البدء وملء استمارة الحساب", callback_data="start_reg"))
-    else:
-        markup.add(types.InlineKeyboardButton("🚀 الدخول إلى لوحة التحكم", callback_data="main_menu"))
-        
-    bot.send_message(user_id, welcome_text, parse_mode='Markdown', reply_markup=markup)
+    bot.send_message(
+        user_id, 
+        "📋 *القائمة الرئيسية لنظام نواة الذهب:*\nيرجى اختيار العملية المطلوبة من الأزرار أدناه:", 
+        reply_markup=markup, 
+        parse_mode="Markdown"
+    )
 
-@bot.callback_query_handler(func=lambda call: True)
-def handle_callbacks(call):
+# 3️⃣ أوامر البداية والتسجيل وتصفير البيانات
+@bot.message_handler(commands=['start'])
+def start_command(message):
+    user_id = message.chat.id
+    
+    # تصفير الملفات القديمة بالكامل والبدء من جديد بنظافة
+    reset_user_session(user_id, USERS_DB)
+    user = USERS_DB[user_id]
+    
+    welcome_text = (
+        f"{LANG_PACKS[user['lang']]['welcome']}\n\n"
+        f"{LANG_PACKS[user['lang']]['trial_msg'].format(SYSTEM_CONFIG['trial_duration_text'])}\n\n"
+        f"----------------------------------------\n"
+        f"{LANG_PACKS[user['lang']]['register_start']}"
+    )
+    bot.send_message(user_id, welcome_text, parse_mode="Markdown")
+    bot.send_message(user_id, "📍 يرجى إرسال *اسم محل الذهب* الخاص بك للبدء:")
+    USERS_DB[user_id]['step'] = 'get_shop_name'
+
+# 4️⃣ معالجة ضغط أزرار القائمة الرئيسية (تغيير الحالة الفوري)
+@bot.callback_query_handler(func=lambda call: call.data.startswith("op_"))
+def handle_main_menu_buttons(call):
     user_id = call.message.chat.id
+    action = call.data
     
-    # حل مشكلة ضعف النت: تعديل نفس الرسالة لمنع التكرار وتوفير البيانات
-    if call.data == "start_reg":
-        # بدء استمارة المعلومات خطوة بخطوة عبر الأزرار لتسريع العملية
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("العربية 🇸🇦", callback_data="set_lang_ar"))
-        markup.add(types.InlineKeyboardButton("Kurdî ☀️", callback_data="set_lang_ku"))
-        markup.add(types.InlineKeyboardButton("English 🇬🇧", callback_data="set_lang_en"))
-        bot.edit_message_text("الرجاء اختيار لغة النظام المعتمدة المريحة لك:\nتکایە زمانی پەسەندکراوی سیستمەکە هەڵبژێرە:\nPlease select your preferred system language:", 
-                              chat_id=user_id, message_id=call.message.message_id, reply_markup=markup)
+    bot.answer_callback_query(call.id)
+    
+    if not check_user_access(user_id):
+        bot.send_message(user_id, LANG_PACKS['ar']['locked'], parse_mode="Markdown")
+        return
 
-    elif call.data.startswith("set_lang_"):
-        lang = call.data.split("_")[2]
-        # حفظ مبدئي للمستخدم والانتقال للمناطق
-        conn = sqlite3.connect('gold_nucleus.db')
-        cursor = conn.cursor()
-        trial_min = get_trial_minutes()
-        trial_end_time = (datetime.now() + timedelta(minutes=trial_min)).strftime('%Y-%m-%d %H:%M:%S')
-        
-        cursor.execute("INSERT OR REPLACE INTO users (user_id, language, reg_date, trial_end, status) VALUES (?, ?, ?, ?, 'pending')", 
-                       (user_id, lang, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), trial_end_time))
-        conn.commit()
-        conn.close()
-        
-        # اختيار المنطقة لغرض الجرد لاحقاً
-        markup = types.InlineKeyboardMarkup()
-        # أمثلة لمناطق الكاظمية ومناطق أخرى لتسهيل الجرد الإداري
-        markup.add(types.InlineKeyboardButton("سوق الكاظمية التجاري", callback_data="set_reg_الكاظمية"))
-        markup.add(types.InlineKeyboardButton("بغداد - الكرخ", callback_data="set_reg_الكرخ"))
-        markup.add(types.InlineKeyboardButton("بغداد - الرصافة", callback_data="set_reg_الرصافة"))
-        markup.add(types.InlineKeyboardButton("منطقة أخرى", callback_data="set_reg_أخرى"))
-        
-        bot.edit_message_text("📍 يرجى تحديد المنطقة الجغرافية لمتجرك لتنظيم الفواتير والجرد الخاص بك:", 
-                              chat_id=user_id, message_id=call.message.message_id, reply_markup=markup)
+    if action == "op_start_calc":
+        # تغيير الحالة فوراً لمنع تكرار رسالة "يرجى الاختيار"
+        USERS_DB[user_id]['step'] = 'waiting_for_gold_weight'
+        bot.delete_message(user_id, call.message.message_id)
+        bot.send_message(user_id, "✍️ ممتاز، الآن أرسل *وزن الذهب بالغرام* فقط (مثال: 24.5):")
 
-    elif call.data.startswith("set_reg_"):
-        region = call.data.split("_")[2]
-        conn = sqlite3.connect('gold_nucleus.db')
-        cursor = conn.cursor()
-        cursor.execute("UPDATE users SET region=? WHERE user_id=?", (region, user_id))
-        conn.commit()
-        conn.close()
+    elif action == "op_settings":
+        USERS_DB[user_id]['step'] = 'inside_settings'
+        bot.delete_message(user_id, call.message.message_id)
+        bot.send_message(user_id, "⚙️ واجهة الإعدادات: نظامك نشط ومحدث. للتواصل مع الدعم الفني لشركة آرامكي: @Aramky_Support")
+        time.sleep(2)
+        send_main_menu(user_id)
+
+# 5️⃣ مستقبل النصوص الذكي (يتحكم بالخطوات ويمنع لغوة الـ Loop)
+@bot.message_handler(func=lambda msg: True)
+def handle_all_text_inputs(message):
+    user_id = message.chat.id
+    
+    # تأمين وجود الحساب في الذاكرة
+    if user_id not in USERS_DB:
+        reset_user_session(user_id, USERS_DB)
         
-        # رسالة اكتمال التسجيل بنجاح مع الفحص الفوري للاشتراك
-        bot.edit_message_text("✅ تم تسجيل معلوماتك بنجاح! يتم الآن تفعيل الفترة المجانية الخاصة بك والدخول للنظام تلقائياً.", 
-                              chat_id=user_id, message_id=call.message.message_id)
-        # إرسال إشعار للمطور/الأدمن فوراً للموافقة أو المتابعة
+    user_data = USERS_DB[user_id]
+    current_step = user_data.get('step', '')
+
+    # خطوة أ: استلام اسم المحل أثناء التسجيل
+    if current_step == 'get_shop_name':
+        USERS_DB[user_id]['shop_name'] = message.text
+        markup = types.InlineKeyboardMarkup(row_width=2)
+        regions = ["الكاظمية", "المنصور", "الكرادة", "شارع النهر", "المحافظات"]
+        buttons = [types.InlineKeyboardButton(r, callback_data=f"set_region_{r}") for r in regions]
+        markup.add(*buttons)
+        bot.send_message(user_id, "🗺️ اختر منطقة المحل لتصنيف حسابك في النظام:", reply_markup=markup)
         
-    # --- لوحة تحكم الإدارة وجرد المناطق وتغيير الوقت المجاني لحظياً ---
-    elif call.data == "admin_panel":
-        show_admin_panel(user_id, call.message.message_id)
-        
-    elif call.data == "admin_jard_region":
-        conn = sqlite3.connect('gold_nucleus.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT region, COUNT(*) FROM users GROUP BY region")
-        rows = cursor.fetchall()
-        conn.close()
-        
-        report = "📊 *جرد إحصائيات العملاء حسب المناطق الحالية:*\n\n"
-        for row in rows:
-            report += f"📍 {row[0]}: {row[1]} عميل/محال\n"
+    # خطوة ب: استلام وزن الذهب وحساب الفاتورة
+    elif current_step == 'waiting_for_gold_weight':
+        try:
+            weight = float(message.text)
             
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("⬅️ العودة للوحة الإدارة", callback_data="admin_panel"))
-        bot.edit_message_text(report, chat_id=user_id, message_id=call.message.message_id, parse_mode='Markdown', reply_markup=markup)
+            # خدعة جاري تحميل العمليات الذهبية لامتصاص ضعف النت
+            load = bot.send_message(user_id, LANG_PACKS['ar']['loading'])
+            time.sleep(1.8)
+            bot.delete_message(user_id, load.message_id)
+            
+            # توليد وإرسال الفاتورة الفخمة للزبائن
+            shop_name = user_data.get('shop_name', 'محل الذهب')
+            inv = generate_customer_invoice(shop_name, "زبون كريم", weight, weight * 62.5, lang=user_data.get('lang', 'ar'))
+            bot.send_message(user_id, inv, parse_mode="Markdown")
+            
+            # إعادة المستخدم إلى القائمة الرئيسية بنظافة وتأمين حالته الجديدة
+            send_main_menu(user_id)
+            
+        except ValueError:
+            bot.send_message(user_id, "❌ عذراً، يرجى إدخال وزن الذهب كأرقام فقط (مثال: 21.4):")
+            
+    # خطوة ج: إذا كان في القائمة الرئيسية وكتب نصاً عشوائياً بدلاً من الضغط على الأزرار
+    elif current_step == 'main_menu':
+        bot.send_message(user_id, "⚠️ تنبيه: يرجى استخدام *الأزرار الظاهرة أسفل الشاشة* واختيار العملية المطلوبة، لا تكتب نصاً مباشراً.")
 
-    elif call.data == "admin_change_trial":
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("⏱️ نصف ساعة (30 دقيقة)", callback_data="conf_trial_30"))
-        markup.add(types.InlineKeyboardButton("⏳ ساعتان (120 دقيقة)", callback_data="conf_trial_120"))
-        markup.add(types.InlineKeyboardButton("📅 3 أيام", callback_data="conf_trial_4320"))
-        markup.add(types.InlineKeyboardButton("📅 7 أيام (الافتراضي)", callback_data="conf_trial_10080"))
-        markup.add(types.InlineKeyboardButton("⬅️ العودة", callback_data="admin_panel"))
-        bot.edit_message_text("⚙️ *إعدادات التحكم بالفترة التجريبية للأنظمة والتعريف التلقائي:*\nاختر المدة التي ستظهر تلقائياً للعملاء الجدد في رسائل الترحيب:", 
-                              chat_id=user_id, message_id=call.message.message_id, parse_mode='Markdown', reply_markup=markup)
+# 6️⃣ معالجة اختيار المنطقة وإكمال التسجيل الافتراضي
+@bot.callback_query_handler(func=lambda call: call.data.startswith("set_region_"))
+def process_region(call):
+    user_id = call.message.chat.id
+    region = call.data.split("_")[2]
+    
+    USERS_DB[user_id]['region'] = region
+    USERS_DB[user_id]['trial_end'] = time.time() + SYSTEM_CONFIG['trial_seconds']
+    
+    bot.delete_message(user_id, call.message.message_id)
+    
+    # تفعيل واجهة العميل الرئيسية فوراً
+    send_main_menu(user_id)
+    
+    # إشعار صامت للآدمن بالجرد
+    admin_alert = f"🔔 *عميل جديد سجل في النظام*\n🆔 المعرف: `{user_id}`\n🏪 المحل: {USERS_DB[user_id]['shop_name']}\n📍 المنطقة: {region}"
+    bot.send_message(ADMIN_ID, admin_alert, parse_mode="Markdown")
 
-    elif call.data.startswith("conf_trial_"):
-        minutes = int(call.data.split("_")[2])
-        set_trial_minutes(minutes)
-        duration_txt = format_duration(minutes)
+# 7️⃣ لوحة تحكم الإدارة (الآدمن)
+@bot.message_handler(commands=['admin'])
+def admin_panel(message):
+    if message.chat.id != ADMIN_ID:
+        return
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    markup.add(
+        types.InlineKeyboardButton("📊 جرد العملاء حسب المناطق", callback_data="admin_view_regions"),
+        types.InlineKeyboardButton("⏱️ تعديل وقت الفترة المجانية", callback_data="admin_change_trial"),
+        types.InlineKeyboardButton("🔓 تفعيل يدوي فوري لمشترك (فك القفل)", callback_data="admin_activate_user")
+    )
+    bot.send_message(ADMIN_ID, "👑 *لوحة إدارة نظام نواة الذهب المنسقة*", reply_markup=markup, parse_mode="Markdown")
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("admin_"))
+def process_admin_callbacks(call):
+    if call.message.chat.id != ADMIN_ID:
+        return
+    action = call.data
+    
+    if action == "admin_view_regions":
+        report = "📋 *تقرير جرد وتعداد العملاء الفعلي حسب المناطق:*\n\n"
+        regions_list = ["الكاظمية", "المنصور", "الكرادة", "شارع النهر", "المحافظات"]
+        for reg in regions_list:
+            report += f"📍 *منطقة {reg}:*\n"
+            count = 0
+            for uid, data in USERS_DB.items():
+                if data.get('region') == reg:
+                    status_icon = "🟢 نشط" if check_user_access(uid) else "🔴 مقفل"
+                    report += f"  ← 🏬 {data.get('shop_name')} (`{uid}`) - {status_icon}\n"
+                    count += 1
+            if count == 0:
+                report += "  ← _لا يوجد عملاء_\n"
+            report += "---------------------\n"
+        bot.send_message(ADMIN_ID, report, parse_mode="Markdown")
         
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("⬅️ العودة للوحة الإدارة", callback_data="admin_panel"))
-        bot.edit_message_text(f"🎯 تم تحديث النظام بنجاح! الفترة المجانية للترحيب والتعريف أصبحت الآن: *{duration_txt}* وتطبق فوراً على الحسابات الجديدة والملفات المصفرة.", 
-                              chat_id=user_id, message_id=call.message.message_id, parse_mode='Markdown', reply_markup=markup)
+    elif action == "admin_change_trial":
+        markup = types.InlineKeyboardMarkup(row_width=2)
+        markup.add(
+            types.InlineKeyboardButton("⏱️ نصف ساعة", callback_data="set_time_30m"),
+            types.InlineKeyboardButton("⏳ 3 ساعات", callback_data="set_time_3h"),
+            types.InlineKeyboardButton("📅 3 أيام", callback_data="set_time_3d"),
+            types.InlineKeyboardButton("📅 7 أيام", callback_data="set_time_7d")
+        )
+        bot.send_message(ADMIN_ID, "⏱️ *اختر مدة الفترة المجانية الافتراضية الجديدة:*", reply_markup=markup, parse_mode="Markdown")
 
-def show_admin_panel(user_id, message_id):
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("📊 جرد العملاء حسب المناطق", callback_data="admin_jard_region"))
-    markup.add(types.InlineKeyboardButton("⏱️ تعديل وزيادة/تقليل الفترة المجانية", callback_data="admin_change_trial"))
-    bot.edit_message_text("🛠️ *لوحة الإدارة والتحكم الذكي لنظام آرامكي الرقمي*:\nيمكنك تعديل الإعدادات والتحقق من حسابات العملاء بسلاسة وسرعة عبر الأزرار المختصرة.", 
-                          chat_id=user_id, message_id=message_id, parse_mode='Markdown', reply_markup=markup)
+    elif action == "admin_activate_user":
+        msg = bot.send_message(ADMIN_ID, "✍️ يرجى إرسال (ID المعرف) الخاص بالعميل لتفعيله فوراً وفك قفل النظام عنه:")
+        bot.register_next_step_handler(msg, process_manual_activation)
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("set_time_"))
+def process_time_change(call):
+    time_code = call.data.split("_")[2]
+    if time_code == "30m":
+        SYSTEM_CONFIG['trial_duration_text'] = "30 دقيقة"
+        SYSTEM_CONFIG['trial_seconds'] = 30 * 60
+    elif time_code == "3h":
+        SYSTEM_CONFIG['trial_duration_text'] = "3 ساعات"
+        SYSTEM_CONFIG['trial_seconds'] = 3 * 60 * 60
+    elif time_code == "3d":
+        SYSTEM_CONFIG['trial_duration_text'] = "3 أيام"
+        SYSTEM_CONFIG['trial_seconds'] = 3 * 24 * 60 * 60
+    elif time_code == "7d":
+        SYSTEM_CONFIG['trial_duration_text'] = "7 أيام"
+        SYSTEM_CONFIG['trial_seconds'] = 7 * 24 * 60 * 60
+    bot.send_message(ADMIN_ID, f"✅ تم تعديل النظام! المدة المعتمدة الآن: *{SYSTEM_CONFIG['trial_duration_text']}*", parse_mode="Markdown")
+
+def process_manual_activation(message):
+    try:
+        target_id = int(message.text)
+        if target_id in USERS_DB:
+            # الحل النهائي والمباشر لفك القفل بدون تعليق
+            USERS_DB[target_id]['is_active'] = True  
+            USERS_DB[target_id]['status'] = 'active'
+            
+            shop_name = USERS_DB[target_id].get('shop_name', 'محل الذهب')
+            aramky_inv = generate_aramky_invoice(target_id, shop_name, "الباقة الماسية المدعومة", "سنوي / دائم")
+            
+            bot.send_message(ADMIN_ID, f"✅ تم تفعيل العميل بنجاح!\n\n{aramky_inv}", parse_mode="Markdown")
+            bot.send_message(target_id, f"🔓 *تهانينا! تم قبول اشتراكك وفك قفل النظام بنجاح.*\n\n{aramky_inv}", parse_mode="Markdown")
+            time.sleep(1.5)
+            send_main_menu(target_id)
+        else:
+            bot.send_message(ADMIN_ID, "❌ المعرف غير مسجل بالنظام حالياً.")
+    except ValueError:
+        bot.send_message(ADMIN_ID, "❌ يرجى إرسال أرقام صحيحة فقط.")
+
+# تشغيل مستمر ومحمي ضد تقطيع الإنترنت بالعراق
+if __name__ == "__main__":
+    print("🚀 GoldenCalc_Bot is fully updated and running perfectly...")
+    bot.infinity_polling(timeout=60, long_polling_timeout=30)
