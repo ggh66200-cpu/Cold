@@ -1,280 +1,276 @@
-# bot.py
-import os
-import time
-import telebot
-from telebot import types
-from utils import (
-    LANG_PACKS, reset_user_session, format_currency_iqd_usd,
-    generate_aramky_invoice, generate_customer_invoice
-)
+import logging
+import asyncio
+from aiogram import Bot, Dispatcher, F
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.filters import Command
 
-# 1️⃣ جلب مفتاح التوكن والآدمن من بيئة السيرفر
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "YOUR_SERVER_HIDDEN_TOKEN")
-ADMIN_ID = int(os.environ.get("ADMIN_ID", "123456789"))
+# استيراد إعدادات الدوال المساعدة المتكاملة
+import utils
 
-bot = telebot.TeleBot(BOT_TOKEN)
+# إعدادات التوكن والمشرفين (يرجى ملء البيانات هنا)
+BOT_TOKEN = "ضع_توكن_البوت_الخاص_بك_هنا"
+ADMIN_IDS = [123456789]  # ضع الآي دي الرقمي الخاص بك كمشرف هنا لحماية الكنترول بانل
+GLOBAL_GOLD_PRICE_24 = 95000  # السعر الافتراضي لغرام الذهب عيار 24 بالدينار العراقي كمثال تنفيذي
 
-# قاعدة البيانات الافتراضية المؤقتة للجلسات
-USERS_DB = {}
-SYSTEM_CONFIG = {
-    'trial_duration_text': "3 أيام",  
-    'trial_seconds': 3 * 24 * 60 * 60
-}
+logging.basicConfig(level=logging.INFO)
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher()
 
-# فحص صلاحية المشترك الفورية (حل مشكلة تعليق القفل)
-def check_user_access(user_id):
-    if user_id == ADMIN_ID:
-        return True
-    user = USERS_DB.get(user_id)
-    if not user:
-        return False
-    if user.get('is_active') is True:
-        return True
-    if time.time() < user.get('trial_end', 0):
-        return True
-    return False
+# الحالات الخاصة بالعمليات الحسابية المتتابعة (FSM) لمنع تداخل المدخلات
+class GoldCalcStates(StatesGroup):
+    waiting_for_weight = State()
+    waiting_for_karat = State()
+    waiting_for_workmanship = State()
 
-# 2️⃣ دالة إرسال القائمة الرئيسية بنظافة وبأزرار إنلاين فخمة
-def send_main_menu(user_id):
-    # نضمن وجود العميل بالحافظة أولاً
-    if user_id not in USERS_DB:
-        USERS_DB[user_id] = {'shop_name': 'محل الذهب المميز', 'lang': 'ar', 'is_active': True}
-        
-    markup = types.InlineKeyboardMarkup(row_width=1)
-    markup.add(
-        types.InlineKeyboardButton("⚖️ ابدأ حساب عملية ذهبية جديدة", callback_data="op_start_calc"),
-        types.InlineKeyboardButton("⚙️ إعدادات الحساب والدعم", callback_data="op_settings")
-    )
-    
-    bot.send_message(
-        user_id, 
-        "📋 *القائمة الرئيسية لنظام نواة الذهب:*\nيرجى اختيار العملية المطلوبة من الأزرار أدناه للبدء فوراً:", 
-        reply_markup=markup, 
-        parse_mode="Markdown"
+class InvoiceStates(StatesGroup):
+    waiting_for_details = State()
+
+# الكيبوردات التفاعلية الأساسية
+def get_main_keyboard(lang):
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text=utils.LANGUAGES[lang]["calc_gold"]), KeyboardButton(text=utils.LANGUAGES[lang]["make_invoice"])],
+            [KeyboardButton(text=utils.LANGUAGES[lang]["subscribe_status"]), KeyboardButton(text="🌐 Change Language / زمان")]
+        ],
+        resize_keyboard=True
     )
 
-# 3️⃣ أمر البداية وتصفير البيانات القديمة بالكامل للبدء بنظافة
-@bot.message_handler(commands=['start'])
-def start_command(message):
-    user_id = message.chat.id
-    
-    # تصفير البيانات القديمة فوراً
-    reset_user_session(user_id, USERS_DB)
-    user = USERS_DB[user_id]
-    
-    welcome_text = (
-        f"{LANG_PACKS[user['lang']]['welcome']}\n\n"
-        f"{LANG_PACKS[user['lang']]['trial_msg'].format(SYSTEM_CONFIG['trial_duration_text'])}\n\n"
-        f"----------------------------------------\n"
-        f"{LANG_PACKS[user['lang']]['register_start']}"
+def get_lang_inline_keyboard():
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="العربية 🇮🇶", callback_data="set_lang_ar")],
+        [InlineKeyboardButton(text="Kurdî ☀️", callback_data="set_lang_ku")],
+        [InlineKeyboardButton(text="English 🇬🇧", callback_data="set_lang_en")]
+    ])
+
+def get_karat_keyboard():
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="18"), KeyboardButton(text="21")],
+            [KeyboardButton(text="22"), KeyboardButton(text="24")]
+        ],
+        resize_keyboard=True
     )
-    bot.send_message(user_id, welcome_text, parse_mode="Markdown")
-    
-    msg = bot.send_message(user_id, "📍 يرجى إرسال *اسم محل الذهب* الخاص بك للبدء:")
-    # قفل الخطوة التالية مباشرة على استقبال الاسم لمنع التكرار
-    bot.register_next_step_handler(msg, process_shop_name_step)
 
-def process_shop_name_step(message):
-    user_id = message.chat.id
-    if message.text.startswith('/'): 
-        return # إذا أرسل أمراً آخر لا نخرب النظام
-        
-    USERS_DB[user_id]['shop_name'] = message.text
-    
-    markup = types.InlineKeyboardMarkup(row_width=2)
-    regions = ["الكاظمية", "المنصور", "الكرادة", "شارع النهر", "المحافظات"]
-    buttons = [types.InlineKeyboardButton(r, callback_data=f"set_region_{r}") for r in regions]
-    markup.add(*buttons)
-    
-    bot.send_message(user_id, "🗺️ اختر منطقة المحل لتصنيف حسابك في النظام للمتابعة الدورية:", reply_markup=markup)
+# --- معالجات الأوامر العامة للمستخدمين ---
 
-# 4️⃣ معالجة ضغط أزرار القائمة الرئيسية (منع التكرار والـ Loop)
-@bot.callback_query_handler(func=lambda call: call.data.startswith("op_"))
-def handle_main_menu_buttons(call):
-    user_id = call.message.chat.id
-    action = call.data
-    
-    bot.answer_callback_query(call.id)
-    
-    # الفحص الفوري للأمان والاشتراك
-    if not check_user_access(user_id):
-        bot.send_message(user_id, LANG_PACKS['ar']['locked'], parse_mode="Markdown")
+@dp.message(Command("start"))
+async def cmd_start(message: Message):
+    await utils.add_or_update_user(message.from_user.id, message.from_user.username)
+    lang = await utils.get_user_lang(message.from_user.id)
+    await message.answer(utils.LANGUAGES[lang]["select_lang"], reply_markup=get_lang_inline_keyboard())
+
+@dp.callback_query(F.data.startswith("set_lang_"))
+async def callback_set_lang(callback: CallbackQuery):
+    selected_lang = callback.data.split("_")[2]
+    await utils.set_user_lang(callback.from_user.id, selected_lang)
+    await callback.answer()
+    await callback.message.answer(utils.LANGUAGES[selected_lang]["welcome"], reply_markup=get_main_keyboard(selected_lang))
+
+@dp.message(F.text == "🌐 Change Language / زمان")
+async def cmd_change_lang(message: Message):
+    lang = await utils.get_user_lang(message.from_user.id)
+    await message.answer(utils.LANGUAGES[lang]["select_lang"], reply_markup=get_lang_inline_keyboard())
+
+@dp.message(F.text.in_([utils.LANGUAGES["ar"]["subscribe_status"], utils.LANGUAGES["ku"]["subscribe_status"], utils.LANGUAGES["en"]["subscribe_status"]]))
+async def cmd_sub_status(message: Message):
+    lang = await utils.get_user_lang(message.from_user.id)
+    status, end_date = await utils.get_subscription_details(message.from_user.id)
+    msg = f"💳 *الحالة:* {status}\n📅 *ينتهي في:* {end_date}\n\n"
+    if status != 'active':
+        msg += utils.LANGUAGES[lang]["trial_msg"]
+    await message.answer(msg, parse_mode="Markdown")
+
+# --- محرك حساب الذهب الآمن (حسابات فورية بدون تعليق) ---
+
+@dp.message(F.text.in_([utils.LANGUAGES["ar"]["calc_gold"], utils.LANGUAGES["ku"]["calc_gold"], utils.LANGUAGES["en"]["calc_gold"]]))
+async def start_calc(message: Message, state: FSMContext):
+    has_sub = await utils.check_subscription(message.from_user.id)
+    lang = await utils.get_user_lang(message.from_user.id)
+    if not has_sub:
+        await message.answer(utils.LANGUAGES[lang]["no_sub"])
         return
+    await message.answer(utils.LANGUAGES[lang]["enter_weight"])
+    await state.set_state(GoldCalcStates.waiting_for_weight)
 
-    if action == "op_start_calc":
-        # 🔥 حركة ذكية جداً لضعف النت: مسح الأزرار فوراً حتى لا يتم ضغطها مرتين وتسبب تكراراً
-        try:
-            bot.edit_message_reply_markup(chat_id=user_id, message_id=call.message.message_id, reply_markup=None)
-            bot.delete_message(user_id, call.message.message_id)
-        except:
-            pass
-            
-        msg = bot.send_message(user_id, "✍️ ممتاز، الآن أرسل *وزن الذهب بالغرام* فقط (مثال: 24.5):")
-        # 🔒 قفل الاستجابة القادمة فوراً على دالة حساب الذهب الحصرية
-        bot.register_next_step_handler(msg, process_gold_weight_step)
-
-    elif action == "op_settings":
-        try:
-            bot.delete_message(user_id, call.message.message_id)
-        except:
-            pass
-        bot.send_message(user_id, "⚙️ واجهة الإعدادات: نظامك نشط ومحدث بالكامل.\nلطلب الدعم الفني لشركة آرامكي: @Aramky_Support")
-        time.sleep(1.5)
-        send_main_menu(user_id)
-
-# 5️⃣ دالة معالجة وزن الذهب الحصرية (مستقلة تماماً ومحمية من اللوب)
-def process_gold_weight_step(message):
-    user_id = message.chat.id
-    if message.text.startswith('/'):
-        return # حماية إذا طلب أمر كنسلة أو بداية
-        
+@dp.message(GoldCalcStates.waiting_for_weight)
+async def process_weight(message: Message, state: FSMContext):
+    lang = await utils.get_user_lang(message.from_user.id)
     try:
         weight = float(message.text)
-        
-        # ⚡ خدعة جاري تحميل العمليات الذهبية الفخمة لامتصاص ضعف النت
-        load = bot.send_message(user_id, LANG_PACKS['ar']['loading'])
-        time.sleep(1.8)
-        try:
-            bot.delete_message(user_id, load.message_id)
-        except:
-            pass
-        
-        # توليد وإرسال فاتورة الزبائن الفخمة بالرقم الترند ورابط البوت والكسور
-        user_data = USERS_DB.get(user_id, {'shop_name': 'محل الذهب'})
-        shop_name = user_data.get('shop_name', 'محل الذهب')
-        
-        # افتراض سعر تقريبي للذهب لغرض توليد الفاتورة المميزة
-        inv = generate_customer_invoice(shop_name, "زبون كريم", weight, weight * 63.5, lang='ar')
-        bot.send_message(user_id, inv, parse_mode="Markdown")
-        
-        # بعد انتهاء العملية بنجاح، نعيد إرسال القائمة الرئيسية مرة واحدة بنظافة
-        time.sleep(1)
-        send_main_menu(user_id)
-        
+        await state.update_data(weight=weight)
+        await message.answer(utils.LANGUAGES[lang]["enter_karat"], reply_markup=get_karat_keyboard())
+        await state.set_state(GoldCalcStates.waiting_for_karat)
     except ValueError:
-        # إذا أدخل كتابة وليس أرقاماً، نبهه وأقفل عليه المحادثة مرة أخرى لحين إدخال رقم صحيح
-        msg = bot.send_message(user_id, "❌ عذراً، يرجى إدخال وزن الذهب كأرقام فقط بدون نصوص (مثال: 18.5 أو 30):")
-        bot.register_next_step_handler(msg, process_gold_weight_step)
+        await message.answer("❌ يرجى إدخال رقم صحيح للوزن:")
 
-# 6️⃣ معالجة اختيار المنطقة وإكمال التسجيل
-@bot.callback_query_handler(func=lambda call: call.data.startswith("set_region_"))
-def process_region(call):
-    user_id = call.message.chat.id
-    region = call.data.split("_")[2]
-    
-    if user_id not in USERS_DB:
-        USERS_DB[user_id] = {}
-        
-    USERS_DB[user_id]['region'] = region
-    USERS_DB[user_id]['trial_end'] = time.time() + SYSTEM_CONFIG['trial_seconds']
-    
+@dp.message(GoldCalcStates.waiting_for_karat)
+async def process_karat(message: Message, state: FSMContext):
+    lang = await utils.get_user_lang(message.from_user.id)
     try:
-        bot.delete_message(user_id, call.message.message_id)
-    except:
-        pass
-        
-    # الانتقال فوراً للقائمة الرئيسية بنظافة وثبات
-    send_main_menu(user_id)
-    
-    # إشعار صامت للآدمن بجرد الحساب الجديد
-    admin_alert = f"🔔 *عميل جديد سجل في النظام*\n🆔 المعرف: `{user_id}`\n🏪 المحل: {USERS_DB[user_id]['shop_name']}\n📍 المنطقة: {region}"
-    bot.send_message(ADMIN_ID, admin_alert, parse_mode="Markdown")
+        karat = int(message.text)
+        if karat not in [18, 21, 22, 24]:
+            raise ValueError
+        await state.update_data(karat=karat)
+        await message.answer(utils.LANGUAGES[lang]["enter_workmanship"], reply_markup=ReplyKeyboardMarkup(keyboard=[], remove_keyboard=True))
+        await state.set_state(GoldCalcStates.waiting_for_workmanship)
+    except ValueError:
+        await message.answer("❌ يرجى اختيار عيار صحيح من الخيارات المتاحة:")
 
-# 7️⃣ لوحة تحكم الإدارة والآدمن (التفعيل والجرد الفوري)
-@bot.message_handler(commands=['admin'])
-def admin_panel(message):
-    if message.chat.id != ADMIN_ID:
-        return
-    markup = types.InlineKeyboardMarkup(row_width=1)
-    markup.add(
-        types.InlineKeyboardButton("📊 جرد العملاء حسب المناطق", callback_data="admin_view_regions"),
-        types.InlineKeyboardButton("⏱️ تعديل وقت الفترة المجانية", callback_data="admin_change_trial"),
-        types.InlineKeyboardButton("🔓 تفعيل يدوي فوري لمشترك (فك القفل)", callback_data="admin_activate_user")
-    )
-    bot.send_message(ADMIN_ID, "👑 *لوحة إدارة نظام نواة الذهب المنسقة*", reply_markup=markup, parse_mode="Markdown")
-
-@bot.callback_query_handler(func=lambda call: call.data.startswith("admin_"))
-def process_admin_callbacks(call):
-    if call.message.chat.id != ADMIN_ID:
-        return
-    action = call.data
-    
-    if action == "admin_view_regions":
-        report = "📋 *تقرير جرد وتعداد العملاء الفعلي حسب المناطق:*\n\n"
-        regions_list = ["الكاظمية", "المنصور", "الكرادة", "شارع النهر", "المحافظات"]
-        for reg in regions_list:
-            report += f"📍 *منطقة {reg}:*\n"
-            count = 0
-            for uid, data in USERS_DB.items():
-                if data.get('region') == reg:
-                    status_icon = "🟢 نشط" if check_user_access(uid) else "🔴 مقفل"
-                    report += f"  ← 🏬 {data.get('shop_name')} (`{uid}`) - {status_icon}\n"
-                    count += 1
-            if count == 0:
-                report += "  ← _لا يوجد عملاء_\n"
-            report += "---------------------\n"
-        bot.send_message(ADMIN_ID, report, parse_mode="Markdown")
+@dp.message(GoldCalcStates.waiting_for_workmanship)
+async def process_workmanship(message: Message, state: FSMContext):
+    lang = await utils.get_user_lang(message.from_user.id)
+    try:
+        workmanship = float(message.text)
+        data = await state.get_data()
         
-    elif action == "admin_change_trial":
-        markup = types.InlineKeyboardMarkup(row_width=2)
-        markup.add(
-            types.InlineKeyboardButton("⏱️ نصف ساعة", callback_data="set_time_30m"),
-            types.InlineKeyboardButton("⏳ 3 ساعات", callback_data="set_time_3h"),
-            types.InlineKeyboardButton("📅 3 أيام", callback_data="set_time_3d"),
-            types.InlineKeyboardButton("📅 7 أيام", callback_data="set_time_7d")
+        # تفعيل إشارة التحميل الفورية لمنع شعور المستخدم بتأخر البوت لقفل الشاشة
+        loading_msg = await message.answer(utils.LANGUAGES[lang]["loading"])
+        await bot.send_chat_action(chat_id=message.chat.id, action="typing")
+        
+        base_p, work_p, final_p = utils.calculate_gold_price(
+            data['weight'], data['karat'], workmanship, GLOBAL_GOLD_PRICE_24
         )
-        bot.send_message(ADMIN_ID, "⏱️ *اختر مدة الفترة المجانية الافتراضية الجديدة:*", reply_markup=markup, parse_mode="Markdown")
-
-    elif action == "admin_activate_user":
-        msg = bot.send_message(ADMIN_ID, "✍️ يرجى إرسال (ID المعرف) الخاص بالعميل لتفعيله فوراً وفك قفل النظام عنه:")
-        bot.register_next_step_handler(msg, process_manual_activation)
-
-@bot.callback_query_handler(func=lambda call: call.data.startswith("set_time_"))
-def process_time_change(call):
-    time_code = call.data.split("_")[2]
-    if time_code == "30m":
-        SYSTEM_CONFIG['trial_duration_text'] = "30 دقيقة"
-        SYSTEM_CONFIG['trial_seconds'] = 30 * 60
-    elif time_code == "3h":
-        SYSTEM_CONFIG['trial_duration_text'] = "3 ساعات"
-        SYSTEM_CONFIG['trial_seconds'] = 3 * 60 * 60
-    elif time_code == "3d":
-        SYSTEM_CONFIG['trial_duration_text'] = "3 أيام"
-        SYSTEM_CONFIG['trial_seconds'] = 3 * 24 * 60 * 60
-    elif time_code == "7d":
-        SYSTEM_CONFIG['trial_duration_text'] = "7 أيام"
-        SYSTEM_CONFIG['trial_seconds'] = 7 * 24 * 60 * 60
-    bot.send_message(ADMIN_ID, f"✅ تم تعديل النظام! المدة المعتمدة الآن: *{SYSTEM_CONFIG['trial_duration_text']}*", parse_mode="Markdown")
-
-def process_manual_activation(message):
-    try:
-        target_id = int(message.text)
-        if target_id not in USERS_DB:
-            USERS_DB[target_id] = {}
-            
-        # الحل النهائي لفك القفل الفوري
-        USERS_DB[target_id]['is_active'] = True  
-        USERS_DB[target_id]['status'] = 'active'
         
-        shop_name = USERS_DB[target_id].get('shop_name', 'محل الذهب الأصلي')
-        aramky_inv = generate_aramky_invoice(target_id, shop_name, "الباقة الماسية المدعومة", "سنوي / دائم")
+        result = (
+            f"{utils.LANGUAGES[lang]['result_title']}"
+            f"⚖️ الوزن: {data['weight']} جرام\n"
+            f"👑 عيار الذهب: {data['karat']}\n"
+            f"🛠 أجور الصياغة المعتمدة: {work_p:,} د.ع\n"
+            f"💰 السعر الصافي التقريبي للذهب: {base_p:,} د.ع\n"
+            f"---------------------------\n"
+            f"🚀 إجمالي السعر النهائي للمستهلك: {final_p:,} د.ع\n\n"
+            f"شركة آرامكي - الحل الذكي لصياغة الذهب 👑"
+        )
         
-        bot.send_message(ADMIN_ID, f"✅ تم تفعيل العميل بنجاح!\n\n{aramky_inv}", parse_mode="Markdown")
-        bot.send_message(target_id, f"🔓 *تهانينا! تم قبول اشتراكك وفك قفل النظام بنجاح.*\n\n{aramky_inv}", parse_mode="Markdown")
-        
-        time.sleep(1)
-        send_main_menu(target_id)
+        await loading_msg.delete()
+        await message.answer(result, reply_markup=get_main_keyboard(lang))
+        await state.clear()
     except ValueError:
-        bot.send_message(ADMIN_ID, "❌ يرجى إرسال أرقام صحيحة فقط للمعرف.")
+        await message.answer("❌ يرجى إدخال قيمة صحيحة لأجور الصياغة:")
 
-# مستقبل النصوص العام الاحتياطي في حال إرسال نص عشوائي خارج الخطوات المقفلة
-@bot.message_handler(func=lambda msg: True)
-def default_text_fallback(message):
-    user_id = message.chat.id
-    # تنبيه ذكي يمنع العميل من تشتيت البوت بالكتابة العشوائية
-    bot.send_message(user_id, "⚠️ *تنبيه للنظام:* يرجى استخدام الأزرار الظاهرة في القائمة أعلاه واختيار العملية المطلوبة، لا تكتب نصاً مباشراً خارج الخطوات.")
+# --- نظام الفواتير الفاخرة المدمج ---
 
-# تشغيل مستمر ومحمي ضد انقطاعات شبكة الإنترنت في العراق
+@dp.message(F.text.in_([utils.LANGUAGES["ar"]["make_invoice"], utils.LANGUAGES["ku"]["make_invoice"], utils.LANGUAGES["en"]["make_invoice"]]))
+async def start_invoice(message: Message, state: FSMContext):
+    has_sub = await utils.check_subscription(message.from_user.id)
+    lang = await utils.get_user_lang(message.from_user.id)
+    if not has_sub:
+        await message.answer(utils.LANGUAGES[lang]["no_sub"])
+        return
+    await message.answer("✍️ يرجى إدخال تفاصيل الفاتورة بالشكل التالي حصراً لنظام الأتمتة:\n\n[اسم الزبون] - [الوزن] - [العيار] - [الصياغة]")
+    await state.set_state(InvoiceStates.waiting_for_details)
+
+@dp.message(InvoiceStates.waiting_for_details)
+async def process_invoice_details(message: Message, state: FSMContext):
+    lang = await utils.get_user_lang(message.from_user.id)
+    try:
+        parts = message.text.split("-")
+        if len(parts) < 4:
+            raise ValueError
+        customer_name = parts[0].strip()
+        weight = float(parts[1].strip())
+        karat = int(parts[2].strip())
+        workmanship = float(parts[3].strip())
+        
+        loading_msg = await message.answer(utils.LANGUAGES[lang]["loading"])
+        
+        _, _, final_p = utils.calculate_gold_price(weight, karat, workmanship, GLOBAL_GOLD_PRICE_24)
+        
+        invoice_text = (
+            f"{utils.LANGUAGES[lang]['invoice_header']}\n"
+            f"👤 العميل المحترم: {customer_name}\n"
+            f"⚖️ وزن القطعة المشتراة: {weight} غرام\n"
+            f"👑 العيار الرسمي: {karat}\n"
+            f"💵 إجمالي قيمة الفاتورة المعتمدة: {final_p:,} د.ع\n"
+            f"✨ شكراً لتعاملكم معنا - محلات سوق الكاظمية التجاري ✨\n"
+            f"----------------------------------------\n"
+            f"⚡ رقمية مدعومة من نظام ARAMKY Gold Nucleus"
+        )
+        
+        await loading_msg.delete()
+        await message.answer(invoice_text, reply_markup=get_main_keyboard(lang))
+        await state.clear()
+    except Exception:
+        await message.answer("❌ صيغة الإدخال غير صحيحة، يرجى المحاولة مرة أخرى والالتزام بالترتيب المطلق:\nاسم الزبون - الوزن - العيار - الصياغة")
+
+# --- لوحة التحكم الخاصة بالمشرفين (Control Panel) ---
+
+@dp.message(Command("admin"))
+async def admin_panel(message: Message):
+    if message.from_user.id not in ADMIN_IDS:
+        return
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="📊 إحصائيات النظام", callback_data="admin_stats")],
+        [InlineKeyboardButton(text="📢 بث رسالة جماعية", callback_data="admin_broadcast")]
+    ])
+    await message.answer("👑 مرحباً بك في لوحة تحكم مشرف نظام آرامكي الموحد:", reply_markup=kb)
+
+@dp.callback_query(F.data == "admin_stats")
+async def admin_stats_callback(callback: CallbackQuery):
+    if callback.from_user.id not in ADMIN_IDS:
+        return
+    total, active = await utils.db_get_stats()
+    await callback.message.answer(f"📊 *إحصائيات البوت الحالية:*\n\n👥 عدد المستخدمين الكلي: {total}\n💎 المشتركين الفعالين: {active}", parse_mode="Markdown")
+    await callback.answer()
+
+class BroadcastState(StatesGroup):
+    waiting_for_msg = State()
+
+@dp.callback_query(F.data == "admin_broadcast")
+async def admin_broadcast_callback(callback: CallbackQuery, state: FSMContext):
+    if callback.from_user.id not in ADMIN_IDS:
+        return
+    await callback.message.answer("📝 أرسل الآن نص الرسالة الإعلانية أو التوجيهية التي تود بثها لجميع محلات الذهب المسجلة بالسيستم:")
+    await state.set_state(BroadcastState.waiting_for_msg)
+    await callback.answer()
+
+@dp.message(BroadcastState.waiting_for_msg)
+async def process_broadcast(message: Message, state: FSMContext):
+    if message.from_user.id not in ADMIN_IDS:
+        return
+    user_ids = await utils.db_get_all_users()
+    sent_count = 0
+    for uid in user_ids:
+        try:
+            await bot.send_message(chat_id=uid, text=message.text)
+            sent_count += 1
+            await asyncio.sleep(0.05)  # تأخير لحماية البوت من الحظر من تيليجرام أثناء الإرسال المكثف
+        except Exception:
+            continue
+    await message.answer(f"📢 تمت عملية البث بنجاح! تم تسليم الرسالة إلى {sent_count} مستخدم بنجاح.")
+    await state.clear()
+
+# الأوامر المباشرة للمشرف للتحكم اليدوي السريع في الاشتراكات
+@dp.message(Command("activate_trial"))
+async def admin_activate_trial(message: Message):
+    if message.from_user.id not in ADMIN_IDS:
+        return
+    try:
+        target_id = int(message.text.split()[1])
+        await utils.db_activate_trial(target_id)
+        await message.answer(f"✅ تم تفعيل الفترة التجريبية للمستخدم الرقمي: {target_id}")
+    except Exception:
+        await message.answer("⚠️ الصيغة خاطئة، استخدم: `/activate_trial [user_id]`")
+
+@dp.message(Command("add_subscription"))
+async def admin_add_subscription(message: Message):
+    if message.from_user.id not in ADMIN_IDS:
+        return
+    try:
+        target_id = int(message.text.split()[1])
+        await utils.db_add_subscription(target_id, days=30)
+        await message.answer(f"✅ تم تفعيل الاشتراك المالي المدفوع بنجاح للمستخدم: {target_id}")
+    except Exception:
+        await message.answer("⚠️ الصيغة خاطئة، استخدم: `/add_subscription [user_id]`")
+
+# --- تشغيل البوت المباشر ودورة حياة النظام ---
+
+async def main():
+    await utils.init_db()  # بناء قاعدة البيانات بشكل فوري عند أول إقلاع
+    print("🔥 البوت يعمل الآن بكفاءة وبدون أي مشاكل تعليق أو قفل للنظام...")
+    await dp.start_polling(bot)
+
 if __name__ == "__main__":
-    print("🚀 GoldenCalc_Bot is running smoothly with Step-Handlers...")
-    bot.infinity_polling(timeout=60, long_polling_timeout=30)
+    asyncio.run(main())
