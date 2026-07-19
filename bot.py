@@ -1,3 +1,4 @@
+import os
 import logging
 import asyncio
 from aiogram import Bot, Dispatcher, F
@@ -6,12 +7,15 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.filters import Command
 
-# استيراد إعدادات الدوال المساعدة المتكاملة
+# استيراد إعدادات الدوال المساعدة
 import utils
 
-# إعدادات التوكن والمشرفين (يرجى ملء البيانات هنا)
-BOT_TOKEN = "ضع_توكن_البوت_الخاص_بك_هنا"
-ADMIN_IDS = [123456789]  # ضع الآي دي الرقمي الخاص بك كمشرف هنا لحماية الكنترول بانل
+# قراءة التوكن والآي دي تلقائياً من متغيرات البيئة المضافة في سيرفر Render
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+ADMIN_IDS_RAW = os.getenv("ADMIN_IDS", "")
+
+# تحويل المعرفات إلى أرقام
+ADMIN_IDS = [int(x.strip()) for x in ADMIN_IDS_RAW.split(",") if x.strip().isdigit()]
 GLOBAL_GOLD_PRICE_24 = 95000  # السعر الافتراضي لغرام الذهب عيار 24 بالدينار العراقي كمثال تنفيذي
 
 logging.basicConfig(level=logging.INFO)
