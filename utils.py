@@ -1,53 +1,56 @@
 import aiosqlite
 import datetime
 
-DB_NAME = "gold_calc.db"
+DB_NAME = "gold_nucleus.db"
 
-# النصوص والترحيبات الفاخرة باللغة العربية (ويمكنك قياس الكردية والإنجليزية عليها)
-LANGUAGES = {
-    "ar": {
-        "welcome": (
-            "✨ *يا فتاح يا عليم يا رزاق يا كريم* ✨\n\n"
-            "أهلاً ومرحباً بك يا طيب في منظومتك الإدارية الأسرع والأدق بالأسواق العريقة! 🌸\n\n"
-            "🎁 *رزقكم مبارك*، وتم تفعيل الفترة التجريبية المجانية المدتّها 7 أيام لك تجتاح بها السوق ميدانياً!\n\n"
-            "🔢 *رقم الصائغ المعتمد:* #168\n"
-            "📍 *المحل العامر:* محلات محمد جايم\n"
-            "🗺️ *الموقع:* بغداد - سوق الكاظمية التجاري\n"
-            "📞 *الهاتف المعتمد:* 789\n\n"
-            "👥 *المشتركين النشطين في الكار الآن:* 167 صائغ\n"
-            "_______________________________\n\n"
-            "🤖 يرجى اختيار العملية المطلوبة من الأزرار أدناه وتوكل على الرزاق 👇"
-        ),
-        "main_menu": "القائمة الرئيسية 👑",
-        "no_sub": (
-            "👑 *منظومة آرامكي للحلول الرقمية - فرع نواة الذهب* 👑\n\n"
-            "زميلنا الصائغ المحترم.. نود إعلامكم بأن الفترة التجريبية المخصصة لحسابكم قد انتهت صلاحيتها الزوجية.\n"
-            "حرصاً على استمرار دقة حساباتكم اليومية وتفادي أي تأخير في تنظيم فواتير محلك العامر، يرجى تجديد الاشتراك السنوي/الشهري.\n\n"
-            " الباقة الذهبية المعتمدة حالياً:\n"
-            "💰 *105,000 دينار عراقي شهرياً فقط* (بدلاً من السعر الأساسي المقدر بـ 133,000 د.ع).\n\n"
-            "📞 للتفعيل الفوري وتلقي كود التجديد، يرجى التواصل مباشرة مع الإدارة الفنية لنواة الذهب."
-        ),
-        "enter_weight": "⚖️ يرجى إدخال وزن الذهب الحالي بالجرام:",
-        "enter_karat": "👑 يرجى اختيار عيار الذهب المطلوب:",
-        "enter_workmanship": "🛠️ يرجى إدخال أجور الصياغة المعتمدة لكل جرام (بالدينار العراقي):",
-        "loading": "⏳ جاري تدقيق أسعار السوق وحساب العمليات المعتمدة...",
-        "result_title": "✨ *النتيجة الحسابية الرسمية المعتمدة* ✨\n\n",
-        "invoice_header": "📜 *فاتورة رقمية فاخرة - صادرة عن SMART GOLD SYSTEM* 📜\n\n"
-    }
-}
+# رسالة الترحيب والشرح الفاخرة المعتمدة لهيبة المنظومة
+WELCOME_MESSAGE = (
+    "👑 *مرحباً بك في منظومة SMART GOLD SYSTEM الذكية* 👑\n"
+    "المنصة الإدارية والحسابية الأولى والأسرع المصممة خصيصاً لأسواق الذهب العريقة في العراق 🇮🇶\n\n"
+    "✨ *أبرز مميزات المنظومة الاحترافية:* ✨\n"
+    "🔹 *أتمتة قانون المثقال العراقي:* حسابات ذكية تقسم المثقال على 5 غرامات فوراً وتدمج الأجور بدون أي هامش خطأ.\n"
+    "🔹 *معادلة الصرف المحلية:* تحويل الحسابات بلحظات إلى فئة (الورقة 100$) والكسور المتبقية بالدينار العراقي.\n"
+    "🔹 *الفواتير الرقمية الفاخرة:* إصدار فواتير ترويجية مخيرة تحمل هوية محلك وتدعم انتشار اسم شركتك بالسوق.\n"
+    "🔹 *سرعة فائقة (ثوانٍ معدودة):* معالجة سحابية متطورة تنهي تعليق النظام وقفل الشاشات ميدانياً.\n\n"
+    "_______________________________\n\n"
+    "✨ *يا فتاح يا عليم يا رزاق يا كريم* ✨\n"
+    "🎁 مبارك لكم، تم منح حسابكم فترة تجريبية مجانية مدتها 7 أيام لاكتساح السوق ميكانيكياً!\n\n"
+    "🤖 يرجى اختيار العملية المطلوبة من الأزرار أدناه وتوكل على الرزاق الحكيم 👇"
+)
 
-async def init_db():
+async def init_and_refresh_db():
+    """تهيئة قاعدة البيانات وتصفير السجلات لمنح المستخدمين القدامى فترة جديدة"""
     async with aiosqlite.connect(DB_NAME) as db:
+        # إنشاء جدول المستخدمين
         await db.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 user_id INTEGER PRIMARY KEY,
                 username TEXT,
-                lang TEXT DEFAULT 'ar',
                 sub_status TEXT DEFAULT 'trial',
                 trial_start TEXT,
-                sub_end TEXT
+                sub_end TEXT,
+                shop_name TEXT DEFAULT 'محلات الصائغ المعتمد',
+                shop_phone TEXT DEFAULT '077XXXXXXXX',
+                shop_address TEXT DEFAULT 'بغداد - سوق الكاظمية'
             )
         """)
+        # إنشاء جدول الإعدادات المركزية لأسعار الصباح والدولار
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS system_config (
+                key TEXT PRIMARY KEY,
+                value TEXT
+            )
+        """)
+        # وضع قيم افتراضية لأسعار الصباح إذا لم تكن موجودة
+        await db.execute("INSERT OR IGNORE INTO system_config (key, value) VALUES ('mithqal_price', '480000')")
+        await db.execute("INSERT OR IGNORE INTO system_config (key, value) VALUES ('usd_rate', '153000')") # سعر المئة دولار بالدينار
+        
+        # --- خدعة تصفير السجل المطلوبة ---
+        # تحديث كافة الحسابات الحالية لتصبح تجريبية نشطة من تاريخ اليوم وتصفير القيود السابقة
+        now = datetime.datetime.now().strftime("%Y-%m-%d")
+        fresh_end = (datetime.datetime.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d")
+        await db.execute("UPDATE users SET sub_status = 'trial', trial_start = ?, sub_end = ?", (now, fresh_end))
+        
         await db.commit()
 
 async def add_or_update_user(user_id, username):
@@ -57,13 +60,10 @@ async def add_or_update_user(user_id, username):
                 now = datetime.datetime.now().strftime("%Y-%m-%d")
                 trial_end = (datetime.datetime.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d")
                 await db.execute(
-                    "INSERT INTO users (user_id, username, lang, sub_status, trial_start, sub_end) VALUES (?, ?, 'ar', 'trial', ?, ?)",
+                    "INSERT INTO users (user_id, username, sub_status, trial_start, sub_end) VALUES (?, ?, 'trial', ?, ?)",
                     (user_id, username, now, trial_end)
                 )
                 await db.commit()
-
-async def get_user_lang(user_id):
-    return 'ar'  # افتراضي للسرعة والتركيز على الواجهة العربية الحالية المطلوبة بالسوق
 
 async def check_subscription(user_id):
     async with aiosqlite.connect(DB_NAME) as db:
@@ -76,49 +76,58 @@ async def check_subscription(user_id):
             if datetime.datetime.now() <= end_date: return True
             return False
 
-async def get_subscription_details(user_id):
+async def get_shop_details(user_id):
     async with aiosqlite.connect(DB_NAME) as db:
-        async with db.execute("SELECT sub_status, sub_end FROM users WHERE user_id = ?", (user_id,)) as cursor:
+        async with db.execute("SELECT shop_name, shop_phone, shop_address FROM users WHERE user_id = ?", (user_id,)) as cursor:
             return await cursor.fetchone()
 
-async def db_activate_trial(user_id, days=7):
-    new_end = (datetime.datetime.now() + datetime.timedelta(days=days)).strftime("%Y-%m-%d")
+async def update_shop_details(user_id, name, phone, address):
     async with aiosqlite.connect(DB_NAME) as db:
-        await db.execute("UPDATE users SET sub_status = 'trial', sub_end = ? WHERE user_id = ?", (new_end, user_id))
+        await db.execute("UPDATE users SET shop_name = ?, shop_phone = ?, shop_address = ? WHERE user_id = ?", (name, phone, address, user_id))
         await db.commit()
 
-async def db_add_subscription(user_id, days=30):
-    new_end = (datetime.datetime.now() + datetime.timedelta(days=days)).strftime("%Y-%m-%d")
+async def get_system_config():
     async with aiosqlite.connect(DB_NAME) as db:
-        await db.execute("UPDATE users SET sub_status = 'active', sub_end = ? WHERE user_id = ?", (new_end, user_id))
+        async with db.execute("SELECT key, value FROM system_config") as cursor:
+            rows = await cursor.fetchall()
+            return {r[0]: float(r[1]) for r in rows}
+
+async def update_system_config(mithqal, usd):
+    async with aiosqlite.connect(DB_NAME) as db:
+        await db.execute("UPDATE system_config SET value = ? WHERE key = 'mithqal_price'", (str(mithqal),))
+        await db.execute("UPDATE system_config SET value = ? WHERE key = 'usd_rate'", (str(usd),))
         await db.commit()
 
-async def db_get_stats():
-    async with aiosqlite.connect(DB_NAME) as db:
-        async with db.execute("SELECT COUNT(*) FROM users") as c1: total = (await c1.fetchone())[0]
-        async with db.execute("SELECT COUNT(*) FROM users WHERE sub_status = 'active'") as c2: active = (await c2.fetchone())[0]
-        return total, active
-
-async def db_get_all_users():
-    async with aiosqlite.connect(DB_NAME) as db:
-        async with db.execute("SELECT user_id FROM users") as cursor:
-            return [r[0] for r in await cursor.fetchall()]
-
-def calculate_gold_price(weight, karat, workmanship, global_price_per_gram, calc_type="sell"):
+# --- دالة الحساب المعتمدة على قانون المثقال والورقة العراقية ---
+def calculate_iraqi_gold(weight_grams, workmanship_per_gram, mithqal_price, usd_exchange_rate):
     """
-    حساب الذهب المطور: يراعي نوع العملية (بيع للزبون أو شراء سريع من الزبون)
+    قانون المثقال = سعر المثقال / 5 غرامات لإخراج سعر الغرام الصافي.
+    إجمالي السعر بالدينار = (سعر الغرام الصافي + أجور الصياغة للغرام) * الوزن بالغرام.
+    تحويل العملة = تقسيم الإجمالي على سعر الورقة (100 دولار) لإخراج عدد الأوراق والباقي بالدينار العراقي.
     """
-    karat_purities = {24: 1.0, 22: 0.916, 21: 0.875, 18: 0.750}
-    purity = karat_purities.get(karat, 0.875)
+    gram_base_price = mithqal_price / 5.0
+    total_gram_cost = gram_base_price + workmanship_per_gram
+    total_price_iqd = total_gram_cost * weight_grams
     
-    base_price = weight * (global_price_per_gram * purity)
+    # حسبة السوق: كم ورقة والباقي عراقي
+    # سعر الدولار الفردي = سعر الورقة / 100
+    single_usd_rate = usd_exchange_rate / 100.0
+    total_usd_value = total_price_iqd / single_usd_rate
     
-    if calc_type == "sell":
-        total_workmanship = weight * workmanship
-        final_price = base_price + total_workmanship
-    else:
-        # في حالة الشراء السريع من الزبون يتم خصم أجور الصياغة أو حساب صافي الوزن والذهب
-        total_workmanship = 0 
-        final_price = base_price
-        
-    return round(base_price, 2), round(total_workmanship, 2), round(final_price, 2)
+    waraqa_count = int(total_usd_value // 100)
+    remaining_usd = total_usd_value % 100
+    remaining_iqd = remaining_usd * single_usd_rate
+    
+    return round(gram_base_price, 2), round(total_price_iqd, 0), waraqa_count, round(remaining_iqd, 0)
+
+# أدوات الإدارة المطلوبة للسيطرة المطلقة
+async def db_manage_user_status(user_id, status, days=30):
+    end_date = (datetime.datetime.now() + datetime.timedelta(days=days)).strftime("%Y-%m-%d")
+    async with aiosqlite.connect(DB_NAME) as db:
+        await db.execute("UPDATE users SET sub_status = ?, sub_end = ? WHERE user_id = ?", (status, end_date, user_id))
+        await db.commit()
+
+async def db_get_all_users_full():
+    async with aiosqlite.connect(DB_NAME) as db:
+        async with db.execute("SELECT user_id, username, sub_status, sub_end FROM users") as cursor:
+            return await cursor.fetchall()
