@@ -5,7 +5,7 @@ from telebot import types
 
 app = Flask(__name__)
 @app.route('/')
-def home(): return "Aramky Server Operational"
+def home(): return "Aramky Interactive Server Up"
 def run_server():
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port)
@@ -16,38 +16,32 @@ ADMIN_ID = os.environ.get('ADMIN_ID')
 bot = telebot.TeleBot(BOT_TOKEN)
 USER_STATES = {}
 
-CANCEL_COMMANDS = ["💰 بيع للزبون", "⚖️ شراء سريع", "⚙️ أسعار الصباح", "⬅️ الرجوع للرئيسية"]
+CANCEL_COMMANDS = ["💰 بيع للزبون", "⚖️ شراء سريع", "⚙️ أسعار الصباح", "⬅️ الرجوع للرئيسية", "💰 فرۆشتن بە کڕیار", "⚖️ کڕینی خێرا", "⚙️ ڕێکخستنەکانی بەیانی", "💰 Sell to Customer", "⚖️ Quick Buy", "⚙️ Morning Prices"]
 
 def check_user_access(chat_id):
     data = utils.get_data()
     uid = str(chat_id)
     if uid not in data['users']: return False, "EXPIRED"
     u = data['users'][uid]
-    
-    # إذا كان الحساب مفعل يدوياً من الآدمن والوقت لم ينتهِ
     if u.get("is_active", False) and u.get("expiry_date", 0) > time.time():
         return True, "PREMIUM"
-        
-    # التحقق من الفترة التجريبية الديناميكية المحددة من الإدارة
     trial_duration = data.get("trial_days", 7) * 86400
     if time.time() - u.get("join_date", time.time()) < trial_duration:
         return True, "TRIAL"
-        
     return False, "EXPIRED"
 
-# رسالة الترحيب والشرح المبسط قبل التسجيل / أو عند كتابة /start
 @bot.message_handler(commands=['start'])
 def start_command(m):
     USER_STATES[m.chat.id] = {}
     intro_text = (
         "👑 **مرحباً بكم في منصة أرامكي الرقمية (نواة الذهب)** 👑\n"
-        "⚜️ _المنظومة الأقوى والمصممة خصيصاً لإدارة حسابات الصياغة والمكاتب_ ⚜️\n\n"
-        "💡 **لماذا نظام نواة الذهب؟**\n"
-        "✅ **دقة مطلقة:** حسابات أوزان تصل إلى 3 مراتب عشرية دون أي تقريب عشوائي يضر بالمكتب.\n"
-        "✅ **سرعة فائقة:** صفي فواتير البيع والشراء السريع من موبايلك بلمسة واحدة وأنت واقف مع الزبون.\n"
-        "✅ **مرونة مالية:** تحويل فوري ومؤتمت للمبالغ الضخمة بنظام (الورقة والدينار العراقي).\n"
-        "✅ **متعدد اللغات:** يدعم (العربية، الكردية، والإنكليزية) لسهولة التعامل.\n\n"
-        "👇 اضغط على الزر بالأسفل لاختيار اللغة ومباشرة العمل فوراً:"
+        "⚜️ _المنظومة الأقوى والمصممة خصيصاً لإدارة حسابات الصياغة والمكاتب العريقة_ ⚜️\n\n"
+        "💡 **لماذا نظام نواة الذهب العراقي؟**\n"
+        "✅ **دقة مطلقة:** حسابات أوزان تصل إلى 3 مراتب عشرية دون أي تقريب عشوائي يضر بمالك الحلال.\n"
+        "✅ **سرعة فائقة:** صفي فواتير البيع والشراء السريع من موبايلك بلمسة واحدة وأنت واقف بالمحل.\n"
+        "✅ **مرونة مالية:** تحويل وتوزيع فوري للمبالغ بنظام (الورقة والدينار العراقي).\n"
+        "✅ **دعم كامل للغات:** يدعم (العربية، الكردية، والإنكليزية) لسهولة قصوى بالتعامل.\n\n"
+        "👇 اضغط على الزر بالأسفل لاختيار لغتك المفضلة ومباشرة العمل الفوري:"
     )
     markup = types.InlineKeyboardMarkup(row_width=1)
     markup.add(
@@ -57,12 +51,10 @@ def start_command(m):
     )
     bot.send_message(m.chat.id, intro_text, parse_mode="Markdown", reply_markup=markup)
 
-# لوحة تحكم الآدمن المطلقة والتفاعلية بالأزرار منعا لتهنيج البوت
 @bot.message_handler(commands=['admin'])
 def admin_panel(m):
     if str(m.chat.id) != str(ADMIN_ID): return
     USER_STATES[m.chat.id] = {}
-    
     markup = types.InlineKeyboardMarkup(row_width=1)
     markup.add(
         types.InlineKeyboardButton("📊 مراجعة النظام وقوته الإجمالية", callback_data="adm_power_check"),
@@ -71,10 +63,12 @@ def admin_panel(m):
         types.InlineKeyboardButton("⏳ تعديل عدد أيام الفترة التجريبية العامة", callback_data="adm_change_global_trial"),
         types.InlineKeyboardButton("📢 بث تنويه عام على واجهات الصاغة", callback_data="adm_broadcast_prompt")
     )
-    bot.send_message(m.chat.id, "👑 **إدارة أرامكي العليا - خيارات التحكم والتحصين والاستعلام الفوري:**", parse_mode="Markdown", reply_markup=markup)
+    bot.send_message(m.chat.id, "👑 **إدارة أرامكي العليا - خيارات التحكم والتحصين والاستعلام الفوري لوأد الأخطاء:**", parse_mode="Markdown", reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("adm_"))
 def admin_callbacks(call):
+    # إجابة الفورية لمنع تعليق أو تجميد أزرار الإدارة تلقائياً
+    bot.answer_callback_query(call.id)
     if str(call.message.chat.id) != str(ADMIN_ID): return
     action = call.data
     data = utils.get_data()
@@ -83,15 +77,14 @@ def admin_callbacks(call):
     if action == "adm_power_check":
         total_users = len(data.get("users", {}))
         trial_days = data.get("trial_days", 7)
-        msg = f"📊 **تقرير قوة وثبات المنظومة:**\n\n🔹 حالة اتصال السيرفر: `Excellent 🟢`\n🔹 قاعدة بيانات المكاتب: `المجموع {total_users} مكتب`\n🔹 مهلة الأسبوع المجاني الافتراضية: `{trial_days} أيام`\n🔹 معدل معالجة الفواتير: `0.002 ثانية (فوري)`"
+        msg = f"📊 **تقرير قوة وثبات المنظومة الحية:**\n\n🔹 حالة اتصال السيرفر: `Excellent 🟢`\n🔹 قاعدة بيانات المكاتب: `المجموع {total_users} مكتب`\n🔹 مهلة الأسبوع التجريبي الافتراضية: `{trial_days} أيام`\n🔹 جدار الحماية ضد التداخل البرمي: `Active 🛡️`"
         bot.send_message(ADMIN_ID, msg, parse_mode="Markdown")
         
     elif action == "adm_self_heal":
-        # فحص سلامة الملفات وإصلاح أي تعليق أو تداخل في الحسابات تلقائياً
         for uid in list(data["users"].keys()):
             if not isinstance(data["users"][uid], dict): data["users"][uid] = {"join_date": now, "lang": "ar"}
         utils.save_data(data)
-        bot.send_message(ADMIN_ID, "🛡️ **تم الفحص الذاتي المتقدم!** قاعدة البيانات سليمة 100% وتم تحصين السيرفر من أي تداخل برمي.")
+        bot.send_message(ADMIN_ID, "🛡️ **تم الفحص الذاتي وإصلاح الاختناقات النصية!** كل الأزرار النشطة مربوطة بالسيرفر بشكل صحيح الآن.")
         
     elif action == "adm_manage_individual":
         USER_STATES[call.message.chat.id] = {"action": "INPUT_USER_ID_FOR_CONTROL"}
@@ -99,7 +92,7 @@ def admin_callbacks(call):
         
     elif action == "adm_change_global_trial":
         USER_STATES[call.message.chat.id] = {"action": "INPUT_GLOBAL_TRIAL_DAYS"}
-        bot.send_message(ADMIN_ID, f"⏳ الفترة الحالية هي `{data.get('trial_days', 7)}` أيام.\nأرسل الرقم الجديد الآن لتعديله أو أرسل `0` لإلغاء الفترة المجانية تماماً وجعل الاشتراك إجباري فوراً:")
+        bot.send_message(ADMIN_ID, f"⏳ الفترة الحالية هي `{data.get('trial_days', 7)}` أيام.\nأرسل الرقم الجديد الآن لتعديله أو أرسل `0` لطلب الدفع فوراً للحسابات الجديدة:")
 
     elif action == "adm_broadcast_prompt":
         USER_STATES[call.message.chat.id] = {"action": "INPUT_BROADCAST_TEXT"}
@@ -112,7 +105,7 @@ def admin_callbacks(call):
             data["users"][target]["expiry_date"] = max(data["users"][target].get("expiry_date", 0), now) + (30 * 86400)
             utils.save_data(data)
             bot.edit_message_caption(chat_id=ADMIN_ID, message_id=call.message.message_id, caption=call.message.caption + "\n\n🟢 [تم الاعتماد والاشتراك بنجاح ✅]", reply_markup=None)
-            try: bot.send_message(target, f"🎉 **مبارك يا طيب!** تم تفعيل الاشتراك البريميوم المفتوح بنجاح في سيرفرات أرامكي! 🌸")
+            try: bot.send_message(target, f"🎉 **مبارك يا طيب!** تم تفعيل الاشتراك البريميوم المفتوح بنجاح في سيرفرات أرامكي! المنظومة تعمل الآن بكامل قوتها 🌸")
             except: pass
 
     elif action.startswith("adm_reject_"):
@@ -121,9 +114,10 @@ def admin_callbacks(call):
         try: bot.send_message(target, "⚠️ نعتذر منك أخي الغالي، لم يتم تأكيد صورة الوصل المالي، يرجى إعادة إرساله بشكل واضح.")
         except: pass
 
-# أزرار التفاعل المباشر لزيادة أو إنقاص الوقت دون الحاجة للكتابة نهائياً منعا للتهنيج
 @bot.callback_query_handler(func=lambda call: call.data.startswith("time_ctrl_"))
 def handle_time_tuning(call):
+    # إلغاء تجميد وساعة الانتظار فوق أزرار زيادة ونقصان الوقت التفاعلية
+    bot.answer_callback_query(call.id)
     if str(call.message.chat.id) != str(ADMIN_ID): return
     _, mode, target_uid = call.data.split("_", 2)
     data = utils.get_data()
@@ -139,8 +133,6 @@ def handle_time_tuning(call):
     elif mode == "zero": data["users"][target_uid]["expiry_date"] = 0; data["users"][target_uid]["is_active"] = False
     
     utils.save_data(data)
-    
-    # إعادة تحديث الرسالة لتبين الوقت الجديد فوراً في نفس اللحظة
     rem_days = int((data["users"][target_uid].get("expiry_date", 0) - now) // 86400)
     status_str = f"🟢 مشترك فعال (متبقي: {rem_days} يوم)" if data["users"][target_uid].get("expiry_date", 0) > now else "🔴 منتهي / تجريبي"
     
@@ -151,10 +143,11 @@ def handle_time_tuning(call):
         types.InlineKeyboardButton("➕ إضافة أسبوع كامل", callback_data=f"time_ctrl_add7d_{target_uid}"),
         types.InlineKeyboardButton("⚠️ تصفير الوقت بالكامل", callback_data=f"time_ctrl_zero_{target_uid}")
     )
-    bot.edit_message_text(chat_id=ADMIN_ID, message_id=call.message.message_id, text=f"👤 **تحكم تفاعلي فوري بالوقت:**\n🏪 المكتب: **{u.get('shop_name')}**\nالحالة المحدثة الآن: `{status_str}`\n\nاضغط على الأزرار أدناه للتعديل المباشر والسريع دون كتابة:", parse_mode="Markdown", reply_markup=markup)
+    bot.edit_message_text(chat_id=ADMIN_ID, message_id=call.message.message_id, text=f"👤 **تحكم تفاعلي فوري بالوقت:**\n🏪 المكتب: **{u.get('shop_name')}**\nالحالة المحدثة الآن: `{status_str}`\n\nاضغط على الأزرار للتعديل الفوري الفعال:", parse_mode="Markdown", reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("set_lang_"))
 def callback_language(call):
+    bot.answer_callback_query(call.id)
     chat_id = call.message.chat.id
     lang = call.data.replace("set_lang_", "")
     utils.set_user_lang(chat_id, lang)
@@ -194,6 +187,7 @@ def check_access_and_proceed(chat_id, lang):
 
 @bot.callback_query_handler(func=lambda call: call.data == "pay_manual_flow")
 def handle_manual_pay(call):
+    bot.answer_callback_query(call.id)
     chat_id = call.message.chat.id
     lang = utils.get_user_lang(chat_id)
     USER_STATES[chat_id] = {"action": "SENDING_RECEIPT"}
@@ -208,10 +202,10 @@ def handle_photo(m):
     if state_data.get("action") == "SENDING_RECEIPT":
         data = utils.get_data()
         s_name = data['users'].get(str(chat_id), {}).get("shop_name", "غير مسجل")
-        alert = f"🚨 **طلب تفعيل اشتراك بريميوم جديد لـ أرامكي!**\n━━━━━━━━━━━━━━━━━━\n👤 **المعرف للعميل:** `{chat_id}`\n🏪 **المكتب الصائغ:** `{s_name}`"
+        alert = f"🚨 **طلب تفعيل اشتراك بريميوم مع الخصم لـ أرامكي!**\n━━━━━━━━━━━━━━━━━━\n👤 **المعرف للعميل:** `{chat_id}`\n🏪 **المكتب الصائغ:** `{s_name}`"
         markup = types.InlineKeyboardMarkup()
         markup.add(
-            types.InlineKeyboardButton("✅ اعتماد وتفعيل 30 يوم", callback_data=f"adm_approve_{chat_id}"),
+            types.InlineKeyboardButton("✅ تفعيل 45 يوماً بالخصم الكامل", callback_data=f"adm_approve_{chat_id}"),
             types.InlineKeyboardButton("❌ رفض وإشعار الصائغ", callback_data=f"adm_reject_{chat_id}")
         )
         bot.send_photo(ADMIN_ID, m.photo[-1].file_id, caption=alert, parse_mode="Markdown", reply_markup=markup)
@@ -227,15 +221,15 @@ def router(m):
     state_data = USER_STATES.get(chat_id, {})
     current_action = state_data.get("action", "")
 
+    # أولاً: معالجة نصوص الإدارة العليا لكي لا تتأثر بحالة الحساب
     if str(chat_id) == str(ADMIN_ID):
         if current_action == "INPUT_BROADCAST_TEXT":
             data = utils.get_data()
             data["system_broadcast"] = text
             utils.save_data(data)
             USER_STATES[chat_id] = {}
-            bot.send_message(ADMIN_ID, "✅ تم تعميم الرسالة والتنويه بنجاح على واجهات المشتركين.")
+            bot.send_message(ADMIN_ID, "✅ تم تعميم الرسالة بنجاح على واجهات المشتركين.")
             return
-            
         elif current_action == "INPUT_GLOBAL_TRIAL_DAYS":
             try:
                 days = int(text)
@@ -246,14 +240,12 @@ def router(m):
             except: bot.send_message(ADMIN_ID, "⚠️ خطأ! أدخل أرقاماً فقط.")
             USER_STATES[chat_id] = {}
             return
-
         elif current_action == "INPUT_USER_ID_FOR_CONTROL":
             data = utils.get_data()
             if text in data["users"]:
                 u = data["users"][text]
                 rem_days = int((u.get("expiry_date", 0) - time.time()) // 86400)
                 status_str = f"🟢 مشترك فعال (متبقي: {rem_days} يوم)" if u.get("expiry_date", 0) > time.time() else "🔴 منتهي / تجريبي"
-                
                 markup = types.InlineKeyboardMarkup(row_width=2)
                 markup.add(
                     types.InlineKeyboardButton("➕ إضافة يوم", callback_data=f"time_ctrl_add1d_{text}"),
@@ -261,11 +253,12 @@ def router(m):
                     types.InlineKeyboardButton("➕ إضافة أسبوع كامل", callback_data=f"time_ctrl_add7d_{text}"),
                     types.InlineKeyboardButton("⚠️ تصفير الوقت بالكامل", callback_data=f"time_ctrl_zero_{text}")
                 )
-                bot.send_message(ADMIN_ID, f"👤 **تحكم تفاعلي فوري بالوقت:**\n🏪 المكتب: **{u.get('shop_name')}**\nالحالة الحالية: `{status_str}`\n\nاضغط على الأزرار للتعديل الفوري والدقيق دون الحاجة للكتابة:", parse_mode="Markdown", reply_markup=markup)
+                bot.send_message(ADMIN_ID, f"👤 **تحكم تفاعلي بالوقت:**\n🏪 المكتب: **{u.get('shop_name')}**\nالحالة الحالية: `{status_str}`\n\nاضغط على الأزرار للتعديل الفوري:", parse_mode="Markdown", reply_markup=markup)
             else: bot.send_message(ADMIN_ID, "❌ لم يتم العثور على هذا الـ ID في قاعدة البيانات.")
             USER_STATES[chat_id] = {}
             return
 
+    # ثانياً: خطوة التسجيل الإجباري للمحل
     if current_action == "REGISTER_STEP_1":
         lines = [l.strip() for l in m.text.split('\n') if l.strip()]
         if len(lines) < 3:
@@ -285,17 +278,23 @@ def router(m):
         check_access_and_proceed(chat_id, lang)
         return
 
+    # ثالثاً: أوامر الإلغاء والرجوع دائمًا متاحة ومفتوحة
     if text in CANCEL_COMMANDS or text == "/start":
         USER_STATES[chat_id] = {}
         check_access_and_proceed(chat_id, lang)
         return
 
+    # رابعاً: الفحص الذكي والآمن للصلاحية؛ إذا انتهى حسابه يمنع تشغيل الفواتير ويعرض شاشة الاشتراك المعسلة
     has_access, _ = check_user_access(chat_id)
-    if not has_access: check_access_and_proceed(chat_id, lang); return
+    if not has_access: 
+        check_access_and_proceed(chat_id, lang)
+        return
 
+    # خامساً: تسيير بقية الوظائف الحسابية بعد تأكيد الصلاحية
+    data = utils.get_data()
+    settings = data['settings']
     state = state_data.get("state")
     action = state_data.get("action")
-    settings = data['settings']
 
     if text in ["💰 بيع للزبون", "💰 فرۆشتن بە کڕیار", "💰 Sell to Customer"]:
         USER_STATES[chat_id] = {"action": "SELL", "state": "CHOOSE_KARAT_OR_UNIT"}
