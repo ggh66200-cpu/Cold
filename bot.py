@@ -1,6 +1,7 @@
 import os
 import asyncio
 import logging
+import re
 from decimal import Decimal
 from datetime import datetime
 
@@ -26,7 +27,7 @@ BOT_USER = "@GoldenCalc_Bot"
 LEXICON = {
     "ar": {
         "welcome_back": "👑 **أرامكي للحلول الرقمية | ARAMKY**\n✨ **منظومة نواة الذهب الذكية لشيوخ الصاغة** ✨\n\n👋 مرحباً بك مجدداً يا طيب في منظومتك الإدارية الميدانية العريقة!\n\nيرجى اختيار العملية المطلوبة وتوكل على الرزاق 👇",
-        "welcome_new": "👑 **أرامكي | ARAMKY للحلول الرقمية**\n⚜️ **فرع نواة الذهب لأنظمة الصاغة والأسواق المالية** ⚜️\n───────────────────\n\n📝 **خطوة تفعيل المحل وتأمين البيانات السحابية:**\n\nأخي الغالي وصاحب الكار المحترم، يرجى إرسال معلومات محلك العامر كل معلومة في سطر منفصل (اضغط Enter للانتقال لسطر جديد) بهذا الترتيب لتسجيلك بالسيرفر:\n\n1️⃣ اسم المحل الرسمي\n2️⃣ المحافظة والمنطقة\n3️⃣ رقم هاتف المحل المعتمد",
+        "welcome_new": "👑 **أرامكي | ARAMKY للحلول الرقمية**\n⚜️ **فرع نواة الذهب لأنظمة الصاغة والأسواق المالية** ⚜️\n───────────────────\n\n📝 **خطوة تفعيل المحل وتأمين البيانات السحابية:**\n\nأخي الغالي وصاحب الكار المحترم، يرجى إرسال معلومات محلك العامر (الاسم والمحافظة ورقم الهاتف) في رسالة واحدة ليتم تفعيل حسابك تلقائياً وبسرعة بسيرفراتنا السحابية.",
         "btn_settings": "⚙️ إعدادات الصباح",
         "btn_sell": "💎 خيار بيع للزبون",
         "btn_buy": "⚒️ خيار شراء من زبون",
@@ -44,7 +45,7 @@ LEXICON = {
     },
     "ku": {
         "welcome_back": "👑 **تەکنەلۆژیای دیجیتاڵی ئارامکی | ARAMKY**\n✨ **سیستەمی ژیری ناووکی زێڕ بۆ زێڕیناگران** ✨\n\n👋 بەخێربێیتەوە هاوڕێی بەڕێزم بۆ سیستەمی کارگێڕی خێرا و وردی خۆت!\n\nتکایە پرۆسەی داواکراو هەڵبژێرە و پشت بە خودا ببەستە 👇",
-        "welcome_new": "👑 **ئارامکی | ARAMKY بۆ چارەسەرە دیجیتاڵییەکان**\n⚜️ **لقی ناووکی زێڕ بۆ سیستەمی زێڕینگەری** ⚜️\n───────────────────\n\n📝 **هەنگاوی چالاککردنی دوکان و پاراستنی زانیارییەکان:**\n\nبرای بەڕێزم، تکایە زانیارییەکانی دوکانەکەت بنێرە، هەر زانیارییەک لە دێڕێکی جیاوازدا بەم ڕیزبەندییە:\n\n1️⃣ ناوی فەرمی دوکان\n2️⃣ پارێزگا و ناوچە\n3️⃣ ژمارەی تەلەفۆنی دوکان",
+        "welcome_new": "👑 **ئارامکی | ARAMKY بۆ چارەسەرە دیجیتاڵییەکان**\n⚜️ **لقی ناووکی زێڕ بۆ سیستەمی زێڕینگەری** ⚜️\n───────────────────\n\n📝 **هەنگاوی چالاککردنی دوکان و پاراستنی زانیارییەکان:**\n\nبرای بەڕێزم، تکایە ناوی دوکان، پارێزگا و ژمارەی تەلەفۆنەکەت لە یەک نامەدا بنێرە بۆ چالاککردنی خێرا.",
         "btn_settings": "⚙️ ڕێکخستنەکانی بەیانی",
         "btn_sell": "💎 کڕین بۆ کڕیار (فرۆشتن)",
         "btn_buy": "⚒️ کڕینەوە لە کڕیار",
@@ -62,7 +63,7 @@ LEXICON = {
     },
     "en": {
         "welcome_back": "👑 **Aramky Digital Solutions | ARAMKY**\n✨ **Nawat Al-Dhahab Smart System for Goldsmiths** ✨\n\n👋 Welcome back! Your ultra-fast and precise field management system is ready.\n\nPlease select the required operation below 👇",
-        "welcome_new": "👑 **ARAMKY | Digital Solutions**\n⚜️ **Nawat Al-Dhahab Branch for Gold & Financial Systems** ⚜️\n───────────────────\n\n📝 **Shop Activation & Cloud Security Step:**\n\nDear Goldsmith, please send your shop details, each on a new line, in this exact order:\n\n1️⃣ Official Shop Name\n2️⃣ Governorate & Region\n3️⃣ Certified Shop Phone Number",
+        "welcome_new": "👑 **ARAMKY | Digital Solutions**\n⚜️ **Nawat Al-Dhahab Branch for Gold & Financial Systems** ⚜️\n───────────────────\n\n📝 **Shop Activation Step:**\n\nPlease send your shop name, location, and phone number in a single message for immediate cloud activation.",
         "btn_settings": "⚙️ Morning Settings",
         "btn_sell": "💎 Sell to Customer",
         "btn_buy": "⚒️ Buy from Customer",
@@ -122,7 +123,6 @@ async def set_language_user(callback: types.CallbackQuery, state: FSMContext):
     await state.update_data(lang=lang)
     user_id = callback.from_user.id
     
-    # حفظ خيار اللغة المفضل بمتغيرات المستخدم أو تحديث الواجهة فوراً
     await callback.message.edit_text(
         LEXICON[lang]["welcome_back"],
         reply_markup=get_main_keyboard(user_id, lang),
@@ -136,7 +136,6 @@ async def start_cmd(message: types.Message, state: FSMContext):
     state_data = await state.get_data()
     lang = state_data.get("lang", "ar")
     
-    # الاتصال بـ Supabase عبر منفذ الويب الآمن (HTTP Client)
     res = utils.supabase.table("goldsmiths").select("*").eq("user_id", user_id).execute()
     user = res.data[0] if res.data else None
     
@@ -160,12 +159,30 @@ async def handle_registration_or_text(message: types.Message, state: FSMContext)
     user = res.data[0] if res.data else None
     
     if not user:
-        lines = text.split('\n')
-        if len(lines) >= 3:
-            shop_name = lines[0].strip()
-            location = lines[1].strip()
-            phone = lines[2].strip()
+        # البحث عن رقم الهاتف العراقي ذكياً داخل النص
+        phone_match = re.search(r'(07[3-9]\d{8}|7[3-9]\d{8}|078\d{7}|077\d{7}|075\d{7})', text)
+        
+        if phone_match:
+            phone = phone_match.group(1).strip()
+            # عزل الرقم لمعرفة الاسم والموقع
+            remaining_text = text.replace(phone, "").strip()
             
+            # تقسيم النص المتبقي بناءً على الفواصل أو المسافات الكبيرة
+            clean_parts = [p.strip() for p in re.split(r'[-،,•|\s]{2,}', remaining_text) if p.strip()]
+            
+            if len(clean_parts) < 2:
+                words = remaining_text.split()
+                if len(words) >= 2:
+                    shop_name = words[0] + " " + words[1]
+                    location = " ".join(words[2:]) if len(words) > 2 else "غير محدد"
+                else:
+                    shop_name = remaining_text if remaining_text else "محل صاغة"
+                    location = "غير محدد"
+            else:
+                shop_name = clean_parts[0]
+                location = clean_parts[1]
+            
+            # إدخال البيانات إلى Supabase
             utils.supabase.table("goldsmiths").insert({
                 "user_id": user_id, "shop_name": shop_name, "location": location, "phone": phone
             }).execute()
@@ -190,7 +207,7 @@ async def handle_registration_or_text(message: types.Message, state: FSMContext)
             )
             await message.answer(success_txt, reply_markup=get_main_keyboard(user_id, lang), parse_mode="Markdown")
         else:
-            await message.answer("❌ عذراً، يرجى كتابة المعلومات بثلاثة أسطر منفصلة تماماً لضمان التسجيل السحابي.")
+            await message.answer("⚠️ **تنبيه:** يرجى إرسال اسم المحل، المحافظة، مع **رقم الهاتف** معاً في رسالة واحدة للتفعيل الفوري للسيرفر السحابي.")
         return
 
     current_state = await state.get_state()
@@ -250,7 +267,6 @@ async def handle_callbacks(callback: types.CallbackQuery, state: FSMContext):
     user_id = callback.from_user.id
     data = callback.data
     
-    # استخراج اللغة الحالية المعتمدة بالزر التفاعلي لتفادي الاختلاط لغوياً
     lang = "ar"
     if data.count("_") >= 2 and data.split("_")[-1] in ["ar", "ku", "en"]:
         lang = data.split("_")[-1]
@@ -314,7 +330,7 @@ async def handle_callbacks(callback: types.CallbackQuery, state: FSMContext):
         weight = state_data.get("weight")
         
         status_msg = await callback.message.answer(LEXICON[lang]["wait_msg"], parse_mode="Markdown")
-        await asyncio.sleep(5) # الخدعة النفسية لتأمين نفق الربط
+        await asyncio.sleep(5) 
         
         settings_res = utils.supabase.table("morning_settings").select("*").eq("user_id", user_id).execute()
         settings = settings_res.data[0]
@@ -325,7 +341,6 @@ async def handle_callbacks(callback: types.CallbackQuery, state: FSMContext):
         title = LEXICON[lang]["invoice_title_sell"] if mode == "sell" else LEXICON[lang]["invoice_title_buy"]
         charge_label = LEXICON[lang]["making_label"] if mode == "sell" else LEXICON[lang]["melting_label"]
         
-        # رسائل البركة والتهنئة حسب لغة الواجهة
         if lang == "ku":
             blessing = "🎉 پیرۆز بێت وەک حەڵاڵ! خودا بەرهەم و ڕزقی زیاتر بدات بە دوکانەکەتان! ✨" if mode == "sell" else "🤝 کڕینەوەکە بە سەرکەوتوویی ئەنجامدرا! خودا قەرەبووتان بکاتەوە! ✨"
             curr_label = "دیناری عێراقی"
@@ -367,7 +382,6 @@ async def handle_callbacks(callback: types.CallbackQuery, state: FSMContext):
         await state.clear()
 
     elif data.startswith("check_sub"):
-        # معالجة فحص الاشتراك وعرض الباقات الاحترافية الميدانية للشركة
         sub_ends_dt = datetime.fromisoformat(profile['subscription_ends'].replace('Z', '+00:00')).replace(tzinfo=None)
         if profile['is_free_tier'] and datetime.now() < sub_ends_dt:
             rem_days = (sub_ends_dt - datetime.now()).days
@@ -429,7 +443,9 @@ async def handle_callbacks(callback: types.CallbackQuery, state: FSMContext):
         if action == "cancelfree":
             utils.supabase.table("goldsmiths").update({"is_free_tier": False}).eq("user_id", target_id).execute()
         elif action == "toggle":
-            new_status = not u_info['is_active']
+            # جلب معلومات المستخدم لتحديد حالته الحالية وقلبها
+            u_data = utils.supabase.table("goldsmiths").select("is_active").eq("user_id", target_id).execute().data[0]
+            new_status = not u_data['is_active']
             utils.supabase.table("goldsmiths").update({"is_active": new_status}).eq("user_id", target_id).execute()
             
         await callback.answer("✅ تم تحديث بيانات الصائغ سحابياً بنجاح تام!")
