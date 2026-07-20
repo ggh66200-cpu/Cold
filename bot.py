@@ -2,7 +2,7 @@ import os
 import asyncio
 import logging
 from decimal import Decimal
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
@@ -12,20 +12,74 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 import utils
 
-# إعداد السجلات واللوغات
 logging.basicConfig(level=logging.INFO)
 
-# الأرقام والمفاتيح الأساسية المستدعاة من السيرفر بآمان
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))  # ضع معرف التلغرام الخاص بك كأدمن بسيرفر Render
+ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# معرف المعرف المعتمد للبوت في النظام
 BOT_USER = "@GoldenCalc_Bot"
 
-# تعريف حالات إدخال البيانات المجدولة (FSM)
+# --- قاموس اللغات الثلاث المتكامل للمنظومة الذكية ---
+LEXICON = {
+    "ar": {
+        "welcome_back": "👑 **أرامكي للحلول الرقمية | ARAMKY**\n✨ **منظومة نواة الذهب الذكية لشيوخ الصاغة** ✨\n\n👋 مرحباً بك مجدداً يا طيب في منظومتك الإدارية الميدانية العريقة!\n\nيرجى اختيار العملية المطلوبة وتوكل على الرزاق 👇",
+        "welcome_new": "👑 **أرامكي | ARAMKY للحلول الرقمية**\n⚜️ **فرع نواة الذهب لأنظمة الصاغة والأسواق المالية** ⚜️\n───────────────────\n\n📝 **خطوة تفعيل المحل وتأمين البيانات السحابية:**\n\nأخي الغالي وصاحب الكار المحترم، يرجى إرسال معلومات محلك العامر كل معلومة في سطر منفصل (اضغط Enter للانتقال لسطر جديد) بهذا الترتيب لتسجيلك بالسيرفر:\n\n1️⃣ اسم المحل الرسمي\n2️⃣ المحافظة والمنطقة\n3️⃣ رقم هاتف المحل المعتمد",
+        "btn_settings": "⚙️ إعدادات الصباح",
+        "btn_sell": "💎 خيار بيع للزبون",
+        "btn_buy": "⚒️ خيار شراء من زبون",
+        "btn_sub": "📊 باقة الحساب والاشتراك",
+        "btn_admin": "👑 لوحة تحكم الأدمن المطلقة",
+        "btn_lang": "🌐 غۆڕینی زمان / Change Language",
+        "weight_prompt_sell": "⚖️ أرسل الآن الوزن المراد بيعه للزبون بدقة وبدون أي تقريب (مثال: 4.963):",
+        "weight_prompt_buy": "📥 أرسل الوزن الإجمالي المُراد شراؤه وتصفيته من الزبون بالجرام:",
+        "invoice_title_sell": "📄 فاتورة بيع ذهب للزبون",
+        "invoice_title_buy": "🔥 فاتورة شراء ذهب من زبون",
+        "making_label": "🔨 أجور صياغة الغرام:",
+        "melting_label": "🔥 خصم الصهر/أجور غرام:",
+        "btn_new_calc": "🔄 إجراء عملية حسابية جديدة",
+        "wait_msg": "⏳ **جاري احتساب العمليات الرقمية وتأمين نفق الاتصال السحابي...**"
+    },
+    "ku": {
+        "welcome_back": "👑 **تەکنەلۆژیای دیجیتاڵی ئارامکی | ARAMKY**\n✨ **سیستەمی ژیری ناووکی زێڕ بۆ زێڕیناگران** ✨\n\n👋 بەخێربێیتەوە هاوڕێی بەڕێزم بۆ سیستەمی کارگێڕی خێرا و وردی خۆت!\n\nتکایە پرۆسەی داواکراو هەڵبژێرە و پشت بە خودا ببەستە 👇",
+        "welcome_new": "👑 **ئارامکی | ARAMKY بۆ چارەسەرە دیجیتاڵییەکان**\n⚜️ **لقی ناووکی زێڕ بۆ سیستەمی زێڕینگەری** ⚜️\n───────────────────\n\n📝 **هەنگاوی چالاککردنی دوکان و پاراستنی زانیارییەکان:**\n\nبرای بەڕێزم، تکایە زانیارییەکانی دوکانەکەت بنێرە، هەر زانیارییەک لە دێڕێکی جیاوازدا بەم ڕیزبەندییە:\n\n1️⃣ ناوی فەرمی دوکان\n2️⃣ پارێزگا و ناوچە\n3️⃣ ژمارەی تەلەفۆنی دوکان",
+        "btn_settings": "⚙️ ڕێکخستنەکانی بەیانی",
+        "btn_sell": "💎 کڕین بۆ کڕیار (فرۆشتن)",
+        "btn_buy": "⚒️ کڕینەوە لە کڕیار",
+        "btn_sub": "📊 بەشداریکردن و هەژمار",
+        "btn_admin": "👑 پانێڵی بەڕێوەبەر",
+        "btn_lang": "🌐 تغيير اللغة / Change Language",
+        "weight_prompt_sell": "⚖️ ئێستا کێشی فرۆشراو بنێرە بەبێ نزیککردنەوە (نموونە: 4.963):",
+        "weight_prompt_buy": "📥 کێشی گشتی کڕدراو بنێرە بە گرام:",
+        "invoice_title_sell": "📄 پسوولەی فرۆشتنی زێڕ بە کڕیار",
+        "invoice_title_buy": "🔥 پسوولەی کڕینەوەی زێڕ لە کڕیار",
+        "making_label": "🔨 کرێی دروستکردنی گرام:",
+        "melting_label": "🔥 داشکاندنی توانەوە/کرێی گرام:",
+        "btn_new_calc": "🔄 ئەنجامدانی هەژمارکاری نوێ",
+        "wait_msg": "⏳ **پڕۆسەی هەژمارکردنی ژمارەیی و پەیوەندی هەورەکان کاردەکات...**"
+    },
+    "en": {
+        "welcome_back": "👑 **Aramky Digital Solutions | ARAMKY**\n✨ **Nawat Al-Dhahab Smart System for Goldsmiths** ✨\n\n👋 Welcome back! Your ultra-fast and precise field management system is ready.\n\nPlease select the required operation below 👇",
+        "welcome_new": "👑 **ARAMKY | Digital Solutions**\n⚜️ **Nawat Al-Dhahab Branch for Gold & Financial Systems** ⚜️\n───────────────────\n\n📝 **Shop Activation & Cloud Security Step:**\n\nDear Goldsmith, please send your shop details, each on a new line, in this exact order:\n\n1️⃣ Official Shop Name\n2️⃣ Governorate & Region\n3️⃣ Certified Shop Phone Number",
+        "btn_settings": "⚙️ Morning Settings",
+        "btn_sell": "💎 Sell to Customer",
+        "btn_buy": "⚒️ Buy from Customer",
+        "btn_sub": "📊 Subscription & Package",
+        "btn_admin": "👑 Absolute Admin Panel",
+        "btn_lang": "🌐 تغيير اللغة / غۆڕینی زمان",
+        "weight_prompt_sell": "⚖️ Send the exact weight to sell, with no rounding (e.g., 4.963):",
+        "weight_prompt_buy": "📥 Send the total weight to buy in grams:",
+        "invoice_title_sell": "📄 Gold Sales Invoice",
+        "invoice_title_buy": "🔥 Gold Purchase Invoice",
+        "making_label": "🔨 Making Charge per Gram:",
+        "melting_label": "🔥 Melting/Gram Deduction:",
+        "btn_new_calc": "🔄 Perform New Calculation",
+        "wait_msg": "⏳ **Calculating digital operations and securing cloud network connection...**"
+    }
+}
+
 class RegistrationStates(StatesGroup):
     waiting_for_data = State()
 
@@ -36,66 +90,75 @@ class CalculationStates(StatesGroup):
     waiting_for_weight = State()
     waiting_for_buy_weight = State()
 
-# --- لوحة المفاتيح الرئيسية المستقرة (المرنة) ---
-def get_main_keyboard(is_admin=False):
+def get_main_keyboard(user_id, lang="ar"):
+    is_admin = (user_id == ADMIN_ID)
     builder = InlineKeyboardBuilder()
-    builder.button(text="⚙️ إعدادات الصباح", callback_data="morning_settings")
-    builder.button(text="💎 خيار بيع للزبون", callback_data="mode_sell")
-    builder.button(text="⚒️ خيار شراء من زبون", callback_data="mode_buy")
-    builder.button(text="📊 باقة الحساب والاشتراك", callback_data="check_sub")
+    builder.button(text=LEXICON[lang]["btn_settings"], callback_data=f"morning_settings_{lang}")
+    builder.button(text=LEXICON[lang]["btn_sell"], callback_data=f"mode_sell_{lang}")
+    builder.button(text=LEXICON[lang]["btn_buy"], callback_data=f"mode_buy_{lang}")
+    builder.button(text=LEXICON[lang]["btn_sub"], callback_data=f"check_sub_{lang}")
+    builder.button(text=LEXICON[lang]["btn_lang"], callback_data="change_language_panel")
     
     if is_admin:
-        builder.button(text="👑 لوحة تحكم الأدمن المطلقة", callback_data="admin_panel")
+        builder.button(text=LEXICON[lang]["btn_admin"], callback_data=f"admin_panel_{lang}")
         
-    builder.adjust(1, 2, 1)
+    builder.adjust(1, 2, 2, 1)
     return builder.as_markup()
 
-# --- 1️⃣ استقبال العميل والتحقق الآمن (دون تكرار الاستارت) ---
-@dp.message(Command("start"))
-async def start_cmd(message: types.Message):
-    user_id = message.from_user.id
-    conn = await utils.get_db_connection()
+# --- اختيار وتغيير اللغة ---
+@dp.callback_query(lambda c: c.data == "change_language_panel")
+async def change_lang_panel(callback: types.CallbackQuery):
+    builder = InlineKeyboardBuilder()
+    builder.button(text="🇮🇶 العربية", callback_data="setlang_ar")
+    builder.button(text="☀️ کوردی", callback_data="setlang_ku")
+    builder.button(text="🇬🇧 English", callback_data="setlang_en")
+    builder.adjust(1)
+    await callback.message.edit_text("🌐 اختر لغة المنظومة / زمان هەڵبژێره / Select Language:", reply_markup=builder.as_markup())
+    await callback.answer()
+
+@dp.callback_query(lambda c: c.data.startswith("setlang_"))
+async def set_language_user(callback: types.CallbackQuery, state: FSMContext):
+    lang = callback.data.split("_")[1]
+    await state.update_data(lang=lang)
+    user_id = callback.from_user.id
     
-    # التحقق من وجود الصائغ مسبقاً بقاعدة البيانات السحابية
-    user = await conn.fetchrow("SELECT * FROM goldsmiths WHERE user_id = $1", user_id)
+    # حفظ خيار اللغة المفضل بمتغيرات المستخدم أو تحديث الواجهة فوراً
+    await callback.message.edit_text(
+        LEXICON[lang]["welcome_back"],
+        reply_markup=get_main_keyboard(user_id, lang),
+        parse_mode="Markdown"
+    )
+    await callback.answer()
+
+@dp.message(Command("start"))
+async def start_cmd(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    state_data = await state.get_data()
+    lang = state_data.get("lang", "ar")
+    
+    # الاتصال بـ Supabase عبر منفذ الويب الآمن (HTTP Client)
+    res = utils.supabase.table("goldsmiths").select("*").eq("user_id", user_id).execute()
+    user = res.data[0] if res.data else None
     
     if user:
-        # إذا كان مسجلاً، يدخل مباشرة للوحة التشغيل المرنة كأنه موقع
-        await conn.close()
         await message.answer(
-            f"👑 **أرامكي للحلول الرقمية | ARAMKY**\n"
-            f"✨ **منظومة نواة الذهب الذكية لشيوخ الصاغة** ✨\n\n"
-            f"👋 مرحباً بك مجدداً يا طيب في منظومتك الإدارية الأسرع والأدق بالأحكام الميدانية العريقة!\n\n"
-            f"يرجى اختيار العملية المطلوبة وتوكل على الرزاق 👇",
-            reply_markup=get_main_keyboard(user_id == ADMIN_ID),
+            LEXICON[lang]["welcome_back"],
+            reply_markup=get_main_keyboard(user_id, lang),
             parse_mode="Markdown"
         )
     else:
-        # إذا كان صائغ جديد، يطلب منه تفعيل المحل وتأمين البيانات
-        await conn.close()
-        welcome_txt = (
-            "👑 **أرامكي | ARAMKY للحلول الرقمية**\n"
-            "⚜️ **فرع نواة الذهب لأنظمة الصاغة والأسواق المالية** ⚜️\n"
-            "───────────────────\n\n"
-            "📝 **خطوة تفعيل المحل وتأمين البيانات السحابية:**\n\n"
-            "أخي الغالي وصاحب الكار المحترم، يرجى إرسال معلومات محلك العامر كل معلومة في سطر منفصل (اضغط Enter للانتقال لسطر جديد) بهذا الترتيب لتسجيلك بالسيرفر:\n\n"
-            "1️⃣ اسم المحل الرسمي\n"
-            "2️⃣ المحافظة والمنطقة\n"
-            "3️⃣ رقم هاتف المحل المعتمد"
-        )
-        await message.answer(welcome_txt, parse_mode="Markdown")
-        # لا نستخدم ميزة الحالات هنا للسماح له بالكتابة الحرة المباشرة للمرونة
+        await message.answer(LEXICON[lang]["welcome_new"], parse_mode="Markdown")
     
-# --- 2️⃣ معالجة استقبال النص لبيانات التسجيل المباشر ---
 @dp.message()
 async def handle_registration_or_text(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
     text = message.text
+    state_data = await state.get_data()
+    lang = state_data.get("lang", "ar")
     
-    conn = await utils.get_db_connection()
-    user = await conn.fetchrow("SELECT * FROM goldsmiths WHERE user_id = $1", user_id)
+    res = utils.supabase.table("goldsmiths").select("*").eq("user_id", user_id).execute()
+    user = res.data[0] if res.data else None
     
-    # إذا لم يكن مسجلاً، نقوم بمعالجة الأسطر الثلاثة للتسجيل
     if not user:
         lines = text.split('\n')
         if len(lines) >= 3:
@@ -103,25 +166,20 @@ async def handle_registration_or_text(message: types.Message, state: FSMContext)
             location = lines[1].strip()
             phone = lines[2].strip()
             
-            # إدخال الصائغ الجديد بفترة تجريبية 7 أيام تلقائياً بالسيستم السحابي
-            await conn.execute(
-                "INSERT INTO goldsmiths (user_id, shop_name, location, phone) VALUES ($1, $2, $3, $4)",
-                user_id, shop_name, location, phone
-            )
-            # إنشاء إعدادات افتراضية فارغة له ليقوم بتعديلها براحته
-            await conn.execute(
-                "INSERT INTO morning_settings (user_id) VALUES ($1)", user_id
-            )
+            utils.supabase.table("goldsmiths").insert({
+                "user_id": user_id, "shop_name": shop_name, "location": location, "phone": phone
+            }).execute()
             
-            # جلب إجمالي المشتركين الفعليين بالسيستم السحابي
-            total_goldsmiths = await conn.fetchval("SELECT COUNT(*) FROM goldsmiths")
-            # إضافة رقم افتراضي فوق العدد الفعلي لإعطاء هيبة فخمة للمنظومة بالميدان
+            utils.supabase.table("morning_settings").insert({"user_id": user_id}).execute()
+            
+            total_res = utils.supabase.table("goldsmiths").select("user_id", count="exact").execute()
+            total_goldsmiths = total_res.count if total_res.count is not None else 1
             display_count = total_goldsmiths + 145 
             
             success_txt = (
                 f"✨ **يا فتاح يا عليم يا رزاق يا كريم** ✨\n\n"
-                f"🎉 ما شاء الله، تم تسجيل محلك بالمنظومة بنجاح تام! عساه فاتحة خير وبركة ورزق لا ينتهي لحضرتكم.\n\n"
-                f"🎁 **رزقكم مبارك، وتم تفعيل الفترة التجريبية المجانية المدتها 7 أيام لك تجتاح بها السوق ميدانياً!**\n\n"
+                f"🎉 تم تسجيل محلك بالمنظومة بنجاح! عساه فاتحة خير وبركة ورزق لا ينتهي لحضرتكم.\n\n"
+                f"🎁 **تم تفعيل الفترة التجريبية المجانية المدتها 7 أيام لك تجتاح بها السوق ميدانياً!**\n\n"
                 f"🆔 **رقم الصائغ المعتمد:** #{user_id % 1000}\n"
                 f"📍 **المحل العامر:** {shop_name}\n"
                 f"🗺️ **الموقع:** {location}\n"
@@ -130,49 +188,42 @@ async def handle_registration_or_text(message: types.Message, state: FSMContext)
                 f"───────────────────\n"
                 f"🤖 يرجى اختيار العملية المطلوبة من الأزرار أدناه وتوكل على الرزاق 👇"
             )
-            await message.answer(success_txt, reply_markup=get_main_keyboard(user_id == ADMIN_ID), parse_mode="Markdown")
+            await message.answer(success_txt, reply_markup=get_main_keyboard(user_id, lang), parse_mode="Markdown")
         else:
-            await message.answer("❌ عذراً يا غالي، يرجى كتابة المعلومات بثلاثة أسطر منفصلة تماماً كما موضح بالترتيب أعلاه لضمان إتمام التسجيل السحابي بنجاح.")
-        await conn.close()
+            await message.answer("❌ عذراً، يرجى كتابة المعلومات بثلاثة أسطر منفصلة تماماً لضمان التسجيل السحابي.")
         return
 
-    # معالجة استلام الوزن لعملية البيع
     current_state = await state.get_state()
     if current_state == CalculationStates.waiting_for_weight.state:
-        await conn.close()
         try:
             weight = Decimal(text)
         except:
-            await message.answer("❌ يرجى إرسال الوزن الحقيقي بشكل رقمي دقيق (مثال: 4.963).")
+            await message.answer("❌ Please send a valid numeric weight (e.g. 4.963) / يرجى إرسال الوزن الحقيقي رقمياً.")
             return
             
         await state.update_data(weight=weight)
-        # إظهار أزرار اختيار العيار بعد إدخال الوزن مباشرة لزيادة سرعة الأداء الحركي
         builder = InlineKeyboardBuilder()
-        builder.button(text="عيار 24", callback_data="calc_sell_24")
-        builder.button(text="عيار 21", callback_data="calc_sell_21")
-        builder.button(text="عيار 18", callback_data="calc_sell_18")
-        await message.answer("✨ اختر العيار المطلوب لإصدار الفاتورة الفخمة بلحظة:", reply_markup=builder.as_markup())
+        builder.button(text="عيار 24", callback_data=f"calc_sell_24_{lang}")
+        builder.button(text="عيار 21", callback_data=f"calc_sell_21_{lang}")
+        builder.button(text="عيار 18", callback_data=f"calc_sell_18_{lang}")
+        await message.answer("✨ اختر العيار المطلوب لإصدار الفاتورة / Select Caliber:", reply_markup=builder.as_markup())
         return
 
-    # معالجة استلام الوزن لعملية الشراء
     if current_state == CalculationStates.waiting_for_buy_weight.state:
-        await conn.close()
         try:
             weight = Decimal(text)
         except:
-            await message.answer("❌ يرجى إرسال الوزن الحقيقي المُراد شراؤه بشكل رقمي دقيق.")
+            await message.answer("❌ Please send a valid weight / يرجى إرسال الوزن رقمياً دقيقاً.")
             return
             
         await state.update_data(weight=weight)
         builder = InlineKeyboardBuilder()
-        builder.button(text="عيار 24", callback_data="calc_buy_24")
-        builder.button(text="عيار 21", callback_data="calc_buy_21")
-        builder.button(text="عيار 18", callback_data="calc_buy_18")
-        await message.answer("✨ اختر عيار الذهب المستلم من الزبون لإجراء التصفية المالية:", reply_markup=builder.as_markup())
+        builder.button(text="عيار 24", callback_data=f"calc_buy_24_{lang}")
+        builder.button(text="عيار 21", callback_data=f"calc_buy_21_{lang}")
+        builder.button(text="عيار 18", callback_data=f"calc_buy_18_{lang}")
+        await message.answer("✨ اختر عيار الذهب المستلم من الزبون / Select Caliber:", reply_markup=builder.as_markup())
         return
 
-    # معالجة استلام الإعدادات الصباحية المخصصة للعميل والمخيرة بشكل أسطر عمودية
     if current_state == SettingsStates.waiting_for_prices.state:
         lines = text.split('\n')
         if len(lines) >= 7:
@@ -181,140 +232,147 @@ async def handle_registration_or_text(message: types.Message, state: FSMContext)
                 m24, m21, m18 = Decimal(lines[3]), Decimal(lines[4]), Decimal(lines[5])
                 rate = Decimal(lines[6])
                 
-                await conn.execute(
-                    """UPDATE morning_settings SET 
-                       price_24=$1, price_21=$2, price_18=$3, 
-                       making_24=$4, making_21=$5, making_18=$6, usd_rate=$7 WHERE user_id=$8""",
-                    p24, p21, p18, m24, m21, m18, rate, user_id
-                )
-                await message.answer("✅ تم تحديث إعداداتك الصباحية المخصصة بنجاح سحابي تام! الأنظمة جاهزة للعمليات الميدانية فوراً.", reply_markup=get_main_keyboard(user_id == ADMIN_ID))
+                utils.supabase.table("morning_settings").update({
+                    "price_24": float(p24), "price_21": float(p21), "price_18": float(p18),
+                    "making_24": float(m24), "making_21": float(m21), "making_18": float(m18), "usd_rate": float(rate)
+                }).eq("user_id", user_id).execute()
+                
+                await message.answer("✅ Updated morning settings successfully! / تم تحديث الإعدادات الصباحية المخصصة بنجاح.", reply_markup=get_main_keyboard(user_id, lang))
                 await state.clear()
-            except Exception as e:
-                await message.answer("❌ حدث خطأ في الأرقام، يرجى التأكد من كتابتها أرقاماً صافية فقط بدون كلمات.")
+            except:
+                await message.answer("❌ خطأ في الأرقام، يرجى كتابتها أرقاماً صافية فقط بدون كلمات.")
         else:
             await message.answer("❌ يرجى إرسال السعر والأسعار متكاملة في 7 أسطر متتالية دون نقصان.")
-        await conn.close()
         return
 
-    await conn.close()
-
-# --- 3️⃣ إدارة الأزرار وعرض الإعدادات المخصصة العمودية ---
 @dp.callback_query()
 async def handle_callbacks(callback: types.CallbackQuery, state: FSMContext):
     user_id = callback.from_user.id
     data = callback.data
-    conn = await utils.get_db_connection()
     
-    # فحص صلاحية الاشتراك والتأكد من تفعيل العميل قبل تشغيل أي ميزة
-    profile = await conn.fetchrow("SELECT * FROM goldsmiths WHERE user_id = $1", user_id)
-    if profile and not profile['is_active'] and data != "check_sub":
-        await callback.answer("⚠️ عذراً، اشتراكك معطل حالياً من قبل الإدارة.", show_alert=True)
-        await conn.close()
+    # استخراج اللغة الحالية المعتمدة بالزر التفاعلي لتفادي الاختلاط لغوياً
+    lang = "ar"
+    if data.count("_") >= 2 and data.split("_")[-1] in ["ar", "ku", "en"]:
+        lang = data.split("_")[-1]
+    
+    res = utils.supabase.table("goldsmiths").select("*").eq("user_id", user_id).execute()
+    profile = res.data[0] if res.data else None
+    
+    if profile and not profile['is_active'] and not data.startswith("check_sub"):
+        await callback.answer("⚠️ الاشتراك معطل من قبل الإدارة.", show_alert=True)
         return
 
-    # خيار إعدادات الصباح العمودية المحسوبة
-    if data == "morning_settings":
-        settings = await conn.fetchrow("SELECT * FROM morning_settings WHERE user_id = $1", user_id)
+    if data.startswith("morning_settings"):
+        settings_res = utils.supabase.table("morning_settings").select("*").eq("user_id", user_id).execute()
+        settings = settings_res.data[0] if settings_res.data else {}
+        
         msg_txt = (
-            f"👑 **أرامكي للحلول الرقمية | فرع نواة الذهب**\n"
+            f"👑 **ARAMKY | فرع نواة الذهب**\n"
             f"───────────────────\n"
-            f"☀️ **صباح الرزق والسعادة والبركة يا طيب!**\n"
-            f"نسأل الله أن يجعل هذا اليوم مباركاً، مليئاً بالخير الوفير لعملكم وحلالكم الطيب. ✨\n\n"
+            f"☀️ **صباح الرزق والسعادة والبركة يا طيب!** ✨\n\n"
             f"📋 **إعدادات الصباح الحالية لمحلك العامر:**\n\n"
-            f"🔹 سعر مثقال عيار 24: {settings['price_24']:,} دينار\n"
-            f"🔹 سعر مثقال عيار 21: {settings['price_21']:,} دينار\n"
-            f"🔹 سعر مثقال عيار 18: {settings['price_18']:,} دينار\n"
-            f"🔨 أجور صياغة غرام 24: {settings['making_24']:,} دينار\n"
-            f"🔨 أجور صياغة غرام 21: {settings['making_21']:,} دينار\n"
-            f"🔨 أجور صياغة غرام 18: {settings['making_18']:,} دينار\n"
-            f"💵 سعر الـ 100 دولار المتداول: {settings['usd_rate']:,} دينار\n\n"
-            f"💡 **لتحديث جميع هذه الأسعار بلمحة بصر وسؤال واحد، أرسل الأسعار الجديدة بـ 7 أسطر منفصلة متتالية:**\n"
-            f"مثال:\n"
-            f"950000\n900000\n800000\n12000\n10000\n8000\n155000"
+            f"🔹 سعر مثقال عيار 24: {settings.get('price_24', 0):,} دينار\n"
+            f"🔹 سعر مثقال عيار 21: {settings.get('price_21', 0):,} دينار\n"
+            f"🔹 سعر مثقال عيار 18: {settings.get('price_18', 0):,} دينار\n"
+            f"🔨 أجور صياغة غرام 24: {settings.get('making_24', 0):,} دينار\n"
+            f"🔨 أجور صياغة غرام 21: {settings.get('making_21', 0):,} دينار\n"
+            f"🔨 أجور صياغة غرام 18: {settings.get('making_18', 0):,} دينار\n"
+            f"💵 سعر الـ 100 دولار المتداول: {settings.get('usd_rate', 155000):,} دينار\n\n"
+            f"💡 **لتحديث جميع هذه الأسعار بلمحة بصر، أرسل الأسعار الجديدة بـ 7 أسطر منفصلة متتالية:**\n"
+            f"مثال:\n950000\n900000\n800000\n12000\n10000\n8000\n155000"
         )
         builder = InlineKeyboardBuilder()
-        builder.button(text="🔙 العودة للقائمة", callback_data="back_main")
+        builder.button(text="🔙 العودة / Back", callback_data=f"back_main_{lang}")
         await callback.message.edit_text(msg_txt, reply_markup=builder.as_markup(), parse_mode="Markdown")
         await state.set_state(SettingsStates.waiting_for_prices)
         
-    elif data == "back_main":
+    elif data.startswith("back_main"):
         await state.clear()
         await callback.message.edit_text(
-            "👋 يرجى اختيار العملية المطلوبة وتوكل على الرزاق الكافي:",
-            reply_markup=get_main_keyboard(user_id == ADMIN_ID)
+            "👋 يرجى اختيار العملية المطلوبة وتوكل على الرزاق:",
+            reply_markup=get_main_keyboard(user_id, lang)
         )
 
-    # بدء معالجة البيع للزبون
-    elif data == "mode_sell":
-        await callback.message.answer("⚖️ أرسل الآن الوزن المراد بيعه للزبون بدقة وبدون أي تقريب (مثال: 4.963):")
+    elif data.startswith("mode_sell"):
+        await callback.message.answer(LEXICON[lang]["weight_prompt_sell"])
         await state.set_state(CalculationStates.waiting_for_weight)
         await callback.answer()
 
-    # بدء معالجة الشراء من زبون
-    elif data == "mode_buy":
-        await callback.message.answer("📥 أرسل الوزن الإجمالي المُراد شراؤه وتصفيته من الزبون بالجرام:")
+    elif data.startswith("mode_buy"):
+        await callback.message.answer(LEXICON[lang]["weight_prompt_buy"])
         await state.set_state(CalculationStates.waiting_for_buy_weight)
         await callback.answer()
 
-    # خَدعة "جاري احتساب العمليات الرقمية..." مع إخراج الفاتورة الفخمة
     elif data.startswith("calc_"):
         await callback.answer()
         parts = data.split("_")
-        mode = parts[1]  # sell أو buy
+        mode = parts[1]  
         caliber = int(parts[2])
+        lang = parts[3] if len(parts) > 3 else "ar"
         
         state_data = await state.get_data()
         weight = state_data.get("weight")
         
-        # رسالة الانتظار النفسية الذكية لتغطية ضعف النت بالعراق
-        status_msg = await callback.message.answer("⏳ **جاري احتساب العمليات الرقمية وتأمين نفق الاتصال السحابي...**")
-        await asyncio.sleep(5)  # مدة 5 ثوانٍ المطلوبة
+        status_msg = await callback.message.answer(LEXICON[lang]["wait_msg"], parse_mode="Markdown")
+        await asyncio.sleep(5) # الخدعة النفسية لتأمين نفق الربط
         
-        settings = await conn.fetchrow("SELECT * FROM morning_settings WHERE user_id = $1", user_id)
-        goldsmith = await conn.fetchrow("SELECT * FROM goldsmiths WHERE user_id = $1", user_id)
+        settings_res = utils.supabase.table("morning_settings").select("*").eq("user_id", user_id).execute()
+        settings = settings_res.data[0]
         
-        # احتساب النتائج البرمجية الخالية من التقريب
         res = utils.calculate_gold_invoice(weight, caliber, mode, settings)
         await status_msg.delete()
         
-        # تنسيق الفاتورة الفخمة مع ذكر تفاصيل الشركة واليوزر المعتمد
-        title = "📄 فاتورة بيع ذهب للزبون" if mode == "sell" else "🔥 فاتورة شراء ذهب من زبون"
-        charge_label = "🔨 أجور صياغة الغرام:" if mode == "sell" else "🔥 خصم الصهر/أجور غرام:"
-        blessing = "🎉 ألف مبروك وحلال عليكم! ربي يجعلها فاتحة خير وبركة ورزق واسع ومبارك لمحلك الطيب! ✨" if mode == "sell" else "🤝 تمت عملية الشراء بنجاح وشفافية مطلقة! ربي يعوضكم بالخير والرزق الوفير! ✨"
+        title = LEXICON[lang]["invoice_title_sell"] if mode == "sell" else LEXICON[lang]["invoice_title_buy"]
+        charge_label = LEXICON[lang]["making_label"] if mode == "sell" else LEXICON[lang]["melting_label"]
         
+        # رسائل البركة والتهنئة حسب لغة الواجهة
+        if lang == "ku":
+            blessing = "🎉 پیرۆز بێت وەک حەڵاڵ! خودا بەرهەم و ڕزقی زیاتر بدات بە دوکانەکەتان! ✨" if mode == "sell" else "🤝 کڕینەوەکە بە سەرکەوتوویی ئەنجامدرا! خودا قەرەبووتان بکاتەوە! ✨"
+            curr_label = "دیناری عێراقی"
+            paper_label = "وەرقە"
+        elif lang == "en":
+            blessing = "🎉 Congratulations! May blessing and prosperity enter your business! ✨" if mode == "sell" else "🤝 Purchase completed transparently! May God compensate you with double! ✨"
+            curr_label = "IQD"
+            paper_label = "100$ Bills"
+        else:
+            blessing = "🎉 ألف مبروك وحلال عليكم! ربي يجعلها فاتحة خير وبركة ورزق واسع ومبارك! ✨" if mode == "sell" else "🤝 تمت عملية الشراء بنجاح وشفافية مطلقة! ربي يعوضكم بالخير والرزق الوفير! ✨"
+            curr_label = "دينار عراقي"
+            paper_label = "ورقة"
+
         invoice_txt = (
-            f"💎 **أرامكي للحلول الرقمية | ARAMKY**\n"
+            f"💎 **ARAMKY | أرامكي للحلول الرقمية**\n"
             f"👑 **فرع نواة الذهب لأنظمة الصاغة والأسواق المالية**\n"
             f"───────────────────\n"
             f"✨ **{title}** ✨\n\n"
-            f"🔹 **المحل العامر:** {goldsmith['shop_name']}\n"
-            f"📍 **الموقع المعتمد:** {goldsmith['location']}\n"
-            f"📞 **هاتف المحل:** {goldsmith['phone']}\n"
-            f"⚜️ **العيار ونوع الحساب:** عيار {caliber} (حساب بالغرام)\n"
-            f"⚖️ **الوزن المطلوب الصافي:** {res['weight']} غرام\n"
-            f"{charge_label} {settings[f'making_{caliber}']:,} دينار\n"
-            f"💰 **سعر غرام الذهب الصافي:** {res['gram_price']:.2f} دينار\n"
+            f"🔹 **Shop:** {profile['shop_name']}\n"
+            f"📍 **Location:** {profile['location']}\n"
+            f"📞 **Phone:** {profile['phone']}\n"
+            f"⚜️ **Caliber:** عيار {caliber}\n"
+            f"⚖️ **Weight:** {res['weight']} g\n"
+            f"{charge_label} {settings[f'making_{caliber}']:,} {curr_label}\n"
+            f"💰 **Pure Gram Price:** {res['gram_price']:.2f} {curr_label}\n"
             f"───────────────────\n"
-            f"💵 **السعر الكلي بالدينار العراقي:**\n"
-            f"👈 `{res['total_iqd']:.2f}` دينار\n\n"
-            f"💵 **صافي الحساب بالورق والدينار:**\n"
-            f"👈 **{res['papers']} ورقة** و `{res['remaining_iqd']:.2f}` دينار عراقي\n"
+            f"💵 **Total Cost ({curr_label}):**\n"
+            f"👈 `{res['total_iqd']:.2f}`\n\n"
+            f"💵 **Net Cash Formula:**\n"
+            f"👈 **{res['papers']} {paper_label}** & `{res['remaining_iqd']:.2f}` {curr_label}\n"
             f"───────────────────\n"
             f"{blessing}\n\n"
-            f"🤖 **المنظومة الذكية المعتمدة:** {BOT_USER}"
+            f"🤖 **System:** {BOT_USER}"
         )
         
         builder = InlineKeyboardBuilder()
-        builder.button(text="🔄 إجراء عملية حسابية جديدة", callback_data="back_main")
+        builder.button(text=LEXICON[lang]["btn_new_calc"], callback_data=f"back_main_{lang}")
         await callback.message.answer(invoice_txt, reply_markup=builder.as_markup(), parse_mode="Markdown")
         await state.clear()
 
-    # فحص الاشتراك وعرض رسالة الانتهاء الفخمة مع الخصومات والأسعار المخصصة
-    elif data == "check_sub":
-        if profile['is_free_tier'] and datetime.now() < profile['subscription_ends']:
-            rem_days = (profile['subscription_ends'] - datetime.now()).days
+    elif data.startswith("check_sub"):
+        # معالجة فحص الاشتراك وعرض الباقات الاحترافية الميدانية للشركة
+        sub_ends_dt = datetime.fromisoformat(profile['subscription_ends'].replace('Z', '+00:00')).replace(tzinfo=None)
+        if profile['is_free_tier'] and datetime.now() < sub_ends_dt:
+            rem_days = (sub_ends_dt - datetime.now()).days
             await callback.message.answer(f"🎁 أنت حالياً في الفترة التجريبية المجانية المدعومة سحابياً. متبقي لك: {rem_days} أيام بكامل الصلاحيات الميدانية.")
-        elif datetime.now() > profile['subscription_ends']:
+        elif datetime.now() > sub_ends_dt:
             end_txt = (
                 f"⚠️ **تنبيه انتهاء الاشتراك الصادر من أرامكي للحلول الرقمية**\n"
                 f"───────────────────\n"
@@ -328,23 +386,24 @@ async def handle_callbacks(callback: types.CallbackQuery, state: FSMContext):
             )
             await callback.message.answer(end_txt, parse_mode="Markdown")
         else:
-            await callback.message.answer(f"✅ اشتراكك السحابي المدفوع فعال لغاية: {profile['subscription_ends'].strftime('%Y-%m-%d')}")
+            await callback.message.answer(f"✅ اشتراكك السحابي المدفوع فعال لغاية: {sub_ends_dt.strftime('%Y-%m-%d')}")
         await callback.answer()
 
-    # --- 👑 4️⃣ أدوات وإجراءات لوحة تحكم الإدارة الكاملة الفردية (الأدمن) ---
-    elif data == "admin_panel" and user_id == ADMIN_ID:
-        users = await conn.fetch("SELECT user_id, shop_name, is_free_tier, is_active FROM goldsmiths")
+    # --- 👑 أدوات الإدارة المطلقة للأدمن ---
+    elif data.startswith("admin_panel") and user_id == ADMIN_ID:
+        users_res = utils.supabase.table("goldsmiths").select("user_id, shop_name, is_free_tier, is_active").execute()
+        users = users_res.data
         builder = InlineKeyboardBuilder()
         for u in users:
             status = "🟢" if u['is_active'] else "🔴"
             builder.button(text=f"{status} {u['shop_name']}", callback_data=f"manage_{u['user_id']}")
-        builder.button(text="🔙 خروج", callback_data="back_main")
+        builder.button(text="🔙 خروج", callback_data=f"back_main_{lang}")
         builder.adjust(1)
         await callback.message.edit_text("👑 **لوحة تحكم المدير العام - إدارة حسابات الصاغة فردياً:**", reply_markup=builder.as_markup())
 
     elif data.startswith("manage_") and user_id == ADMIN_ID:
         target_id = int(data.split("_")[1])
-        u_info = await conn.fetchrow("SELECT * FROM goldsmiths WHERE user_id = $1", target_id)
+        u_info = utils.supabase.table("goldsmiths").select("*").eq("user_id", target_id).execute().data[0]
         
         info_txt = (
             f"👤 **إدارة حساب الصائغ:** {u_info['shop_name']}\n"
@@ -357,9 +416,8 @@ async def handle_callbacks(callback: types.CallbackQuery, state: FSMContext):
         builder = InlineKeyboardBuilder()
         builder.button(text="🚫 إلغاء الفترة المجانية فوراً", callback_data=f"action_cancelfree_{target_id}")
         builder.button(text="➕ زيادة الوقت 30 يوم", callback_data=f"action_add30_{target_id}")
-        builder.button(text="➖ تقليص الوقت 7 أيام", callback_data=f"action_sub7_{target_id}")
         builder.button(text="🔒 حظر/تفعيل الصائغ", callback_data=f"action_toggle_{target_id}")
-        builder.button(text="🔙 العودة للإدارة", callback_data="admin_panel")
+        builder.button(text="🔙 العودة للإدارة", callback_data=f"admin_panel_{lang}")
         builder.adjust(1)
         await callback.message.edit_text(info_txt, reply_markup=builder.as_markup(), parse_mode="Markdown")
 
@@ -369,29 +427,17 @@ async def handle_callbacks(callback: types.CallbackQuery, state: FSMContext):
         target_id = int(parts[2])
         
         if action == "cancelfree":
-            await conn.execute("UPDATE goldsmiths SET is_free_tier=FALSE, subscription_ends=CURRENT_TIMESTAMP WHERE user_id=$1", target_id)
-        elif action == "add30":
-            await conn.execute("UPDATE goldsmiths SET subscription_ends = subscription_ends + INTERVAL '30 days' WHERE user_id=$1", target_id)
-        elif action == "sub7":
-            await conn.execute("UPDATE goldsmiths SET subscription_ends = subscription_ends - INTERVAL '7 days' WHERE user_id=$1", target_id)
+            utils.supabase.table("goldsmiths").update({"is_free_tier": False}).eq("user_id", target_id).execute()
         elif action == "toggle":
-            await conn.execute("UPDATE goldsmiths SET is_active = NOT is_active WHERE user_id=$1", target_id)
+            new_status = not u_info['is_active']
+            utils.supabase.table("goldsmiths").update({"is_active": new_status}).eq("user_id", target_id).execute()
             
         await callback.answer("✅ تم تحديث بيانات الصائغ سحابياً بنجاح تام!")
-        await conn.close()
-        # العودة المباشرة للوحة التحكم لتحديث البيانات المعروضة
         await handle_callbacks(callback, state)
         return
 
-    await conn.close()
-
-# --- دالة الإقلاع والربط الشاملة في السيرفر بـ Render ---
 async def main():
-    logging.info("⏳ Connecting and initializing Supabase Database...")
-    # تهيئة وبناء الجداول السحابية للمشتركين تلقائياً لتجنب الخلل الإداري
-    await utils.init_db()
-    
-    logging.info("♻️ Starting Bot Polling...")
+    logging.info("♻️ Starting HTTP-Protected Bot Polling...")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
