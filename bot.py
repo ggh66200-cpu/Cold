@@ -99,6 +99,7 @@ async def cmd_start(message: types.Message):
         await send_main_dashboard(message.from_user.id, user['lang'])
     else:
         # واجهة اختيار اللغة لأول مرة بدون أعلام لتجنب أي تعليق بالنت
+        # التعديل الفاخر والصحيح هندسياً
         kb = types.InlineKeyboardMarkup(inline_keyboard=[
             [types.InlineKeyboardButton(text="العربية", callback_query_data="setlang_ar")],
             [types.InlineKeyboardButton(text="Kurdî", callback_query_data="setlang_ku")],
