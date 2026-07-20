@@ -3,7 +3,7 @@ import datetime
 
 DB_NAME = "gold_nucleus.db"
 
-# رسالة الترحيب والشرح الفاخرة المعتمدة لهيبة المنظومة
+# رسالة الترحيب والشرح الفاخرة المعتمدة بعد تنظيف التنسيق
 WELCOME_MESSAGE = (
     "👑 *مرحباً بك في منظومة SMART GOLD SYSTEM الذكية* 👑\n"
     "المنصة الإدارية والحسابية الأولى والأسرع المصممة خصيصاً لأسواق الذهب العريقة في العراق 🇮🇶\n\n"
@@ -12,16 +12,14 @@ WELCOME_MESSAGE = (
     "🔹 *معادلة الصرف المحلية:* تحويل الحسابات بلحظات إلى فئة (الورقة 100$) والكسور المتبقية بالدينار العراقي.\n"
     "🔹 *الفواتير الرقمية الفاخرة:* إصدار فواتير ترويجية مخيرة تحمل هوية محلك وتدعم انتشار اسم شركتك بالسوق.\n"
     "🔹 *سرعة فائقة (ثوانٍ معدودة):* معالجة سحابية متطورة تنهي تعليق النظام وقفل الشاشات ميدانياً.\n\n"
-    "_______________________________\n\n"
+    "═══════════════════════════\n\n"
     "✨ *يا فتاح يا عليم يا رزاق يا كريم* ✨\n"
     "🎁 مبارك لكم، تم منح حسابكم فترة تجريبية مجانية مدتها 7 أيام لاكتساح السوق ميكانيكياً!\n\n"
     "🤖 يرجى اختيار العملية المطلوبة من الأزرار أدناه وتوكل على الرزاق الحكيم 👇"
 )
 
 async def init_and_refresh_db():
-    """تهيئة قاعدة البيانات وتصفير السجلات لمنح المستخدمين القدامى فترة جديدة"""
     async with aiosqlite.connect(DB_NAME) as db:
-        # إنشاء جدول المستخدمين
         await db.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 user_id INTEGER PRIMARY KEY,
@@ -34,23 +32,18 @@ async def init_and_refresh_db():
                 shop_address TEXT DEFAULT 'بغداد - سوق الكاظمية'
             )
         """)
-        # إنشاء جدول الإعدادات المركزية لأسعار الصباح والدولار
         await db.execute("""
             CREATE TABLE IF NOT EXISTS system_config (
                 key TEXT PRIMARY KEY,
                 value TEXT
             )
         """)
-        # وضع قيم افتراضية لأسعار الصباح إذا لم تكن موجودة
         await db.execute("INSERT OR IGNORE INTO system_config (key, value) VALUES ('mithqal_price', '480000')")
-        await db.execute("INSERT OR IGNORE INTO system_config (key, value) VALUES ('usd_rate', '153000')") # سعر المئة دولار بالدينار
+        await db.execute("INSERT OR IGNORE INTO system_config (key, value) VALUES ('usd_rate', '153000')")
         
-        # --- خدعة تصفير السجل المطلوبة ---
-        # تحديث كافة الحسابات الحالية لتصبح تجريبية نشطة من تاريخ اليوم وتصفير القيود السابقة
         now = datetime.datetime.now().strftime("%Y-%m-%d")
         fresh_end = (datetime.datetime.now() + datetime.timedelta(days=7)).strftime("%Y-%m-%d")
         await db.execute("UPDATE users SET sub_status = 'trial', trial_start = ?, sub_end = ?", (now, fresh_end))
-        
         await db.commit()
 
 async def add_or_update_user(user_id, username):
@@ -98,19 +91,11 @@ async def update_system_config(mithqal, usd):
         await db.execute("UPDATE system_config SET value = ? WHERE key = 'usd_rate'", (str(usd),))
         await db.commit()
 
-# --- دالة الحساب المعتمدة على قانون المثقال والورقة العراقية ---
 def calculate_iraqi_gold(weight_grams, workmanship_per_gram, mithqal_price, usd_exchange_rate):
-    """
-    قانون المثقال = سعر المثقال / 5 غرامات لإخراج سعر الغرام الصافي.
-    إجمالي السعر بالدينار = (سعر الغرام الصافي + أجور الصياغة للغرام) * الوزن بالغرام.
-    تحويل العملة = تقسيم الإجمالي على سعر الورقة (100 دولار) لإخراج عدد الأوراق والباقي بالدينار العراقي.
-    """
     gram_base_price = mithqal_price / 5.0
     total_gram_cost = gram_base_price + workmanship_per_gram
     total_price_iqd = total_gram_cost * weight_grams
     
-    # حسبة السوق: كم ورقة والباقي عراقي
-    # سعر الدولار الفردي = سعر الورقة / 100
     single_usd_rate = usd_exchange_rate / 100.0
     total_usd_value = total_price_iqd / single_usd_rate
     
@@ -120,7 +105,6 @@ def calculate_iraqi_gold(weight_grams, workmanship_per_gram, mithqal_price, usd_
     
     return round(gram_base_price, 2), round(total_price_iqd, 0), waraqa_count, round(remaining_iqd, 0)
 
-# أدوات الإدارة المطلوبة للسيطرة المطلقة
 async def db_manage_user_status(user_id, status, days=30):
     end_date = (datetime.datetime.now() + datetime.timedelta(days=days)).strftime("%Y-%m-%d")
     async with aiosqlite.connect(DB_NAME) as db:
