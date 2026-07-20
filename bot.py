@@ -17,7 +17,6 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# مسارات الآلة الإدارية والحسابية
 class GoldCalcStates(StatesGroup):
     waiting_for_weight = State()
     waiting_for_workmanship = State()
@@ -29,7 +28,6 @@ class AdminSettingsStates(StatesGroup):
 class ShopSetupStates(StatesGroup):
     waiting_for_details = State()
 
-# الواجهة الرئيسية المطابقة لهوية الكار والسوق
 def get_main_keyboard():
     return ReplyKeyboardMarkup(
         keyboard=[
@@ -48,7 +46,6 @@ async def cmd_start(message: Message):
 async def cmd_morning_prices(message: Message):
     has_sub = await utils.check_subscription(message.from_user.id)
     if not has_sub:
-        # رسالة التجديد الملكية الفاخرة المعتمدة
         await message.answer(
             "👑 *منظومة آرامكي للحلول الرقمية - فرع نواة الذهب* 👑\n\n"
             "زميلنا الصائغ المحترم.. نود إعلامكم بأن الفترة التجريبية المخصصة لحسابكم قد انتهت صلاحيتها الميدانية.\n"
@@ -85,8 +82,6 @@ async def save_shop_details(message: Message, state: FSMContext):
         await state.clear()
     except ValueError:
         await message.answer("❌ خطأ في الصيغة. يرجى الإدخال بالشكل التالي: اسم المحل - رقم الهاتف - العنوان")
-
-# --- محرك العمليات الحسابية الخارق (معالجة فورية بثوانٍ) ---
 
 @dp.message(F.text.in_(["⚖️ شراء سريع", "💰 بيع للزبون"]))
 async def start_calc(message: Message, state: FSMContext):
@@ -127,14 +122,10 @@ async def process_workmanship(message: Message, state: FSMContext):
 
 async def execute_iraqi_calculation(message: Message, state: FSMContext):
     data = await state.get_data()
-    
-    # محاكاة تأثير المعالجة بكسر من الثانية لجمالية الواجهة دون أي Lag حقيقي
     loading_msg = await message.answer("⏳ جاري الاحتساب وتطبيق قانون المثقال العراقي الصارم...")
-    await asyncio.sleep(0.4)
+    await asyncio.sleep(0.2)
     
     config = await utils.get_system_config()
-    
-    # استدعاء القانون الرياضي المعتمد بالسوق العراقي
     gram_base, total_iqd, waraqa, remain_iqd = utils.calculate_iraqi_gold(
         data['weight'], data['workmanship'], config['mithqal_price'], config['usd_rate']
     )
@@ -147,16 +138,15 @@ async def execute_iraqi_calculation(message: Message, state: FSMContext):
         f"⚖️ الوزن الإجمالي: *{data['weight']} غرام*\n"
         f"📏 سعر الغرام الصافي (المثقال ÷ 5): *{int(gram_base):,} د.ع*\n"
         f"🛠️ أجور الصياغة المعتمدة للجرام: *{int(data['workmanship']):,} د.ع*\n"
-        f"_______________________________\n\n"
+        f"═══════════════════════════\n\n"
         f"💰 *إجمالي الحساب بالدينار العراقي:* \n» *{int(total_iqd):,} د.ع*\n\n"
         f"💵 *حسبة السوق (الدولار والعراقي):* \n» *{waraqa} ورقة* 💵 + *{int(remain_iqd):,} دينار عراقي* 🇮🇶\n"
-        f"_______________________________\n"
+        f"═══════════════════════════\n"
         f"💎 نظام SMART GOLD SYSTEM - سرعة وأمان مطلق."
     )
     
     await loading_msg.delete()
     
-    # زر توليد الفاتورة المخير والذكي
     cb_data = f"makeinv_{data['weight']}_{int(data['workmanship'])}_{int(total_iqd)}_{waraqa}_{int(remain_iqd)}"
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="🧾 تنظيم وإصدار فاتورة المحل الفاخرة", callback_data=cb_data)]
@@ -166,15 +156,13 @@ async def execute_iraqi_calculation(message: Message, state: FSMContext):
     await message.answer("💡 خيار إضافي: يمكنك إرسال فاتورة منسقة ومطبوعة للزبون بالضغط على الزر أدناه:", reply_markup=kb)
     await state.clear()
 
-# --- محرك الفواتير الفاخرة ذات العائد الإعلاني والتررويجي ---
-
 @dp.callback_query(F.data.startswith("makeinv_"))
 async def init_inline_invoice(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     inv_parts = callback.data.split("_")
     await state.update_data(w=inv_parts[1], wm=inv_parts[2], iqd=inv_parts[3], war=inv_parts[4], rem=inv_parts[5])
     await callback.message.answer("✍️ يرجى إدخال *اسم الزبون الكريم* لإصدار وطباعة الفاتورة الرسمية:")
-    await state.set_state(AdminSettingsStates.waiting_for_user_control) # استغلال حالة مؤقتة لاستقبال الاسم
+    await state.set_state(AdminSettingsStates.waiting_for_user_control)
 
 @dp.message(AdminSettingsStates.waiting_for_user_control)
 async def print_luxury_invoice(message: Message, state: FSMContext):
@@ -191,14 +179,14 @@ async def print_luxury_invoice(message: Message, state: FSMContext):
         f"🏛️ *المصدر العامر:* {s_name}\n"
         f"📞 *رقم الهاتف:* {s_phone}\n"
         f"📍 *العنوان:* {s_addr}\n"
-        f"_______________________________\n\n"
+        f"═══════════════════════════\n\n"
         f"👤 *إلى السيد/ة الكريم/ة:* {customer_name}\n"
         f"⚖️ الوزن الصافي المشتراة: *{data['w']} غرام*\n"
         f"🛠️ احتساب صياغة الجرام: *{int(data['wm']):,} د.ع*\n"
-        f"_______________________________\n\n"
+        f"═══════════════════════════\n\n"
         f"💰 *المجموع النهائي بالدينار:* {int(data['iqd']):,} د.ع\n"
         f"💵 *المجموع بنظام السوق العراقي:* {data['war']} ورقة + {int(data['rem']):,} دينار\n"
-        f"_______________________________\n\n"
+        f"═══════════════════════════\n\n"
         f"✨ شكراً لثقتكم ومبارك لكم رزقكم الزاهر ✨\n\n"
         f"👑 *صيغت وتمت مراجعتها عبر منظومة SMART GOLD SYSTEM*\n"
         f"🚀 نظام أتمتة الصاغة المعتمد بالمملكة الرقمية: @GoldenCalc_Bot"
@@ -206,8 +194,6 @@ async def print_luxury_invoice(message: Message, state: FSMContext):
     
     await message.answer(invoice_template, parse_mode="Markdown", reply_markup=get_main_keyboard())
     await state.clear()
-
-# --- أدوات تحكم المشرف والسيطرة المطلقة العالية الجودة (Admin Control) ---
 
 @dp.message(Command("admin"))
 async def cmd_admin_panel(message: Message):
@@ -278,7 +264,6 @@ async def admin_block_action(message: Message):
     except Exception: await message.answer("الاستخدام: `/block_user [user_id]`")
 
 async def main():
-    # استدعاء دالة التهيئة والتصفير الشامل المكتوبة بـ utils.py عند إقلاع السيرفر
     await utils.init_and_refresh_db()
     await dp.start_polling(bot)
 
