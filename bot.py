@@ -178,12 +178,11 @@ async def handle_registration_or_text(message: types.Message, state: FSMContext)
             # إنشاء الإعدادات الصباحية الافتراضية للحساب الجديد
             utils.supabase.table("morning_settings").insert({"user_id": user_id}).execute()
             
-            # جلب عدد المشتركين للتسويق
-            total_res = utils.supabase.table("goldsmiths").select("user_id", count="exact").execute()
+                total_res = utils.supabase.table("goldsmiths").select("user_id", count="exact").execute()
             total_goldsmiths = total_res.count if total_res.count is not None else 1
             display_count = total_goldsmiths + 145
-    
-                    success_txt = (
+
+            success_txt = (
                 f"✨ **يا فتاح يا عليم يا رزاق يا كريم** ✨\n\n"
                 f"تم تسجيل محلك بالمنظومة بنجاح! عساه فاتحة خير وبركة ورزق لا ينتهي لحضرتكم 🔔\n"
                 f"🎁 تم تفعيل الفترة التجريبية المجانية المدتها 7 أيام لك لمجابهة بها السوق ميدانياً! 🎁\n\n"
@@ -194,14 +193,7 @@ async def handle_registration_or_text(message: types.Message, state: FSMContext)
                 f"───────────────────\n"
                 f"👇 توكل على الرزاق وابدأ العمل الآن عبر الأزرار أدناه 👇"
             )
-            # هنا نرسل الكيبورد الرئيسي الجوه فقط بدون أزرار داخل الرسالة تخرب المظهر
-            await message.answer(success_txt, reply_markup=get_main_keyboard(user_id, lang), parse_mode="Markdown")
-            
-        except Exception as e:
-            # في حال حدوث أي خطأ، نفتح له الكيبورد الرئيسي الجوه مباشرة بشكل مرتب ونظيف
-            await message.answer("أهلاً بك! تم تفعيل حسابك بنجاح، يمكنك استخدام النظام الآن فوراً عبر الأزرار أدناه.", reply_markup=get_main_keyboard(user_id, lang))
-            
-             message.answer("⚠️ **تنبيه:** يرجى إرسال اسم المحل، المحافظة، مع **رقم الهاتف** معاً في رسالة واحدة للتفعيل الفوري للسيرفر السحابي.")
+            await message.answer(success_txt, reply_markup=get_main_keyboard(user_id, lang), parse_mode="Markdown"
         return
 
     current_state = await state.get_state()
