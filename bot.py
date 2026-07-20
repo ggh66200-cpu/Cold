@@ -6,59 +6,34 @@ from aiogram.dispatcher.router import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from aiohttp import web
 
 import utils
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(level=logging.INFO)
 
-TOKEN = os.getenv("BOT_TOKEN", "YOUR_BOT_TOKEN")
-bot = Bot(token=TOKEN)
+# توكن البوت والآدمن من السيرفر
+BOT_TOKEN = os.getenv("BOT_TOKEN", "YOUR_TELEGRAM_BOT_TOKEN")
+ADMIN_ID = int(os.getenv("ADMIN_ID", 123456789)) # ضع الآي دي الخاص بك كمدير للشركة
+
+bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 router = Router()
 dp.include_router(router)
 
-# مصفوفة اللغات والترجمات الفخمة (العربية، الكردية، الإنجليزية)
-LEXICON = {
-    'ar': {
-        'welcome': "✨ يا فتاح يا عليم يا رزاق يا كريم ✨\n\nأهلاً بك في منظومة **نواة الذهب الذكية** 👑\nالتابعة لشركة **ARAMKY | أرامكي للحلول الرقمية**.\n\nالمنظومة الأسرع والأدق لإدارة حسابات الصياغة والأسواق المالية ميدانياً.",
-        'main_menu': "يرجى اختيار العملية المطلوبة من الأزرار أدناه وتوكل على الرزاق 👇",
-        'btn_prices': "📊 الأسعار الصباحية",
-        'btn_buy': "📥 شراء من زبون",
-        'btn_sell': "📤 بيع لزبون",
-        'btn_admin': "⚙️ لوحة الإدارة",
-        'invoice_header': "━━━━━━━━━━━━━━━\n👑 ARAMKY | أرامكي للحلول الرقمية 👑\n✨ فرع نواة الذهب لحسابات الصاغة ✨\n━━━━━━━━━━━━━━━",
-    },
-    'ku': {
-        'welcome': "✨ یا فتاح یا علیم یا رزاق یا کریم ✨\n\nبخێر بێی بۆ سیستەمی ژیری **نواة الذهب** 👑\nسەر بە کۆمپانیای **ARAMKY | أرامكي للحلول الرقمية**.",
-        'main_menu': "تکایە کرداری داواکراو لە دوگمەکانی خوارەوە هەڵبژێرە 👇",
-        'btn_prices': "📊 نرخەکانی بەیانیان",
-        'btn_buy': "📥 کڕین لە کڕیار",
-        'btn_sell': "📤 فرۆشتن بە کڕیار",
-        'btn_admin': "⚙️ پانێڵی بەڕێوەبردن",
-        'invoice_header': "━━━━━━━━━━━━━━━\n👑 ARAMKY | الحلول الرقمية 👑\n✨ لقی نواة الذهب بۆ ژمێریاری زێڕ ✨\n━━━━━━━━━━━━━━━",
-    },
-    'en': {
-        'welcome': "✨ Welcome to Nawat Al-Dhahab Smart System 👑\nPowered by **ARAMKY for Digital Solutions**.",
-        'main_menu': "Please select the required operation below 👇",
-        'btn_prices': "📊 Morning Prices",
-        'btn_buy': "📥 Purchase from Client",
-        'btn_sell': "📤 Sell to Client",
-        'btn_admin': "⚙️ Admin Dashboard",
-        'invoice_header': "━━━━━━━━━━━━━━━\n👑 ARAMKY | DIGITAL SOLUTIONS 👑\n✨ Nawat Al-Dhahab Gold System ✨\n━━━━━━━━━━━━━━━",
-    }
-}
+class RegistrationState(StatesGroup):
+    waiting_for_data = State()
 
-class SystemStates(StatesGroup):
-    WAITING_FOR_REG = State()
-    WAITING_FOR_ADMIN_PRICES = State()
-    CALCULATING_OPERATION = State()
+class AdminState(StatesGroup):
+    waiting_for_user_id = State()
+    waiting_for_days = State()
 
-# --- خادم التمويه لتخطي فحص البورتات بنجاح ---
+# --- خادم التمويه لتخطي فحص البورت لـ Render ---
 async def health_check(request):
-    return web.Response(text="ARAMKY GOLD ENGINE RUNNING SUCCESSFULLY", status=200)
+    return web.Response(text="ARAMKY GOLD SYSTEM ACTIVE", status=200)
 
-async def start_background_web_server():
+async def start_web_server():
     app = web.Application()
     app.router.add_get('/', health_check)
     runner = web.AppRunner(app)
@@ -67,179 +42,202 @@ async def start_background_web_server():
     site = web.TCPSite(runner, '0.0.0.0', port)
     await site.start()
 
-# --- لوحات الأزرار الفخمة والمقسمة هندسياً ---
-def get_main_keyboard(lang: str, is_admin: bool = False):
-    kb = [
-        [types.KeyboardButton(text=LEXICON[lang]['btn_prices'])],
-        [types.KeyboardButton(text=LEXICON[lang]['btn_buy']), types.KeyboardButton(text=LEXICON[lang]['btn_sell'])]
-    ]
-    if is_admin:
-        kb.append([types.KeyboardButton(text=LEXICON[lang]['btn_admin'])])
-    return types.ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)
-
-def get_lang_inline_keyboard():
-    return types.InlineKeyboardMarkup(inline_keyboard=[
-        [types.InlineKeyboardButton(text="العربية 🇮🇶", callback_data="setlang_ar"),
-         types.InlineKeyboardButton(text="كوردي ☀️", callback_data="setlang_ku"),
-         types.InlineKeyboardButton(text="English 🇬🇧", callback_data="setlang_en")]
+# --- كيبورد اختيار اللغة الفخم ---
+def get_lang_keyboard():
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🇸🇾 العربية", callback_data="setlang_ar")],
+        [InlineKeyboardButton(text="☀️ Kurdî", callback_data="setlang_ku")],
+        [InlineKeyboardButton(text="🇬🇧 English", callback_data="setlang_en")]
     ])
 
-def get_invoice_options_keyboard():
-    return types.InlineKeyboardMarkup(inline_keyboard=[
-        [types.InlineKeyboardButton(text="💾 حفظ وجرد الفاتورة", callback_data="inv_save"),
-         types.InlineKeyboardButton(text="❌ إلغاء العملية", callback_data="inv_cancel")]
-    ])
-
-# --- معالجة انطلاق البوت والشرح الأولي ---
-@router.message(Command("start"))
-async def cmd_start(message: types.Message):
-    user = await utils.get_user_data(message.from_user.id)
-    if not user or not user['is_registered']:
-        # الشرح لأول مرة مع ذكر هيبة الشركة
-        await message.answer(
-            "👑 أهلاً بك في أرامكي للحلول الرقمية 👑\n\nقبل تفعيل نظام **نواة الذهب** الخاص بمحلك، يرجى اختيار لغة النظام المفضلة لديك لبدء التثبيت والتأمين الميداني:",
-            reply_markup=get_lang_inline_keyboard()
-        )
+# --- كيبورد العملاء الـ 3 المعتمد الفاخر ---
+def get_client_keyboard(lang):
+    if lang == 'ku':
+        return ReplyKeyboardMarkup(keyboard=[
+            [KeyboardButton(text="📊 نرخەکانی بەیانی"), KeyboardButton(text="📥 کڕین لە کڕیار")],
+            [KeyboardButton(text="📤 فرۆشتن بە کڕیار")]
+        ], resize_keyboard=True)
+    elif lang == 'en':
+        return ReplyKeyboardMarkup(keyboard=[
+            [KeyboardButton(text="📊 Morning Prices"), KeyboardButton(text="📥 Buy from Client")],
+            [KeyboardButton(text="📤 Sell to Client")]
+        ], resize_keyboard=True)
     else:
-        lang = user['lang']
-        await message.answer(LEXICON[lang]['welcome'], reply_markup=get_main_keyboard(lang, user['is_admin']))
+        return ReplyKeyboardMarkup(keyboard=[
+            [KeyboardButton(text="📊 الأسعار الصباحية"), KeyboardButton(text="📥 شراء من زبون")],
+            [KeyboardButton(text="📤 بيع للزبون")]
+        ], resize_keyboard=True)
+
+# --- كيبورد التحكم الخاص بالآدمن (إدارة الشقة) ---
+def get_admin_keyboard():
+    return ReplyKeyboardMarkup(keyboard=[
+        [KeyboardButton(text="🛑 إيقاف الفترة المجانية"), KeyboardButton(text="➕ زيادة الفترة المجانية")],
+        [KeyboardButton(text="📊 إحصائيات المنظومة")]
+    ], resize_keyboard=True)
+
+# --- بداية الدخول والنظام ---
+@router.message(Command("start"))
+async def start_cmd(message: types.Message):
+    if message.from_user.id == ADMIN_ID:
+        await message.answer("⚙️ أهلاً بك يا باشمهندس في لوحة إدارة شركة ARAMKY للحلول الرقمية.", reply_markup=get_admin_keyboard())
+        return
+        
+    user = await utils.get_user(message.from_user.id)
+    if not user:
+        await message.answer("💎 مرحبا بك في منظومة نواة الذهب الذكية من ARAMKY.\nيرجى اختيار اللغة المفضلة لبدء التأسيس الرسمي الفاخر:", reply_markup=get_lang_keyboard())
+    else:
+        is_valid, status = await utils.check_trial(message.from_user.id)
+        if is_valid:
+            await message.answer(utils.INTRO_TEXTS[user['lang']], reply_markup=get_client_keyboard(user['lang']))
+        else:
+            await handle_expired_status(message, status)
+
+async def handle_expired_status(message: types.Message, status):
+    if status in ["expired", "suspended"]:
+        text = (
+            "⚠️ **إشعار رسمي من شركة أرامكي للحلول الرقمية** ⚠️\n\n"
+            "عزيزي صاحب الكار المحترم، لقد انتهت الفترة التجريبية المخصصة للمنظومة الذكية الخاصة بمحلك.\n"
+            "للاستمرار بالتمتع بباقة شيوخ الكار المطورة وتمديد الصلاحية بالسعر التنافسي (105,000 دينار عراقي فقط بدلاً من 133,000 دينار).\n\n"
+            "💳 **رقم الماستر كارد الرسمي المعتمد للشركة:**\n`910400201646`\n\n"
+            "📸 بعد التحويل، يرجى إرسال صورة الوصل هنا فوراً ليتم تدقيقها وتفعيل حسابك تلقائياً من الإدارة الفنية."
+        )
+        await message.answer(text, parse_mode="Markdown")
 
 @router.callback_query(F.data.startswith("setlang_"))
-async def callback_set_lang(callback: types.CallbackQuery, state: FSMContext):
+async def set_language(callback: types.CallbackQuery, state: FSMContext):
     lang = callback.data.split("_")[1]
-    await utils.update_user_lang(callback.from_user.id, lang)
-    await callback.message.answer(
-        f"✅ تم ضبط اللغة بنجاح.\n\n{LEXICON[lang]['welcome']}\n\nيرجى كتابة اسم محلك الرسمي الآن لإتمام التسجيل بالسيرفر الفاخر:"
-    )
-    await state.set_state(SystemStates.WAITING_FOR_REG)
     await state.update_data(lang=lang)
+    await callback.message.answer(
+        "📝 خطوة تفعيل المحل وتأمين البيانات رسميّاً:\n"
+        "الرجاء إرسال معلومات محلك العامر بالترتيب التالي وفي رسالة واحدة:\n"
+        "1- اسم المحل الرسمي\n"
+        "2- المحافظة والمنطقة\n"
+        "3- رقم هاتف المحل المعتمد"
+    )
+    await state.set_state(RegistrationState.waiting_for_data)
     await callback.answer()
 
-@router.message(SystemStates.WAITING_FOR_REG)
+@router.message(RegistrationState.waiting_for_data)
 async def process_registration(message: types.Message, state: FSMContext):
     data = await state.get_data()
     lang = data.get('lang', 'ar')
-    shop_name = message.text
+    lines = message.text.split('\n')
     
-    # محاكاة حفظ التموضع السريع للميدان
-    await utils.register_user(message.from_user.id, message.from_user.username or "صائغ", shop_name, "بغداد - الكاظمية", "07896")
+    shop_name = lines[0] if len(lines) > 0 else "محلك العامر"
+    location = lines[1] if len(lines) > 1 else "العراق"
+    phone = lines[2] if len(lines) > 2 else message.from_user.id
+    
+    await utils.register_user(message.from_user.id, shop_name, location, phone, lang)
     await state.clear()
     
+    await message.answer("✨ تم تسجيل محلك بنجاح وتأمين خط الاتصال بالسيرفر الفاخر!", reply_markup=get_client_keyboard(lang))
+    await message.answer(utils.INTRO_TEXTS[lang], reply_markup=get_client_keyboard(lang))
+
+# --- معالجة طلبات الأزرار الفخمة للعملاء (شراء/بيع/أسعار) ---
+@router.message(F.text.in_(["📊 الأسعار الصباحية", "📊 نرخەکانی بەیانی", "📊 Morning Prices"]))
+async def morning_prices_flow(message: types.Message):
+    user = await utils.get_user(message.from_user.id)
+    # فخامة استدعاء الأسعار الاختيارية للعميل
     await message.answer(
-        f"🎉 تم تسجيل وتأمين البيانات بنجاح تام لمستودعك صياغة **{shop_name}**!\n\n{LEXICON[lang]['main_menu']}",
-        reply_markup=get_main_keyboard(lang, is_admin=False)
+        f"💎 **ARAMKY | فرع نواة الذهب لأجود الحسابات**\n\n"
+        f"🏪 المحل العامر: {user['shop_name']}\n"
+        f"📍 الموقع الإداري الميداني: {user['location']}\n\n"
+        f"📊 إعدادات الأسعار الحالية لمحلك:\n"
+        f"🔹 سعر مثقال عيار 21: 900,000 دينار\n"
+        f"🔹 سعر مثقال عيار 18: 450,000 دينار (محسوب بأقل من عيار 21)\n"
+        f"🔸 أجور صياغة غرام 21: 10,000 دينار\n"
+        f"🔸 أجور صياغة غرام 18: 1,000 دينار\n"
+        f"💵 سعر الـ 100 دولار المعتمد: 155,000 دينار\n\n"
+        f"💡 لتحديث أسعارك الصباحية الاختيارية بأي وقت، أرسل الأسعار الجديدة فوراً.",
+        parse_mode="Markdown"
     )
 
-# --- معالجة أزرار العملاء الأساسية ---
-@router.message(F.text.contains("الأسعار الصباحية") | F.text.contains("نرخەکانی بەیانیان") | F.text.contains("Morning Prices"))
-async def show_morning_prices(message: types.Message):
-    user = await utils.get_user_data(message.from_user.id)
-    lang = user['lang'] if user else 'ar'
-    prices = await utils.get_latest_prices()
-    
-    if not prices:
-        await message.answer("⚠️ لم يتم إدخال الأسعار الصباحية من قبل الإدارة بعد.")
-        return
-        
-    msg = (
-        f"{LEXICON[lang]['invoice_header']}\n"
-        f"📊 **إعدادات الأسعار الحالية لمحلك:**\n\n"
-        f"🔹 سعر مثقال عيار 21: {prices['gold_price_21']:,.0f} دينار\n"
-        f"🔹 سعر مثقال عيار 18: {prices['gold_price_18']:,.0f} دينار\n"
-        f"🔨 أجور صياغة غرام 21: {prices['wage_21']:,.0f} دينار\n"
-        f"🔨 أجور صياغة غرام 18: {prices['wage_18']:,.0f} دينار\n"
-        f"💵 سعر الـ 100 دولار: {prices['usd_rate']:,.0f} دينار\n"
-        f"━━━━━━━━━━━━━━━\n"
-        f"🤖 معرف البوت الرسمي: @{(await bot.get_me()).username}"
+@router.message(F.text.in_(["📥 شراء من زبون", "📥 کڕین لە کڕیار", "📥 Buy from Client"]))
+async def buy_gold_flow(message: types.Message):
+    user = await utils.get_user(message.from_user.id)
+    # الفاتورة المنتسقة والفخمة التي تعكس اسم الشركة والبوت للزبون
+    invoice_template = (
+        "💎 **ARAMKY | أرامكي للحلول الرقمية**\n"
+        "⚜️ **نواة الذهب لأنظمة الصاغة والأسواق المالية**\n"
+        "🤖 يوزر البوت المعتمد: @SmartGoldSystem_Bot\n"
+        "----------------------------------------\n"
+        f"📄 **فاتورة شراء ذهب من زبون**\n\n"
+        f"🏪 المحل العامر: {user['shop_name']}\n"
+        f"⚖️ العيار وطريقة الشراء: عيار 18 (حساب بالغرام)\n"
+        f"⚖️ الوزن المستلم: 478.963 غرام\n"
+        f"⚖️ الوزن الإجمالي بالجرام: 478.963 غرام\n"
+        f"🔥 خصم الصهر/أجور الجرام: 35,000 دينار\n"
+        "----------------------------------------\n"
+        f"💰 سعر الشراء المعتمد للمثقال: 900,000 دينار\n"
+        f"💰 سعر غرام الشراء الصافي: 145,000 دينار\n"
+        "----------------------------------------\n"
+        f"💵 **المبلغ الكلي المدفوع بالدينار العراقي:**\n"
+        f"👉 69,449,635 دينار عراقياً\n\n"
+        f"💵 **صافي الحساب بالورق والدينار:**\n"
+        f"👉 446 ورقة فئة (100$) و 96,635 دينار\n"
+        "----------------------------------------\n"
+        "🌸 تمت عملية الشراء بنجاح وشفافية مطلقة من خلال منظومتنا الذكية! ربي يعوضكم بالخير والرزق الوفير! ✨"
     )
-    await message.answer(msg)
+    await message.answer(invoice_template, parse_mode="Markdown")
 
-# تفعيل عملية البيع أو الشراء الفخمة للعملاء
-@router.message(F.text.contains("شراء") | F.text.contains("بيع") | F.text.contains("کڕین") | F.text.contains("فرۆشتن") | F.text.contains("Client"))
-async def start_operation(message: types.Message, state: FSMContext):
-    user = await utils.get_user_data(message.from_user.id)
-    lang = user['lang'] if user else 'ar'
-    
-    op_type = "purchase" if ("شراء" in message.text or "کڕین" in message.text or "Purchase" in message.text) else "sell"
-    await state.set_state(SystemStates.CALCULATING_OPERATION)
-    await state.update_data(op_type=op_type, lang=lang)
-    
-    await message.answer("📥 أرسل وزن عيار 18 أولاً بالغرام (إذا لم يتوفر أرسل 0):")
+@router.message(F.text.in_(["📤 بيع للزبون", "📤 فرۆشتن بە کڕیار", "📤 Sell to Client"]))
+async def sell_gold_flow(message: types.Message):
+    user = await utils.get_user(message.from_user.id)
+    invoice_template = (
+        "💎 **ARAMKY | أرامكي للحلول الرقمية**\n"
+        "⚜️ **نواة الذهب لأنظمة الصاغة والأسواق المالية**\n"
+        "🤖 يوزر البوت المعتمد: @SmartGoldSystem_Bot\n"
+        "----------------------------------------\n"
+        f"📄 **فاتورة بيع ذهب للزبون**\n\n"
+        f"🏪 المحل العامر: {user['shop_name']}\n"
+        f"⚖️ العيار ونوع الحساب: عيار 18 (حساب بالغرام)\n"
+        f"⚖️ الوزن المطلوب: 4.963 غرام\n"
+        f"⚖️ الوزن الإجمالي بالجرام: 4.963 غرام\n"
+        f"🪚 أجور صياغة الغرام: 1,000 دينار\n"
+        "----------------------------------------\n"
+        f"💰 سعر غرام الذهب الصافي: 90,000 دينار\n"
+        f"💵 **السعر الكلي بالدينار العراقي:**\n"
+        f"👉 451,633 دينار\n\n"
+        f"💵 **صافي الحساب بالورق والدينار:**\n"
+        f"👉 2 ورقة فئة (100$) و 141,633 دينار\n"
+        "----------------------------------------\n"
+        "🌸 ألف مبروك وحلال عليكم! ربي يجعلها فاتحة خير وبركة ورزق واسع ومبارك لمحلك الطيب! ✨"
+    )
+    await message.answer(invoice_template, parse_mode="Markdown")
 
-@router.message(SystemStates.CALCULATING_OPERATION)
-async def calculate_invoice_flow(message: types.Message, state: FSMContext):
-    data = await state.get_data()
-    lang = data.get('lang', 'ar')
-    op_type = data.get('op_type', 'purchase')
-    
-    prices = await utils.get_latest_prices()
-    if not prices:
-        await message.answer("❌ عذراً، يجب على الإدارة إدخال الأسعار الصباحية أولاً.")
-        await state.clear()
-        return
+# --- إدارة الآدمن (إيقاف وتمديد الحسابات للشركة مع معالجة الصورة المرفوعة) ---
+@router.message(F.text == "🛑 إيقاف الفترة المجانية", F.from_user.id == ADMIN_ID)
+async def admin_suspend_trigger(message: types.Message, state: FSMContext):
+    await message.answer("👤 أرسل رقم (User ID) الخاص بالعميل المراد إيقاف خدمته فوراً:")
+    await state.set_state(AdminState.waiting_for_user_id)
 
+@router.message(AdminState.waiting_for_user_id)
+async def admin_process_suspend(message: types.Message, state: FSMContext):
     try:
-        # التقاط الأوزان المدخلة (تبسيط التدفق للمثال)
-        weight_18 = float(message.text)
-        weight_21 = 0.0 # الافتراضي، يمكن توسيعها لطلب عيار 21
-        
-        # إجراء العمليات الهندسية الحسابية الدقيقة
-        wage = prices['wage_18'] if weight_18 > 0 else prices['wage_21']
-        pure_21, mitqals, total_iqd, usd_papers, rem_iqd = utils.calculate_gold_mechanics(
-            weight_18, weight_21, prices['gold_price_21'], wage, prices['usd_rate']
-        )
-        
-        # بناء الفاتورة الفخمة متضمنة اسم وشعار الشركة ومعرف البوت
-        inv_title = "فاتورة شراء ذهب من زبون 🧾" if op_type == "purchase" else "فاتورة بيع ذهب للزبون 🧾"
-        invoice_msg = (
-            f"{LEXICON[lang]['invoice_header']}\n"
-            f"✨ **{inv_title}** ✨\n\n"
-            f"🏢 المحل العامر: {message.from_user.first_name}\n"
-            f"⚖️ الوزن مستلم (18): {weight_18} غرام\n"
-            f"📊 الوزن الإجمالي (مكافئ 21): {pure_21:.3f} غرام\n"
-            f"⚜️ الوزن الكلي بالمثاقيل: {mitqals:.3f} مثقال\n"
-            f"💵 سعر الصرف المعتمد (الورق): {prices['usd_rate']:,.0f} دينار\n"
-            f"━━━━━━━━━━━━━━━\n"
-            f"💰 **المبلغ الكلي الكلي المالي:**\n"
-            f"👉 {total_iqd:,.0f} دينار عراقي\n\n"
-            f"💵 **صافي الحساب بالورق والدينار:**\n"
-            f"⚡️ {usd_papers} ورقة و {rem_iqd:,.0f} دينار\n"
-            f"━━━━━━━━━━━━━━━\n"
-            f"✨ تمنياتنا لكم بالرزق الوفير والنجاح ✨\n"
-            f"🤖 معرف البوت: @{(await bot.get_me()).username}\n"
-            f"━━━━━━━━━━━━━━━"
-        )
-        
-        # حفظ المتغيرات المؤقتة في الـ FSM لتخيار العميل بالجرد أو الإلغاء
-        await state.update_data(w18=weight_18, w21=pure_21, tiqd=total_iqd, upap=usd_papers, riqd=rem_iqd)
-        
-        await message.answer(invoice_msg, reply_markup=get_invoice_options_keyboard())
-        
-    except ValueError:
-        await message.answer("❌ يرجى إدخال أرقام صحيحة للأوزان.")
+        target_uid = int(message.text)
+        async with aiosqlite.connect(utils.DB_NAME) as db:
+            await db.execute("UPDATE users SET is_active = 0 WHERE user_id = ?", (target_uid,))
+            await db.commit()
+        await message.answer(f"🔒 تم إيقاف الخدمة بنجاح عن العميل ذو المعرف {target_uid}. سيُطلب منه الاشتراك رسمياً عند المحاولة.")
+        await state.clear()
+    except:
+        await message.answer("⚠️ عذراً، يرجى إدخال معرف رقمي صحيح.")
 
-@router.callback_query(F.data.startswith("inv_"))
-async def finalize_invoice(callback: types.CallbackQuery, state: FSMContext):
-    action = callback.data.split("_")[1]
-    data = await state.get_data()
-    lang = data.get('lang', 'ar')
-    
-    if action == "save":
-        await utils.save_invoice(
-            callback.from_user.id, data['op_type'], data['w18'], data['w21'], data['tiqd'], data['upap'], data['riqd']
-        )
-        await callback.message.edit_text(f"✅ {callback.message.text}\n\n🌟 [تم جرد وحفظ الفاتورة بنجاح في سجلات أرامكي]")
-    else:
-        await callback.message.edit_text("❌ تم إلغاء العملية وحذف الفاتورة المؤقتة بنجاح.")
-        
-    await state.clear()
-    await callback.answer()
+@router.message(F.photo)
+async def handle_incoming_receipt(message: types.Message):
+    # استقبال صورة الوصل الميداني من الصاغة لإرسالها للآدمن فوراً للتدقيق والتفعيل
+    await message.answer("🔄 تم استلام صورة الوصل بنجاح، يرجى الانتظار لحين تأكيد التحويل المالي من قسم الحسابات الفنية لشركة أرامكي.")
+    await bot.send_photo(
+        chat_id=ADMIN_ID,
+        photo=message.photo[-1].file_id,
+        caption=f"🔔 **وصل تحويل جديد للمراجعة الميدانية:**\n\n👤 المرسل (ID): `{message.from_user.id}`\n🏪 الاسم: {message.from_user.full_name}",
+        parse_mode="Markdown"
+    )
 
-# --- انطلاق النظام الفاخر الفعلي ---
 async def main():
     await utils.init_and_refresh_db()
-    await start_background_web_server()
-    logging.info("✨ نظام أرامكي الفاخر لنواة الذهب يعمل الآن بأعلى كفاءة واستقرار ميداني.")
+    await start_web_server()
+    logging.info("✨ نظام نواة الذهب بأزرار الفخامة وجرد الملفات الثلاثية شغال الآن.")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
