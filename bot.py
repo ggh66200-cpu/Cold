@@ -6,25 +6,28 @@ from aiogram.dispatcher.router import Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 from aiohttp import web
 
 import utils
 
-# إعداد السجلات الأساسية
+# =====================================================================
+# ⚙️ الإعدادات الأساسية والمفاتيح
+# =====================================================================
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# جلب مفاتيح الحماية والتحكم من السيرفر بشكل صارم وآمن
 BOT_TOKEN = os.getenv("BOT_TOKEN", "7432890543:AAH_FakeTokenForStructure")
-ADMIN_ID = int(os.getenv("ADMIN_ID", "123456789")) # ضع معرف الآدمن الخاص بك في السيرفر
+ADMIN_ID = int(os.getenv("ADMIN_ID", "123456789"))
 BOT_USERNAME = os.getenv("BOT_USERNAME", "NawatGoldBot")
 
 bot = Bot(token=BOT_TOKEN)
-# استخدام الذاكرة المحلية المخففة والمثالية لضعف الإنترنت بالعراق
 dp = Dispatcher(storage=MemoryStorage())
 router = Router()
 dp.include_router(router)
 
-# مصفوفة النصوص الفاخرة للغات الـ 3 لمنع التثاقل
+# =====================================================================
+# 🌐 قوالب النصوص واللغات
+# =====================================================================
 TEXTS = {
     'ar': {
         'welcome_brand': "👑 ARAMKY للحلول الرقمية\n⚜️ منظومة نواة الذهب الذكية لشيوخ الصاغة",
@@ -58,7 +61,9 @@ TEXTS = {
     }
 }
 
-# حالات إدخال البيانات الفاخرة (FSM States)
+# =====================================================================
+# 🧠 حالات إدخال البيانات (FSM States)
+# =====================================================================
 class RegistrationStates(StatesGroup):
     waiting_for_data = State()
 
@@ -73,7 +78,9 @@ class AdminStates(StatesGroup):
     waiting_for_block_id = State()
     waiting_for_unblock_id = State()
 
-# 🌐 خدعة السيرفر (Health Check Web Server) لعدم تجميد البوت وإبقائه موقع تفاعلي
+# =====================================================================
+# 🌐 محاكي الـ Web Service (Health Check)
+# =====================================================================
 async def health_check(request):
     return web.Response(text="ARAMKY GOLD SYSTEM WEB SERVICE INTERFACE IS ONLINE", status=200)
 
@@ -87,7 +94,20 @@ async def start_background_web_server():
     await site.start()
     logging.info(f"🚀 [TRICK ACTIVE] Server emulated as Web Service on port {port}")
 
-# 🚀 نقطة انطلاق البوت الميداني
+# =====================================================================
+# 🎹 دوال بناء لوحات المفاتيح (Keyboards)
+# =====================================================================
+def get_main_keyboard(lang: str) -> ReplyKeyboardMarkup:
+    buttons = [
+        [KeyboardButton(text=TEXTS[lang]['btn_morning'])],
+        [KeyboardButton(text=TEXTS[lang]['btn_buy']), KeyboardButton(text=TEXTS[lang]['btn_sell'])]
+    ]
+    return ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
+
+# =====================================================================
+# 🚀 مسارات البوت الأساسية (Handlers)
+# =====================================================================
+
 @router.message(F.text == "/start")
 async def cmd_start(message: types.Message):
     user = await utils.get_user(message.from_user.id)
@@ -95,24 +115,24 @@ async def cmd_start(message: types.Message):
         if user['is_active'] == 0:
             await send_subscription_request(message.from_user.id)
             return
-        # توجيه العميل المسجل مباشرة إلى الواجهة المعتمدة له بلغته
         await send_main_dashboard(message.from_user.id, user['lang'])
     else:
-        # واجهة اختيار اللغة لأول مرة بدون أعلام لتجنب أي تعليق بالنت
-        # التعديل الفاخر والصحيح هندسياً
-        kb = types.InlineKeyboardMarkup(inline_keyboard=[
-            [types.InlineKeyboardButton(text="العربية", callback_query_data="setlang_ar")],
-            [types.InlineKeyboardButton(text="Kurdî", callback_query_data="setlang_ku")],
-            [types.InlineKeyboardButton(text="English", callback_query_data="setlang_en")]
+        # ✅ الحل هنا: تعريف أزرار إنلاين حقيقية تحتوي على callback_data لمنع الـ Bad Request
+        kb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="العربية 🇸🇦", callback_data="setlang_ar")],
+            [InlineKeyboardButton(text="Kurdî ☀️", callback_data="setlang_ku")],
+            [InlineKeyboardButton(text="English 🇬🇧", callback_data="setlang_en")]
         ])
-        await message.answer("👑 ARAMKY DIGITAL SOLUTIONS\n\nChoose your preferred system language:\nالرجاء اختيار لغة النظام المعتمدة لدیکم:", reply_markup=kb)
+        await message.answer(
+            "👑 ARAMKY DIGITAL SOLUTIONS\n\nChoose your preferred system language:\nالرجاء اختيار لغة النظام المعتمدة لديهم:", 
+            reply_markup=kb
+        )
 
 @router.callback_query(F.data.startswith("setlang_"))
 async def callback_set_lang(callback: types.CallbackQuery, state: FSMContext):
     lang = callback.data.split("_")[1]
     await state.update_data(chosen_lang=lang)
     
-    # نموذج طلب البيانات الموحد الفاخر لضمان الأرشفة الرسمية وسرعة كتابتها للتاجر
     text = (
         "📝 **خطوة تفعيل المحل وتأمين البيانات**\n\n"
         "أخي الغالي وصاحب الكار المحترم، يرجى إرسال معلومات محلك العامر كل معلومة في سطر منفصل "
@@ -143,7 +163,6 @@ async def process_registration(message: types.Message, state: FSMContext):
     await utils.register_user(message.from_user.id, shop_name, location, phone, lang)
     await state.clear()
     
-    # رسالة الترحيب والشرح الكامل لأول دخول للصائغ
     total_active = await utils.get_all_users_count() + 160
     welcome_msg = (
         f"{TEXTS[lang]['welcome_brand']}\n"
@@ -167,15 +186,9 @@ async def send_main_dashboard(user_id: int, lang: str):
         reply_markup=get_main_keyboard(lang)
     )
 
-def get_main_keyboard(lang: str) -> types.ReplyKeyboardMarkup:
-    # 3 أزرار رئيسية فاخرة للعملاء منسقة للعمل بسرعة فائقة تحت أي ظروف اتصال
-    buttons = [
-        [types.KeyboardButton(text=TEXTS[lang]['btn_morning'])],
-        [types.KeyboardButton(text=TEXTS[lang]['btn_buy']), types.KeyboardButton(text=TEXTS[lang]['btn_sell'])]
-    ]
-    return types.ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
-
+# =====================================================================
 # 📊 عرض الأسعار الصباحية للعميل
+# =====================================================================
 @router.message(F.text.in_([TEXTS['ar']['btn_morning'], TEXTS['ku']['btn_morning'], TEXTS['en']['btn_morning']]))
 async def show_morning_prices(message: types.Message):
     user = await utils.get_user(message.from_user.id)
@@ -198,7 +211,9 @@ async def show_morning_prices(message: types.Message):
     )
     await message.answer(msg)
 
+# =====================================================================
 # 📥 مسار شراء ذهب من زبون
+# =====================================================================
 @router.message(F.text.in_([TEXTS['ar']['btn_buy'], TEXTS['ku']['btn_buy'], TEXTS['en']['btn_buy']]))
 async def start_buy_process(message: types.Message, state: FSMContext):
     await message.answer("⚖️ أرسل الوزن المراد شراؤه من الزبون (بالغرام):")
@@ -209,9 +224,11 @@ async def process_buy_weight(message: types.Message, state: FSMContext):
     try:
         weight = float(message.text)
         await state.update_data(buy_weight=weight)
-        kb = types.InlineKeyboardMarkup(inline_keyboard=[
-            [types.InlineKeyboardButton(text="عيار 21", callback_query_data="buy_purity_21"),
-             types.InlineKeyboardButton(text="عيار 18", callback_query_data="buy_purity_18")]
+        kb = InlineKeyboardMarkup(inline_keyboard=[
+            [
+                InlineKeyboardButton(text="عيار 21", callback_data="buy_purity_21"),
+                InlineKeyboardButton(text="عيار 18", callback_data="buy_purity_18")
+            ]
         ])
         await message.answer("💎 اختر عيار الذهب المستلم لتحديد قاعدة الاحتساب والوزن والمثاقيل بدقة:", reply_markup=kb)
     except ValueError:
@@ -225,15 +242,12 @@ async def process_buy_purity(callback: types.CallbackQuery, state: FSMContext):
     user = await utils.get_user(callback.from_user.id)
     prices = await utils.get_morning_prices()
     
-    # احتسابات الذهب المعتمدة على حجم المثقال العراقي (5 غرام)
-    # عيار 18 يحتسب دائماً بقيمة أقل من عيار 21
     base_gold_price = prices['gold_21_price'] if purity == 21 else prices['gold_18_price']
     making_fee = prices['making_21'] if purity == 21 else prices['making_18']
     
     price_per_gram = base_gold_price / 5
     total_dinar = (weight * price_per_gram) - (weight * making_fee)
     
-    # هيكلة المبلغ إلى دولار (ورق فئة 100$) ومتبقي دينار عراقي حسب العرف المحلي
     usd_count = int(total_dinar // prices['usd_rate'])
     usd_value_in_dinar = usd_count * prices['usd_rate']
     remaining_dinar = total_dinar - usd_value_in_dinar
@@ -262,7 +276,9 @@ async def process_buy_purity(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.edit_text(invoice)
     await state.clear()
 
+# =====================================================================
 # 📤 مسار بيع ذهب إلى زبون
+# =====================================================================
 @router.message(F.text.in_([TEXTS['ar']['btn_sell'], TEXTS['ku']['btn_sell'], TEXTS['en']['btn_sell']]))
 async def start_sell_process(message: types.Message, state: FSMContext):
     await message.answer("⚖️ أرسل الوزن المراد بيعه للزبون (بالغرام):")
@@ -273,9 +289,11 @@ async def process_sell_weight(message: types.Message, state: FSMContext):
     try:
         weight = float(message.text)
         await state.update_data(sell_weight=weight)
-        kb = types.InlineKeyboardMarkup(inline_keyboard=[
-            [types.InlineKeyboardButton(text="عيار 21", callback_query_data="sell_purity_21"),
-             types.InlineKeyboardButton(text="عيار 18", callback_query_data="sell_purity_18")]
+        kb = InlineKeyboardMarkup(inline_keyboard=[
+            [
+                InlineKeyboardButton(text="عيار 21", callback_data="sell_purity_21"),
+                InlineKeyboardButton(text="عيار 18", callback_data="sell_purity_18")
+            ]
         ])
         await message.answer("💎 اختر عيار الذهب المباع لتحديد قاعدة الاحتساب بدقة والأسعار الرسمية لمحلكم:", reply_markup=kb)
     except ValueError:
@@ -293,7 +311,6 @@ async def process_sell_purity(callback: types.CallbackQuery, state: FSMContext):
     making_fee = prices['making_21'] if purity == 21 else prices['making_18']
     
     price_per_gram = base_gold_price / 5
-    # في عملية البيع تضاف الأجور إلى سعر الغرام الصافي
     total_dinar = (weight * price_per_gram) + (weight * making_fee)
     
     usd_count = int(total_dinar // prices['usd_rate'])
@@ -324,16 +341,18 @@ async def process_sell_purity(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.edit_text(invoice)
     await state.clear()
 
-# ==================== 🛠️ قـسـم الإدارة والآدمـن (لوحة التحكم الفاخرة) ====================
+# =====================================================================
+# 🛠️ قـسـم الإدارة والآدمـن
+# =====================================================================
 
 @router.message(F.text == "/admin")
 async def cmd_admin(message: types.Message):
     if message.from_user.id != ADMIN_ID:
         return
-    kb = types.InlineKeyboardMarkup(inline_keyboard=[
-        [types.InlineKeyboardButton(text="⚙️ تحديث الأسعار الصباحية", callback_query_data="adm_update_prices")],
-        [types.InlineKeyboardButton(text="🚫 حظر/إيقاف عميل", callback_query_data="adm_block")],
-        [types.InlineKeyboardButton(text="✅ تفعيل عميل", callback_query_data="adm_unblock")]
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="⚙️ تحديث الأسعار الصباحية", callback_query_data="adm_update_prices")],
+        [InlineKeyboardButton(text="🚫 حظر/إيقاف عميل", callback_query_data="adm_block")],
+        [InlineKeyboardButton(text="✅ تفعيل عميل", callback_query_data="adm_unblock")]
     ])
     await message.answer("👑 **لوحة الإدارة الفاخرة لشركة ARAMKY**\n\nمرحباً بك يا مهندس، يرجى اختيار إجراء التحكم بالسيرفر والعملاء الحركيين:", reply_markup=kb)
 
@@ -399,50 +418,14 @@ async def adm_exec_unblock(message: types.Message, state: FSMContext):
         await message.answer("⚠️ يرجى إدخال معرف رقمي صحيح.")
 
 async def send_subscription_request(user_id: int):
-    # رسالة إيقاف الفترة المجانية الرسمية بطلب الصورة والتحويل الفوري للماستر كارد الخاص بالشركة
     text = (
         "👑 **ARAMKY | نظام نواة الذهب لحسابات الصاغة الذكية**\n"
         "----------------------------------------\n"
         "👑 **باقة شيوخ الكار المطورين (خصم حصري)**\n\n"
-        "🚫 **انتهت الفترة التجريبية المخصصة للمنظومة.**\n"
-        "للاشتراك وتمديد الصلاحية بالسعر التنافسي المستمر بقيمة **105,000 دينار عراقي فقط** بدلاً من السعر الأساسي 133,000 دينار عراقي (توفير 28,000 دينار عراقي بكل تجديد).\n\n"
-        "💳 **حساب الإيداع المالي الذهبي للشركة:**\n"
-        "رقم الماستر كارد الرسمي المعتمد:\n`910400201646`\n\n"
-        "📸 بعد التحويل، اضغط على الزر بالأسفل وأرسل **صورة الوصل** لتفعيل حسابك تلقائياً بعد مراجعته فورا من قبل الإدارة الفنية.\n\n"
-        "📞 خط الدعم الفني: 07872180902"
+        "⚠️ عذراً أخي الكريم، لقد انتهت الفترة التجريبية المخصصة للمحل.\n"
+        "لتفعيل الحساب بشكل دائم يرجى التواصل مع الدعم الفني لشركة أرامكي."
     )
-    kb = types.InlineKeyboardMarkup(inline_keyboard=[
-        [types.InlineKeyboardButton(text="📸 إرسال وصل التحويل المالي", callback_query_data="send_receipt")]
-    ])
     try:
-        await bot.send_message(chat_id=user_id, text=text, reply_markup=kb, parse_mode="Markdown")
+        await bot.send_message(user_id, text)
     except Exception as e:
-        logging.error(f"Could not send sub request to {user_id}: {e}")
-
-@router.callback_query(F.data == "send_receipt")
-async def req_receipt_photo(callback: types.CallbackQuery):
-    await callback.message.reply("ℹ️ يرجى إرسال صورة إيصال الدفع أو التحويل مباشرة الآن كرسالة مصورة لتأكيد الحساب ومراجعته بلحظات.")
-
-@router.message(F.photo)
-async def process_receipt_photo(message: types.Message):
-    # تحويل صور الوصولات مباشرة لآدمن الشركة للتحقق اليدوي منها وتفعيل الحساب بلمحة بصر
-    await bot.send_photo(
-        chat_id=ADMIN_ID,
-        photo=message.photo[-1].file_id,
-        caption=f"🔔 **وصل تحويل مالي جديد للمراجعة**\n\n👤 اسم العميل: {message.from_user.full_name}\n🔢 معرّف الحساب المالي (User ID): `{message.from_user.id}`\n⚡ لتفعيله فوراً، اذهب إلى لوحة التحكم واضغط تفعيل عميل."
-    )
-    await message.answer("⏳ تم استلام صورة الوصل بنجاح، جاري التدقيق والربط الفوري من قبل مهندسي الدعم الفني لشركة ARAMKY.")
-
-# ======================================================================================
-
-async def main():
-    await utils.init_and_refresh_db()
-    await start_background_web_server()
-    logging.info("✨ SMART GOLD SYSTEM RUNNING FIRM AND FINE ON HIGH PERFORMANCE MODE")
-    await dp.start_polling(bot)
-
-if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except (KeyboardInterrupt, SystemExit):
-        logging.info("🔴 System shutting down gracefully.")
+        logging.error(f"Failed to send sub request to {user_id}: {e}")
