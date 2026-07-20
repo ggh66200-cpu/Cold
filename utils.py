@@ -1,11 +1,24 @@
 import aiosqlite
 import datetime
 
-DB_NAME = "aramky_gold_nucleus.db"
+DB_NAME = "nawat_gold_nucleus.db"
+
+def calculate_gold(weight, workmanship, mithqal_price, usd_rate):
+    gram_base = mithqal_price / 5.0
+    total_per_gram = gram_base + workmanship
+    total_iqd = total_per_gram * weight
+    
+    usd_single_bill = usd_rate / 100.0
+    total_usd = total_iqd / usd_single_bill
+    
+    waraqa = int(total_usd // 100)
+    remain_usd = total_usd % 100
+    remain_iqd = remain_usd * usd_single_bill
+    
+    return gram_base, total_iqd, waraqa, remain_iqd
 
 async def init_and_refresh_db():
     async with aiosqlite.connect(DB_NAME) as db:
-        # جدول المستخدمين الشامل لتواريخ الدخول بدقة، الفترات المجانية والمدفوعة، وإعدادات الصباح الشخصية
         await db.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 user_id INTEGER PRIMARY KEY,
@@ -27,15 +40,9 @@ async def init_and_refresh_db():
                 sub_end TEXT
             )
         """)
-        # جدول الإعدادات المركزية للماستر (مثل التحكم بالوقت المجاني الافتراضي وترند العمليات)
-        await db.execute("""
-            CREATE TABLE IF NOT EXISTS system_config (
-                key TEXT PRIMARY KEY,
-                value TEXT
-            )
-        """)
-        await db.execute("INSERT OR IGNORE INTO system_config (key, value) VALUES ('default_trial_hours', '168')") # 7 أيام افتراضية
-        await db.execute("INSERT OR IGNORE INTO system_config (key, value) VALUES ('trend_counter', '1452')") # عداد الترند الوهمي
+        await db.execute("CREATE TABLE IF NOT EXISTS system_config (key TEXT PRIMARY KEY, value TEXT)")
+        await db.execute("INSERT OR IGNORE INTO system_config (key, value) VALUES ('default_trial_hours', '168')")
+        await db.execute("INSERT OR IGNORE INTO system_config (key, value) VALUES ('trend_counter', '2540')")
         await db.commit()
 
 async def add_or_update_user(user_id, username):
@@ -44,14 +51,10 @@ async def add_or_update_user(user_id, username):
             if not await cursor.fetchone():
                 now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 now_date = datetime.datetime.now()
-                
-                # جلب الوقت المجاني الافتراضي المحدد من قبل الأدمن
                 async with db.execute("SELECT value FROM system_config WHERE key = 'default_trial_hours'") as c2:
                     row = await c2.fetchone()
                     hours = int(row[0]) if row else 168
-                
                 trial_end_date = (now_date + datetime.timedelta(hours=hours)).strftime("%Y-%m-%d %H:%M:%S")
-                
                 await db.execute("""
                     INSERT INTO users (user_id, username, sub_status, reg_time, trial_start, trial_end, sub_start, sub_end)
                     VALUES (?, ?, 'trial', ?, ?, ?, '', '')
@@ -63,6 +66,11 @@ async def get_user_data(user_id):
         db.row_factory = aiosqlite.Row
         async with db.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)) as cursor:
             return await cursor.fetchone()
+
+async def update_user_lang(user_id, lang):
+    async with aiosqlite.connect(DB_NAME) as db:
+        await db.execute("UPDATE users SET lang = ? WHERE user_id = ?", (lang, user_id))
+        await db.commit()
 
 async def update_morning_config(user_id, m21, m18, w21, w18, usd):
     async with aiosqlite.connect(DB_NAME) as db:
@@ -85,23 +93,19 @@ async def check_subscription(user_id):
             row = await cursor.fetchone()
             if not row: return False
             status, trial_end_str, sub_end_str = row
-            
             now = datetime.datetime.now()
             if status == 'active' and sub_end_str:
-                if now <= datetime.datetime.strptime(sub_end_str, "%Y-%m-%d %H:%M:%S"):
-                    return True
+                if now <= datetime.datetime.strptime(sub_end_str, "%Y-%m-%d %H:%M:%S"): return True
             if trial_end_str:
-                if now <= datetime.datetime.strptime(trial_end_str, "%Y-%m-%d %H:%M:%S"):
-                    return True
+                if now <= datetime.datetime.strptime(trial_end_str, "%Y-%m-%d %H:%M:%S"): return True
             return False
 
 async def get_trend_number():
     async with aiosqlite.connect(DB_NAME) as db:
         async with db.execute("SELECT value FROM system_config WHERE key = 'trend_counter'") as cursor:
             row = await cursor.fetchone()
-            current = int(row[0]) if row else 1452
-            next_val = current + 1
-            await db.execute("UPDATE system_config SET value = ? WHERE key = 'trend_counter'", (str(next_val),))
+            current = int(row[0]) if row else 2540
+            await db.execute("UPDATE system_config SET value = ?", (str(current + 1),))
             await db.commit()
             return current
 
@@ -115,20 +119,18 @@ async def admin_modify_user_time(user_id, action_type, days):
         now = datetime.datetime.now()
         if action_type == "add_sub":
             future = (now + datetime.timedelta(days=days)).strftime("%Y-%m-%d %H:%M:%S")
-            await db.execute("UPDATE users SET sub_status = 'active', sub_start = ?, sub_end = ? WHERE user_id = ?", 
-                             (now.strftime("%Y-%m-%d %H:%M:%S"), future, user_id))
+            await db.execute("UPDATE users SET sub_status = 'active', sub_start = ?, sub_end = ? WHERE user_id = ?", (now.strftime("%Y-%m-%d %H:%M:%S"), future, user_id))
         elif action_type == "reduce_trial":
-            # تقليص الوقت الفوري للعميل
-            future = (now + datetime.timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S")
+            future = (now + datetime.timedelta(minutes=15)).strftime("%Y-%m-%d %H:%M:%S")
             await db.execute("UPDATE users SET trial_end = ? WHERE user_id = ?", (future, user_id))
         elif action_type == "block":
-            past = (now - datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
+            past = (now - datetime.timedelta(days=5)).strftime("%Y-%m-%d %H:%M:%S")
             await db.execute("UPDATE users SET sub_status = 'expired', trial_end = ?, sub_end = ? WHERE user_id = ?", (past, past, user_id))
         await db.commit()
 
 async def admin_set_global_trial(hours):
     async with aiosqlite.connect(DB_NAME) as db:
-        await db.execute("UPDATE system_config SET value = ? WHERE key = 'default_trial_hours'", (str(hours),))
+        await db.execute("UPDATE system_config SET value = ?", (str(hours),))
         await db.commit()
 
 async def admin_get_global_trial_string():
@@ -136,6 +138,5 @@ async def admin_get_global_trial_string():
         async with db.execute("SELECT value FROM system_config WHERE key = 'default_trial_hours'") as cursor:
             row = await cursor.fetchone()
             hours = int(row[0]) if row else 168
-            if hours >= 24:
-                return f"{hours // 24} أيام"
+            if hours >= 24: return f"{hours // 24} أيام"
             return f"{hours} ساعة"
