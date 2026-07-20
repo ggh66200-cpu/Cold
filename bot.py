@@ -182,19 +182,8 @@ async def handle_registration_or_text(message: types.Message, state: FSMContext)
             total_res = utils.supabase.table("goldsmiths").select("user_id", count="exact").execute()
             total_goldsmiths = total_res.count if total_res.count is not None else 1
             display_count = total_goldsmiths + 145
-            
-            success_txt = (
-                f"✨ **يا فتاح يا عليم يا رزاق يا كريم** ✨\n\n"
-                f"تم تسجيل محلك بالمنظومة بنجاح! عساه فاتحة خير وبركة ورزق لا ينتهي لحضرتكم 🔔\n"
-                f"🎁 تم تفعيل الفترة التجريبية المجانية المدتها 7 أيام لك لمجابهة بها السوق ميدانياً! 🎁\n\n"
-                f"🆔 **رقم الصائغ المعتمد**: `#{user_id % 1000}`\n"
-                f"🏪 **المحل العامر**: {shop_name}\n"
-                f"📝 **البيانات المدخلة**: {location_val} | {phone_val}\n\n"
-                f"👥 **صاغة المشتركين في الكار الآن**: {display_count} صائغ\n"
-                f"───────────────────\n"
-                f"👇 يرجى اختيار العملية المطلوبة من الأزرار أدناه وتوكل على الرزاق 👇"
-            )
-                        success_txt = (
+    
+                    success_txt = (
                 f"✨ **يا فتاح يا عليم يا رزاق يا كريم** ✨\n\n"
                 f"تم تسجيل محلك بالمنظومة بنجاح! عساه فاتحة خير وبركة ورزق لا ينتهي لحضرتكم 🔔\n"
                 f"🎁 تم تفعيل الفترة التجريبية المجانية المدتها 7 أيام لك لمجابهة بها السوق ميدانياً! 🎁\n\n"
