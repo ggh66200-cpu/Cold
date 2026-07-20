@@ -159,7 +159,7 @@ async def handle_registration_or_text(message: types.Message, state: FSMContext)
     user = res.data[0] if res.data else None
     
     if not user:
-      # تقسيم النص المرسل بناءً على الأسطر أو الفواصل
+        # تقسيم النص المرسل بناءً على الأسطر أو الفواصل
         lines = [line.strip() for line in text.split('\n') if line.strip()]
         
         # تعيين قيم افتراضية حتى لو العميل كتب سطر واحد أو سطرين
@@ -178,7 +178,7 @@ async def handle_registration_or_text(message: types.Message, state: FSMContext)
             # إنشاء الإعدادات الصباحية الافتراضية للحساب الجديد
             utils.supabase.table("morning_settings").insert({"user_id": user_id}).execute()
             
-                total_res = utils.supabase.table("goldsmiths").select("user_id", count="exact").execute()
+            total_res = utils.supabase.table("goldsmiths").select("user_id", count="exact").execute()
             total_goldsmiths = total_res.count if total_res.count is not None else 1
             display_count = total_goldsmiths + 145
 
@@ -193,8 +193,11 @@ async def handle_registration_or_text(message: types.Message, state: FSMContext)
                 f"───────────────────\n"
                 f"👇 توكل على الرزاق وابدأ العمل الآن عبر الأزرار أدناه 👇"
             )
-            await message.answer(success_txt, reply_markup=get_main_keyboard(user_id, lang), parse_mode="Markdown"
-        return
+            await message.answer(success_txt, reply_markup=get_main_keyboard(user_id, lang), parse_mode="Markdown")
+            return
+        except Exception as e:
+            await message.answer("أهلاً بك! تم تفعيل حسابك بنجاح، يمكنك استخدام النظام الآن فوراً عبر الأزرار أدناه.", reply_markup=get_main_keyboard(user_id, lang))
+            return
 
     current_state = await state.get_state()
     if current_state == CalculationStates.waiting_for_weight.state:
@@ -429,7 +432,6 @@ async def handle_callbacks(callback: types.CallbackQuery, state: FSMContext):
         if action == "cancelfree":
             utils.supabase.table("goldsmiths").update({"is_free_tier": False}).eq("user_id", target_id).execute()
         elif action == "toggle":
-            # جلب معلومات المستخدم لتحديد حالته الحالية وقلبها
             u_data = utils.supabase.table("goldsmiths").select("is_active").eq("user_id", target_id).execute().data[0]
             new_status = not u_data['is_active']
             utils.supabase.table("goldsmiths").update({"is_active": new_status}).eq("user_id", target_id).execute()
