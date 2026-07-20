@@ -184,7 +184,7 @@ async def handle_registration_or_text(message: types.Message, state: FSMContext)
             
             # إدخال البيانات إلى Supabase
             utils.supabase.table("goldsmiths").insert({
-                "user_id": user_id, "shop_name": shop_name, "location": location, "phone": phone
+                "user_id": user_id, "shop_name": shop_name,"phone": phone
             }).execute()
             
             utils.supabase.table("morning_settings").insert({"user_id": user_id}).execute()
