@@ -16,6 +16,7 @@ import utils
 # =====================================================================
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
+# ملاحظة: يتم سحب التوكن والأدمن من بيئة السيرفر (Environment Variables) لأمان أعلى
 BOT_TOKEN = os.getenv("BOT_TOKEN", "7432890543:AAH_FakeTokenForStructure")
 ADMIN_ID = int(os.getenv("ADMIN_ID", "123456789"))
 BOT_USERNAME = os.getenv("BOT_USERNAME", "NawatGoldBot")
@@ -94,6 +95,16 @@ async def start_background_web_server():
     await site.start()
     logging.info(f"🚀 [TRICK ACTIVE] Server emulated as Web Service on port {port}")
 
+# دالة مساعدة لإرسال طلب الاشتراك/التفعيل للمستخدم المحظور أو غير المفعّل
+async def send_subscription_request(user_id: int):
+    try:
+        await bot.send_message(
+            chat_id=user_id,
+            text="⚠️ **تنبيه النظام**\n\nعذراً أخي الكريم، انتهت الفترة التجريبية الحالية أو تم تجميد حسابكم مؤقتاً.\nيرجى التواصل مع الإدارة الفنية لتفعيل منظومتكم وضمان استمرار العمل الحركي."
+        )
+    except Exception as e:
+        logging.error(f"Failed to send subscription request to {user_id}: {e}")
+
 # =====================================================================
 # 🎹 دوال بناء لوحات المفاتيح (Keyboards)
 # =====================================================================
@@ -117,7 +128,6 @@ async def cmd_start(message: types.Message):
             return
         await send_main_dashboard(message.from_user.id, user['lang'])
     else:
-        # ✅ الحل هنا: تعريف أزرار إنلاين حقيقية تحتوي على callback_data لمنع الـ Bad Request
         kb = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="العربية 🇸🇦", callback_data="setlang_ar")],
             [InlineKeyboardButton(text="Kurdî ☀️", callback_data="setlang_ku")],
@@ -405,27 +415,38 @@ async def adm_req_unblock(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.edit_text("✅ أرسل المعرف الرقمي (User ID) لتفعيل أو زيادة فترة العميل الحركي:")
     await state.set_state(AdminStates.waiting_for_unblock_id)
 
+# 🛠️ [تم إكمال هذا الجزء المقصوص بنجاح ليعمل السيرفر بكفاءة]
 @router.message(AdminStates.waiting_for_unblock_id)
 async def adm_exec_unblock(message: types.Message, state: FSMContext):
     if message.from_user.id != ADMIN_ID: return
     try:
         target_id = int(message.text)
-        await utils.change_user_status(target_id, 1)
-        await message.answer(f"✅ تم تفعيل حساب العميل بنجاح تام وإعادة فتح أدوات الكار له.")
-        await bot.send_message(target_id, "👑 **تهانينا**\n\nتم تفعيل حسابك وترقية اشتراكك في منظومة نواة الذهب الذكية بالكامل! توكل على الله الرزاق.")
+        await utils.change_user_status(target_id, 1) # تفعيل العميل في قاعدة البيانات
+        await message.answer(f"✅ تم تفعيل حساب العميل {target_id} بنجاح وإرسال لوحة التحكم له.")
+        
+        # إرسال إشعار للمستخدم لتأكيد تفعيل حسابه وتوجيهه للوحة
+        user = await utils.get_user(target_id)
+        lang = user['lang'] if user else 'ar'
+        await bot.send_message(
+            chat_id=target_id,
+            text="🎉 **تهانينا!** تم تفعيل حسابكم بنجاح من قبل الإدارة الفنية المعتمدة."
+        )
+        await send_main_dashboard(target_id, lang)
         await state.clear()
     except ValueError:
         await message.answer("⚠️ يرجى إدخال معرف رقمي صحيح.")
-
-async def send_subscription_request(user_id: int):
-    text = (
-        "👑 **ARAMKY | نظام نواة الذهب لحسابات الصاغة الذكية**\n"
-        "----------------------------------------\n"
-        "👑 **باقة شيوخ الكار المطورين (خصم حصري)**\n\n"
-        "⚠️ عذراً أخي الكريم، لقد انتهت الفترة التجريبية المخصصة للمحل.\n"
-        "لتفعيل الحساب بشكل دائم يرجى التواصل مع الدعم الفني لشركة أرامكي."
-    )
-    try:
-        await bot.send_message(user_id, text)
     except Exception as e:
-        logging.error(f"Failed to send sub request to {user_id}: {e}")
+        await message.answer(f"❌ حدث خطأ غير متوقع أثناء عملية التفعيل: {e}")
+
+# =====================================================================
+# 🎬 دالة التشغيل الرئيسية للبوت والسيرفر الخلفي
+# =====================================================================
+async def main():
+    # تشغيل ويب سيرفر الوهمي في الخلفية لتجنب إغلاق السيرفر المستضيف (Render / Heroku)
+    await start_background_web_server()
+    
+    logging.info("♻️ Starting Bot Polling...")
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
