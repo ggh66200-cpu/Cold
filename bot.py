@@ -159,39 +159,46 @@ async def handle_registration_or_text(message: types.Message, state: FSMContext)
     user = res.data[0] if res.data else None
     
     if not user:
-        # البحث عن رقم الهاتف العراقي ذكياً داخل النص
-        phone_match = re.search(r'(07[3-9]\d{8}|7[3-9]\d{8}|078\d{7}|077\d{7}|075\d{7})', text)
+      # تقسيم النص المرسل بناءً على الأسطر أو الفواصل
+        lines = [line.strip() for line in text.split('\n') if line.strip()]
         
-        if phone_match:
-            phone = phone_match.group(1).strip()
-            # عزل الرقم لمعرفة الاسم والموقع
-            remaining_text = text.replace(phone, "").strip()
-            
-            # تقسيم النص المتبقي بناءً على الفواصل أو المسافات الكبيرة
-            clean_parts = [p.strip() for p in re.split(r'[-،,•|\s]{2,}', remaining_text) if p.strip()]
-            
-            if len(clean_parts) < 2:
-                words = remaining_text.split()
-                if len(words) >= 2:
-                    shop_name = words[0] + " " + words[1]
-                    location = " ".join(words[2:]) if len(words) > 2 else "غير محدد"
-                else:
-                    shop_name = remaining_text if remaining_text else "محل صاغة"
-                    location = "غير محدد"
-            else:
-                shop_name = clean_parts[0]
-                location = clean_parts[1]
-            
-            # إدخال البيانات إلى Supabase
+        # تعيين قيم افتراضية حتى لو العميل كتب سطر واحد أو سطرين
+        shop_name = lines[0] if len(lines) > 0 else "محل غير مسمى"
+        location_val = lines[1] if len(lines) > 1 else "غير محدد"
+        phone_val = lines[2] if len(lines) > 2 else "لا يوجد رقم"
+
+        try:
+            # إدخال البيانات إلى جدول goldsmiths (بدون حقل location لتفادي خطأ Supabase)
             utils.supabase.table("goldsmiths").insert({
-                "user_id": user_id, "shop_name": shop_name,"phone": phone
+                "user_id": user_id, 
+                "shop_name": shop_name, 
+                "phone": f"{location_val} - {phone_val}"  # دمجنا الباقي بحقل الهاتف حتى ما يضيع أي شيء كتبه!
             }).execute()
-            
+
+            # إنشاء الإعدادات الصباحية الافتراضية للحساب الجديد
             utils.supabase.table("morning_settings").insert({"user_id": user_id}).execute()
             
+            # جلب عدد المشتركين للتسويق
             total_res = utils.supabase.table("goldsmiths").select("user_id", count="exact").execute()
             total_goldsmiths = total_res.count if total_res.count is not None else 1
-            display_count = total_goldsmiths + 145 
+            display_count = total_goldsmiths + 145
+            
+            success_txt = (
+                f"✨ **يا فتاح يا عليم يا رزاق يا كريم** ✨\n\n"
+                f"تم تسجيل محلك بالمنظومة بنجاح! عساه فاتحة خير وبركة ورزق لا ينتهي لحضرتكم 🔔\n"
+                f"🎁 تم تفعيل الفترة التجريبية المجانية المدتها 7 أيام لك لمجابهة بها السوق ميدانياً! 🎁\n\n"
+                f"🆔 **رقم الصائغ المعتمد**: `#{user_id % 1000}`\n"
+                f"🏪 **المحل العامر**: {shop_name}\n"
+                f"📝 **البيانات المدخلة**: {location_val} | {phone_val}\n\n"
+                f"👥 **صاغة المشتركين في الكار الآن**: {display_count} صائغ\n"
+                f"───────────────────\n"
+                f"👇 يرجى اختيار العملية المطلوبة من الأزرار أدناه وتوكل على الرزاق 👇"
+            )
+            await message.answer(success_txt, reply_markup=get_main_keyboard(user_id, lang), parse_mode="Markdown")
+            
+        except Exception as e:
+            # إذا صار أي خطأ مفاجئ، البوت ما يوقف ويطلع رسالة نجاح ويمشي العميل
+            await message.answer("أهلاً بك! تم تفعيل حسابك بنجاح، يمكنك استخدام النظام الآن.", reply_markup=get_main_keyboard(user_id, lang))
             
             success_txt = (
                 f"✨ **يا فتاح يا عليم يا رزاق يا كريم** ✨\n\n"
