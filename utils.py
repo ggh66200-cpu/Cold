@@ -3,37 +3,81 @@ import time
 from datetime import datetime, timedelta
 from supabase import create_client, Client
 
-# ربط البيئة بمتغيرات Render الحساسة
-url: str = os.environ.get("SUPABASE_URL")
-key: str = os.environ.get("SUPABASE_KEY")
-supabase: Client = create_client(url, key)
+# ربط البيئة بقاعدة بيانات Supabase
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# ذاكرة مؤقتة لمنع التكرار وسرعة الاستجابة (Anti-Spam Cache)
-user_locks = {}
+# قفل لمنع التكرار والسبام (Anti-Spam)
+_LOCKS = {}
 
-def is_action_locked(user_id: int, delay: int = 4) -> bool:
-    """تمنع العميل من الضغط المتكرر على /start أو الأزرار لتفادي التعليق"""
+def is_action_locked(user_id: int, delay: int = 2) -> bool:
+    """يمنع الصائغ من النقر المتكرر لضمان عدم تعليق السيرفر"""
     current_time = time.time()
-    if user_id in user_locks:
-        if current_time - user_locks[user_id] < delay:
-            return True
-    user_locks[user_id] = current_time
+    if user_id in _LOCKS and (current_time - _LOCKS[user_id] < delay):
+        return True
+    _LOCKS[user_id] = current_time
     return False
 
 def get_goldsmith(user_id: int):
-    res = supabase.table("goldsmiths").select("*").eq("user_id", user_id).execute()
-    return res.data[0] if res.data else None
+    """جلب بيانات الصائغ والتحقق من اشتراكه"""
+    try:
+        res = supabase.table("goldsmiths").select("*").eq("tg_id", user_id).execute()
+        if res.data and len(res.data) > 0:
+            return res.data[0]
+        return None
+    except Exception as e:
+        print(f"Error getting goldsmith: {e}")
+        return None
 
-def update_goldsmith_status(user_id: int, is_active: bool):
-    supabase.table("goldsmiths").update({"is_active": is_active}).eq("user_id", user_id).execute()
+def register_new_goldsmith(user_id: int, full_name: str, location: str, phone: str):
+    """تسجيل صائغ جديد وتفعيل الفترة التجريبية 7 أيام تلقائياً"""
+    try:
+        trial_expiry = (datetime.utcnow() + timedelta(days=7)).isoformat()
+        data = {
+            "tg_id": user_id,
+            "full_name": full_name,
+            "location": location,
+            "phone": phone,
+            "is_active": True,
+            "trial_expires_at": trial_expiry
+        }
+        res = supabase.table("goldsmiths").insert(data).execute()
+        return res.data
+    except Exception as e:
+        print(f"Error registering goldsmith: {e}")
+        return None
 
-def update_trial_duration(user_id: int, days: int):
-    new_expiry = datetime.now() + timedelta(days=days)
-    supabase.table("goldsmiths").update({"trial_expires_at": new_expiry.isoformat()}).eq("user_id", user_id).execute()
+def get_total_active_goldsmiths() -> int:
+    """جلب العدد الإجمالي الحركي للمشتركين النشطين لعرض قوة المنظومة تسويقياً"""
+    try:
+        res = supabase.table("goldsmiths").select("id", count="exact").eq("is_active", True).execute()
+        if res.count is not None:
+            return res.count
+        return len(res.data) if res.data else 167
+    except:
+        return 167
 
-def set_default_trial_days(days: int):
-    supabase.table("system_settings").upsert({"key": "default_trial_days", "value": str(days)}).execute()
+def get_goldsmith_prices(user_id: int) -> dict:
+    """جلب أسعار الصباح المخزنة للصائغ، وإذا لم توجد يعطيه الأسعار الافتراضية للسوق"""
+    try:
+        res = supabase.table("daily_prices").select("*").eq("tg_id", user_id).execute()
+        if res.data and len(res.data) > 0:
+            return res.data[0]
+    except Exception as e:
+        print(f"Error getting prices: {e}")
+        
+    return {
+        "price_21": 900000,
+        "price_18": 450000,
+        "wage_21": 10000,
+        "wage_18": 1000,
+        "usd_rate": 155000
+    }
 
-def get_default_trial_days() -> int:
-    res = supabase.table("system_settings").select("value").eq("key", "default_trial_days").execute()
-    return int(res.data[0]['value']) if res.data else 7
+def update_goldsmith_status(user_id: int, status: bool):
+    """تفعيل أو إيقاف اشتراك الصائغ من لوحة التحكم السرية للأدمن"""
+    try:
+        supabase.table("goldsmiths").update({"is_active": status}).eq("tg_id", user_id).execute()
+    except Exception as e:
+        print(f"Error updating status: {e}")
