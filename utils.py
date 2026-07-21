@@ -1,58 +1,67 @@
 import os
 from decimal import Decimal
+from datetime import datetime, timedelta
 from supabase import create_client, Client
 
-# استدعاء الرابط والمفتاح السري (service_role) للتحايل عبر منفذ الويب الافتراضي
-SUPABASE_URL = os.getenv("SUPABASE_URL")  # الصق رابط المشروع المبتدئ بـ https://
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")  # الصق مفتاح service_role الطويل المبتدئ بـ eyJ
-
-# إنشاء العميل السحابي عبر بروتوكول HTTP للتخلص من عوائق الـ DNS والمنافذ المغلقة
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-async def init_db():
-    """
-    تنبيه: نظراً لأننا انتقلنا للاتصال عبر بروتوكول الويب المحمي (API Client)،
-    فإن الجداول تُنشأ مباشرة من لوحة تحكم Supabase (SQL Editor)،
-    ولن نحتاج لدوال إنشاء الجداول عبر الأكواد لضمان أقصى سرعة خفيفة للبوت.
-    """
-    pass
-
-def calculate_gold_invoice(weight: Decimal, caliber: int, mode: str, settings: dict):
-    """
-    إجراء العمليات الحسابية بدقة متناهية بدون تقريب نهائي مع تقسيم المثقال على 5.
-    حساب الـ 100 دولار كورقة، وما دون الـ 100 دولار بالدينار العراقي حصراً.
-    """
-    # جلب الأسعار الافتراضية أو المسجلة صباحاً للعيارات
-    calibers_map = {
-        24: (Decimal(str(settings.get('price_24', 0))), Decimal(str(settings.get('making_24', 0)))),
-        21: (Decimal(str(settings.get('price_21', 0))), Decimal(str(settings.get('making_21', 0)))),
-        18: (Decimal(str(settings.get('price_18', 0))), Decimal(str(settings.get('making_18', 0))))
+def get_or_create_user(user_id: int, username: str = None):
+    """جلب بيانات العميل أو إنشائه تلقائياً في سبيس لحفظ البيانات"""
+    res = supabase.table("goldsmiths").select("*").eq("user_id", user_id).execute()
+    if res.data:
+        return res.data[0]
+    
+    # قراءة إعدادات النظام الافتراضية للوقت التجريبي
+    sys_res = supabase.table("system_config").select("*").eq("id", 1).execute()
+    free_days = sys_res.data[0]["default_free_days"] if sys_res.data else 7
+    
+    end_date = datetime.utcnow() + timedelta(days=free_days)
+    new_user = {
+        "user_id": user_id,
+        "username": username,
+        "language": "ar",
+        "is_active": True,
+        "subscription_ends": end_date.isoformat()
     }
+    supabase.table("goldsmiths").insert(new_user).execute()
+    # إنشاء سطر الإعدادات الصباحية الافتراضية للعميل الجديد
+    supabase.table("morning_settings").insert({"user_id": user_id}).execute()
+    return new_user
+
+def calculate_sell(weight: Decimal, caliber: int, settings: dict) -> dict:
+    """حساب عملية البيع للزبون بالتفصيل العراقي والدولار"""
+    # جلب سعر المثقال من الإعدادات الصباحية وتقسيمه على 5 لمعرفة سعر الغرام
+    mithqal_price = Decimal(str(settings.get(f"price_{caliber}", 0)))
+    making_charge = Decimal(str(settings.get(f"making_{caliber}", 0)))
+    usd_rate = Decimal(str(settings.get("usd_rate", 155000)))
     
-    mitqal_price, making_charge = calibers_map[caliber]
-    usd_rate = Decimal(str(settings.get('usd_rate', 155000)))
+    gram_gold_price = mithqal_price / Decimal("5")
+    total_gram_price = gram_gold_price + making_charge
     
-    # تقسيم سعر المثقال على 5 لاستخراج سعر الغرام الصافي الميداني
-    gram_pure_price = mitqal_price / Decimal('5')
+    total_iqd = weight * total_gram_price
     
-    # حساب السعر الإجمالي بالدينار العراقي
-    if mode == "sell":
-        total_price_iqd = (gram_pure_price + making_charge) * weight
-    else:
-        total_price_iqd = (gram_pure_price - making_charge) * weight
-        
-    # التحويل للورق والدينار المتبقي
-    hundred_usd_price = usd_rate 
-    total_usd = (total_price_iqd / hundred_usd_price) * Decimal('100')
-    
-    papers = int(total_usd / Decimal('100'))
-    remaining_usd = total_usd - (Decimal(str(papers)) * Decimal('100'))
-    remaining_iqd = (remaining_usd / Decimal('100')) * hundred_usd_price
+    # حسبة الـ 100 دولار (الورقة) والباقي فراطة بالدينار العراقي
+    papers = int(total_iqd // usd_rate)
+    remaining_iqd = total_iqd % usd_rate
     
     return {
-        "gram_price": gram_pure_price,
-        "total_iqd": total_price_iqd,
+        "weight": weight,
+        "gram_price": total_gram_price,
+        "total_iqd": total_iqd,
         "papers": papers,
-        "remaining_iqd": remaining_iqd,
-        "weight": weight
+        "remaining_iqd": remaining_iqd
+    }
+
+def calculate_buy(weight: Decimal, caliber: int, mithqal_buy_price: Decimal, making_deduction: Decimal) -> dict:
+    """حساب عملية الشراء من الزبون (الكسر)"""
+    gram_gold_price = mithqal_buy_price / Decimal("5")
+    final_gram_price = gram_gold_price - making_deduction
+    total_iqd = weight * final_gram_price
+    
+    return {
+        "weight": weight,
+        "gram_price": final_gram_price,
+        "total_iqd": total_iqd
     }
