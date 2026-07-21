@@ -83,7 +83,7 @@ def handle_all_messages(message):
     if USER_STATE.get(user_id) == "AWAITING_REGISTRATION":
         lines = [line.strip() for line in text.split('\n') if line.strip()]
         if len(lines) >= 3:
-            # إشعار حركي فوري للتحميل
+            # إشعار حركي فوري للتحميل لامتصاص بطء الإنترنت ومنع التكرار
             loading_msg = bot.send_message(message.chat.id, "⏳ جاري الاتصال بالسيرفر المركزي وتأمين حسابك المعتمد...")
             
             shop_name = lines[0]
@@ -112,8 +112,15 @@ def handle_all_messages(message):
             ).format(id=goldsmith_id, shop=shop_name, loc=location, phone=phone, total=total_goldsmiths)
             
             USER_STATE.pop(user_id, None)
-            # تحديث نفس رسالة التحميل لتبهر العميل بالحركية
-            bot.edit_message_text(success_text, chat_id=message.chat.id, message_id=loading_msg.message_id, reply_markup=get_main_keyboard())
+            
+            # الحل الجذري: حذف رسالة التحميل المؤقتة لتفادي الـ Bad Request الناتج عن الأزرار
+            try:
+                bot.delete_message(chat_id=message.chat.id, message_id=loading_msg.message_id)
+            except:
+                pass
+            
+            # إرسال رسالة التفعيل والترحيب كرسالة جديدة كلياً
+            bot.send_message(message.chat.id, success_text, reply_markup=get_main_keyboard())
         else:
             bot.send_message(message.chat.id, "⚠️ يرجى إدخال البيانات بثلاثة أسطر واضحة (الاسم، ثم الموقع، ثم الهاتف).")
         return
@@ -233,10 +240,19 @@ def handle_all_messages(message):
                 )
                 
             USER_STATE.pop(user_id, None)
-            # تحديث رسالة التحميل تلقائياً بالفاتورة الفاخرة النهائية
-            bot.edit_message_text(invoice_text, chat_id=message.chat.id, message_id=loading_msg.message_id, reply_markup=get_main_keyboard())
+            
+            # بالنسبة للفواتير، بما أننا نقوم بالتحديث إلى أزرار كيبورد عادية أيضاً، يفضل استخدام الحذف والإرسال الجديد لتفادي الـ Conflict والـ Bad request
+            try:
+                bot.delete_message(chat_id=message.chat.id, message_id=loading_msg.message_id)
+            except:
+                pass
+            bot.send_message(message.chat.id, invoice_text, reply_markup=get_main_keyboard())
+            
         except Exception as e:
-            bot.edit_message_text("⚠️ صيغة خطأ بالإدخال، تأكد من الفصل باستخدام النقطتين (:) بدقة وعاود المحاولة.", chat_id=message.chat.id, message_id=loading_msg.message_id)
+            try:
+                bot.edit_message_text("⚠️ صيغة خطأ بالإدخال، تأكد من الفصل باستخدام النقطتين (:) بدقة وعاود المحاولة.", chat_id=message.chat.id, message_id=loading_msg.message_id)
+            except:
+                bot.send_message(message.chat.id, "⚠️ صيغة خطأ بالإدخال، تأكد من الفصل باستخدام النقطتين (:) بدقة وعاود المحاولة.")
 
 if __name__ == "__main__":
     import threading
