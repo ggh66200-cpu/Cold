@@ -1,67 +1,39 @@
 import os
-from decimal import Decimal
+import time
 from datetime import datetime, timedelta
 from supabase import create_client, Client
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+# ربط البيئة بمتغيرات Render الحساسة
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_KEY")
+supabase: Client = create_client(url, key)
 
-def get_or_create_user(user_id: int, username: str = None):
-    """جلب بيانات العميل أو إنشائه تلقائياً في سبيس لحفظ البيانات"""
+# ذاكرة مؤقتة لمنع التكرار وسرعة الاستجابة (Anti-Spam Cache)
+user_locks = {}
+
+def is_action_locked(user_id: int, delay: int = 4) -> bool:
+    """تمنع العميل من الضغط المتكرر على /start أو الأزرار لتفادي التعليق"""
+    current_time = time.time()
+    if user_id in user_locks:
+        if current_time - user_locks[user_id] < delay:
+            return True
+    user_locks[user_id] = current_time
+    return False
+
+def get_goldsmith(user_id: int):
     res = supabase.table("goldsmiths").select("*").eq("user_id", user_id).execute()
-    if res.data:
-        return res.data[0]
-    
-    # قراءة إعدادات النظام الافتراضية للوقت التجريبي
-    sys_res = supabase.table("system_config").select("*").eq("id", 1).execute()
-    free_days = sys_res.data[0]["default_free_days"] if sys_res.data else 7
-    
-    end_date = datetime.utcnow() + timedelta(days=free_days)
-    new_user = {
-        "user_id": user_id,
-        "username": username,
-        "language": "ar",
-        "is_active": True,
-        "subscription_ends": end_date.isoformat()
-    }
-    supabase.table("goldsmiths").insert(new_user).execute()
-    # إنشاء سطر الإعدادات الصباحية الافتراضية للعميل الجديد
-    supabase.table("morning_settings").insert({"user_id": user_id}).execute()
-    return new_user
+    return res.data[0] if res.data else None
 
-def calculate_sell(weight: Decimal, caliber: int, settings: dict) -> dict:
-    """حساب عملية البيع للزبون بالتفصيل العراقي والدولار"""
-    # جلب سعر المثقال من الإعدادات الصباحية وتقسيمه على 5 لمعرفة سعر الغرام
-    mithqal_price = Decimal(str(settings.get(f"price_{caliber}", 0)))
-    making_charge = Decimal(str(settings.get(f"making_{caliber}", 0)))
-    usd_rate = Decimal(str(settings.get("usd_rate", 155000)))
-    
-    gram_gold_price = mithqal_price / Decimal("5")
-    total_gram_price = gram_gold_price + making_charge
-    
-    total_iqd = weight * total_gram_price
-    
-    # حسبة الـ 100 دولار (الورقة) والباقي فراطة بالدينار العراقي
-    papers = int(total_iqd // usd_rate)
-    remaining_iqd = total_iqd % usd_rate
-    
-    return {
-        "weight": weight,
-        "gram_price": total_gram_price,
-        "total_iqd": total_iqd,
-        "papers": papers,
-        "remaining_iqd": remaining_iqd
-    }
+def update_goldsmith_status(user_id: int, is_active: bool):
+    supabase.table("goldsmiths").update({"is_active": is_active}).eq("user_id", user_id).execute()
 
-def calculate_buy(weight: Decimal, caliber: int, mithqal_buy_price: Decimal, making_deduction: Decimal) -> dict:
-    """حساب عملية الشراء من الزبون (الكسر)"""
-    gram_gold_price = mithqal_buy_price / Decimal("5")
-    final_gram_price = gram_gold_price - making_deduction
-    total_iqd = weight * final_gram_price
-    
-    return {
-        "weight": weight,
-        "gram_price": final_gram_price,
-        "total_iqd": total_iqd
-    }
+def update_trial_duration(user_id: int, days: int):
+    new_expiry = datetime.now() + timedelta(days=days)
+    supabase.table("goldsmiths").update({"trial_expires_at": new_expiry.isoformat()}).eq("user_id", user_id).execute()
+
+def set_default_trial_days(days: int):
+    supabase.table("system_settings").upsert({"key": "default_trial_days", "value": str(days)}).execute()
+
+def get_default_trial_days() -> int:
+    res = supabase.table("system_settings").select("value").eq("key", "default_trial_days").execute()
+    return int(res.data[0]['value']) if res.data else 7
