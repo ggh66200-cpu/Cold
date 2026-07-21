@@ -18,14 +18,14 @@ def start_command(message):
     if utils.is_action_locked(user_id, delay=3):
         return 
 
-    # إرسال إشعار فوري سريع لإشغال العميل وطمأنته
-    loading_msg = bot.send_message(message.chat.id, "⏳ جاري تحميل الناتج والتحقق من الحساب...")
+    # إرسال إشعار فوري سريع لإشغال العميل وطمأنته، مع مسح الكيبورد القديم المخزن في تليجرام العميل
+    remove_keyboard = types.ReplyKeyboardRemove()
+    loading_msg = bot.send_message(message.chat.id, "⏳ جاري تحميل الناتج والتحقق من الحساب...", reply_markup=remove_keyboard)
 
     goldsmith = utils.get_goldsmith(user_id)
     
     if not goldsmith:
         # كود التسجيل الجديد (حفظ اللغات، الاسم، المنطقة)
-        # الافتراضي يضاف للفترة المحددة بالنظام
         bot.delete_message(message.chat.id, loading_msg.message_id)
         bot.send_message(message.chat.id, "مرحباً بك في منظومة نواة الذهب. يرجى إرسال بيانات المحل للتفعيل...")
         return
@@ -105,5 +105,22 @@ def process_user_trial(message):
     except:
         bot.send_message(message.chat.id, "⚠️ صيغة خاطئة. يرجى الالتزام بـ ID:الأيام")
 
+# ================= بيئة تشغيل السيرفر ومنع الانهيار =================
 if __name__ == "__main__":
+    import threading
+    from http.server import SimpleHTTPRequestHandler, HTTPServer
+
+    def run_dummy_server():
+        """يفتح منفذ ويب داخلي لإيهام Render أن التطبيق يستقبل اتصالات لمنع الـ Timeout"""
+        try:
+            port = int(os.environ.get("PORT", 8080))
+            server = HTTPServer(('0.0.0.0', port), SimpleHTTPRequestHandler)
+            server.serve_forever()
+        except Exception as e:
+            print(f"Dummy server error: {e}")
+
+    # تشغيل السيرفر الوهمي كخلفية مستمرة
+    threading.Thread(target=run_dummy_server, daemon=True).start()
+    
+    # تشغيل البوت الفعلي بشكل لامتناهي
     bot.infinity_polling()
