@@ -379,4 +379,4 @@ def handle_all_messages(message):
             check_carat = INVOICE_DATA[user_id]['carat']
             
             mitqal_price = prices.get('price_21', 900000) if check_carat == 21 else prices.get('price_18', 450000)
-            wage_per_gram = prices.get('wage_21', 10000) if check_carat == 21 else prices.get('wage_1
+            wage_per_gram = prices.get('wage_21', 10000) if check_carat == 21 else prices.get('wage_1', 1000)
