@@ -441,4 +441,3 @@ def handle_text_inputs(message):
                 prices = utils.get_goldsmith_prices(user_id)
                 goldsmith = utils.get_goldsmith(user_id)
                 
-                agre
