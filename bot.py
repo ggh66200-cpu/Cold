@@ -100,7 +100,6 @@ LOCALES = {
 }
 
 def to_english_numbers(text):
-    """تحويل الأرقام العربية والفارسية إلى إنجليزية لضمان عدم حدوث أخطاء برمجية"""
     arabic_nums = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
     persian_nums = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
     return text.translate(arabic_nums).translate(persian_nums)
@@ -121,7 +120,7 @@ def get_all_btn_texts(key):
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     USER_STATE.pop(message.from_user.id, None)
-    goldsmith = utils.get_goldsmith(message.from_user.id)
+    goldsmith = utils.get_goldsmith(message.from_user.id) or {}
     lang = goldsmith.get("lang", "ar")
     markup = get_main_keyboard(lang)
     bot.send_message(message.chat.id, COMPANY_HEADER + LOCALES[lang]["welcome"], parse_mode="HTML", reply_markup=markup)
@@ -197,7 +196,7 @@ def handle_calc_buttons(call):
     
     INVOICE_DATA[user_id] = {'carat': carat, 'mode': mode}
     
-    goldsmith = utils.get_goldsmith(user_id)
+    goldsmith = utils.get_goldsmith(user_id) or {}
     lang = goldsmith.get("lang", "ar")
     tx = LOCALES[lang]
     
@@ -214,7 +213,6 @@ def handle_text_inputs(message):
     text = message.text.strip()
     state = USER_STATE.get(user_id)
 
-    # حماية الأزرار الرئيسية لعدم تعلق البوت
     if text in get_all_btn_texts("btn_sell"):
         customer_sell_init(message)
         return
@@ -231,40 +229,44 @@ def handle_text_inputs(message):
     if not state:
         return
 
-    # النظام الذكي لقراءة أسعار الصباح (يقرأ الأرقام فقط ويتجاهل المسافات والأسطر الخاطئة)
     if state == "AWAITING_ALL_PRICES":
-        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري حفظ الأسعار الحالية...</i>", parse_mode="HTML")
+        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحفظ في قاعدة البيانات...</i>", parse_mode="HTML")
         
         english_text = to_english_numbers(text)
         numbers = re.findall(r'\d+(?:\.\d+)?', english_text)
         
         if len(numbers) >= 5:
             try:
-                p21, p18, w21, w18, usd = float(numbers[0]), float(numbers[1]), float(numbers[2]), float(numbers[3]), float(numbers[4])
+                p21 = float(numbers[0])
+                p18 = float(numbers[1])
+                w21 = float(numbers[2])
+                w18 = float(numbers[3])
+                usd = float(numbers[4])
                 
                 if usd <= 0:
                     bot.delete_message(message.chat.id, loading_msg.message_id)
                     bot.send_message(message.chat.id, "⚠️ عذراً، سعر الصرف لا يمكن أن يكون صفراً لتجنب أخطاء الحساب.")
                     return
                 
+                # هنا تتم عملية الحفظ
                 utils.update_goldsmith_prices(user_id, p21, p18, w21, w18, usd)
                 USER_STATE.pop(user_id, None)
                 
-                goldsmith = utils.get_goldsmith(user_id)
+                # جلب البيانات بشكل آمن لكي لا يحدث خطأ NoneType
+                goldsmith = utils.get_goldsmith(user_id) or {}
                 lang = goldsmith.get("lang", "ar")
                 markup = get_main_keyboard(lang)
                 
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, "📊 <b>تم حفظ وتحديث أسعار الصباح بنجاح في قاعدة البيانات!</b>", parse_mode="HTML", reply_markup=markup)
+                bot.send_message(message.chat.id, "📊 <b>تم حفظ وتحديث أسعار الصباح بنجاح!</b>", parse_mode="HTML", reply_markup=markup)
             except Exception as e:
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, "⚠️ حدث خطأ غير متوقع. يرجى إرسال الأرقام بصيغة صحيحة.")
+                bot.send_message(message.chat.id, f"⚠️ <b>حدث خطأ أثناء الحفظ في قاعدة البيانات:</b>\n\n<code>{str(e)}</code>\n\nيرجى تصوير هذه الرسالة للمطور لمعرفة سبب الرفض.", parse_mode="HTML")
         else:
             bot.delete_message(message.chat.id, loading_msg.message_id)
-            bot.send_message(message.chat.id, f"⚠️ خطأ: البوت استخرج {len(numbers)} رقم/أرقام فقط من رسالتك. المطلوب 5 أرقام كما في المثال أعلاه.")
+            bot.send_message(message.chat.id, f"⚠️ البوت استخرج {len(numbers)} رقم فقط. تأكد من إرسال 5 أرقام.")
         return
 
-    # فاتورة بيع للزبون
     if state == "WAITING_WEIGHT_SELL":
         loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري احتساب الفاتورة...</i>", parse_mode="HTML")
         english_text = to_english_numbers(text)
@@ -275,19 +277,19 @@ def handle_text_inputs(message):
                 w = float(numbers[0])
                 carat = INVOICE_DATA[user_id]['carat']
                 
-                prices = utils.get_goldsmith_prices(user_id)
-                goldsmith = utils.get_goldsmith(user_id)
+                prices = utils.get_goldsmith_prices(user_id) or {}
+                goldsmith = utils.get_goldsmith(user_id) or {}
                 lang = goldsmith.get("lang", "ar")
                 tx = LOCALES[lang]
                 
-                m_price = float(prices['price_21']) if carat == 21 else float(prices['price_18'])
-                wage = float(prices['wage_21']) if carat == 21 else float(prices['wage_18'])
+                m_price = float(prices.get('price_21', 0)) if carat == 21 else float(prices.get('price_18', 0))
+                wage = float(prices.get('wage_21', 0)) if carat == 21 else float(prices.get('wage_18', 0))
                 
                 gram_clean_price = m_price / 5.0
                 gram_full_price = gram_clean_price + wage
                 total_iqd = gram_full_price * w
                 
-                usd_rate = float(prices['usd_rate'])
+                usd_rate = float(prices.get('usd_rate', 1))
                 usd_bills = int(total_iqd // usd_rate) if usd_rate > 0 else 0
                 rem_iqd = total_iqd % usd_rate if usd_rate > 0 else total_iqd
                 
@@ -315,13 +317,12 @@ def handle_text_inputs(message):
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML")
             except Exception as e:
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, "⚠️ يرجى إدخال وزن صحيح.")
+                bot.send_message(message.chat.id, f"⚠️ خطأ أثناء توليد الفاتورة:\n<code>{str(e)}</code>", parse_mode="HTML")
         else:
             bot.delete_message(message.chat.id, loading_msg.message_id)
             bot.send_message(message.chat.id, "⚠️ لم يتم التعرف على أي أرقام، يرجى كتابة الوزن بصورة صحيحة.")
         return
 
-    # النظام الذكي لقراءة بيانات الشراء (يقرأ 3 أرقام مستخلصة من النص)
     if state == "WAITING_BUY_ALL_INPUTS":
         loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري احتساب الفاتورة...</i>", parse_mode="HTML")
         english_text = to_english_numbers(text)
@@ -329,11 +330,13 @@ def handle_text_inputs(message):
         
         if len(numbers) >= 3:
             try:
-                custom_m_price, w, wage = float(numbers[0]), float(numbers[1]), float(numbers[2])
+                custom_m_price = float(numbers[0])
+                w = float(numbers[1])
+                wage = float(numbers[2])
                 
                 carat = INVOICE_DATA[user_id]['carat']
-                prices = utils.get_goldsmith_prices(user_id)
-                goldsmith = utils.get_goldsmith(user_id)
+                prices = utils.get_goldsmith_prices(user_id) or {}
+                goldsmith = utils.get_goldsmith(user_id) or {}
                 lang = goldsmith.get("lang", "ar")
                 tx = LOCALES[lang]
                 
@@ -341,7 +344,7 @@ def handle_text_inputs(message):
                 gram_full_price = gram_clean_price - wage
                 total_iqd = gram_full_price * w
                 
-                usd_rate = float(prices['usd_rate'])
+                usd_rate = float(prices.get('usd_rate', 1))
                 usd_bills = int(total_iqd // usd_rate) if usd_rate > 0 else 0
                 rem_iqd = total_iqd % usd_rate if usd_rate > 0 else total_iqd
                 
@@ -368,10 +371,10 @@ def handle_text_inputs(message):
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML")
             except Exception as e:
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, "⚠️ حدث خطأ في الحساب. تأكد من إدخال الأرقام بشكل صحيح.")
+                bot.send_message(message.chat.id, f"⚠️ خطأ أثناء توليد الفاتورة:\n<code>{str(e)}</code>", parse_mode="HTML")
         else:
             bot.delete_message(message.chat.id, loading_msg.message_id)
-            bot.send_message(message.chat.id, f"⚠️ خطأ: البوت استخرج {len(numbers)} أرقام فقط. يرجى إدخال البيانات كاملة (3 أسطر).")
+            bot.send_message(message.chat.id, f"⚠️ البوت استخرج {len(numbers)} أرقام فقط. يرجى إرسال 3 أسطر.")
         return
 
 if __name__ == "__main__":
