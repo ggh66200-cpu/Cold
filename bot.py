@@ -140,11 +140,17 @@ def change_language_menu(message):
 def handle_lang_selection(call):
     bot.answer_callback_query(call.id, text="⏳...")
     lang_code = call.data.split("_")[1]
+    
+    # حفظ اللغة في Supabase بشكل مؤكد
     utils.update_goldsmith_lang(call.from_user.id, lang_code)
     
     markup = get_main_keyboard(lang_code)
-    bot.edit_message_text(f"{COMPANY_HEADER}💾 Done! تم حفظ اللغة وتحديث أزرار النظام بنجاح باللغة الجديدة.", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML")
-    bot.send_message(call.message.chat.id, LOCALES[lang_code]["welcome"], parse_mode="HTML", reply_markup=markup)
+    try:
+        bot.edit_message_text(f"{COMPANY_HEADER}💾 Done! تم حفظ اللغة وتحديث أزرار النظام بنجاح باللغة الجديدة.", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML")
+    except:
+        pass
+    # إرسال رسالة الترحيب باللغة الجديدة فوراً لتحديث الواجهة بالكامل
+    bot.send_message(call.message.chat.id, COMPANY_HEADER + LOCALES[lang_code]["welcome"], parse_mode="HTML", reply_markup=markup)
 
 @bot.message_handler(func=lambda message: message.text.strip() in get_all_btn_texts("btn_prices"))
 def morning_prices_start(message):
@@ -248,11 +254,9 @@ def handle_text_inputs(message):
                     bot.send_message(message.chat.id, "⚠️ عذراً، سعر الصرف لا يمكن أن يكون صفراً لتجنب أخطاء الحساب.")
                     return
                 
-                # هنا تتم عملية الحفظ
                 utils.update_goldsmith_prices(user_id, p21, p18, w21, w18, usd)
                 USER_STATE.pop(user_id, None)
                 
-                # جلب البيانات بشكل آمن لكي لا يحدث خطأ NoneType
                 goldsmith = utils.get_goldsmith(user_id) or {}
                 lang = goldsmith.get("lang", "ar")
                 markup = get_main_keyboard(lang)
