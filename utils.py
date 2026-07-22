@@ -31,9 +31,11 @@ def get_goldsmith(user_id: int):
         return None
 
 def register_new_goldsmith(user_id: int, full_name: str, location: str, phone: str):
-    """تسجيل صائغ جديد وتفعيل الفترة التجريبية 7 أيام تلقائياً"""
+    """تسجيل صائغ جديد وتفعيل الفترة التجريبية تلقائياً"""
     try:
-        trial_expiry = (datetime.utcnow() + timedelta(days=7)).isoformat()
+        # نجلب الإعداد الافتراضي للأيام أو نضع 7 كقيمة احتياطية
+        trial_days = get_system_setting("trial_days", 7)
+        trial_expiry = (datetime.utcnow() + timedelta(days=trial_days)).isoformat()
         data = {
             "tg_id": user_id,
             "full_name": full_name,
@@ -50,7 +52,7 @@ def register_new_goldsmith(user_id: int, full_name: str, location: str, phone: s
         return None
 
 def check_goldsmith_validity(user_id: int):
-    """[تمت الإضافة] فحص صلاحية المحل وحساب الأيام المتبقية لمنع توقف البوت"""
+    """فحص صلاحية المحل وحساب الأيام المتبقية لمنع توقف البوت"""
     try:
         goldsmith = get_goldsmith(user_id)
         if not goldsmith:
@@ -78,10 +80,18 @@ def check_goldsmith_validity(user_id: int):
         return True, 5 # تمرير مؤقت لحين استقرار الاتصال بالـ DB
 
 def modify_goldsmith_subscription(user_id: int, days: int):
-    """[تمت الإضافة] تمديد اشتراك الصائغ من قبل الأدمن بعد استلام الوصل"""
+    """تمديد اشتراك الصائغ أو قفله (إذا كانت الأيام سالب) من قبل الأدمن"""
     try:
         goldsmith = get_goldsmith(user_id)
         if goldsmith:
+            if days == -999:
+                # قفل الحساب فوراً
+                supabase.table("goldsmiths").update({
+                    "is_active": False,
+                    "trial_expires_at": datetime.utcnow().isoformat()
+                }).eq("tg_id", user_id).execute()
+                return True
+                
             expiry_str = goldsmith.get("trial_expires_at")
             if expiry_str:
                 expiry_str = expiry_str.replace("Z", "").split("+")[0]
@@ -110,8 +120,18 @@ def get_total_active_goldsmiths() -> int:
     except:
         return 0
 
+def get_total_registered_users_count() -> int:
+    """[تمت الإضافة لحل نقص bot.py] جلب كل المسجلين كلياً لترقيم كود الصائغ التسلسلي"""
+    try:
+        res = supabase.table("goldsmiths").select("id", count="exact").execute()
+        if res.count is not None:
+            return res.count
+        return len(res.data) if res.data else 0
+    except:
+        return 0
+
 def get_goldsmith_lang(user_id: int):
-    """[تمت الإضافة] جلب لغة الواجهة الحالية المخصصة لمحلك"""
+    """جلب لغة الواجهة الحالية المخصصة لمحلك"""
     try:
         goldsmith = get_goldsmith(user_id)
         if goldsmith:
@@ -121,7 +141,7 @@ def get_goldsmith_lang(user_id: int):
         return "ar"
 
 def update_goldsmith_lang(user_id: int, lang: str):
-    """[تمت الإضافة] تحديث لغة الواجهة للصائغ في قاعدة البيانات عمودياً"""
+    """تحديث لغة الواجهة للصائغ في قاعدة البيانات عمودياً"""
     try:
         supabase.table("goldsmiths").update({"lang": lang}).eq("tg_id", user_id).execute()
         return True
@@ -139,17 +159,16 @@ def get_goldsmith_prices(user_id: int) -> dict:
         print(f"Error getting prices: {e}")
         
     return {
-        "price_21": 900000,
-        "price_18": 450000,
-        "wage_21": 10000,
-        "wage_18": 1000,
-        "usd_rate": 155000
+        "price_21": 490000,
+        "price_18": 420000,
+        "wage_21": 0,
+        "wage_18": 0,
+        "usd_rate": 153000
     }
 
 def update_goldsmith_prices(user_id: int, p21: float, p18: float, w21: float, w18: float, usd_rate: float):
-    """[تمت الإضافة] حفظ وتحديث أسعار الصباح الحرة الخاصة بمحلك"""
+    """حفظ وتحديث أسعار الصباح الحرة الخاصة بمحلك"""
     try:
-        # فحص إذا كان المحل لديه سجل أسعار سابق لتحديثه أو إنشاء سجل جديد (Upsert)
         res = supabase.table("daily_prices").select("id").eq("tg_id", user_id).execute()
         data = {
             "tg_id": user_id,
@@ -175,3 +194,47 @@ def update_goldsmith_status(user_id: int, status: bool):
         supabase.table("goldsmiths").update({"is_active": status}).eq("tg_id", user_id).execute()
     except Exception as e:
         print(f"Error updating status: {e}")
+
+# ================= الدوال الجديدة المضافة لإصلاح كراش السيرفر بنجاح =================
+
+def get_system_setting(setting_name: str, default_value):
+    """[تمت الإضافة] جلب إعدادات النظام الحركية مثل عدد أيام الفترة التجريبية الافتراضية"""
+    try:
+        res = supabase.table("system_settings").select("setting_value").eq("setting_key", setting_name).execute()
+        if res.data and len(res.data) > 0:
+            return int(res.data[0]["setting_value"])
+    except Exception as e:
+        print(f"Error getting system setting: {e}")
+    return default_value
+
+def set_system_setting(setting_name: str, value):
+    """[تمت الإضافة] تحديث وحفظ قيم إعدادات النظام من قبل الأدمن المركزي"""
+    try:
+        res = supabase.table("system_settings").select("id").eq("setting_key", setting_name).execute()
+        data = {"setting_key": setting_name, "setting_value": str(value)}
+        if res.data and len(res.data) > 0:
+            supabase.table("system_settings").update(data).eq("setting_key", setting_name).execute()
+        else:
+            supabase.table("system_settings").insert(data).execute()
+        return True
+    except Exception as e:
+        print(f"Error setting system setting: {e}")
+        return False
+
+def get_all_registered_goldsmiths():
+    """[تمت الإضافة] جلب كل الصاغة المسجلين لبناء أزرار الجرد التلقائي في لوحة الأدمن بدون الحاجة لكتابة الأيدي"""
+    try:
+        res = supabase.table("goldsmiths").select("tg_id, full_name, location, phone").execute()
+        output = []
+        if res.data:
+            for item in res.data:
+                output.append({
+                    "user_id": item["tg_id"],
+                    "full_name": item["full_name"],
+                    "location": item["location"],
+                    "phone": item["phone"]
+                })
+        return output
+    except Exception as e:
+        print(f"Error getting all goldsmiths: {e}")
+        return []
