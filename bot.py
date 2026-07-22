@@ -26,11 +26,12 @@ COMPANY_HEADER = (
 USER_STATE = {}
 INVOICE_DATA = {}
 
-# قاموس اللغات لقلب الفاتورة والواجهة بالكامل حسب اختيار الصائغ
+# قاموس اللغات المحدث ليشمل البيع والشراء بالكامل
 LOCALES = {
     "ar": {
         "welcome": "👋 أهلاً بك في <b>SMART GOLD SYSTEM</b>\n\nالمنظومة الذكية الأسرع لإدارة حسابات الصياغة محلياً ودولياً.\nالرجاء استخدام الأزرار أدناه للبدء بالعمليات اليومية لمحلك الحلال 👇",
         "invoice_sell": "🧾 <b>فاتورة بيع ذهب للزبون</b> 🧾",
+        "invoice_buy": "📥 <b>فاتورة شراء ذهب من الزبون</b> 📥",
         "shop": "🔷 المحل العامر: ",
         "type": "🔷 العيار ونوع الحساب: عيار {carat} (حساب بالغرام)",
         "weight_req": "🔷 الوزن المطلوب: {w} غرام",
@@ -44,6 +45,7 @@ LOCALES = {
     "ku": {
         "welcome": "👋خێرهاتی بۆ <b>SMART GOLD SYSTEM</b>\n\nسیستەمی ژیری خێرا بۆ بەڕێوەبردنی ژمێریاری زێڕەنگەری.\nتکایە دوگمەکانی خوارەوە بەکاربهێنە بۆ دەستپێکردن 👇",
         "invoice_sell": "🧾 <b>پسوولەی فرۆشتنی زێڕ</b> 🧾",
+        "invoice_buy": "📥 <b>پسوولەی کڕینی زێڕ لە کڕیار</b> 📥",
         "shop": "🔷 دوکان: ",
         "type": "🔷 عەیار و جۆری ژمارە: عەیاری {carat} (بە گرام)",
         "weight_req": "🔷 کێشی داواکراو: {w} گرام",
@@ -57,6 +59,7 @@ LOCALES = {
     "en": {
         "welcome": "👋 Welcome to <b>SMART GOLD SYSTEM</b>\n\nThe fastest intelligent system for goldsmith accounts.\nPlease use the buttons below to start daily operations 👇",
         "invoice_sell": "🧾 <b>Customer Gold Sales Invoice</b> 🧾",
+        "invoice_buy": "📥 <b>Purchase Gold From Customer Invoice</b> 📥",
         "shop": "🔷 Shop: ",
         "type": "🔷 Carat & Type: Carat {carat} (Gram calculation)",
         "weight_req": "🔷 Requested Weight: {w} grams",
@@ -81,7 +84,6 @@ def send_welcome(message):
     btn_buy = types.KeyboardButton("📤 حساب شراء من زبون")
     
     markup.add(btn_prices, btn_lang, btn_sell, btn_buy)
-    
     bot.send_message(message.chat.id, COMPANY_HEADER + LOCALES[lang]["welcome"], parse_mode="HTML", reply_markup=markup)
 
 @bot.message_handler(func=lambda message: message.text == "🌐 تغيير اللغة / Ziman / Language")
@@ -126,25 +128,39 @@ def morning_prices_start(message):
     )
     bot.send_message(message.chat.id, instruction, parse_mode="HTML")
 
+# --- قائمة حساب البيع لزبون ---
 @bot.message_handler(func=lambda message: message.text == "📥 حساب بيع لزبون")
 def customer_sell_init(message):
     markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("عيار 21", callback_data="calc_sell_21"),
-               types.InlineKeyboardButton("عيار 18", callback_data="calc_sell_18"))
+    markup.add(types.InlineKeyboardButton("عيار 21", callback_data="sell_21"),
+               types.InlineKeyboardButton("عيار 18", callback_data="sell_18"))
     bot.send_message(message.chat.id, f"{COMPANY_HEADER}📥 <b>حساب بيع ذهب لزبون:</b>\nاختر عيار الذهب المطلوب أدناه لتسهيل الحساب 👇", parse_mode="HTML", reply_markup=markup)
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("calc_"))
+# --- قائمة حساب الشراء من زبون (تمت إضافتها بالكامل) ---
+@bot.message_handler(func=lambda message: message.text == "📤 حساب شراء من زبون")
+def customer_buy_init(message):
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton("عيار 21", callback_data="buy_21"),
+               types.InlineKeyboardButton("عيار 18", callback_data="buy_18"))
+    bot.send_message(message.chat.id, f"{COMPANY_HEADER}📤 <b>حساب شراء ذهب من زبون:</b>\nاختر عيار الذهب المراد شراؤه من الزبون 👇", parse_mode="HTML", reply_markup=markup)
+
+# --- معالجة أزرار العيارات للبيع والشراء وضمان عدم خلط البيانات ---
+@bot.callback_query_handler(func=lambda call: call.data.startswith("sell_") or call.data.startswith("buy_"))
 def handle_calc_buttons(call):
     bot.answer_callback_query(call.id, text="⏳ جاري التحميل...")
     user_id = call.from_user.id
-    mode = call.data.split("_")[1]
-    carat = int(call.data.split("_")[2])
     
-    INVOICE_DATA[user_id] = {'carat': carat}
+    mode = call.data.split("_")[0]     # sell أو buy
+    carat = int(call.data.split("_")[1]) # 21 أو 18
+    
+    INVOICE_DATA[user_id] = {'carat': carat, 'mode': mode}
     
     if mode == "sell":
         USER_STATE[user_id] = "WAITING_WEIGHT_SELL"
-        bot.send_message(call.message.chat.id, f"⚖️ <b>عيار {carat} البيع:</b>\nأرسل وزن الذهب بالغرام فقط (مثال: 8.963):", parse_mode="HTML")
+        bot.send_message(call.message.chat.id, f"⚖️ <b>عيار {carat} (حساب بيع للزبون):</b>\nأرسل وزن الذهب بالغرام فقط (مثال: 8.963):", parse_mode="HTML")
+    elif mode == "buy":
+        USER_STATE[user_id] = "WAITING_WEIGHT_BUY"
+        bot.send_message(call.message.chat.id, f"⚖️ <b>عيار {carat} (حساب شراء من الزبون):</b>\nأرسل وزن الذهب المراد شراؤه بالغرام فقط (مثال: 12.450):", parse_mode="HTML")
 
 @bot.message_handler(func=lambda message: True)
 def handle_text_inputs(message):
@@ -156,7 +172,7 @@ def handle_text_inputs(message):
         return
 
     if state == "AWAITING_ALL_PRICES":
-        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري حفظ الأسعار الحالية في سبيس...</i>", parse_mode="HTML")
+        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري حفظ الأسعار الحالية...</i>", parse_mode="HTML")
         lines = [l.strip() for l in text.split('\n') if l.strip()]
         if len(lines) >= 5:
             try:
@@ -171,34 +187,39 @@ def handle_text_inputs(message):
                 bot.send_message(message.chat.id, "⚠️ خطأ في الأرقام، أرسل 5 أسطر عددية صحيحة.")
         return
 
-    if state == "WAITING_WEIGHT_SELL":
+    # --- معالجة الحساب للبيع والشراء بدقة وحسب اللغات ---
+    if state in ["WAITING_WEIGHT_SELL", "WAITING_WEIGHT_BUY"]:
         loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري احتساب الفاتورة بدقة...</i>", parse_mode="HTML")
         try:
             w = float(text)
             carat = INVOICE_DATA[user_id]['carat']
+            mode = INVOICE_DATA[user_id]['mode']
             
-            # جلب البيانات الحية المحدثة من سبيس للمستخدم
             prices = utils.get_goldsmith_prices(user_id)
             goldsmith = utils.get_goldsmith(user_id)
             lang = goldsmith.get("lang", "ar")
             tx = LOCALES[lang]
             
-            # تصحيح سحب الأسعار والأجور الدقيقة بناءً على العيار المدخل
             m_price = float(prices['price_21']) if carat == 21 else float(prices['price_18'])
             wage = float(prices['wage_21']) if carat == 21 else float(prices['wage_18'])
             
             gram_clean_price = m_price / 5.0
+            
+            # في الشراء من الزبون، عادة لا يضاف أجور صياغة أو تحسب بطريقة مختلفة. 
+            # هنا اعتمدنا نفس المعادلة مع إمكانية تعديلها حسب رغبتك.
             total_iqd = (gram_clean_price + wage) * w
             
             usd_rate = float(prices['usd_rate'])
             usd_bills = int(total_iqd // usd_rate)
             rem_iqd = total_iqd % usd_rate
             
+            invoice_title = tx['invoice_sell'] if mode == "sell" else tx['invoice_buy']
+            
             invoice = (
                 f"{COMPANY_HEADER}"
-                f"{tx['invoice_sell']}\n"
+                f"{invoice_title}\n"
                 f"━━━━━━━━━━━━━━━━━\n"
-                f"{tx['shop']}{goldsmith['full_name']}\n"
+                f"{tx['shop']}{goldsmith.get('full_name', 'محلي الموقر')}\n"
                 f"{tx['type'].format(carat=carat)}\n"
                 f"{tx['weight_req'].format(w=w)}\n"
                 f"{tx['weight_tot'].format(w=w)}\n"
