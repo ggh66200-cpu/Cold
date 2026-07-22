@@ -12,51 +12,51 @@ def get_goldsmith(user_id):
         if res.data:
             return res.data[0]
         else:
-            new_user = {"user_id": str(user_id), "full_name": "التواضع", "lang": "ar"}
+            new_user = {"user_id": str(user_id), "full_name": "أرامكي للحلول الرقمية", "lang": "ar"}
             supabase.table("goldsmiths").insert(new_user).execute()
             return new_user
     except Exception as e:
         print(f"Supabase Error: {e}")
-        return {"user_id": str(user_id), "full_name": "التواضع", "lang": "ar"}
+        return {"user_id": str(user_id), "full_name": "أرامكي للحلول الرقمية", "lang": "ar"}
 
 def get_goldsmith_prices(user_id):
     try:
-        res = supabase.table("morning_prices").select("*").eq("user_id", str(user_id)).execute()
+        res = supabase.table("morning_prices").select("*").eq("user_id", int(user_id)).execute()
         if res.data:
             return res.data[0]
         else:
             default_prices = {
-                "user_id": str(user_id),
+                "user_id": int(user_id),
                 "price_21": 900000,
                 "price_18": 450000,
-                "wage_21": 10000,
-                "wage_18": 1000,
-                "usd_rate": 155000
+                "wage_21": 4500,
+                "wage_18": 7500,
+                "usd_rate": 153000
             }
             supabase.table("morning_prices").insert(default_prices).execute()
             return default_prices
     except Exception as e:
         print(f"Supabase Prices Error: {e}")
-        # إرجاع القيم لتفادي توقف البوت، لكن التعديل أدناه في التحديث سيحل مشكلة الحفظ
-        return {"price_21": 900000, "price_18": 450000, "wage_21": 10000, "wage_18": 1000, "usd_rate": 155000}
+        return {"price_21": 900000, "price_18": 450000, "wage_21": 4500, "wage_18": 7500, "usd_rate": 153000}
 
 def update_goldsmith_prices(user_id, p21, p18, w21, w18, usd):
     try:
-        data = {"price_21": p21, "price_18": p18, "wage_21": w21, "wage_18": w18, "usd_rate": usd}
+        # تحويل الـ user_id إلى رقم صحيح (bigint) ليتطابق مع تصميم جدول الـ SQL
+        uid = int(user_id)
+        data = {
+            "user_id": uid,
+            "price_21": float(p21),
+            "price_18": float(p18),
+            "wage_21": float(w21),
+            "wage_18": float(w18),
+            "usd_rate": float(usd)
+        }
         
-        # نتحقق أولاً هل السجل موجود للمستخدم؟
-        check = supabase.table("morning_prices").select("user_id").eq("user_id", str(user_id)).execute()
-        
-        if check.data:
-            # إذا موجود نقوم بعمل تحديث (Update) مباشر ومضمون للسطح الخاص بالمستخدم
-            supabase.table("morning_prices").update(data).eq("user_id", str(user_id)).execute()
-        else:
-            # إذا غير موجود نقوم بعمل إدخال (Insert) لأول مرة
-            supabase.table("morning_prices").insert({"user_id": str(user_id), **data}).execute()
+        # استخدام upsert المدمجة في Supabase لتحديث السجل أو إنشائه بضغطة واحدة وبدون أخطاء
+        supabase.table("morning_prices").upsert(data).execute()
             
     except Exception as e:
         print(f"Supabase Update Error: {e}")
-        # لكي ينتبه المطور أو يظهر في سجل الأخطاء بشكل واضح
         raise e 
 
 def update_goldsmith_lang(user_id, lang_code):
