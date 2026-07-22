@@ -2,11 +2,29 @@ import os
 import telebot
 from telebot import types
 import utils
+from threading import Thread
+from flask import Flask
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 ADMIN_ID = int(os.environ.get("ADMIN_ID"))
 
 bot = telebot.TeleBot(BOT_TOKEN)
+
+# إعداد خادم الويب لإرضاء منصة Render وتجنب مشكلة الـ Port Timeout
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "ARAMKY Gold Bot is Server Ready!"
+
+def run_web_server():
+    # Render يمرر البورت تلقائياً عبر المتغير PORT، وإذا لم يجده يستخدم 8080
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port)
+
+def keep_alive():
+    t = Thread(target=run_web_server)
+    t.start()
 
 # مخازن الحالات المؤقتة لتأمين استقرار السيرفر ضد ضعف الإنترنت
 USER_STATE = {}
@@ -111,11 +129,11 @@ def start_command(message):
         "✨ **يا فتاح يا عليم يا رزاق يا كريم** ✨\n\n"
         "أهلاً ومرحباً بك يا طيب في منظومتك الإدارية الأسرع والأدق بالأسواق العريقة!\n\n"
         "🎁 رزقكم مبارك، تفعيلك مستمر وجاهز للعمل الميداني واليومي!\n\n"
-        f"🔢 **رقم الصائغ المعتمد: #{trend_number}**\n"
-        f"📍 المحل العامر: {goldsmith['full_name']}\n"
-        f"🗺️ الموقع: {goldsmith['location']}\n"
-        f"📞 الهاتف: {goldsmith['phone']}\n"
-        f"👥 المشتركين النشطين في الكار الآن: {active_count} صائغ\n"
+        "🔢 **رقم الصائغ المعتمد: #{trend_number}**\n"
+        "📍 المحل العامر: {goldsmith['full_name']}\n"
+        "🗺️ الموقع: {goldsmith['location']}\n"
+        "📞 الهاتف: {goldsmith['phone']}\n"
+        "👥 المشتركين النشطين في الكار الآن: {active_count} صائغ\n"
         "━━━━━━━━━━━━━━━━━\n"
         "🤖 يرجى اختيار العملية المطلوبة من الأزرار أدناه وتوكل على الرزاق 👇"
     )
@@ -423,43 +441,4 @@ def handle_text_inputs(message):
                 prices = utils.get_goldsmith_prices(user_id)
                 goldsmith = utils.get_goldsmith(user_id)
                 
-                agreed_gram_p = agreed_mitqal_p / 5.0
-                net_gram_p = agreed_gram_p - discount_per_gram
-                total_iqd = net_gram_p * weight_grams
-                
-                equivalent_mitqals = weight_grams / 5.0
-                
-                usd_bills = int(total_iqd // prices['usd_rate'])
-                rem_iqd = total_iqd % prices['usd_rate']
-                
-                invoice = (
-                    f"💎 ARAMKY | فرع نواة الذهب 💎\n"
-                    f"🏪 **المحل العامر: {goldsmith['full_name']}**\n"
-                    f"🧾 **فاتورة شراء ذهب من زبون**\n"
-                    "━━━━━━━━━━━━━━━━━\n"
-                    f"🔷 العيار ونوع الحساب: عيار {INVOICE_DATA[user_id]['carat']} (حساب الكسر بالغرام)\n"
-                    f"⚖️ الوزن المستلم: {weight_grams} غرام (ما يعادل {equivalent_mitqals:.3f} مثقال)\n"
-                    f"🔥 خصم أجور الكسر للغرام: {discount_per_gram:,.0f} دينار\n"
-                    "━━━━━━━━━━━━━━━━━\n"
-                    f"💰 سعر الشراء للمثقال: {agreed_mitqal_p:,.0f} دينار\n"
-                    f"💰 سعر غرام الشراء الصافي: {net_gram_p:,.0f} دينار\n"
-                    "━━━━━━━━━━━━━━━━━\n"
-                    f"💵 **المبلغ الكلي المدفوع بالدينار العراقي:**\n"
-                    f"👉 <b>{total_iqd:,.0f} دينار</b>\n\n"
-                    f"💵 **صافي الحساب بالورق والدينار:**\n"
-                    f"👉 <b>{usd_bills} ورقة و {rem_iqd:,.0f} دينار</b>\n"
-                    "━━━━━━━━━━━━━━━━━\n"
-                    f"🆔 رقم يوزر الصائغ: <code>{user_id}</code>\n"
-                    "🌸 تمت عملية الشراء بنجاح وشفافية مطلقة! ربي يعوضكم بالخير! ✨"
-                )
-                USER_STATE.pop(user_id, None)
-                INVOICE_DATA.pop(user_id, None)
-                bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
-            except:
-                bot.send_message(message.chat.id, "⚠️ تأكد من صحة أرقام الحسابات المكتوبة.")
-        else:
-            bot.send_message(message.chat.id, "⚠️ يرجى إدخال الأسطر الثلاثة كاملة للشراء.")
-        return
-
-if __name__ == "__main__":
-    bot.infinity_polling()
+                agre
