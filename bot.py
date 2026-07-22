@@ -109,7 +109,8 @@ def get_main_keyboard(lang):
     return markup
 
 def get_all_btn_texts(key):
-    return [LOCALES["ar"][key], LOCALES["ku"][key], LOCALES["en"][key]]
+    # تم إضافة .strip() لضمان إزالة أي مسافات مخفية قد تسبب عدم تطابق نصوص الأزرار
+    return [LOCALES["ar"][key].strip(), LOCALES["ku"][key].strip(), LOCALES["en"][key].strip()]
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -118,7 +119,7 @@ def send_welcome(message):
     markup = get_main_keyboard(lang)
     bot.send_message(message.chat.id, COMPANY_HEADER + LOCALES[lang]["welcome"], parse_mode="HTML", reply_markup=markup)
 
-@bot.message_handler(func=lambda message: message.text in get_all_btn_texts("btn_lang"))
+@bot.message_handler(func=lambda message: message.text.strip() in get_all_btn_texts("btn_lang"))
 def change_language_menu(message):
     markup = types.InlineKeyboardMarkup(row_width=1)
     markup.add(
@@ -138,7 +139,7 @@ def handle_lang_selection(call):
     bot.edit_message_text(f"{COMPANY_HEADER}💾 Done! تم حفظ اللغة وتحديث أزرار النظام بنجاح باللغة الجديدة.", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML")
     bot.send_message(call.message.chat.id, LOCALES[lang_code]["welcome"], parse_mode="HTML", reply_markup=markup)
 
-@bot.message_handler(func=lambda message: message.text in get_all_btn_texts("btn_prices"))
+@bot.message_handler(func=lambda message: message.text.strip() in get_all_btn_texts("btn_prices"))
 def morning_prices_start(message):
     user_id = message.from_user.id
     USER_STATE[user_id] = "AWAITING_ALL_PRICES"
@@ -162,14 +163,14 @@ def morning_prices_start(message):
     )
     bot.send_message(message.chat.id, instruction, parse_mode="HTML")
 
-@bot.message_handler(func=lambda message: message.text in get_all_btn_texts("btn_sell"))
+@bot.message_handler(func=lambda message: message.text.strip() in get_all_btn_texts("btn_sell"))
 def customer_sell_init(message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("عيار 21", callback_data="sell_21"),
                types.InlineKeyboardButton("عيار 18", callback_data="sell_18"))
     bot.send_message(message.chat.id, f"{COMPANY_HEADER}📥 <b>حساب بيع ذهب لزبون:</b>\nاختر عيار الذهب المطلوب أدناه لتسهيل الحساب 👇", parse_mode="HTML", reply_markup=markup)
 
-@bot.message_handler(func=lambda message: message.text in get_all_btn_texts("btn_buy"))
+@bot.message_handler(func=lambda message: message.text.strip() in get_all_btn_texts("btn_buy"))
 def customer_buy_init(message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("عيار 21", callback_data="buy_21"),
@@ -203,6 +204,20 @@ def handle_text_inputs(message):
     text = message.text.strip()
     state = USER_STATE.get(user_id)
 
+    # حماية إضافية: إذا ضغط المستخدم على زر رئيسي وكان الـ state فارغ أو معلق، قم بتوجيهه فوراً دون عمل فريز للبوت
+    if text in get_all_btn_texts("btn_sell"):
+        customer_sell_init(message)
+        return
+    if text in get_all_btn_texts("btn_buy"):
+        customer_buy_init(message)
+        return
+    if text in get_all_btn_texts("btn_lang"):
+        change_language_menu(message)
+        return
+    if text in get_all_btn_texts("btn_prices"):
+        morning_prices_start(message)
+        return
+
     if not state:
         return
 
@@ -215,7 +230,13 @@ def handle_text_inputs(message):
                 utils.update_goldsmith_prices(user_id, p21, p18, w21, w18, usd)
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, "📊 <b>تم حفظ وتحديث أسعار الصباح بنجاح في قاعدة البيانات!</b>", parse_mode="HTML")
+                
+                # هنا قمنا بجلب اللغة الحالية للمستخدم لكي تظهر له رسالة تأكيد النجاح صحيحة وتتحدث الكيبورد تلقائياً
+                goldsmith = utils.get_goldsmith(user_id)
+                lang = goldsmith.get("lang", "ar")
+                markup = get_main_keyboard(lang)
+                
+                bot.send_message(message.chat.id, "📊 <b>تم حفظ وتحديث أسعار الصباح بنجاح في قاعدة البيانات!</b>", parse_mode="HTML", reply_markup=markup)
             except:
                 bot.delete_message(message.chat.id, loading_msg.message_id)
                 bot.send_message(message.chat.id, "⚠️ خطأ في الأرقام، أرسل 5 أسطر عددية صحيحة.")
