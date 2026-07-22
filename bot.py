@@ -79,8 +79,7 @@ def get_cancel_keyboard(user_id):
     markup.add(types.KeyboardButton(get_str(user_id, 'cancel')))
     return markup
 
-# 1. رسالة الاستقبال الرسمية والفخمة للمنظومة
-@bot.message_command_handler = ['start']
+# 1. رسالة الاستقبال الرسمية والفخمة للمنظومة (تم حذف السطر المعطوب هنا)
 @bot.message_handler(commands=['start'])
 def start_command(message):
     user_id = message.from_user.id
@@ -214,17 +213,12 @@ def handle_all_messages(message):
 
     if utils.is_action_locked(user_id, delay=1): return
 
-    # 🔍 التحقق الفوري: هل المستخدم مسجل أصلاً بقاعدة البيانات؟
     goldsmith = utils.get_goldsmith(user_id)
 
-    # 🟢 [منطق العميل المسجل]: إذا ضغط انتر أو أرسل نص عشوائي وهو خارج أي عملية حسابية
     if goldsmith and USER_STATE.get(user_id) not in ["AWAITING_WEIGHT_SELL", "AWAITING_MITQAL_BUY", "AWAITING_PRICE_BUY", "AWAITING_WAGE_BUY", "MORNING_STEP_21_PRICE", "MORNING_STEP_18_PRICE", "MORNING_STEP_21_WAGE", "MORNING_STEP_18_WAGE", "MORNING_STEP_USD_RATE", "AWAITING_RENEWAL_PROOFS"]:
-        
-        # إذا ضغط على أحد الأزرار الرئيسية لا نقاطعه، دعه يكمل
         if text in ["⚙️ إعدادات الصباح", "📥 بيع لزبون", "📤 شراء من زبون", "📊 اللغات / Ziman / Languages", "💳 طلب تجديد الاشتراك", "👑 لوحة تحكم الأدمن المركزي"]:
             pass 
         else:
-            # رد بكلام طيب وإرجاعه للوحة التحكم بدون تصفير أو طلب بيانات
             is_active, _ = utils.check_goldsmith_validity(user_id)
             if not is_active:
                 bot.send_message(message.chat.id, "🛑 النظام مقفل لانتهاء الصلاحية. يرجى الضغط على زر طلب التجديد لإرسال الوصل.")
@@ -238,7 +232,6 @@ def handle_all_messages(message):
             bot.send_message(message.chat.id, friendly_text, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
             return
 
-    # 🔴 [منطق العميل الجديد]: خطوة التسجيل العمودي مع معالجة وتطهير الأسطر الفارغة
     if not goldsmith and USER_STATE.get(user_id) == "AWAITING_REGISTRATION":
         lines = [line.strip() for line in text.split('\n') if line.strip()]
         if len(lines) >= 3:
@@ -273,20 +266,17 @@ def handle_all_messages(message):
             bot.send_message(message.chat.id, "⚠️ يرجى إدخال البيانات بثلاثة أسطر واضحة (اضغط Enter بين الأسطر): اسم المحل، المحافظة، ثم رقم الهاتف.")
         return
 
-    # فحص صلاحية النظام قبل إكمال العمليات للعملاء المسجلين
     if user_id != ADMIN_ID:
         is_active, _ = utils.check_goldsmith_validity(user_id)
         if not is_active and text != "💳 طلب تجديد الاشتراك":
             bot.send_message(message.chat.id, "🛑 النظام مقفل حالياً لانتهاء صلاحية الاشتراك. اضغط على زر طلب التجديد لإرسال الوصل.")
             return
 
-    # طلب التجديد بإرسال الوصل المالي
     if text == "💳 طلب تجديد الاشتراك":
         USER_STATE[user_id] = "AWAITING_RENEWAL_PROOFS"
         bot.send_message(message.chat.id, "📸 يرجى إرسال صورة واضحة لوصل التحويل المالي أو كشف الدفع المباشر الآن:", reply_markup=get_cancel_keyboard(user_id))
         return
 
-    # لوحة تحكم الأدمن التفاعلية 
     if text == "👑 لوحة تحكم الأدمن المركزي" and user_id == ADMIN_ID:
         total_real = utils.get_total_active_goldsmiths()
         admin_panel_text = (
@@ -299,7 +289,6 @@ def handle_all_messages(message):
         bot.send_message(message.chat.id, admin_panel_text, reply_markup=get_main_keyboard(user_id))
         return
 
-    # إعدادات الصباح العمودية (سؤال وجواب منفصل)
     if text == "⚙️ إعدادات الصباح":
         INVOICE_DATA[user_id] = {}
         USER_STATE[user_id] = "MORNING_STEP_21_PRICE"
@@ -350,7 +339,6 @@ def handle_all_messages(message):
         except: bot.send_message(message.chat.id, "⚠️ خطأ في الإدخال، يرجى كتابة سعر الدولار بشكل صحيح.")
         return
 
-    # زر خيارات اللغات الفعلي
     if text == "📊 اللغات / Ziman / Languages":
         lang_markup = types.InlineKeyboardMarkup(row_width=1)
         lang_markup.add(
@@ -361,7 +349,6 @@ def handle_all_messages(message):
         bot.send_message(message.chat.id, "🌐 اختر لغة العمل للواجهات البرمجية عمودياً:", reply_markup=lang_markup)
         return
 
-    # حساب بيع لزبون
     if text == "📥 بيع لزبون":
         inline_markup = types.InlineKeyboardMarkup(row_width=1)
         inline_markup.add(
@@ -379,5 +366,20 @@ def handle_all_messages(message):
             weight = float(text)
             check_carat = INVOICE_DATA[user_id]['carat']
             
-            # تم الإصلاح هنا: السطور مغلقة وسليمة تماماً
-            mitqal_price = prices.get('price_21', 900000) if check_carat == 21 else prices.get
+            mitqal_price = prices.get('price_21', 900000) if check_carat == 21 else prices.get('price_18', 450000)
+            wage_per_gram = prices.get('wage_21', 10000) if check_carat == 21 else prices.get('wage_18', 1000)
+            
+            gram_pure_price = mitqal_price / 5.0
+            total_iqd = (gram_pure_price + wage_per_gram) * weight
+            
+            usd_rate = prices.get('usd_rate', 155000)
+            total_usd_bills = int(total_iqd // usd_rate)
+            remaining_iqd = total_iqd % usd_rate
+            
+            invoice_text = (
+                "🏛️ {shop} 🏛️\n"
+                "📍 {loc} | 📞 {phone}\n"
+                "━━━━━━━━━━━━━━━━━\n"
+                "🧾 فاتورة بيع ذهب معتمدة\n"
+                "━━━━━━━━━━━━━━━━━\n"
+         
