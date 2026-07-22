@@ -5,11 +5,9 @@ from flask import Flask
 import threading
 import utils
 
-# جلب توكن البوت من سيرفر Render
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 bot = telebot.TeleBot(BOT_TOKEN)
 
-# إعداد خادم Flask لضمان استقرار الخدمة
 app = Flask('')
 
 @app.route('/')
@@ -19,7 +17,6 @@ def home():
 def run_flask():
     app.run(host='0.0.0.0', port=10000)
 
-# الهوية البصرية للشركة
 COMPANY_HEADER = (
     "💎 <b>أرامكي للحلول الرقمية | ARAMKY</b> 💎\n"
     "⚜️ <i>فرع نواة الذهب لأنظمة الصاغة والأسواق المالية</i> ⚜️\n"
@@ -31,7 +28,6 @@ INVOICE_DATA = {}
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    # كيبورد التفاعل الفوري (الأزرار الأربعة بدون قيود الإغلاق أو الاشتراك)
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     btn_prices = types.KeyboardButton("⚙️ إدخال أسعار الصباح اليومية")
     btn_lang = types.KeyboardButton("🌐 تغيير اللغة / Ziman / Language")
@@ -48,40 +44,51 @@ def send_welcome(message):
     )
     bot.send_message(message.chat.id, welcome_text, parse_mode="HTML", reply_markup=markup)
 
-# ─── معالجة قائمة اللغات ───
+# ─── معالجة قائمة اللغات (بدون علامات وأعلام) ───
 @bot.message_handler(func=lambda message: message.text == "🌐 تغيير اللغة / Ziman / Language")
 def change_language_menu(message):
     markup = types.InlineKeyboardMarkup(row_width=1)
     markup.add(
-        types.InlineKeyboardButton("🇸🇾 العربية (العراق)", callback_data="lang_ar"),
-        types.InlineKeyboardButton("☀️ Kurdî (کوردی)", callback_data="lang_ku"),
-        types.InlineKeyboardButton("🇬🇧 English", callback_data="lang_en")
+        types.InlineKeyboardButton("العربية (العراق)", callback_data="lang_ar"),
+        types.InlineKeyboardButton("Kurdî (کوردی)", callback_data="lang_ku"),
+        types.InlineKeyboardButton("English", callback_data="lang_en")
     )
     bot.send_message(message.chat.id, f"{COMPANY_HEADER}🌐 يرجى اختيار لغة واجهة النظام المفضلة لمحلك الحلال:\n⚙️ Choose your language:", parse_mode="HTML", reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("lang_"))
 def handle_lang_selection(call):
+    # إشعار جاري التحميل الفوري
+    bot.answer_callback_query(call.id, text="⏳ جاري التحميل وحفظ إعدادات اللغة...")
+    
     lang_code = call.data.split("_")[1]
     utils.update_goldsmith_lang(call.from_user.id, lang_code)
-    bot.answer_callback_query(call.id, text="✅ تم تثبيت اللغة بنجاح!")
-    bot.edit_message_text(f"{COMPANY_HEADER}💾 تم حفظ إعدادات اللغة بنجاح في سبيس! جميع فواتيرك القادمة ستتوافق مع اختيارك.", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML")
+    
+    bot.edit_message_text(f"{COMPANY_HEADER}💾 تم حفظ إعدادات اللغة بنجاح في قاعدة البيانات سبيس! جميع فواتيرك القادمة ستتوافق مع اختيارك الجديد.", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML")
 
-# ─── معالجة أسعار الصباح اليومية ───
+# ─── معالجة أسعار الصباح مع أمثلة وشرح كامل ───
 @bot.message_handler(func=lambda message: message.text == "⚙️ إدخال أسعار الصباح اليومية")
 def morning_prices_start(message):
     user_id = message.from_user.id
     USER_STATE[user_id] = "AWAITING_ALL_PRICES"
+    
     instruction = (
         f"{COMPANY_HEADER}"
         "☀️ <b>صباح الرزق والسعادة والبركة يا طيب!</b> ☀️\n\n"
-        "نسأل الله أن يجعل هذا اليوم مباركاً، مليئاً بالخير الوفير لعملكم وحلالكم الطيب.\n\n"
-        "📋 <b>يرجى إرسال إعدادات الصباح الحالية لمحلك عمودياً:</b>\n"
-        "1️⃣ سعر مثقال عيار 21\n"
-        "2️⃣ سعر مثقال عيار 18\n"
-        "3️⃣ أجور صياغة غرام 21\n"
-        "4️⃣ أجور صياغة غرام 18\n"
-        "5️⃣ سعر صرف الـ 100 دولار بالدينار (مثال: 155000)\n\n"
-        "💡 <i>أرسلها الآن برسالة واحدة مرتبة عمودياً لتحديث المنظومة بلمحة بصر وسؤال واحد.</i>"
+        "📋 <b>شرح طريقة إدخال الأسعار اليومية:</b>\n"
+        "يرجى كتابة الأسعار الحالية لمحلك وإرسالها في رسالة واحدة تحتوي على 5 أسطر مرقمة متتالية كما في المثال أدناه.\n\n"
+        "💡 <b>مثال توضيحي للكتابة (انسخه وعدل الأرقام):</b>\n"
+        "<code>900000\n"
+        "450000\n"
+        "10000\n"
+        "1000\n"
+        "155000</code>\n\n"
+        "✍️ <b>الترتيب المطلوب بالأسطر:</b>\n"
+        "1️⃣ السطر الأول: سعر مثقال عيار 21\n"
+        "2️⃣ السطر الثاني: سعر مثقال عيار 18\n"
+        "3️⃣ السطر الثالث: أجور صياغة غرام 21\n"
+        "4️⃣ السطر الرابع: أجور صياغة غرام 18\n"
+        "5️⃣ السطر الخامس: سعر صرف الـ 100 دولار بالدينار\n\n"
+        "👉 <i>اكتب الأسعار الآن وأرسلها لتحديث المنظومة بلمحة بصر.</i>"
     )
     bot.send_message(message.chat.id, instruction, parse_mode="HTML")
 
@@ -102,12 +109,12 @@ def customer_buy_init(message):
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("calc_"))
 def handle_calc_buttons(call):
+    bot.answer_callback_query(call.id, text="⏳ جاري التحميل... يرجى إدخال البيانات المطلوبة")
     user_id = call.from_user.id
     mode = call.data.split("_")[1]
     carat = int(call.data.split("_")[2])
     
     INVOICE_DATA[user_id] = {'carat': carat}
-    bot.answer_callback_query(call.id)
     
     if mode == "sell":
         USER_STATE[user_id] = "WAITING_WEIGHT_SELL"
@@ -117,6 +124,9 @@ def handle_calc_buttons(call):
         bot.send_message(call.message.chat.id, (
             f"📥 <b>حساب شراء عيار {carat} من زبون:</b>\n"
             "يرجى إرسال تفاصيل الشراء في رسالة واحدة مرتبة عمودياً (3 أسطر):\n\n"
+            "<code>900000\n"
+            "4.963\n"
+            "0</code>\n\n"
             "1️⃣ سعر الشراء المعتمد للمثقال\n"
             "2️⃣ الوزن الإجمالي بالغرام\n"
             "3️⃣ خصم الصهر/أجور الجرام (اكتب 0 إذا لا يوجد)"
@@ -131,8 +141,8 @@ def handle_text_inputs(message):
     if not state:
         return
 
-    # استقبال وحفظ الأسعار الصباحية
     if state == "AWAITING_ALL_PRICES":
+        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري التحميل ومعالجة الحسابات وحفظ الأسعار الحالية في سبيس...</i>", parse_mode="HTML")
         lines = [l.strip() for l in text.split('\n') if l.strip()]
         if len(lines) >= 5:
             try:
@@ -152,13 +162,15 @@ def handle_text_inputs(message):
                     f"━━━━━━━━━━━━━━━━━\n"
                     f"💡 <i>تم الحفظ بنجاح! لتحديث جميع هذه الأسعار، اضغط على زر الإعدادات مجدداً.</i>"
                 )
+                bot.delete_message(message.chat.id, loading_msg.message_id)
                 bot.send_message(message.chat.id, success_msg, parse_mode="HTML")
             except:
-                bot.send_message(message.chat.id, "⚠️ خطأ في الأرقام المرسلة، يرجى إدخال قيم عددية صحيحة وعمودية.")
+                bot.delete_message(message.chat.id, loading_msg.message_id)
+                bot.send_message(message.chat.id, "⚠️ خطأ في الأرقام المرسلة، يرجى إدخال أرقام صحيحة وعمودية كما في المثال.")
         return
 
-    # إخراج فاتورة البيع للزبون
     if state == "WAITING_WEIGHT_SELL":
+        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري احتساب الفاتورة وجلب البيانات...</i>", parse_mode="HTML")
         try:
             w = float(text)
             carat = INVOICE_DATA[user_id]['carat']
@@ -195,13 +207,15 @@ def handle_text_inputs(message):
             )
             USER_STATE.pop(user_id, None)
             INVOICE_DATA.pop(user_id, None)
+            bot.delete_message(message.chat.id, loading_msg.message_id)
             bot.send_message(message.chat.id, invoice, parse_mode="HTML")
         except:
+            bot.delete_message(message.chat.id, loading_msg.message_id)
             bot.send_message(message.chat.id, "⚠️ يرجى إدخال وزن صحيح (رقم فقط).")
         return
 
-    # إخراج فاتورة الشراء من الزبون
     if state == "WAITING_LOGICAL_BUY":
+        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري معالجة الكسر واحتساب الفاتورة...</i>", parse_mode="HTML")
         lines = [l.strip() for l in text.split('\n') if l.strip()]
         if len(lines) >= 3:
             try:
@@ -242,9 +256,11 @@ def handle_text_inputs(message):
                 )
                 USER_STATE.pop(user_id, None)
                 INVOICE_DATA.pop(user_id, None)
+                bot.delete_message(message.chat.id, loading_msg.message_id)
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML")
             except:
-                bot.send_message(message.chat.id, "⚠️ تأكد من إدخال 3 أسطر عددية صحيحة لإتمام الفاتورة.")
+                bot.delete_message(message.chat.id, loading_msg.message_id)
+                bot.send_message(message.chat.id, "⚠️ تأكد من إدخال الأسطر الثلاثة بشكل صحيح.")
         return
 
 if __name__ == "__main__":
@@ -252,5 +268,5 @@ if __name__ == "__main__":
     t.daemon = True
     t.start()
     
-    print("تم تشغيل البوت بنجاح تام وهو يعمل الآن...")
+    print("تم تشغيل البوت بنجاح...")
     bot.infinity_polling(timeout=60, long_polling_timeout=30)
