@@ -8,10 +8,10 @@ ADMIN_ID = int(os.environ.get("ADMIN_ID"))
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
-# مخازن الحالات المؤقتة لتأمين استقرار السيرفر ضد ضعف الإنترنت العراقي
+# مخازن الحالات المؤقتة لتأمين استقرار السيرفر ضد ضعف الإنترنت
 USER_STATE = {}
 INVOICE_DATA = {}
-ADMIN_SELECTED_USER = {} # لحفظ العميل المحدد بجرد الأدمن
+ADMIN_SELECTED_USER = {}  # لحفظ العميل المحدد بجرد الأدمن
 
 TREND_BASE_NUMBER = 149
 
@@ -82,7 +82,6 @@ def start_command(message):
     USER_STATE.pop(user_id, None)
     
     goldsmith = utils.get_goldsmith(user_id)
-    trial_days = utils.get_system_setting("trial_days", 7)
     
     if not goldsmith:
         welcome_text = (
@@ -106,14 +105,12 @@ def start_command(message):
         return
 
     trend_number = TREND_BASE_NUMBER + utils.get_total_registered_users_count()
-    
-    # حساب عدد المشتركين النشطين الفعلي لإظهاره فقط إذا رغبت أو تركه منسقاً
     active_count = utils.get_total_registered_users_count()
 
     success_welcome = (
         "✨ **يا فتاح يا عليم يا رزاق يا كريم** ✨\n\n"
         "أهلاً ومرحباً بك يا طيب في منظومتك الإدارية الأسرع والأدق بالأسواق العريقة!\n\n"
-        f"🎁 رزقكم مبارك، تفعيلك مستمر وجاهز للعمل الميداني واليومي!\n\n"
+        "🎁 رزقكم مبارك، تفعيلك مستمر وجاهز للعمل الميداني واليومي!\n\n"
         f"🔢 **رقم الصائغ المعتمد: #{trend_number}**\n"
         f"📍 المحل العامر: {goldsmith['full_name']}\n"
         f"🗺️ الموقع: {goldsmith['location']}\n"
@@ -122,7 +119,7 @@ def start_command(message):
         "━━━━━━━━━━━━━━━━━\n"
         "🤖 يرجى اختيار العملية المطلوبة من الأزرار أدناه وتوكل على الرزاق 👇"
     )
-    bot.send_message(message.chat.id, success_welcome, reply_markup=get_main_keyboard(user_id))
+    bot.send_message(message.chat.id, success_welcome, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
 
 @bot.message_handler(func=lambda message: message.text == "❌ إلغاء العملية")
 def cancel_op(message):
@@ -133,7 +130,6 @@ def cancel_op(message):
 
 @bot.message_handler(func=lambda message: message.text == "🌐 تغيير اللغة / Ziman / Language")
 def change_language_menu(message):
-    # إظهار تأثير "جاري التحميل" لحماية جودة الاتصال
     loading = bot.send_message(message.chat.id, "⏳ جاري التحميل ومعالجة البيانات بلحظات...")
     
     markup = types.InlineKeyboardMarkup(row_width=1)
@@ -151,7 +147,7 @@ def admin_panel_dynamic(message):
     
     loading = bot.send_message(message.chat.id, "⏳ جاري جرد وبناء قائمة الأسماء الحالية...")
     
-    all_users = utils.get_all_registered_goldsmiths() # دالة تجلب كل الصاغة المسجلين بسطرين
+    all_users = utils.get_all_registered_goldsmiths()
     markup = types.InlineKeyboardMarkup(row_width=1)
     
     for u in all_users:
@@ -203,7 +199,6 @@ def admin_modify_time_callback(call):
     utils.modify_goldsmith_subscription(target_uid, days)
     bot.answer_callback_query(call.id, text="✅ تم تحديث وقت الصلاحية بنجاح!")
     
-    # إعادة عرض الجرد المحدث للمستخدم تلقائياً بعد الضغط
     call.data = f"show_user_{target_uid}"
     admin_show_goldsmith_details(call)
 
@@ -220,7 +215,6 @@ def admin_change_default_trial(call):
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("lang_"))
 def handle_lang_selection(call):
-    lang_code = call.data.split("_")[1]
     bot.answer_callback_query(call.id, text="✅ تم تثبيت اللغة بنجاح!")
     bot.edit_message_text("💾 تم حفظ إعدادات اللغة المفضلة على السيرفر بنجاح! جميع فواتيرك القادمة ستتوافق مع اختيارك.", chat_id=call.message.chat.id, message_id=call.message.message_id)
 
@@ -255,8 +249,13 @@ def handle_receipt(message):
         bot.send_message(message.chat.id, "⚠️ يرجى تسجيل معلومات المحل أولاً قبل إرسال الوصل المالي.")
         return
 
-    # استلام الصورة وإرسالها للأدمن فوراً بكبسة زر واحدة واضحة
-    caption_text = f"🚨 **طلب تفعيل اشتراك (صورة وصل مالي واصل):**\n\n🏪 المحل العامر: {goldsmith['full_name']}\n📍 الموقع: {u['location']}\n🆔 المعرف الرقمي: <code>{user_id}</code>\n📞 الهاتف: {goldsmith['phone']}"
+    caption_text = (
+        f"🚨 **طلب تفعيل اشتراك (صورة وصل مالي واصل):**\n\n"
+        f"🏪 المحل العامر: {goldsmith['full_name']}\n"
+        f"📍 الموقع: {goldsmith['location']}\n"
+        f"🆔 المعرف الرقمي: <code>{user_id}</code>\n"
+        f"📞 الهاتف: {goldsmith['phone']}"
+    )
     
     admin_markup = types.InlineKeyboardMarkup()
     admin_markup.add(
@@ -284,6 +283,12 @@ def handle_admin_approvals(call):
 
 @bot.message_handler(func=lambda message: message.text == "📥 حساب بيع لزبون")
 def customer_sell_init(message):
+    user_id = message.from_user.id
+    is_active, _ = utils.check_goldsmith_validity(user_id)
+    if not is_active and user_id != ADMIN_ID:
+        send_subscription_required_message(message.chat.id, user_id)
+        return
+
     bot.send_message(message.chat.id, "⏳ جاري التحميل ومعالجة البيانات بلحظات...")
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("عيار 21", callback_data="calc_sell_21"),
@@ -292,6 +297,12 @@ def customer_sell_init(message):
 
 @bot.message_handler(func=lambda message: message.text == "📤 حساب شراء من زبون")
 def customer_buy_init(message):
+    user_id = message.from_user.id
+    is_active, _ = utils.check_goldsmith_validity(user_id)
+    if not is_active and user_id != ADMIN_ID:
+        send_subscription_required_message(message.chat.id, user_id)
+        return
+
     bot.send_message(message.chat.id, "⏳ جاري التحميل ومعالجة البيانات بلحظات...")
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("عيار 21", callback_data="calc_buy_21"),
@@ -331,12 +342,11 @@ def handle_text_inputs(message):
         bot.send_message(message.chat.id, "📸 من فضلك التقط صورة واضحة لوصل التحويل أو الدفع وأرسلها هنا مباشرة:")
         return
 
-    # تسجيل العميل وتفعيل الـ 7 أيام تلقائياً فوراً!
+    # تسجيل العميل وتفعيل الصلاحية تلقائياً
     if state == "AWAITING_REGISTRATION":
         lines = [l.strip() for l in text.split('\n') if l.strip()]
         if len(lines) >= 3:
             trial_days = utils.get_system_setting("trial_days", 7)
-            # التسجيل مع منح الصلاحية المجانية فوراً بالسيرفر
             utils.register_new_goldsmith(user_id, lines[0], lines[1], lines[2])
             utils.modify_goldsmith_subscription(user_id, trial_days) 
             USER_STATE.pop(user_id, None)
@@ -395,12 +405,13 @@ def handle_text_inputs(message):
                 "🌸 ألف مبروك وحلال عليكم! ربي يجعلها فاتحة خير وبركة. 💛"
             )
             USER_STATE.pop(user_id, None)
+            INVOICE_DATA.pop(user_id, None)
             bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
         except:
             bot.send_message(message.chat.id, "⚠️ يرجى إدخال وزن صحيح (رقم فقط).")
         return
 
-    # معالجة الشراء المنطقي والصحيح من الزبون (الوزن بالغرام!)
+    # معالجة الشراء من الزبون
     if state == "WAITING_LOGICAL_BUY":
         lines = [l.strip() for l in text.split('\n') if l.strip()]
         if len(lines) >= 3:
@@ -412,14 +423,10 @@ def handle_text_inputs(message):
                 prices = utils.get_goldsmith_prices(user_id)
                 goldsmith = utils.get_goldsmith(user_id)
                 
-                # تحويل سعر مثقال الكسر المتفق عليه إلى سعر الغرام الواحد
                 agreed_gram_p = agreed_mitqal_p / 5.0
-                
-                # السعر الصافي للجرام بعد خصم أجور الكسر للجرام
                 net_gram_p = agreed_gram_p - discount_per_gram
                 total_iqd = net_gram_p * weight_grams
                 
-                # احتساب الوزن المكافئ بالمثاقيل للعرض المنظم بالفاتورة
                 equivalent_mitqals = weight_grams / 5.0
                 
                 usd_bills = int(total_iqd // prices['usd_rate'])
@@ -446,6 +453,7 @@ def handle_text_inputs(message):
                     "🌸 تمت عملية الشراء بنجاح وشفافية مطلقة! ربي يعوضكم بالخير! ✨"
                 )
                 USER_STATE.pop(user_id, None)
+                INVOICE_DATA.pop(user_id, None)
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
             except:
                 bot.send_message(message.chat.id, "⚠️ تأكد من صحة أرقام الحسابات المكتوبة.")
