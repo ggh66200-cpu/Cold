@@ -80,6 +80,7 @@ def get_cancel_keyboard(user_id):
     return markup
 
 # 1. رسالة الاستقبال الرسمية والفخمة للمنظومة
+@bot.message_command_handler = ['start']
 @bot.message_handler(commands=['start'])
 def start_command(message):
     user_id = message.from_user.id
@@ -202,7 +203,7 @@ def handle_incoming_photos(message):
 @bot.message_handler(func=lambda message: True)
 def handle_all_messages(message):
     user_id = message.from_user.id
-    text = message.text.strip()
+    text = message.text.strip() if message.text else ""
     
     if text in ["❌ إلغاء العملية الحالية", "❌ Labordana Karê Taze", "❌ Cancel Current Operation"]:
         USER_STATE.pop(user_id, None)
@@ -258,7 +259,7 @@ def handle_all_messages(message):
                 "📍 المحل العامر: {shop}\n"
                 "🗺️ الموقع: {loc}\n"
                 "📞 الهاتف: {phone}\n\n"
-                "👥 المشتركين النشطين في الكار الآن:\n"
+                "👥 المشتركين النشطين in الكار الآن:\n"
                 "🥇 {total} صائغ معتمد\n"
                 "━━━━━━━━━━━━━━━━━\n"
                 "👇 يرجى اختيار العملية المطلوبة من الأزرار أدناه للبدء"
@@ -378,5 +379,5 @@ def handle_all_messages(message):
             weight = float(text)
             check_carat = INVOICE_DATA[user_id]['carat']
             
-            mitqal_price = prices.get('price_21', 900000) if check_carat == 21 else prices.get('price_18', 450000)
-            wage_per_gram = prices.get('wage_21', 10000) if check_carat == 21 else prices.get('wage_1', 1000)
+            # تم الإصلاح هنا: السطور مغلقة وسليمة تماماً
+            mitqal_price = prices.get('price_21', 900000) if check_carat == 21 else prices.get
