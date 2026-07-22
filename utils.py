@@ -37,14 +37,27 @@ def get_goldsmith_prices(user_id):
             return default_prices
     except Exception as e:
         print(f"Supabase Prices Error: {e}")
+        # إرجاع القيم لتفادي توقف البوت، لكن التعديل أدناه في التحديث سيحل مشكلة الحفظ
         return {"price_21": 900000, "price_18": 450000, "wage_21": 10000, "wage_18": 1000, "usd_rate": 155000}
 
 def update_goldsmith_prices(user_id, p21, p18, w21, w18, usd):
     try:
         data = {"price_21": p21, "price_18": p18, "wage_21": w21, "wage_18": w18, "usd_rate": usd}
-        supabase.table("morning_prices").upsert({"user_id": str(user_id), **data}).execute()
+        
+        # نتحقق أولاً هل السجل موجود للمستخدم؟
+        check = supabase.table("morning_prices").select("user_id").eq("user_id", str(user_id)).execute()
+        
+        if check.data:
+            # إذا موجود نقوم بعمل تحديث (Update) مباشر ومضمون للسطح الخاص بالمستخدم
+            supabase.table("morning_prices").update(data).eq("user_id", str(user_id)).execute()
+        else:
+            # إذا غير موجود نقوم بعمل إدخال (Insert) لأول مرة
+            supabase.table("morning_prices").insert({"user_id": str(user_id), **data}).execute()
+            
     except Exception as e:
         print(f"Supabase Update Error: {e}")
+        # لكي ينتبه المطور أو يظهر في سجل الأخطاء بشكل واضح
+        raise e 
 
 def update_goldsmith_lang(user_id, lang_code):
     try:
