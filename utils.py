@@ -41,7 +41,6 @@ def get_goldsmith_prices(user_id):
 
 def update_goldsmith_prices(user_id, p21, p18, w21, w18, usd):
     try:
-        # تحويل الـ user_id إلى رقم صحيح (bigint) ليتطابق مع تصميم جدول الـ SQL
         uid = int(user_id)
         data = {
             "user_id": uid,
@@ -51,8 +50,6 @@ def update_goldsmith_prices(user_id, p21, p18, w21, w18, usd):
             "wage_18": float(w18),
             "usd_rate": float(usd)
         }
-        
-        # استخدام upsert المدمجة في Supabase لتحديث السجل أو إنشائه بضغطة واحدة وبدون أخطاء
         supabase.table("morning_prices").upsert(data).execute()
             
     except Exception as e:
@@ -61,6 +58,17 @@ def update_goldsmith_prices(user_id, p21, p18, w21, w18, usd):
 
 def update_goldsmith_lang(user_id, lang_code):
     try:
-        supabase.table("goldsmiths").update({"lang": lang_code}).eq("user_id", str(user_id)).execute()
+        uid = str(user_id)
+        # التحقق من وجود السجل للمستخدم أولاً لتجنب فشل التحديث إذا لم يكن مسجلاً مسبقاً
+        check = supabase.table("goldsmiths").select("user_id").eq("user_id", uid).execute()
+        if check.data:
+            supabase.table("goldsmiths").update({"lang": lang_code}).eq("user_id", uid).execute()
+        else:
+            supabase.table("goldsmiths").insert({
+                "user_id": uid, 
+                "full_name": "أرامكي للحلول الرقمية", 
+                "lang": lang_code
+            }).execute()
     except Exception as e:
         print(f"Supabase Lang Update Error: {e}")
+        raise e
