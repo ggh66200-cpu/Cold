@@ -59,7 +59,6 @@ def get_str(user_id, key):
     lang = utils.get_goldsmith_lang(user_id) or USER_LANG.get(user_id, 'ar')
     return LANG_TEXTS[lang].get(key, LANG_TEXTS['ar'][key])
 
-# الكيبورد الرئيسي - أزرار عمودية تماماً لتسهيل الاستخدام على الموبايل
 def get_main_keyboard(user_id):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
     if user_id == ADMIN_ID:
@@ -79,7 +78,6 @@ def get_cancel_keyboard(user_id):
     markup.add(types.KeyboardButton(get_str(user_id, 'cancel')))
     return markup
 
-# 1. رسالة الاستقبال الرسمية والفخمة للمنظومة (تم حذف السطر المعطوب هنا)
 @bot.message_handler(commands=['start'])
 def start_command(message):
     user_id = message.from_user.id
@@ -110,7 +108,6 @@ def start_command(message):
         bot.send_message(message.chat.id, welcome_text, reply_markup=types.ReplyKeyboardRemove())
         return
 
-    # فحص صلاحية الاشتراك والتنبيه أو القفل التلقائي
     is_active, days_left = utils.check_goldsmith_validity(user_id)
     if not is_active:
         expired_text = (
@@ -382,4 +379,119 @@ def handle_all_messages(message):
                 "━━━━━━━━━━━━━━━━━\n"
                 "🧾 فاتورة بيع ذهب معتمدة\n"
                 "━━━━━━━━━━━━━━━━━\n"
-         
+                "🔹 صنف الذهب الحسابي:\n👈 عيار {carat}\n\n"
+                "⚖️ الوزن الإجمالي الموزون:\n👈 {w} غرام\n\n"
+                "🔨 أجور الصياغة للغرام:\n👈 {wage:,.0f} دينار\n\n"
+                "💰 سعر الغرام الصافي:\n👈 {g_price:,.0f} دينار\n"
+                "━━━━━━━━━━━━━━━━━\n"
+                "💵 المبلغ بالدينار العراقي:\n"
+                "👈 <b>{total_iqd:,.0f} دينار</b>\n\n"
+                "💵 تفقيط النقد بالورق والدينار:\n"
+                "👈 <b>{usd_bills} ورقـة ($100) و {rem_iqd:,.0f} دينار</b>\n"
+                "━━━━━━━━━━━━━━━━━\n"
+                "✨ ربي يجعلها فاتحة خير وبركة ورزق واسع ومبارك! ✨\n\n"
+                "🤖 تم الحساب والنشر بواسطة منظومة نواة الذهب الذكية"
+            ).format(shop=goldsmith['full_name'], loc=goldsmith['location'], phone=goldsmith['phone'], carat=check_carat, w=weight, wage=wage_per_gram, g_price=gram_pure_price, total_iqd=total_iqd, usd_bills=total_usd_bills, rem_iqd=remaining_iqd)
+            
+            USER_STATE.pop(user_id, None)
+            INVOICE_DATA.pop(user_id, None)
+            try: bot.delete_message(chat_id=message.chat.id, message_id=loading_msg.message_id)
+            except: pass
+            bot.send_message(message.chat.id, invoice_text, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+        
+        except Exception as e:
+            try: bot.delete_message(chat_id=message.chat.id, message_id=loading_msg.message_id)
+            except: pass
+            bot.send_message(message.chat.id, "⚠️ يرجى إرسال الوزن كأرقام مجردة فقط (تأكد من عدم وجود مسافات).")
+        return
+
+    if text == "📤 شراء من زبون":
+        inline_markup = types.InlineKeyboardMarkup(row_width=1)
+        inline_markup.add(
+            types.InlineKeyboardButton("👑 عيار 21", callback_data="select_carat_buy_21"),
+            types.InlineKeyboardButton("💎 عيار 18", callback_data="select_carat_buy_18")
+        )
+        bot.send_message(message.chat.id, get_str(user_id, 'select_carat_buy'), reply_markup=inline_markup)
+        return
+
+    if USER_STATE.get(user_id) == "AWAITING_MITQAL_BUY":
+        try:
+            mitqals = float(text)
+            INVOICE_DATA[user_id]['mitqals'] = mitqals
+            USER_STATE[user_id] = "AWAITING_PRICE_BUY"
+            bot.send_message(message.chat.id, get_str(user_id, 'input_price_buy'), reply_markup=get_cancel_keyboard(user_id))
+        except:
+            bot.send_message(message.chat.id, "⚠️ يرجى كتابة عدد المثاقيل كأرقام فقط (مثال: 5.5).")
+        return
+
+    if USER_STATE.get(user_id) == "AWAITING_PRICE_BUY":
+        try:
+            agreed_mitqal_price = float(text)
+            INVOICE_DATA[user_id]['agreed_price'] = agreed_mitqal_price
+            USER_STATE[user_id] = "AWAITING_WAGE_BUY"
+            bot.send_message(message.chat.id, get_str(user_id, 'input_wage_buy'), reply_markup=get_cancel_keyboard(user_id))
+        except:
+            bot.send_message(message.chat.id, "⚠️ يرجى كتابة سعر مثقال الكسر كأرقام مجردة فقط.")
+        return
+
+    if USER_STATE.get(user_id) == "AWAITING_WAGE_BUY":
+        loading_msg = bot.send_message(message.chat.id, get_str(user_id, 'loading'))
+        prices = utils.get_goldsmith_prices(user_id)
+        
+        try:
+            wage_discount_per_mitqal = float(text)
+            mitqals = INVOICE_DATA[user_id]['mitqals']
+            agreed_mitqal_price = INVOICE_DATA[user_id]['agreed_price']
+            check_carat = INVOICE_DATA[user_id]['carat']
+            
+            final_mitqal_price = agreed_mitqal_price - wage_discount_per_mitqal
+            total_iqd = final_mitqal_price * mitqals
+            
+            usd_rate = prices.get('usd_rate', 155000)
+            total_usd_bills = int(total_iqd // usd_rate)
+            remaining_iqd = total_iqd % usd_rate
+            
+            invoice_text = (
+                "🏛️ {shop} 🏛️\n"
+                "📍 {loc} | 📞 {phone}\n"
+                "━━━━━━━━━━━━━━━━━\n"
+                "🧾 فاتورة شراء ذهب كسر\n"
+                "━━━━━━━━━━━━━━━━━\n"
+                "🔹 صنف الذهب المستلم:\n👈 عيار {carat}\n\n"
+                "⚖️ الكمية الموزونة:\n👈 {m} مثقال\n\n"
+                "💰 سعر المثقال المتفق عليه:\n👈 {p_mitqal:,.0f} دينار\n\n"
+                "🛠️ الخصم المحسوب للمثقال:\n👈 {wage:,.0f} دينار\n"
+                "━━━━━━━━━━━━━━━━━\n"
+                "💵 المبلغ المستحق للزبون بالدينار:\n"
+                "👈 <b>{total_iqd:,.0f} دينار</b>\n\n"
+                "💵 تفقيط النقد بالورق والدينار:\n"
+                "👈 <b>{usd_bills} ورقـة ($100) و {rem_iqd:,.0f} دينار</b>\n"
+                "━━━━━━━━━━━━━━━\n"
+                "🌸 تمت عملية الشراء بنجاح! وعوضكم الله بالخير الوفير! ✨\n\n"
+                "🤖 تم الحساب والنشر بواسطة منظومة نواة الذهب الذكية"
+            ).format(shop=goldsmith['full_name'], loc=goldsmith['location'], phone=goldsmith['phone'], carat=check_carat, m=mitqals, p_mitqal=agreed_mitqal_price, wage=wage_discount_per_mitqal, total_iqd=total_iqd, usd_bills=total_usd_bills, rem_iqd=remaining_iqd)
+            
+            USER_STATE.pop(user_id, None)
+            INVOICE_DATA.pop(user_id, None)
+            try: bot.delete_message(chat_id=message.chat.id, message_id=loading_msg.message_id)
+            except: pass
+            bot.send_message(message.chat.id, invoice_text, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+        except:
+            try: bot.delete_message(chat_id=message.chat.id, message_id=loading_msg.message_id)
+            except: pass
+            bot.send_message(message.chat.id, "⚠️ خطأ في معالجة الرقم، يرجى كتابة رقم صحيح أو 0 مجرداً.")
+        return
+
+if __name__ == "__main__":
+    import threading
+    from http.server import SimpleHTTPRequestHandler, HTTPServer
+
+    def run_dummy_server():
+        try:
+            port = int(os.environ.get("PORT", 8080))
+            server = HTTPServer(('0.0.0.0', port), SimpleHTTPRequestHandler)
+            server.serve_forever()
+        except: pass
+
+    threading.Thread(target=run_dummy_server, daemon=True).start()
+    bot.infinity_polling()
