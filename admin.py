@@ -2,6 +2,7 @@ import os
 import telebot
 from telebot import types
 from supabase import create_client, Client
+import utils
 
 # سحب المفاتيح تلقائياً من إعدادات السيرفر
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
@@ -12,7 +13,7 @@ ADMIN_ID = int(os.environ.get("ADMIN_ID", "0"))
 bot = telebot.TeleBot(BOT_TOKEN)
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# ⚙️ إعدادات الفترة المجانية (بداية أسبوع / 7 أيام أو حسب رغبتك)
+# ⚙️ إعدادات الفترة المجانية
 FREE_TRIAL_DAYS = 7
 
 # معلومات الشركة والمالية الثابتة
@@ -25,6 +26,9 @@ COMPANY_HEADER = (
     "⚜️ <i>فرع نواة الذهب لأنظمة الصاغة والأسواق المالية</i> ⚜️\n"
     "━━━━━━━━━━━━━━━━━\n"
 )
+
+# متغير مؤقت لحالات الأدمن والعملاء
+USER_STATE = {}
 
 # لوحة تحكم الأدمن الرئيسية (أزرار انلاين مرتبة واحترافية)
 def get_admin_main_keyboard():
@@ -99,7 +103,8 @@ def handle_admin_callbacks(call):
 
     elif action == "admin_broadcast":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "📢 أرسل الرسالة التي تريد إذاعتها لجميع الصاغة الآن (نص، صورة، أو فيديو):")
+        USER_STATE[call.from_user.id] = "WAITING_BROADCAST"
+        bot.send_message(call.message.chat.id, "📢 <b>وضع الإذاعة مفعل:</b>\nأرسل الآن الرسالة (نص، صورة، أو فيديو) وسيتم إرسالها لجميع الصاغة فوراً.", parse_mode="HTML")
 
     elif action == "admin_set_trial":
         bot.answer_callback_query(call.id)
@@ -108,6 +113,33 @@ def handle_admin_callbacks(call):
     elif action == "admin_manage_sub":
         bot.answer_callback_query(call.id)
         bot.send_message(call.message.chat.id, "🛠️ لتصفير أو زيادة اشتراك صائغ، أرسل الآيدي مع الأمر بالشكل التالي:\n`/reset_sub [User_ID]` أو `/add_days [User_ID] [Days]`")
+
+# تنفيذ عملية الإذاعة الشاملة لجميع الصاغة
+@bot.message_handler(func=lambda m: USER_STATE.get(m.from_user.id) == "WAITING_BROADCAST", content_types=['text', 'photo', 'video', 'document', 'voice'])
+def process_admin_broadcast(message):
+    user_id = message.from_user.id
+    if user_id != ADMIN_ID:
+        return
+    
+    loading_msg = bot.reply_to(message, "⏳ جاري إرسال الإذاعة لجميع الصاغة...")
+    try:
+        res = supabase.table("goldsmiths").select("user_id").execute()
+        users = [row['user_id'] for row in res.data if row.get('user_id')]
+    except Exception as e:
+        bot.edit_message_text(f"⚠️ خطأ في جلب الصاغة: {e}", message.chat.id, loading_msg.message_id)
+        return
+
+    success = 0
+    failed = 0
+    for uid in users:
+        try:
+            bot.copy_message(chat_id=uid, from_chat_id=message.chat.id, message_id=message.message_id)
+            success += 1
+        except:
+            failed += 1
+
+    USER_STATE.pop(user_id, None)
+    bot.edit_message_text(f"✅ <b>تم الانتهاء من الإذاعة!</b>\n\n🟢 نجح الإرسال إلى: {success} صائغ\n🔴 فشل الإرسال إلى: {failed}", chat_id=message.chat.id, message_id=loading_msg.message_id, parse_mode="HTML")
 
 # أزرار الموافقة أو الرفض للإيصالات التي يرسلها العميل (تظهر للأدمن)
 @bot.callback_query_handler(func=lambda call: call.data.startswith("approve_sub_") or call.data.startswith("reject_sub_"))
