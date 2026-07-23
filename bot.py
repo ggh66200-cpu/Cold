@@ -27,76 +27,28 @@ COMPANY_HEADER = (
 USER_STATE = {}
 INVOICE_DATA = {}
 
-LOCALES = {
-    "ar": {
-        "welcome": "👋 أهلاً بك في <b>SMART GOLD SYSTEM</b>\n\nالمنظومة الذكية الأسرع لإدارة حسابات الصياغة محلياً ودولياً.\nالرجاء استخدام الأزرار أدناه للبدء بالعمليات اليومية لمحلك الحلال 👇",
-        "btn_prices": "⚙️ إدخال أسعار الصباح اليومية",
-        "btn_lang": "🌐 تغيير اللغة / Ziman / Language",
-        "btn_sell": "📥 حساب بيع لزبون",
-        "btn_buy": "📤 حساب شراء من زبون",
-        "invoice_sell": "🧾 <b>فاتورة بيع ذهب للزبون</b> 🧾",
-        "invoice_buy": "📥 <b>فاتورة شراء ذهب من الزبون</b> 📥",
-        "shop": "🔷 المحل العامر: ",
-        "type_sell": "🔷 العيار ونوع الحساب: عيار {carat} (حساب بيع بالغرام)",
-        "type_buy": "🔷 العيار ونوع الحساب: عيار {carat} (حساب شراء بالغرام)",
-        "weight_req": "🔷 الوزن المطلوب: {w} غرام",
-        "weight_tot": "⚖️ الوزن الإجمالي بالجرام: {w} غرام",
-        "wage_sell": "🔨 أجور صياغة الغرام (مضافة): {wage:,.0f} دينار",
-        "wage_buy": "🔨 كسر أجور الصياغة (مخصومة): {wage:,.0f} دينار",
-        "clean_p": "💰 سعر غرام الذهب الصافي: {p:,.0f} دينار",
-        "full_p": "💵 سعر الغرام مع أجور الصائغ: {p:,.0f} دينار",
-        "total_iqd": "💵 <b>السعر الكلي بالدنانير العراقي:</b>\n👉 <b>{total:,.0f} دينار</b>",
-        "total_usd": "💵 <b>صافي الحساب بالورق والدينار:</b>\n👉 <b>{usd} ورقة و {rem:,.0f} دينار</b>",
-        "footer": "🌸 ألف مبروك وحلال عليكم! ربي يجعلها فاتحة خير وبركة ورزق واسع ومبارك لمحلك الطيب! 💛",
-        "req_weight_sell": "⚖️ <b>عيار {carat} (حساب بيع للزبون):</b>\nأرسل وزن الذهب بالغرام فقط (مثال: 8.963):",
-        "req_buy_inputs": "📥 <b>عيار {carat} (حساب شراء من زبون):</b>\nيرجى إرسال البيانات المطلوبة بالترتيب في رسالة واحدة (كل قيمة بسطر):\n\n<code>1️⃣ سعر المثقال للشراء\n2️⃣ الوزن بالغرام\n3️⃣ أجور الكسر للغرام</code>\n\n💡 <i>مثال للنسخ والتعديل:</i>\n<code>780000\n15.420\n2000</code>"
-    },
-    "ku": {
-        "welcome": "👋خێرهاتی بۆ <b>SMART GOLD SYSTEM</b>\n\nسیستەمی ژیری خێرا بۆ بەڕێوەبردنی ژمێریاری زێڕەنگەری.\nتکایە دوگمەکانی خوارەوە بەکاربهێنە بۆ دەستپێکردن 👇",
-        "btn_prices": "⚙️ تۆمارکردنی نرخەکانی بەیانی",
-        "btn_lang": "🌐 گۆڕینی زمان / Language",
-        "btn_sell": "📥 ئەژماری فرۆشتن بە کڕیار",
-        "btn_buy": "📤 ئەژماری کڕین لە کڕیار",
-        "invoice_sell": "🧾 <b>پسوولەی فرۆشتنی زێڕ</b> 🧾",
-        "invoice_buy": "📥 <b>پسوولەی کڕینی زێڕ لە کڕیار</b> 📥",
-        "shop": "🔷 دوکان: ",
-        "type_sell": "🔷 عەیار و جۆری ژمارە: عەیاری {carat} (فرۆشتن بە گرام)",
-        "type_buy": "🔷 عەیار و جۆری ژمارە: عەیاری {carat} (کڕین بە گرام)",
-        "weight_req": "🔷 کێشی داواکراو: {w} گرام",
-        "weight_tot": "⚖️ کۆی گشتی کێش بە گرام: {w} گرام",
-        "wage_sell": "🔨 کرێی دروستکردنی گرام (زیادکراو): {wage:,.0f} دينار",
-        "wage_buy": "🔨 کرێی داشکاندن (دابەزیو): {wage:,.0f} دينار",
-        "clean_p": "💰 نرخی گرامی زێڕی ساف: {p:,.0f} دينار",
-        "full_p": "💵 نرخی گرام لەگەڵ کرێی دروستکردن: {p:,.0f} دينار",
-        "total_iqd": "💵 <b>کۆی گشتی بە دیناری عێراقی:</b>\n👉 <b>{total:,.0f} دينار</b>",
-        "total_usd": "💵 <b>کۆی گشتی بە دەفتەر و دینار:</b>\n👉 <b>{usd} وەرەقە و {rem:,.0f} دينار</b>",
-        "footer": "🌸 پیرۆز بێت و حەڵاڵتان بێت! خودا بیکاتە مایەی خێر و بەرەکەت بۆ دوکانەکەتان! 💛",
-        "req_weight_sell": "⚖️ <b>عەیاری {carat} (ئەژماری فرۆشتن):</b>\nتکایە کێشی زێڕەکە بە گرام بنێرە (نموونە: 8.963):",
-        "req_buy_inputs": "📥 <b>عەیاری {carat} (ئەژماری کڕین):</b>\nتکایە زانیارییەکان بنێرە لە یەک نامەدا (هەر نرخێک لە دێڕێکدا):\n\n<code>1️⃣ نرخی مسقاڵ بۆ کڕین\n2️⃣ کێش بە گرام\n3️⃣ کرێی داشکاندنی گرام</code>"
-    },
-    "en": {
-        "welcome": "👋 Welcome to <b>SMART GOLD SYSTEM</b>\n\nThe fastest intelligent system for goldsmith accounts.\nPlease use the buttons below to start daily operations 👇",
-        "btn_prices": "⚙️ Enter Daily Morning Prices",
-        "btn_lang": "🌐 Change Language / Ziman",
-        "btn_sell": "📥 Calculate Sale to Customer",
-        "btn_buy": "📤 Calculate Purchase from Customer",
-        "invoice_sell": "🧾 <b>Customer Gold Sales Invoice</b> 🧾",
-        "invoice_buy": "📥 <b>Purchase Gold From Customer Invoice</b> 📥",
-        "shop": "🔷 Shop: ",
-        "type_sell": "🔷 Carat & Type: Carat {carat} (Gram Sale)",
-        "type_buy": "🔷 Carat & Type: Carat {carat} (Gram Purchase)",
-        "weight_req": "🔷 Requested Weight: {w} grams",
-        "weight_tot": "⚖️ Total Weight in Grams: {w} grams",
-        "wage_sell": "🔨 Making Charges per Gram (Added): {wage:,.0f} IQD",
-        "wage_buy": "🔨 Making Charges Deduction (Subtracted): {wage:,.0f} IQD",
-        "clean_p": "💰 Pure Gold Price per Gram: {p:,.0f} IQD",
-        "full_p": "💵 Gram Price with Making Charges: {p:,.0f} IQD",
-        "total_iqd": "💵 <b>Total Price in Iraqi Dinar (IQD):</b>\n👉 <b>{total:,.0f} IQD</b>",
-        "total_usd": "💵 <b>Net Account in USD & IQD:</b>\n👉 <b>{usd} Bills ($100) and {rem:,.0f} IQD</b>",
-        "footer": "🌸 Congratulations! May it bring blessing and wide livelihood to your blessed shop! 💛",
-        "req_weight_sell": "⚖️ <b>Carat {carat} (Sales Calculation):</b>\nSend gold weight in grams only (e.g., 8.963):",
-        "req_buy_inputs": "📥 <b>Carat {carat} (Purchase Calculation):</b>\nPlease send the required data in one single message (each value on a new line):\n\n<code>1️⃣ Purchase Mithqal Price\n2️⃣ Weight in Grams\n3️⃣ Deduction per Gram</code>"
-    }
+# النصوص العربية الثابتة
+TEXTS = {
+    "welcome": "👋 أهلاً بك في <b>SMART GOLD SYSTEM</b>\n\nالمنظومة الذكية الأسرع لإدارة حسابات الصياغة محلياً ودولياً.\nالرجاء استخدام الأزرار أدناه للبدء بالعمليات اليومية لمحلك الحلال 👇",
+    "btn_prices": "⚙️ إدخال أسعار الصباح اليومية",
+    "btn_sell": "📥 حساب بيع لزبون",
+    "btn_buy": "📤 حساب شراء من زبون",
+    "invoice_sell": "🧾 <b>فاتورة بيع ذهب للزبون</b> 🧾",
+    "invoice_buy": "📥 <b>فاتورة شراء ذهب من الزبون</b> 📥",
+    "shop": "🔷 المحل العامر: ",
+    "type_sell": "🔷 العيار ونوع الحساب: عيار {carat} (حساب بيع بالغرام)",
+    "type_buy": "🔷 العيار ونوع الحساب: عيار {carat} (حساب شراء بالغرام)",
+    "weight_req": "🔷 الوزن المطلوب: {w} غرام",
+    "weight_tot": "⚖️ الوزن الإجمالي بالجرام: {w} غرام",
+    "wage_sell": "🔨 أجور صياغة الغرام (مضافة): {wage:,.0f} دينار",
+    "wage_buy": "🔨 كسر أجور الصياغة (مخصومة): {wage:,.0f} دينار",
+    "clean_p": "💰 سعر غرام الذهب الصافي: {p:,.0f} دينار",
+    "full_p": "💵 سعر الغرام مع أجور الصائغ: {p:,.0f} دينار",
+    "total_iqd": "💵 <b>السعر الكلي بالدنانير العراقي:</b>\n👉 <b>{total:,.0f} دينار</b>",
+    "total_usd": "💵 <b>صافي الحساب بالورق والدينار:</b>\n👉 <b>{usd} ورقة و {rem:,.0f} دينار</b>",
+    "footer": "🌸 ألف مبروك وحلال عليكم! ربي يجعلها فاتحة خير وبركة ورزق واسع ومبارك لمحلك الطيب! 💛",
+    "req_weight_sell": "⚖️ <b>عيار {carat} (حساب بيع للزبون):</b>\nأرسل وزن الذهب بالغرام فقط (مثال: 8.963):",
+    "req_buy_inputs": "📥 <b>عيار {carat} (حساب شراء من زبون):</b>\nيرجى إرسال البيانات المطلوبة بالترتيب في رسالة واحدة (كل قيمة بسطر):\n\n<code>1️⃣ سعر المثقال للشراء\n2️⃣ الوزن بالغرام\n3️⃣ أجور الكسر للغرام</code>\n\n💡 <i>مثال للنسخ والتعديل:</i>\n<code>780000\n15.420\n2000</code>"
 }
 
 def to_english_numbers(text):
@@ -104,55 +56,21 @@ def to_english_numbers(text):
     persian_nums = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
     return text.translate(arabic_nums).translate(persian_nums)
 
-def get_main_keyboard(lang):
-    tx = LOCALES.get(lang, LOCALES["ar"])
+def get_main_keyboard():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    btn_prices = types.KeyboardButton(tx["btn_prices"])
-    btn_lang = types.KeyboardButton(tx["btn_lang"])
-    btn_sell = types.KeyboardButton(tx["btn_sell"])
-    btn_buy = types.KeyboardButton(tx["btn_buy"])
-    markup.add(btn_prices, btn_lang, btn_sell, btn_buy)
+    btn_prices = types.KeyboardButton(TEXTS["btn_prices"])
+    btn_sell = types.KeyboardButton(TEXTS["btn_sell"])
+    btn_buy = types.KeyboardButton(TEXTS["btn_buy"])
+    markup.add(btn_prices, btn_sell, btn_buy)
     return markup
-
-def get_all_btn_texts(key):
-    return [LOCALES["ar"][key].strip(), LOCALES["ku"][key].strip(), LOCALES["en"][key].strip()]
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     USER_STATE.pop(message.from_user.id, None)
-    goldsmith = utils.get_goldsmith(message.from_user.id) or {}
-    lang = goldsmith.get("lang", "ar")
-    markup = get_main_keyboard(lang)
-    bot.send_message(message.chat.id, COMPANY_HEADER + LOCALES[lang]["welcome"], parse_mode="HTML", reply_markup=markup)
+    markup = get_main_keyboard()
+    bot.send_message(message.chat.id, COMPANY_HEADER + TEXTS["welcome"], parse_mode="HTML", reply_markup=markup)
 
-@bot.message_handler(func=lambda message: message.text and message.text.strip() in get_all_btn_texts("btn_lang"))
-def change_language_menu(message):
-    USER_STATE.pop(message.from_user.id, None)
-    markup = types.InlineKeyboardMarkup(row_width=1)
-    markup.add(
-        types.InlineKeyboardButton("العربية (العراق)", callback_data="lang_ar"),
-        types.InlineKeyboardButton("Kurdî (کوردی)", callback_data="lang_ku"),
-        types.InlineKeyboardButton("English", callback_data="lang_en")
-    )
-    bot.send_message(message.chat.id, f"{COMPANY_HEADER}🌐 يرجى اختيار لغة واجهة النظام المفضلة لمحلك الحلال:\n⚙️ Choose your language:", parse_mode="HTML", reply_markup=markup)
-
-@bot.callback_query_handler(func=lambda call: call.data.startswith("lang_"))
-def handle_lang_selection(call):
-    bot.answer_callback_query(call.id, text="⏳...")
-    lang_code = call.data.split("_")[1]
-    
-    utils.update_goldsmith_lang(call.from_user.id, lang_code)
-    
-    markup = get_main_keyboard(lang_code)
-    try:
-        bot.edit_message_text(f"{COMPANY_HEADER}💾 Done! تم حفظ اللغة وتحديث أزرار النظام بنجاح باللغة الجديدة.", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML")
-    except:
-        pass
-    
-    # إرسال رسالة ترحيب مع الكيبورد الجديد كلياً لإجبار تيليجرام على تحديث الأزرار السفلية
-    bot.send_message(call.message.chat.id, COMPANY_HEADER + LOCALES[lang_code]["welcome"], parse_mode="HTML", reply_markup=markup)
-
-@bot.message_handler(func=lambda message: message.text and message.text.strip() in get_all_btn_texts("btn_prices"))
+@bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_prices"])
 def morning_prices_start(message):
     user_id = message.from_user.id
     USER_STATE[user_id] = "AWAITING_ALL_PRICES"
@@ -176,7 +94,7 @@ def morning_prices_start(message):
     )
     bot.send_message(message.chat.id, instruction, parse_mode="HTML")
 
-@bot.message_handler(func=lambda message: message.text and message.text.strip() in get_all_btn_texts("btn_sell"))
+@bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_sell"])
 def customer_sell_init(message):
     USER_STATE.pop(message.from_user.id, None)
     markup = types.InlineKeyboardMarkup()
@@ -184,7 +102,7 @@ def customer_sell_init(message):
                types.InlineKeyboardButton("عيار 18", callback_data="sell_18"))
     bot.send_message(message.chat.id, f"{COMPANY_HEADER}📥 <b>حساب بيع ذهب لزبون:</b>\nاختر عيار الذهب المطلوب أدناه لتسهيل الحساب 👇", parse_mode="HTML", reply_markup=markup)
 
-@bot.message_handler(func=lambda message: message.text and message.text.strip() in get_all_btn_texts("btn_buy"))
+@bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_buy"])
 def customer_buy_init(message):
     USER_STATE.pop(message.from_user.id, None)
     markup = types.InlineKeyboardMarkup()
@@ -202,16 +120,12 @@ def handle_calc_buttons(call):
     
     INVOICE_DATA[user_id] = {'carat': carat, 'mode': mode}
     
-    goldsmith = utils.get_goldsmith(user_id) or {}
-    lang = goldsmith.get("lang", "ar")
-    tx = LOCALES[lang]
-    
     if mode == "sell":
         USER_STATE[user_id] = "WAITING_WEIGHT_SELL"
-        bot.send_message(call.message.chat.id, tx["req_weight_sell"].format(carat=carat), parse_mode="HTML")
+        bot.send_message(call.message.chat.id, TEXTS["req_weight_sell"].format(carat=carat), parse_mode="HTML")
     elif mode == "buy":
         USER_STATE[user_id] = "WAITING_BUY_ALL_INPUTS"
-        bot.send_message(call.message.chat.id, tx["req_buy_inputs"].format(carat=carat), parse_mode="HTML")
+        bot.send_message(call.message.chat.id, TEXTS["req_buy_inputs"].format(carat=carat), parse_mode="HTML")
 
 @bot.message_handler(func=lambda message: True)
 def handle_text_inputs(message):
@@ -221,16 +135,13 @@ def handle_text_inputs(message):
     user_id = message.from_user.id
     text = message.text.strip()
     
-    if text in get_all_btn_texts("btn_sell"):
+    if text == TEXTS["btn_sell"]:
         customer_sell_init(message)
         return
-    if text in get_all_btn_texts("btn_buy"):
+    if text == TEXTS["btn_buy"]:
         customer_buy_init(message)
         return
-    if text in get_all_btn_texts("btn_lang"):
-        change_language_menu(message)
-        return
-    if text in get_all_btn_texts("btn_prices"):
+    if text == TEXTS["btn_prices"]:
         morning_prices_start(message)
         return
 
@@ -259,10 +170,7 @@ def handle_text_inputs(message):
                 
                 utils.update_goldsmith_prices(user_id, p21, p18, w21, w18, usd)
                 USER_STATE.pop(user_id, None)
-                
-                goldsmith = utils.get_goldsmith(user_id) or {}
-                lang = goldsmith.get("lang", "ar")
-                markup = get_main_keyboard(lang)
+                markup = get_main_keyboard()
                 
                 bot.delete_message(message.chat.id, loading_msg.message_id)
                 bot.send_message(message.chat.id, "📊 <b>تم حفظ وتحديث أسعار الصباح بنجاح!</b>", parse_mode="HTML", reply_markup=markup)
@@ -286,8 +194,6 @@ def handle_text_inputs(message):
                 
                 prices = utils.get_goldsmith_prices(user_id) or {}
                 goldsmith = utils.get_goldsmith(user_id) or {}
-                lang = goldsmith.get("lang", "ar")
-                tx = LOCALES[lang]
                 
                 m_price = float(prices.get('price_21', 0)) if carat == 21 else float(prices.get('price_18', 0))
                 wage = float(prices.get('wage_21', 0)) if carat == 21 else float(prices.get('wage_18', 0))
@@ -302,20 +208,20 @@ def handle_text_inputs(message):
                 
                 invoice = (
                     f"{COMPANY_HEADER}"
-                    f"{tx['invoice_sell']}\n"
+                    f"{TEXTS['invoice_sell']}\n"
                     f"━━━━━━━━━━━━━━━━━\n"
-                    f"{tx['shop']}{goldsmith.get('full_name', 'محلي الموقر')}\n"
-                    f"{tx['type_sell'].format(carat=carat)}\n"
-                    f"{tx['weight_req'].format(w=w)}\n"
-                    f"{tx['weight_tot'].format(w=w)}\n"
-                    f"{tx['wage_sell'].format(wage=wage)}\n"
+                    f"{TEXTS['shop']}{goldsmith.get('full_name', 'محلي الموقر')}\n"
+                    f"{TEXTS['type_sell'].format(carat=carat)}\n"
+                    f"{TEXTS['weight_req'].format(w=w)}\n"
+                    f"{TEXTS['weight_tot'].format(w=w)}\n"
+                    f"{TEXTS['wage_sell'].format(wage=wage)}\n"
                     f"━━━━━━━━━━━━━━━━━\n"
-                    f"{tx['clean_p'].format(p=gram_clean_price)}\n"
-                    f"{tx['full_p'].format(p=gram_full_price)}\n"
-                    f"{tx['total_iqd'].format(total=total_iqd)}\n\n"
-                    f"{tx['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n"
+                    f"{TEXTS['clean_p'].format(p=gram_clean_price)}\n"
+                    f"{TEXTS['full_p'].format(p=gram_full_price)}\n"
+                    f"{TEXTS['total_iqd'].format(total=total_iqd)}\n\n"
+                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n"
                     f"━━━━━━━━━━━━━━━━━\n"
-                    f"{tx['footer']}"
+                    f"{TEXTS['footer']}"
                 )
                 
                 USER_STATE.pop(user_id, None)
@@ -344,8 +250,6 @@ def handle_text_inputs(message):
                 carat = INVOICE_DATA[user_id]['carat']
                 prices = utils.get_goldsmith_prices(user_id) or {}
                 goldsmith = utils.get_goldsmith(user_id) or {}
-                lang = goldsmith.get("lang", "ar")
-                tx = LOCALES[lang]
                 
                 gram_clean_price = custom_m_price / 5.0
                 gram_full_price = gram_clean_price - wage
@@ -357,19 +261,19 @@ def handle_text_inputs(message):
                 
                 invoice = (
                     f"{COMPANY_HEADER}"
-                    f"{tx['invoice_buy']}\n"
+                    f"{TEXTS['invoice_buy']}\n"
                     f"━━━━━━━━━━━━━━━━━\n"
-                    f"{tx['shop']}{goldsmith.get('full_name', 'محلي الموقر')}\n"
-                    f"{tx['type_buy'].format(carat=carat)}\n"
-                    f"{tx['weight_tot'].format(w=w)}\n"
-                    f"{tx['wage_buy'].format(wage=wage)}\n"
+                    f"{TEXTS['shop']}{goldsmith.get('full_name', 'محلي الموقر')}\n"
+                    f"{TEXTS['type_buy'].format(carat=carat)}\n"
+                    f"{TEXTS['weight_tot'].format(w=w)}\n"
+                    f"{TEXTS['wage_buy'].format(wage=wage)}\n"
                     f"━━━━━━━━━━━━━━━━━\n"
-                    f"{tx['clean_p'].format(p=gram_clean_price)}\n"
-                    f"{tx['full_p'].format(p=gram_full_price)}\n"
-                    f"{tx['total_iqd'].format(total=total_iqd)}\n\n"
-                    f"{tx['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n"
+                    f"{TEXTS['clean_p'].format(p=gram_clean_price)}\n"
+                    f"{TEXTS['full_p'].format(p=gram_full_price)}\n"
+                    f"{TEXTS['total_iqd'].format(total=total_iqd)}\n\n"
+                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n"
                     f"━━━━━━━━━━━━━━━━━\n"
-                    f"{tx['footer']}"
+                    f"{TEXTS['footer']}"
                 )
                 
                 USER_STATE.pop(user_id, None)
@@ -378,7 +282,7 @@ def handle_text_inputs(message):
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML")
             except Exception as e:
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, f"⚠️ خطأ أثناء توليد الفاتورة:\n<code>{str(e)}</code>", parse_message="HTML")
+                bot.send_message(message.chat.id, f"⚠️ خطأ أثناء توليد الفاتورة:\n<code>{str(e)}</code>", parse_mode="HTML")
         else:
             bot.delete_message(message.chat.id, loading_msg.message_id)
             bot.send_message(message.chat.id, f"⚠️ البوت استخرج {len(numbers)} أرقام فقط. يرجى إرسال 3 أسطر.")
@@ -389,3 +293,4 @@ if __name__ == "__main__":
     t.daemon = True
     t.start()
     bot.infinity_polling(timeout=60, long_polling_timeout=30)
+    
