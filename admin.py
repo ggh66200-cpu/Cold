@@ -1,22 +1,16 @@
 import os
 import telebot
 from telebot import types
-from supabase import create_client, Client
 import utils
 
-# سحب المفاتيح تلقائياً من إعدادات السيرفر
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 ADMIN_ID = int(os.environ.get("ADMIN_ID", "0"))
 
 bot = telebot.TeleBot(BOT_TOKEN)
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# ⚙️ إعدادات الفترة المجانية
 FREE_TRIAL_DAYS = 7
-
-# معلومات الشركة والمالية الثابتة
 MASTER_CARD = "910400201646"
 SUPPORT_PHONE = "07872180902"
 MONTHLY_PRICE = "105,000 دينار عراقي (بدلاً من 133,000 دينار)"
@@ -27,10 +21,8 @@ COMPANY_HEADER = (
     "━━━━━━━━━━━━━━━━━\n"
 )
 
-# متغير مؤقت لحالات الأدمن والعملاء
 USER_STATE = {}
 
-# لوحة تحكم الأدمن الرئيسية (أزرار انلاين مرتبة واحترافية)
 def get_admin_main_keyboard():
     markup = types.InlineKeyboardMarkup(row_width=2)
     markup.add(
@@ -39,11 +31,10 @@ def get_admin_main_keyboard():
         types.InlineKeyboardButton("💰 تفعيل/مراجعة الإيصالات", callback_data="admin_receipts"),
         types.InlineKeyboardButton("📢 إذاعة رسالة للكل", callback_data="admin_broadcast"),
         types.InlineKeyboardButton("⚙️ تعديل أيام التجربة", callback_data="admin_set_trial"),
-        types.InlineKeyboardButton("🛠️ تصفير/تعديل اشتراك صائغ", callback_data="admin_manage_sub")
+        types.InlineKeyboardButton("🛠️ تصفير/تعديل اشتراك", callback_data="admin_manage_sub")
     )
     return markup
 
-# أمر الدخول للوحة التحكم الخاص بالأدمن حصراً
 @bot.message_handler(commands=['admin', 'panel'])
 def admin_panel_start(message):
     if message.from_user.id != ADMIN_ID:
@@ -57,7 +48,6 @@ def admin_panel_start(message):
     )
     bot.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
 
-# معالجة أزرار لوحة التحكم
 @bot.callback_query_handler(func=lambda call: call.data.startswith("admin_"))
 def handle_admin_callbacks(call):
     if call.from_user.id != ADMIN_ID:
@@ -65,13 +55,12 @@ def handle_admin_callbacks(call):
         return
     
     action = call.data
-    
     if action == "admin_stats":
         bot.answer_callback_query(call.id)
         try:
-            res = supabase.table("goldsmiths").select("user_id", count="exact").execute()
+            res = utils.supabase.table("goldsmiths").select("user_id", count="exact").execute()
             db_count = res.count if hasattr(res, 'count') and res.count is not None else 0
-            total_users = 145 + db_count  # يبدأ من 145 ويزيد تلقائياً مع كل تسجيل جديد
+            total_users = 145 + db_count 
             
             stats_text = (
                 f"{COMPANY_HEADER}"
@@ -89,22 +78,16 @@ def handle_admin_callbacks(call):
 
     elif action == "admin_goldsmiths":
         bot.answer_callback_query(call.id)
-        bot.edit_message_text(
-            f"{COMPANY_HEADER}👥 <b>إدارة الصاغة والمشتركين:</b>\n\nقريباً سيتم عرض قائمة تفصيلية بجميع الصاغة المشتركين وتواريخ انتهاء اشتراكاتهم.",
-            chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard()
-        )
+        bot.edit_message_text(f"{COMPANY_HEADER}👥 <b>إدارة الصاغة والمشتركين:</b>\n\nقريباً سيتم عرض قائمة تفصيلية بجميع الصاغة المشتركين.", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
 
     elif action == "admin_receipts":
         bot.answer_callback_query(call.id)
-        bot.edit_message_text(
-            f"{COMPANY_HEADER}💰 <b>قسم مراجعة الإيصالات:</b>\n\nالإيصالات المرسلة من الصاغة (على رقم الماستر <code>{MASTER_CARD}</code>) تظهر لك هنا تلقائياً عند انتهاء فتراتهم لتفعيلها بضغطة زر.",
-            chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard()
-        )
+        bot.edit_message_text(f"{COMPANY_HEADER}💰 <b>قسم مراجعة الإيصالات:</b>\n\nالإيصالات المرسلة من الصاغة (على رقم الماستر <code>{MASTER_CARD}</code>) تظهر لك هنا تلقائياً لتفعيلها.", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
 
     elif action == "admin_broadcast":
         bot.answer_callback_query(call.id)
         USER_STATE[call.from_user.id] = "WAITING_BROADCAST"
-        bot.send_message(call.message.chat.id, "📢 <b>وضع الإذاعة مفعل:</b>\nأرسل الآن الرسالة (نص، صورة، أو فيديو) وسيتم إرسالها لجميع الصاغة فوراً.", parse_mode="HTML")
+        bot.send_message(call.message.chat.id, "📢 أرسل الرسالة التي تريد إذاعتها لجميع الصاغة الآن:")
 
     elif action == "admin_set_trial":
         bot.answer_callback_query(call.id)
@@ -114,7 +97,6 @@ def handle_admin_callbacks(call):
         bot.answer_callback_query(call.id)
         bot.send_message(call.message.chat.id, "🛠️ لتصفير أو زيادة اشتراك صائغ، أرسل الآيدي مع الأمر بالشكل التالي:\n`/reset_sub [User_ID]` أو `/add_days [User_ID] [Days]`")
 
-# تنفيذ عملية الإذاعة الشاملة لجميع الصاغة
 @bot.message_handler(func=lambda m: USER_STATE.get(m.from_user.id) == "WAITING_BROADCAST", content_types=['text', 'photo', 'video', 'document', 'voice'])
 def process_admin_broadcast(message):
     user_id = message.from_user.id
@@ -123,7 +105,7 @@ def process_admin_broadcast(message):
     
     loading_msg = bot.reply_to(message, "⏳ جاري إرسال الإذاعة لجميع الصاغة...")
     try:
-        res = supabase.table("goldsmiths").select("user_id").execute()
+        res = utils.supabase.table("goldsmiths").select("user_id").execute()
         users = [row['user_id'] for row in res.data if row.get('user_id')]
     except Exception as e:
         bot.edit_message_text(f"⚠️ خطأ في جلب الصاغة: {e}", message.chat.id, loading_msg.message_id)
@@ -141,38 +123,21 @@ def process_admin_broadcast(message):
     USER_STATE.pop(user_id, None)
     bot.edit_message_text(f"✅ <b>تم الانتهاء من الإذاعة!</b>\n\n🟢 نجح الإرسال إلى: {success} صائغ\n🔴 فشل الإرسال إلى: {failed}", chat_id=message.chat.id, message_id=loading_msg.message_id, parse_mode="HTML")
 
-# أزرار الموافقة أو الرفض للإيصالات التي يرسلها العميل (تظهر للأدمن)
 @bot.callback_query_handler(func=lambda call: call.data.startswith("approve_sub_") or call.data.startswith("reject_sub_"))
 def handle_subscription_approval(call):
     if call.from_user.id != ADMIN_ID:
         return
-    
     data_parts = call.data.split("_")
     action = data_parts[0]
     target_user_id = data_parts[2]
     
     if action == "approve":
         bot.answer_callback_query(call.id, text="✅ تم تفعيل الاشتراك بنجاح!")
-        bot.edit_message_caption(
-            caption=f"{call.message.caption}\n\n✅ <b>حالة الإيصال:</b> تم القبول والتفعيل بنجاح من قبل الأدمن 👑",
-            chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML"
-        )
-        try:
-            bot.send_message(target_user_id, "🎉 <b>مبروك! تم تفعيل اشتراكك الشهري بنجاح في منظومة أرامكي.</b>\nيمكنك استخدام كافة خدمات البوت الآن بحرية تامة 💛", parse_mode="HTML")
-        except:
-            pass
-            
+        bot.edit_message_caption(caption=f"{call.message.caption}\n\n✅ <b>حالة الإيصال:</b> تم القبول والتفعيل بنجاح 👑", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML")
+        try: bot.send_message(target_user_id, "🎉 <b>مبروك! تم تفعيل اشتراكك الشهري بنجاح في منظومة أرامكي.</b>\nيمكنك استخدام كافة خدمات البوت الآن بحرية تامة 💛", parse_mode="HTML")
+        except: pass
     elif action == "reject":
         bot.answer_callback_query(call.id, text="❌ تم رفض الإيصال.")
-        bot.edit_message_caption(
-            caption=f"{call.message.caption}\n\n❌ <b>حالة الإيصال:</b> تم الرفض (يرجى إرسال إيصال صحيح عبر الدعم الفني: " + SUPPORT_PHONE + ")",
-            chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML"
-        )
-        try:
-            bot.send_message(target_user_id, f"⚠️ عذراً، تم رفض إيصال التحويل المرفق. يرجى التواصل مع الدعم الفني على الرقم: {SUPPORT_PHONE}", parse_mode="HTML")
-        except:
-            pass
-
-if __name__ == "__main__":
-    print("🤖 Admin Panel Module is running...")
-    bot.infinity_polling(timeout=60, long_polling_timeout=30)
+        bot.edit_message_caption(caption=f"{call.message.caption}\n\n❌ <b>حالة الإيصال:</b> تم الرفض (يرجى مراجعة الدعم: {SUPPORT_PHONE})", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML")
+        try: bot.send_message(target_user_id, f"⚠️ عذراً، تم رفض إيصال التحويل المرفق. يرجى التواصل مع الدعم الفني: {SUPPORT_PHONE}", parse_mode="HTML")
+        except: pass
