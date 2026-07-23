@@ -125,7 +125,7 @@ def send_welcome(message):
     markup = get_main_keyboard(lang)
     bot.send_message(message.chat.id, COMPANY_HEADER + LOCALES[lang]["welcome"], parse_mode="HTML", reply_markup=markup)
 
-@bot.message_handler(func=lambda message: message.text.strip() in get_all_btn_texts("btn_lang"))
+@bot.message_handler(func=lambda message: message.text and message.text.strip() in get_all_btn_texts("btn_lang"))
 def change_language_menu(message):
     USER_STATE.pop(message.from_user.id, None)
     markup = types.InlineKeyboardMarkup(row_width=1)
@@ -141,7 +141,6 @@ def handle_lang_selection(call):
     bot.answer_callback_query(call.id, text="⏳...")
     lang_code = call.data.split("_")[1]
     
-    # حفظ اللغة في Supabase بشكل مؤكد
     utils.update_goldsmith_lang(call.from_user.id, lang_code)
     
     markup = get_main_keyboard(lang_code)
@@ -149,10 +148,11 @@ def handle_lang_selection(call):
         bot.edit_message_text(f"{COMPANY_HEADER}💾 Done! تم حفظ اللغة وتحديث أزرار النظام بنجاح باللغة الجديدة.", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML")
     except:
         pass
-    # إرسال رسالة الترحيب باللغة الجديدة فوراً لتحديث الواجهة بالكامل
+    
+    # إرسال رسالة ترحيب مع الكيبورد الجديد كلياً لإجبار تيليجرام على تحديث الأزرار السفلية
     bot.send_message(call.message.chat.id, COMPANY_HEADER + LOCALES[lang_code]["welcome"], parse_mode="HTML", reply_markup=markup)
 
-@bot.message_handler(func=lambda message: message.text.strip() in get_all_btn_texts("btn_prices"))
+@bot.message_handler(func=lambda message: message.text and message.text.strip() in get_all_btn_texts("btn_prices"))
 def morning_prices_start(message):
     user_id = message.from_user.id
     USER_STATE[user_id] = "AWAITING_ALL_PRICES"
@@ -176,7 +176,7 @@ def morning_prices_start(message):
     )
     bot.send_message(message.chat.id, instruction, parse_mode="HTML")
 
-@bot.message_handler(func=lambda message: message.text.strip() in get_all_btn_texts("btn_sell"))
+@bot.message_handler(func=lambda message: message.text and message.text.strip() in get_all_btn_texts("btn_sell"))
 def customer_sell_init(message):
     USER_STATE.pop(message.from_user.id, None)
     markup = types.InlineKeyboardMarkup()
@@ -184,7 +184,7 @@ def customer_sell_init(message):
                types.InlineKeyboardButton("عيار 18", callback_data="sell_18"))
     bot.send_message(message.chat.id, f"{COMPANY_HEADER}📥 <b>حساب بيع ذهب لزبون:</b>\nاختر عيار الذهب المطلوب أدناه لتسهيل الحساب 👇", parse_mode="HTML", reply_markup=markup)
 
-@bot.message_handler(func=lambda message: message.text.strip() in get_all_btn_texts("btn_buy"))
+@bot.message_handler(func=lambda message: message.text and message.text.strip() in get_all_btn_texts("btn_buy"))
 def customer_buy_init(message):
     USER_STATE.pop(message.from_user.id, None)
     markup = types.InlineKeyboardMarkup()
@@ -215,10 +215,12 @@ def handle_calc_buttons(call):
 
 @bot.message_handler(func=lambda message: True)
 def handle_text_inputs(message):
+    if not message.text:
+        return
+        
     user_id = message.from_user.id
     text = message.text.strip()
-    state = USER_STATE.get(user_id)
-
+    
     if text in get_all_btn_texts("btn_sell"):
         customer_sell_init(message)
         return
@@ -232,6 +234,7 @@ def handle_text_inputs(message):
         morning_prices_start(message)
         return
 
+    state = USER_STATE.get(user_id)
     if not state:
         return
 
@@ -265,7 +268,7 @@ def handle_text_inputs(message):
                 bot.send_message(message.chat.id, "📊 <b>تم حفظ وتحديث أسعار الصباح بنجاح!</b>", parse_mode="HTML", reply_markup=markup)
             except Exception as e:
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, f"⚠️ <b>حدث خطأ أثناء الحفظ في قاعدة البيانات:</b>\n\n<code>{str(e)}</code>\n\nيرجى تصوير هذه الرسالة للمطور لمعرفة سبب الرفض.", parse_mode="HTML")
+                bot.send_message(message.chat.id, f"⚠️ <b>حدث خطأ أثناء الحفظ في قاعدة البيانات:</b>\n\n<code>{str(e)}</code>", parse_mode="HTML")
         else:
             bot.delete_message(message.chat.id, loading_msg.message_id)
             bot.send_message(message.chat.id, f"⚠️ البوت استخرج {len(numbers)} رقم فقط. تأكد من إرسال 5 أرقام.")
@@ -375,7 +378,7 @@ def handle_text_inputs(message):
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML")
             except Exception as e:
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, f"⚠️ خطأ أثناء توليد الفاتورة:\n<code>{str(e)}</code>", parse_mode="HTML")
+                bot.send_message(message.chat.id, f"⚠️ خطأ أثناء توليد الفاتورة:\n<code>{str(e)}</code>", parse_message="HTML")
         else:
             bot.delete_message(message.chat.id, loading_msg.message_id)
             bot.send_message(message.chat.id, f"⚠️ البوت استخرج {len(numbers)} أرقام فقط. يرجى إرسال 3 أسطر.")
