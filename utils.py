@@ -12,12 +12,12 @@ def get_goldsmith(user_id):
         if res.data:
             return res.data[0]
         else:
-            new_user = {"user_id": str(user_id), "full_name": "أرامكي للحلول الرقمية", "lang": "ar"}
+            new_user = {"user_id": str(user_id), "full_name": "أرامكي للحلول الرقمية"}
             supabase.table("goldsmiths").insert(new_user).execute()
             return new_user
     except Exception as e:
         print(f"Supabase Error: {e}")
-        return {"user_id": str(user_id), "full_name": "أرامكي للحلول الرقمية", "lang": "ar"}
+        return {"user_id": str(user_id), "full_name": "أرامكي للحلول الرقمية"}
 
 def get_goldsmith_prices(user_id):
     try:
@@ -55,20 +55,3 @@ def update_goldsmith_prices(user_id, p21, p18, w21, w18, usd):
     except Exception as e:
         print(f"Supabase Update Error: {e}")
         raise e 
-
-def update_goldsmith_lang(user_id, lang_code):
-    try:
-        uid = str(user_id)
-        # التحقق من وجود السجل للمستخدم أولاً لتجنب فشل التحديث إذا لم يكن مسجلاً مسبقاً
-        check = supabase.table("goldsmiths").select("user_id").eq("user_id", uid).execute()
-        if check.data:
-            supabase.table("goldsmiths").update({"lang": lang_code}).eq("user_id", uid).execute()
-        else:
-            supabase.table("goldsmiths").insert({
-                "user_id": uid, 
-                "full_name": "أرامكي للحلول الرقمية", 
-                "lang": lang_code
-            }).execute()
-    except Exception as e:
-        print(f"Supabase Lang Update Error: {e}")
-        raise e
