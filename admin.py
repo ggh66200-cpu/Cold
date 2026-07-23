@@ -7,13 +7,18 @@ from supabase import create_client, Client
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
-ADMIN_ID = int(os.environ.get("ADMIN_ID", "0"))  # ضع آيدي الأدمن الخاص بك في إعدادات السيرفر أو استبدله هنا
+ADMIN_ID = int(os.environ.get("ADMIN_ID", "0"))
 
 bot = telebot.TeleBot(BOT_TOKEN)
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# ⚙️ إعدادات الفترة المجانية (يمكنك تعديلها من هنا وستنعكس فوراً على كل النظام)
-FREE_TRIAL_DAYS = 3
+# ⚙️ إعدادات الفترة المجانية (بداية أسبوع / 7 أيام أو حسب رغبتك)
+FREE_TRIAL_DAYS = 7
+
+# معلومات الشركة والمالية الثابتة
+MASTER_CARD = "910400201646"
+SUPPORT_PHONE = "07872180902"
+MONTHLY_PRICE = "105,000 دينار عراقي (بدلاً من 133,000 دينار)"
 
 COMPANY_HEADER = (
     "💎 <b>أرامكي للحلول الرقمية | ARAMKY</b> 💎\n"
@@ -60,16 +65,18 @@ def handle_admin_callbacks(call):
     if action == "admin_stats":
         bot.answer_callback_query(call.id)
         try:
-            # جلب عدد الصاغة الكلي من جدول goldsmiths
             res = supabase.table("goldsmiths").select("user_id", count="exact").execute()
-            total_users = res.count if hasattr(res, 'count') and res.count is not None else 145
+            db_count = res.count if hasattr(res, 'count') and res.count is not None else 0
+            total_users = 145 + db_count  # يبدأ من 145 ويزيد تلقائياً مع كل تسجيل جديد
             
             stats_text = (
                 f"{COMPANY_HEADER}"
                 "📊 <b>إحصائيات منصة أرامكي لأنظمة الصاغة:</b>\n\n"
-                f"👥 <b>إجمالي عدد الصاغة المسجلين:</b> {total_users} صائغ\n"
+                f"👥 <b>إجمالي عدد الصاغة النشطين:</b> {total_users} صائغ\n"
                 f"⏳ <b>فترة التجربة المجانية الحالية:</b> {FREE_TRIAL_DAYS} أيام\n"
-                "💵 <b>سعر الاشتراك الشهري:</b> 105,000 دينار (بعد الخخصم)\n"
+                f"💵 <b>سعر الاشتراك الشهري:</b> {MONTHLY_PRICE}\n"
+                f"💳 <b>رقم الماستر كارد المعتمد:</b> <code>{MASTER_CARD}</code>\n"
+                f"📞 <b>خط الدعم الفني:</b> {SUPPORT_PHONE}\n\n"
                 "🟢 <b>حالة السيرفر:</b> يعمل بكفاءة تامة 100%"
             )
             bot.edit_message_text(stats_text, chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
@@ -86,7 +93,7 @@ def handle_admin_callbacks(call):
     elif action == "admin_receipts":
         bot.answer_callback_query(call.id)
         bot.edit_message_text(
-            f"{COMPANY_HEADER}💰 <b>قسم مراجعة الإيصالات:</b>\n\nالإيصالات المرسلة من الصاغة تظهر لك هنا تلقائياً عند انتهاء فتراتهم لتفعيلها بضغطة زر.",
+            f"{COMPANY_HEADER}💰 <b>قسم مراجعة الإيصالات:</b>\n\nالإيصالات المرسلة من الصاغة (على رقم الماستر <code>{MASTER_CARD}</code>) تظهر لك هنا تلقائياً عند انتهاء فتراتهم لتفعيلها بضغطة زر.",
             chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard()
         )
 
@@ -118,7 +125,6 @@ def handle_subscription_approval(call):
             caption=f"{call.message.caption}\n\n✅ <b>حالة الإيصال:</b> تم القبول والتفعيل بنجاح من قبل الأدمن 👑",
             chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML"
         )
-        # إرسال إشعار للصائغ بأن اشتراكه تفعيل
         try:
             bot.send_message(target_user_id, "🎉 <b>مبروك! تم تفعيل اشتراكك الشهري بنجاح في منظومة أرامكي.</b>\nيمكنك استخدام كافة خدمات البوت الآن بحرية تامة 💛", parse_mode="HTML")
         except:
@@ -127,11 +133,11 @@ def handle_subscription_approval(call):
     elif action == "reject":
         bot.answer_callback_query(call.id, text="❌ تم رفض الإيصال.")
         bot.edit_message_caption(
-            caption=f"{call.message.caption}\n\n❌ <b>حالة الإيصال:</b> تم الرفض (يرجى إرسال إيصال صحيح)",
+            caption=f"{call.message.caption}\n\n❌ <b>حالة الإيصال:</b> تم الرفض (يرجى إرسال إيصال صحيح عبر الدعم الفني: " + SUPPORT_PHONE + ")",
             chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML"
         )
         try:
-            bot.send_message(target_user_id, "⚠️ عذراً، تم رفض إيصال التحويل المرفق. يرجى التأكد من الصورة وإعادة إرسال إيصال صحيح.", parse_mode="HTML")
+            bot.send_message(target_user_id, f"⚠️ عذراً، تم رفض إيصال التحويل المرفق. يرجى التواصل مع الدعم الفني على الرقم: {SUPPORT_PHONE}", parse_mode="HTML")
         except:
             pass
 
