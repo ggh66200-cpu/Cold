@@ -71,13 +71,11 @@ def send_welcome(message):
     user_id = message.from_user.id
     gs = utils.get_goldsmith(user_id)
     
-    # فحص إذا كان العميل جديد ولم يكمل استمارة التسجيل أو انتهى وقته
     if not gs.get('is_registered', False):
         USER_STATE[user_id] = "WAITING_REGISTRATION_NAME"
         bot.send_message(message.chat.id, f"{COMPANY_HEADER}📝 <b>أهلاً بك يا طيب في نظام أرامكي للحلول الرقمية</b>\n\nيرجى إرسال **اسم المحل** الكريم للبدء بالاستمارة:", parse_mode="HTML")
         return
 
-    # فحص انتهاء وقت الاشتراك (إذا وصل الصفر يقفل النظام عليه)
     if gs.get('remaining_days', 0) <= 0 and user_id != ADMIN_ID:
         show_subscription_form(message, expired=True)
         return
@@ -186,7 +184,6 @@ def handle_calc_buttons(call):
         USER_STATE[user_id] = "WAITING_BUY_ALL_INPUTS"
         bot.send_message(call.message.chat.id, TEXTS["req_buy_inputs"].format(carat=carat), parse_mode="HTML")
 
-# أزرار تحكم الأدمين (تفعيل، زيادة، تقليل الوقت)
 @bot.callback_query_handler(func=lambda call: call.data.startswith("approve_sub_") or call.data.startswith("reject_sub_") or call.data.startswith("time_"))
 def handle_admin_actions(call):
     data = call.data
@@ -198,7 +195,7 @@ def handle_admin_actions(call):
         markup.add(
             types.InlineKeyboardButton("➕ إضافة 30 يوم", callback_data=f"time_add_{target_user}"),
             types.InlineKeyboardButton("➖ خصم 30 يوم", callback_data=f"time_sub_{target_user}")
-        ),
+        )
         markup.add(types.InlineKeyboardButton("🛑 تصفير الوقت (إيقاف)", callback_data=f"time_zero_{target_user}"))
         bot.edit_message_caption(f"🧾 تم اعتماد الإيصال وتفعيل اشتراك الصائغ (آيدي): <code>{target_user}</code>", call.message.chat.id, call.message.message_id, parse_mode="HTML", reply_markup=markup)
         try:
@@ -227,7 +224,7 @@ def handle_admin_actions(call):
             utils.adjust_goldsmith_days(target_user, -30)
             bot.answer_callback_query(call.id, text="➖ تم خصم 30 يوم")
         elif action == "zero":
-            utils.adjust_goldsmith_days(target_user, -9999) # تصفير الوقت ليقف السستم عليه
+            utils.adjust_goldsmith_days(target_user, -9999)
             bot.answer_callback_query(call.id, text="🛑 تم تصفير وقت العميل وإيقاف نظامه")
             try:
                 bot.send_message(target_user, "⚠️ <b>انتهت صلاحية اشتراكاتك أو تم إيقاف النظام مؤقتاً. يرجى التجديد.</b>", parse_mode="HTML")
@@ -253,7 +250,6 @@ def handle_text_inputs(message):
     
     state = USER_STATE.get(user_id)
     
-    # معالجة استمارة التسجيل عند الدخول لأول مرة
     if state == "WAITING_REGISTRATION_NAME":
         USER_STATE[user_id] = {"step": "phone", "shop_name": text}
         bot.send_message(message.chat.id, "📱 أرسل الآن **رقم الموبايل** الخاص بك للتواصل:", parse_mode="HTML")
@@ -266,7 +262,6 @@ def handle_text_inputs(message):
         bot.send_message(message.chat.id, "✅ <b>تم إتمام استمارة التسجيل بنجاح وفترة مجانية مفعلة لمحلك!</b>", parse_mode="HTML", reply_markup=get_main_keyboard())
         return
 
-    # فحص الاشتراك بقية الأزرار
     gs = utils.get_goldsmith(user_id)
     if gs.get('remaining_days', 0) <= 0 and user_id != ADMIN_ID:
         return show_subscription_form(message, expired=True)
@@ -368,4 +363,14 @@ def handle_text_inputs(message):
                 )
                 USER_STATE.pop(user_id, None)
                 INVOICE_DATA.pop(user_id, None)
-                bot.delete_message(message.chat.id, loa
+                bot.delete_message(message.chat.id, loading_msg.message_id)
+                bot.send_message(message.chat.id, invoice, parse_mode="HTML")
+            except Exception as e:
+                bot.edit_message_text(f"⚠️ خطأ: <code>{str(e)}</code>", message.chat.id, loading_msg.message_id, parse_mode="HTML")
+        return
+
+if __name__ == "__main__":
+    t = threading.Thread(target=run_flask)
+    t.daemon = True
+    t.start()
+    bot.infinity_polling()
