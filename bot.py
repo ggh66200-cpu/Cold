@@ -8,7 +8,10 @@ import utils
 import admin
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
-ADMIN_ID = int(os.environ.get("ADMIN_ID", "0"))
+try:
+    ADMIN_ID = int(os.environ.get("ADMIN_ID", "0"))
+except:
+    ADMIN_ID = 0
 
 bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask('')
@@ -23,6 +26,7 @@ def run_flask():
 MASTER_CARD = admin.MASTER_CARD
 MONTHLY_PRICE = admin.MONTHLY_PRICE
 COMPANY_HEADER = admin.COMPANY_HEADER
+SUPPORT_NUMBER = "07872180902"  # رقم الدعم الفني الذي طلبته
 
 USER_STATE = {}
 INVOICE_DATA = {}
@@ -69,20 +73,30 @@ def get_main_keyboard():
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     user_id = message.from_user.id
-    gs = utils.get_goldsmith(user_id)
+    gs = utils.get_goldsmith(user_id) or {}
     
+    # التسجيل إذا كان المستخدم جديداً
     if not gs.get('is_registered', False):
-        USER_STATE[user_id] = "WAITING_REGISTRATION_NAME"
-        bot.send_message(message.chat.id, f"{COMPANY_HEADER}📝 <b>أهلاً بك يا طيب في نظام أرامكي للحلول الرقمية</b>\n\nيرجى إرسال **اسم المحل** الكريم للبدء بالاستمارة:", parse_mode="HTML")
+        USER_STATE[user_id] = "WAITING_REGISTRATION_FULL"
+        bot.send_message(
+            message.chat.id, 
+            f"{COMPANY_HEADER}📝 <b>أهلاً بك يا طيب في نظام أرامكي للحلول الرقمية</b>\n\n"
+            "لتفعيل الفترة المجانية، يرجى إرسال **اسم المحل ورقم الهاتف** في رسالة واحدة.\n\n"
+            "💡 <i>مثال:</i>\nمجوهرات البركة - 07800000000", 
+            parse_mode="HTML"
+        )
         return
 
+    # فحص الاشتراك للمستخدمين المسجلين مسبقاً
     if gs.get('remaining_days', 0) <= 0 and user_id != ADMIN_ID:
         show_subscription_form(message, expired=True)
         return
 
+    # إظهار رسالة الترحيب والأزرار إذا كان الاشتراك فعالاً
     USER_STATE.pop(user_id, None)
     markup = get_main_keyboard()
-    counter = 145 + int(gs.get('id', 1)) if isinstance(gs.get('id'), int) else 145
+    db_id = gs.get('id', 1)
+    counter = 145 + (int(db_id) if str(db_id).isdigit() else 1)
     bot.send_message(message.chat.id, COMPANY_HEADER + TEXTS["welcome"].format(counter=counter), parse_mode="HTML", reply_markup=markup)
 
 @bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_info"])
@@ -106,7 +120,8 @@ def show_subscription_form(message, expired=False):
         f"{COMPANY_HEADER}{prefix}"
         "📝 <b>استمارة الاشتراك وتجديد الصلاحية:</b>\n\n"
         f"🔹 <b>قيمة الاشتراك الشهري:</b> {MONTHLY_PRICE}\n"
-        f"🔹 <b>رقم التحويل (ماستر كارد):</b> <code>{MASTER_CARD}</code>\n\n"
+        f"🔹 <b>رقم التحويل (زين كاش أو ماستر):</b> <code>{MASTER_CARD}</code>\n"
+        f"📞 <b>للتواصل والدعم الفني:</b> <code>{SUPPORT_NUMBER}</code>\n\n"
         "📸 <b>الخطوة المطلوبة:</b>\n"
         "أرسل **صورة وصل التحويل** (سكرين شوت) هنا في الدردشة ليتم تفعيل اشتراكك من قبل الإدارة فوراً."
     )
@@ -184,6 +199,7 @@ def handle_calc_buttons(call):
         USER_STATE[user_id] = "WAITING_BUY_ALL_INPUTS"
         bot.send_message(call.message.chat.id, TEXTS["req_buy_inputs"].format(carat=carat), parse_mode="HTML")
 
+# أزرار لوحة تحكم الأدمن للتحكم بالعملاء
 @bot.callback_query_handler(func=lambda call: call.data.startswith("approve_sub_") or call.data.startswith("reject_sub_") or call.data.startswith("time_"))
 def handle_admin_actions(call):
     data = call.data
@@ -199,119 +215,141 @@ def handle_admin_actions(call):
         markup.add(types.InlineKeyboardButton("🛑 تصفير الوقت (إيقاف)", callback_data=f"time_zero_{target_user}"))
         bot.edit_message_caption(f"🧾 تم اعتماد الإيصال وتفعيل اشتراك الصائغ (آيدي): <code>{target_user}</code>", call.message.chat.id, call.message.message_id, parse_mode="HTML", reply_markup=markup)
         try:
-            bot.send_message(target_user, "🎉 <b>مبروك! تم تفعيل اشتراكك بنجاح في النظام ويمكنك العمل بكامل الصلاحيات.</b>", parse_mode="HTML", reply_markup=get_main_keyboard())
+            bot.send_message(target_user, f"{COMPANY_HEADER}✅ <b>تهانينا! تم تفعيل اشتراكك وتحديث رصيد أيامك بنجاح. يمكنك الآن العمل على النظام.</b>", parse_mode="HTML", reply_markup=get_main_keyboard())
         except:
             pass
 
     elif data.startswith("reject_sub_"):
         target_user = int(data.split("_")[2])
-        bot.answer_callback_query(call.id, text="❌ تم رفض الإيصال.")
-        bot.edit_message_caption(f"❌ تم رفض إيصال الصائغ (آيدي): <code>{target_user}</code>", call.message.chat.id, call.message.message_id, parse_mode="HTML")
+        bot.answer_callback_query(call.id, text="❌ تم الرفض")
+        bot.edit_message_caption(f"🧾 تم الرفض لهذا الوصل للمستخدم (آيدي): <code>{target_user}</code>", call.message.chat.id, call.message.message_id, parse_mode="HTML")
         try:
-            bot.send_message(target_user, "⚠️ عذراً، تم رفض إيصال التحويل من قبل الإدارة. يرجى التواصل أو إعادة إرسال وصل صحيح.", parse_mode="HTML")
+            bot.send_message(target_user, f"{COMPANY_HEADER}❌ <b>عفواً، تم رفض الإيصال المرسل! يرجى التأكد والمحاولة من جديد.</b>", parse_mode="HTML")
         except:
             pass
-
+            
     elif data.startswith("time_"):
-        parts = data.split("_")
-        action = parts[1]
-        target_user = int(parts[2])
+        target_user = int(data.split("_")[2])
+        action = data.split("_")[1]
+        msg_result = ""
         
         if action == "add":
             utils.adjust_goldsmith_days(target_user, 30)
-            bot.answer_callback_query(call.id, text="➕ تمت إضافة 30 يوم بنجاح")
+            msg_result = "✅ تم إضافة 30 يوم."
         elif action == "sub":
             utils.adjust_goldsmith_days(target_user, -30)
-            bot.answer_callback_query(call.id, text="➖ تم خصم 30 يوم")
+            msg_result = "➖ تم خصم 30 يوم."
         elif action == "zero":
-            utils.adjust_goldsmith_days(target_user, -9999)
-            bot.answer_callback_query(call.id, text="🛑 تم تصفير وقت العميل وإيقاف نظامه")
-            try:
-                bot.send_message(target_user, "⚠️ <b>انتهت صلاحية اشتراكاتك أو تم إيقاف النظام مؤقتاً. يرجى التجديد.</b>", parse_mode="HTML")
-            except:
-                pass
+            utils.adjust_goldsmith_days(target_user, 0, set_zero=True)
+            msg_result = "🛑 تم تصفير الأيام وإيقاف الحساب."
+            
+        bot.answer_callback_query(call.id, text=msg_result)
+        current_caption = call.message.caption or ""
+        new_caption = f"{current_caption}\n\n{msg_result} للإيدي <code>{target_user}</code>"
+        try:
+            bot.edit_message_caption(new_caption, call.message.chat.id, call.message.message_id, parse_mode="HTML", reply_markup=call.message.reply_markup)
+        except:
+            pass
 
-@bot.message_handler(func=lambda m: USER_STATE.get(m.from_user.id) == "WAITING_RECEIPT", content_types=['photo'])
+@bot.message_handler(content_types=['photo'])
 def process_customer_receipt(message):
     user_id = message.from_user.id
-    USER_STATE.pop(user_id, None)
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("✅ تفعيل 30 يوم", callback_data=f"approve_sub_{user_id}"), types.InlineKeyboardButton("❌ رفض", callback_data=f"reject_sub_{user_id}"))
-    markup.row(types.InlineKeyboardButton("➕ زيادة وقت", callback_data=f"time_add_{user_id}"), types.InlineKeyboardButton("🛑 تصفير الوقت", callback_data=f"time_zero_{user_id}"))
-    
-    bot.send_photo(ADMIN_ID, message.photo[-1].file_id, caption=f"🧾 إيصال جديد مرفق من الصائغ (آيدي): <code>{user_id}</code>", parse_mode="HTML", reply_markup=markup)
-    bot.reply_to(message, "✅ تم استلام إيصالك بنجاح، وتم تحويله للإدارة للمراجعة والتفعيل.", parse_mode="HTML")
+    if USER_STATE.get(user_id) == "WAITING_RECEIPT":
+        USER_STATE.pop(user_id, None)
+        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري التحقق من الوصل وإرساله للإدارة...</i>", parse_mode="HTML")
+        gs = utils.get_goldsmith(user_id) or {}
+        shop_name = gs.get('full_name', 'غير متوفر')
+        phone = gs.get('phone', 'غير متوفر')
+        
+        try:
+            photo = message.photo[-1].file_id
+            markup = types.InlineKeyboardMarkup()
+            markup.add(
+                types.InlineKeyboardButton("✅ موافقة (تفعيل شهر)", callback_data=f"approve_sub_{user_id}"),
+                types.InlineKeyboardButton("❌ رفض الإيصال", callback_data=f"reject_sub_{user_id}")
+            )
+            admin_text = f"🚨 <b>طلب اشتراك / تجديد جديد!</b>\n\n👤 المستخدم: <code>{user_id}</code>\n🔷 المحل: {shop_name}\n📱 الهاتف: {phone}\n\nرجاءً قم بمراجعة الإيصال المرفق."
+            bot.send_photo(ADMIN_ID, photo, caption=admin_text, parse_mode="HTML", reply_markup=markup)
+            
+            bot.delete_message(message.chat.id, loading_msg.message_id)
+            bot.send_message(message.chat.id, "✅ <b>تم إرسال الإيصال للإدارة بنجاح! سيتم تفعيل حسابك بمجرد التحقق منه.</b>", parse_mode="HTML")
+        except Exception as e:
+            bot.edit_message_text(f"⚠️ خطأ في إرسال الوصل: <code>{str(e)}</code>", message.chat.id, loading_msg.message_id, parse_mode="HTML")
 
 @bot.message_handler(func=lambda message: True)
 def handle_text_inputs(message):
-    if not message.text: return
+    text = to_english_numbers(message.text.strip())
     user_id = message.from_user.id
-    text = message.text.strip()
-    
     state = USER_STATE.get(user_id)
-    
-    if state == "WAITING_REGISTRATION_NAME":
-        USER_STATE[user_id] = {"step": "phone", "shop_name": text}
-        bot.send_message(message.chat.id, "📱 أرسل الآن **رقم الموبايل** الخاص بك للتواصل:", parse_mode="HTML")
+
+    # 1. نظام التسجيل الموحد وإعطاء 3 أيام تلقائياً
+    if state == "WAITING_REGISTRATION_FULL":
+        loading = bot.send_message(message.chat.id, "⏳ <i>جاري تسجيل الحساب وإعداد قاعدة البيانات...</i>", parse_mode="HTML")
+        parts = text.split('-')
+        if len(parts) >= 2:
+            shop_name = parts[0].strip()
+            phone = parts[1].strip()
+        else:
+            shop_name = text
+            phone = "غير محدد"
+        
+        try:
+            # تسجيل المستخدم في قاعدة البيانات
+            utils.register_goldsmith_details(user_id, shop_name, phone)
+            # إعطاء المستخدم الجديد 3 أيام مجانية لتجربة النظام لكي لا يقفل النظام فوراً
+            utils.update_goldsmith_subscription(user_id, days=3) 
+            
+            USER_STATE.pop(user_id, None)
+            bot.delete_message(message.chat.id, loading.message_id)
+            bot.send_message(message.chat.id, "✅ <b>تم التسجيل بنجاح! تم تفعيل 3 أيام فترة تجريبية مجانية لمحلك.</b>", parse_mode="HTML")
+            # استدعاء الرسالة الترحيبية لتظهر مباشرة
+            send_welcome(message)
+        except Exception as e:
+            bot.edit_message_text(f"⚠️ حدث خطأ أثناء التسجيل: {e}", message.chat.id, loading.message_id)
         return
-    elif isinstance(state, dict) and state.get("step") == "phone":
-        shop_name = state.get("shop_name")
-        phone = text
-        utils.register_goldsmith_details(user_id, shop_name, phone)
-        USER_STATE.pop(user_id, None)
-        bot.send_message(message.chat.id, "✅ <b>تم إتمام استمارة التسجيل بنجاح وفترة مجانية مفعلة لمحلك!</b>", parse_mode="HTML", reply_markup=get_main_keyboard())
-        return
 
-    gs = utils.get_goldsmith(user_id)
-    if gs.get('remaining_days', 0) <= 0 and user_id != ADMIN_ID:
-        return show_subscription_form(message, expired=True)
-
-    if text == TEXTS["btn_sell"]: return customer_sell_init(message)
-    if text == TEXTS["btn_buy"]: return customer_buy_init(message)
-    if text == TEXTS["btn_prices"]: return morning_prices_start(message)
-    if text == TEXTS["btn_info"]: return show_system_info(message)
-    if text == TEXTS["btn_sub"]: return show_subscription_form(message)
-    if text == TEXTS["btn_clients"]: return show_clients_summary(message)
-
-    if not state: return
-
+    # 2. إدخال أسعار الصباح المجمعة
     if state == "AWAITING_ALL_PRICES":
-        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحفظ في قاعدة البيانات...</i>", parse_mode="HTML")
-        english_text = to_english_numbers(text)
-        numbers = re.findall(r'\d+(?:\.\d+)?', english_text)
-        if len(numbers) >= 5:
+        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري حفظ الأسعار...</i>", parse_mode="HTML")
+        lines = [line.strip() for line in text.split('\n') if line.strip()]
+        if len(lines) == 5:
             try:
-                p21, p18, w21, w18, usd = map(float, numbers[:5])
-                if usd <= 0:
-                    bot.edit_message_text("⚠️ سعر الصرف لا يمكن أن يكون صفراً.", message.chat.id, loading_msg.message_id)
-                    return
-                utils.update_goldsmith_prices(user_id, p21, p18, w21, w18, usd)
+                utils.update_morning_prices(
+                    user_id,
+                    p21=float(lines[0]),
+                    p18=float(lines[1]),
+                    w21=float(lines[2]),
+                    w18=float(lines[3]),
+                    usd_r=float(lines[4]) / 100.0  
+                )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, "📊 <b>تم حفظ أسعار الصباح (مع اعتماد سعر الدولار للبيع والشراء) بنجاح!</b>", parse_mode="HTML", reply_markup=get_main_keyboard())
+                bot.send_message(message.chat.id, "✅ تم حفظ أسعار الصباح بنجاح، ربي يرزقك!")
             except Exception as e:
-                bot.edit_message_text(f"⚠️ <b>خطأ أثناء الحفظ:</b>\n<code>{str(e)}</code>", message.chat.id, loading_msg.message_id, parse_mode="HTML")
+                bot.edit_message_text(f"⚠️ خطأ في الأرقام: <code>{str(e)}</code>", message.chat.id, loading_msg.message_id, parse_mode="HTML")
         else:
-            bot.edit_message_text(f"⚠️ البوت استخرج {len(numbers)} رقم فقط. تأكد من إرسال 5 أسطر.", message.chat.id, loading_msg.message_id)
+            bot.edit_message_text("⚠️ يرجى إدخال 5 أسطر بالضبط كما في المثال الموضح أعلاه.", message.chat.id, loading_msg.message_id)
         return
 
+    # 3. إدخال وزن البيع
     if state == "WAITING_WEIGHT_SELL":
-        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري احتساب الفاتورة...</i>", parse_mode="HTML")
-        english_text = to_english_numbers(text)
-        numbers = re.findall(r'\d+(?:\.\d+)?', english_text)
-        if numbers:
+        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري احتساب فاتورة البيع...</i>", parse_mode="HTML")
+        if re.match(r'^\d+(\.\d+)?$', text):
             try:
-                w = float(numbers[0])
+                w = float(text)
                 carat = INVOICE_DATA[user_id]['carat']
                 prices = utils.get_goldsmith_prices(user_id) or {}
                 goldsmith = utils.get_goldsmith(user_id) or {}
                 
-                m_price = float(prices.get('price_21', 0)) if carat == 21 else float(prices.get('price_18', 0))
-                wage = float(prices.get('wage_21', 0)) if carat == 21 else float(prices.get('wage_18', 0))
-                
-                gram_clean_price = m_price / 5.0
-                gram_full_price = gram_clean_price + wage
-                total_iqd = gram_full_price * w
+                if carat == 21:
+                    gram_price = float(prices.get('m21_price', 0)) / 5.0
+                    wage = float(prices.get('m21_wage', 0))
+                else:
+                    gram_price = float(prices.get('m18_price', 0)) / 5.0
+                    wage = float(prices.get('m18_wage', 0))
+                    
+                gram_full = gram_price + wage
+                total_iqd = gram_full * w
                 usd_rate = float(prices.get('usd_rate', 1))
                 usd_bills = int(total_iqd // usd_rate) if usd_rate > 0 else 0
                 rem_iqd = total_iqd % usd_rate if usd_rate > 0 else total_iqd
@@ -320,11 +358,10 @@ def handle_text_inputs(message):
                     f"{COMPANY_HEADER}{TEXTS['invoice_sell']}\n━━━━━━━━━━━━━━━━━\n"
                     f"{TEXTS['shop']}{goldsmith.get('full_name', 'محلي الموقر')}\n"
                     f"{TEXTS['type_sell'].format(carat=carat)}\n"
-                    f"{TEXTS['weight_req'].format(w=w)}\n{TEXTS['weight_tot'].format(w=w)}\n"
-                    f"{TEXTS['wage_sell'].format(wage=wage)}\n━━━━━━━━━━━━━━━━━\n"
-                    f"{TEXTS['clean_p'].format(p=gram_clean_price)}\n{TEXTS['full_p'].format(p=gram_full_price)}\n"
-                    f"{TEXTS['total_iqd'].format(total=total_iqd)}\n\n{TEXTS['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n"
-                    f"━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
+                    f"{TEXTS['weight_tot'].format(w=w)}\n{TEXTS['wage_sell'].format(wage=wage)}\n"
+                    f"━━━━━━━━━━━━━━━━━\n{TEXTS['clean_p'].format(p=gram_price)}\n"
+                    f"{TEXTS['full_p'].format(p=gram_full)}\n{TEXTS['total_iqd'].format(total=total_iqd)}\n\n"
+                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
                 )
                 USER_STATE.pop(user_id, None)
                 INVOICE_DATA.pop(user_id, None)
@@ -332,13 +369,22 @@ def handle_text_inputs(message):
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML")
             except Exception as e:
                 bot.edit_message_text(f"⚠️ خطأ: <code>{str(e)}</code>", message.chat.id, loading_msg.message_id, parse_mode="HTML")
+        else:
+            bot.edit_message_text("⚠️ أرسل رقماً صحيحاً للوزن.", message.chat.id, loading_msg.message_id)
         return
 
+    # 4. إدخال قيم الشراء دفعة واحدة بناءً على طلبك
     if state == "WAITING_BUY_ALL_INPUTS":
-        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري احتساب الفاتورة...</i>", parse_mode="HTML")
-        english_text = to_english_numbers(text)
-        numbers = re.findall(r'\d+(?:\.\d+)?', english_text)
+        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري احتساب فاتورة الشراء...</i>", parse_mode="HTML")
+        lines = [line.strip() for line in text.split('\n') if line.strip()]
+        numbers = []
+        for line in lines:
+            line = re.sub(r'[^\d.]', '', line)
+            if line:
+                numbers.append(line)
+                
         if len(numbers) >= 3:
+            # هذا هو الكود الدقيق الذي طلبته 
             try:
                 custom_m_price, w, wage = map(float, numbers[:3])
                 carat = INVOICE_DATA[user_id]['carat']
@@ -367,10 +413,10 @@ def handle_text_inputs(message):
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML")
             except Exception as e:
                 bot.edit_message_text(f"⚠️ خطأ: <code>{str(e)}</code>", message.chat.id, loading_msg.message_id, parse_mode="HTML")
+        else:
+            bot.edit_message_text("⚠️ الرجاء إدخال 3 أسطر بالضبط (السعر، الوزن، أجور الكسر) كما هو موضح في المثال.", message.chat.id, loading_msg.message_id)
         return
 
 if __name__ == "__main__":
-    t = threading.Thread(target=run_flask)
-    t.daemon = True
-    t.start()
+    threading.Thread(target=run_flask).start()
     bot.infinity_polling()
