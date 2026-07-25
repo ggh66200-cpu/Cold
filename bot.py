@@ -8,8 +8,10 @@ import utils
 import admin
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
+
+# قراءة الآيدي الخاص بالمدير بدقة لضمان ظهور أزرار الأدمن وصلاحياته
 try:
-    ADMIN_ID = int(os.environ.get("ADMIN_ID", "0"))
+    ADMIN_ID = int(os.environ.get("ADMIN_ID", getattr(admin, "ADMIN_ID", 0)))
 except:
     ADMIN_ID = 0
 
@@ -62,18 +64,21 @@ def to_english_numbers(text):
     persian_nums = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
     return text.translate(arabic_nums).translate(persian_nums)
 
-def get_main_keyboard():
+def get_main_keyboard(is_admin=False):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(types.KeyboardButton(TEXTS["btn_prices"]))
     markup.add(types.KeyboardButton(TEXTS["btn_sell"]), types.KeyboardButton(TEXTS["btn_buy"]))
-    markup.add(types.KeyboardButton(TEXTS["btn_info"]), types.KeyboardButton(TEXTS["btn_sub"]))
-    markup.add(types.KeyboardButton(TEXTS["btn_clients"]))
+    markup.add(types.KeyboardButton(TEXTS["btn_info"]), types.KeyboardButton(TEXTS["btn_clients"]))
+    # زر الاشتراك يظهر للمدير دائماً وللعميل فقط إذا انتهى اشتراكه أو فترته المجانية
+    if is_admin:
+        markup.add(types.KeyboardButton(TEXTS["btn_sub"]))
     return markup
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     user_id = message.from_user.id
     gs = utils.get_goldsmith(user_id) or {}
+    is_admin = (user_id == ADMIN_ID)
     
     if not gs.get('is_registered', False):
         USER_STATE[user_id] = "WAITING_REGISTRATION_FULL"
@@ -81,7 +86,7 @@ def send_welcome(message):
             message.chat.id, 
             f"{COMPANY_HEADER}🌟 <b>أهلاً بك يا غالي في عائلة أرامكي للحلول الرقمية!</b> 🌟\n\n"
             "يسعدنا انضمامك لمنظومتنا الذكية لإدارة محلات الصاغة بكل احترافية.\n"
-            "لتفعيل فترتك التجريبية المجانية، يرجى إرسال بياناتك برسالة واحدة كالتالي:\n\n"
+            "لتفعيل فترتك التجريبية المجانية (7 أيام)، يرجى إرسال بياناتك برسالة واحدة كالتالي:\n\n"
             "🏢 <b>اسم المحل:</b>\n"
             "📱 <b>رقم الهاتف:</b>\n\n"
             "💡 <i>مثال (انسخه وعدل عليه):</i>\n"
@@ -90,12 +95,12 @@ def send_welcome(message):
         )
         return
 
-    if gs.get('remaining_days', 0) <= 0 and user_id != ADMIN_ID:
+    if gs.get('remaining_days', 0) <= 0 and not is_admin:
         show_subscription_form(message, expired=True)
         return
 
     USER_STATE.pop(user_id, None)
-    markup = get_main_keyboard()
+    markup = get_main_keyboard(is_admin=is_admin)
     db_id = gs.get('id', 1)
     counter = 145 + (int(db_id) if str(db_id).isdigit() else 1)
     bot.send_message(message.chat.id, COMPANY_HEADER + TEXTS["welcome"].format(counter=counter), parse_mode="HTML", reply_markup=markup)
@@ -116,7 +121,7 @@ def show_system_info(message):
 def show_subscription_form(message, expired=False):
     user_id = message.from_user.id
     USER_STATE[user_id] = "WAITING_RECEIPT"
-    prefix = "⚠️ <b>انتهت فترتك التجريبية أو صلاحية اشتراكك! يرجى التجديد للاستمرار:</b>\n\n" if expired else ""
+    prefix = "⚠️ <b>انتهت فترتك التجريبية (7 أيام) أو صلاحية اشتراكك! يرجى التجديد للاستمرار:</b>\n\n" if expired else ""
     sub_text = (
         f"{COMPANY_HEADER}{prefix}"
         "📝 <b>استمارة الاشتراك وتجديد الصلاحية:</b>\n\n"
@@ -145,7 +150,8 @@ def show_clients_summary(message):
 def morning_prices_start(message):
     user_id = message.from_user.id
     gs = utils.get_goldsmith(user_id)
-    if gs.get('remaining_days', 0) <= 0 and user_id != ADMIN_ID:
+    is_admin = (user_id == ADMIN_ID)
+    if gs.get('remaining_days', 0) <= 0 and not is_admin:
         return show_subscription_form(message, expired=True)
     
     USER_STATE[user_id] = "AWAITING_ALL_PRICES"
@@ -165,7 +171,8 @@ def morning_prices_start(message):
 def customer_sell_init(message):
     user_id = message.from_user.id
     gs = utils.get_goldsmith(user_id)
-    if gs.get('remaining_days', 0) <= 0 and user_id != ADMIN_ID:
+    is_admin = (user_id == ADMIN_ID)
+    if gs.get('remaining_days', 0) <= 0 and not is_admin:
         return show_subscription_form(message, expired=True)
 
     USER_STATE.pop(user_id, None)
@@ -177,7 +184,8 @@ def customer_sell_init(message):
 def customer_buy_init(message):
     user_id = message.from_user.id
     gs = utils.get_goldsmith(user_id)
-    if gs.get('remaining_days', 0) <= 0 and user_id != ADMIN_ID:
+    is_admin = (user_id == ADMIN_ID)
+    if gs.get('remaining_days', 0) <= 0 and not is_admin:
         return show_subscription_form(message, expired=True)
 
     USER_STATE.pop(user_id, None)
@@ -215,7 +223,8 @@ def handle_admin_actions(call):
         markup.add(types.InlineKeyboardButton("🛑 تصفير الوقت (إيقاف)", callback_data=f"time_zero_{target_user}"))
         bot.edit_message_caption(f"🧾 تم اعتماد الإيصال وتفعيل اشتراك الصائغ (آيدي): <code>{target_user}</code>", call.message.chat.id, call.message.message_id, parse_mode="HTML", reply_markup=markup)
         try:
-            bot.send_message(target_user, f"{COMPANY_HEADER}✅ <b>تهانينا! تم تفعيل اشتراكك وتحديث رصيد أيامك بنجاح. يمكنك الآن العمل على النظام.</b>", parse_mode="HTML", reply_markup=get_main_keyboard())
+            target_is_admin = (target_user == ADMIN_ID)
+            bot.send_message(target_user, f"{COMPANY_HEADER}✅ <b>تهانينا! تم تفعيل اشتراكك وتحديث رصيد أيامك بنجاح. يمكنك الآن العمل على النظام.</b>", parse_mode="HTML", reply_markup=get_main_keyboard(is_admin=target_is_admin))
         except:
             pass
 
@@ -300,10 +309,10 @@ def handle_text_inputs(message):
         
         try:
             utils.register_goldsmith_details(user_id, shop_name, phone)
-            utils.update_goldsmith_subscription(user_id, days=3) 
+            utils.update_goldsmith_subscription(user_id, days=7) # منح 7 أيام تجريبية مجانية
             USER_STATE.pop(user_id, None)
             bot.delete_message(message.chat.id, loading.message_id)
-            bot.send_message(message.chat.id, "🎉 <b>مبارك لك! تم تسجيل محلك بنجاح وتفعيل 3 أيام فترة تجريبية مجانية لتباشر العمل. أهلاً بك في عائلة أرامكي!</b> 💛", parse_mode="HTML")
+            bot.send_message(message.chat.id, "🎉 <b>مبارك لك! تم تسجيل محلك بنجاح وتفعيل 7 أيام فترة تجريبية مجانية لتباشر العمل. أهلاً بك في عائلة أرامكي!</b> 💛", parse_mode="HTML")
             send_welcome(message)
         except Exception as e:
             bot.edit_message_text(f"⚠️ حدث خطأ أثناء التسجيل: {e}", message.chat.id, loading.message_id)
@@ -383,39 +392,4 @@ def handle_text_inputs(message):
                 
         if len(numbers) >= 3:
             try:
-                custom_m_price, w, wage = map(float, numbers[:3])
-                carat = INVOICE_DATA[user_id]['carat']
-                prices = utils.get_goldsmith_prices(user_id) or {}
-                goldsmith = utils.get_goldsmith(user_id) or {}
-                
-                gram_clean_price = custom_m_price / 5.0
-                gram_full_price = gram_clean_price - wage
-                total_iqd = gram_full_price * w
-                usd_rate = float(prices.get('usd_rate', 1))
-                usd_bills = int(total_iqd // usd_rate) if usd_rate > 0 else 0
-                rem_iqd = total_iqd % usd_rate if usd_rate > 0 else total_iqd
-                
-                invoice = (
-                    f"{COMPANY_HEADER}{TEXTS['invoice_buy']}\n━━━━━━━━━━━━━━━━━\n"
-                    f"{TEXTS['shop']}{goldsmith.get('full_name', 'محلي الموقر')}\n"
-                    f"{TEXTS['type_buy'].format(carat=carat)}\n"
-                    f"🔷 سعر المثقال (مُدخل): {custom_m_price:,.0f} دينار\n"
-                    f"{TEXTS['weight_tot'].format(w=w)}\n{TEXTS['wage_buy'].format(wage=wage)}\n"
-                    f"━━━━━━━━━━━━━━━━━\n{TEXTS['clean_p'].format(p=gram_clean_price)}\n"
-                    f"💵 سعر الشراء الصافي للغرام: {gram_full_price:,.0f} دينار\n"
-                    f"{TEXTS['total_iqd'].format(total=total_iqd)}\n\n"
-                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
-                )
-                USER_STATE.pop(user_id, None)
-                INVOICE_DATA.pop(user_id, None)
-                bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, invoice, parse_mode="HTML")
-            except Exception as e:
-                bot.edit_message_text(f"⚠️ خطأ في البيانات: <code>{str(e)}</code>", message.chat.id, loading_msg.message_id, parse_mode="HTML")
-        else:
-            bot.edit_message_text("⚠️ يرجى إرسال القيم الثلاثة المطلوبة (كل قيمة في سطر مستقل).", message.chat.id, loading_msg.message_id)
-        return
-
-if __name__ == "__main__":
-    threading.Thread(target=run_flask).start()
-    bot.infinity_polling()
+                custom_m_price, w,
