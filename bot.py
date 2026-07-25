@@ -26,7 +26,7 @@ def run_flask():
 MASTER_CARD = admin.MASTER_CARD
 MONTHLY_PRICE = admin.MONTHLY_PRICE
 COMPANY_HEADER = admin.COMPANY_HEADER
-SUPPORT_NUMBER = "07872180902"  # رقم الدعم الفني الذي طلبته
+SUPPORT_NUMBER = "07872180902" 
 
 USER_STATE = {}
 INVOICE_DATA = {}
@@ -75,24 +75,25 @@ def send_welcome(message):
     user_id = message.from_user.id
     gs = utils.get_goldsmith(user_id) or {}
     
-    # التسجيل إذا كان المستخدم جديداً
+    # 🌟 تم ترتيب استمارة التسجيل بشكل عمودي وجميل
     if not gs.get('is_registered', False):
         USER_STATE[user_id] = "WAITING_REGISTRATION_FULL"
         bot.send_message(
             message.chat.id, 
             f"{COMPANY_HEADER}📝 <b>أهلاً بك يا طيب في نظام أرامكي للحلول الرقمية</b>\n\n"
-            "لتفعيل الفترة المجانية، يرجى إرسال **اسم المحل ورقم الهاتف** في رسالة واحدة.\n\n"
-            "💡 <i>مثال:</i>\nمجوهرات البركة - 07800000000", 
+            "لتفعيل الفترة المجانية، يرجى إرسال بياناتك برسالة واحدة كالتالي:\n\n"
+            "🏢 <b>اسم المحل:</b>\n"
+            "📱 <b>رقم الهاتف:</b>\n\n"
+            "💡 <i>مثال (انسخه وعدل عليه):</i>\n"
+            "<code>مجوهرات البركة\n07800000000</code>", 
             parse_mode="HTML"
         )
         return
 
-    # فحص الاشتراك للمستخدمين المسجلين مسبقاً
     if gs.get('remaining_days', 0) <= 0 and user_id != ADMIN_ID:
         show_subscription_form(message, expired=True)
         return
 
-    # إظهار رسالة الترحيب والأزرار إذا كان الاشتراك فعالاً
     USER_STATE.pop(user_id, None)
     markup = get_main_keyboard()
     db_id = gs.get('id', 1)
@@ -199,7 +200,6 @@ def handle_calc_buttons(call):
         USER_STATE[user_id] = "WAITING_BUY_ALL_INPUTS"
         bot.send_message(call.message.chat.id, TEXTS["req_buy_inputs"].format(carat=carat), parse_mode="HTML")
 
-# أزرار لوحة تحكم الأدمن للتحكم بالعملاء
 @bot.callback_query_handler(func=lambda call: call.data.startswith("approve_sub_") or call.data.startswith("reject_sub_") or call.data.startswith("time_"))
 def handle_admin_actions(call):
     data = call.data
@@ -282,33 +282,33 @@ def handle_text_inputs(message):
     user_id = message.from_user.id
     state = USER_STATE.get(user_id)
 
-    # 1. نظام التسجيل الموحد وإعطاء 3 أيام تلقائياً
     if state == "WAITING_REGISTRATION_FULL":
         loading = bot.send_message(message.chat.id, "⏳ <i>جاري تسجيل الحساب وإعداد قاعدة البيانات...</i>", parse_mode="HTML")
-        parts = text.split('-')
-        if len(parts) >= 2:
-            shop_name = parts[0].strip()
-            phone = parts[1].strip()
+        lines = [line.strip() for line in text.split('\n') if line.strip()]
+        
+        if len(lines) >= 2:
+            shop_name = lines[0]
+            phone = lines[1]
         else:
-            shop_name = text
-            phone = "غير محدد"
+            parts = text.split('-')
+            if len(parts) >= 2:
+                shop_name = parts[0].strip()
+                phone = parts[1].strip()
+            else:
+                shop_name = text
+                phone = "غير محدد"
         
         try:
-            # تسجيل المستخدم في قاعدة البيانات
             utils.register_goldsmith_details(user_id, shop_name, phone)
-            # إعطاء المستخدم الجديد 3 أيام مجانية لتجربة النظام لكي لا يقفل النظام فوراً
             utils.update_goldsmith_subscription(user_id, days=3) 
-            
             USER_STATE.pop(user_id, None)
             bot.delete_message(message.chat.id, loading.message_id)
             bot.send_message(message.chat.id, "✅ <b>تم التسجيل بنجاح! تم تفعيل 3 أيام فترة تجريبية مجانية لمحلك.</b>", parse_mode="HTML")
-            # استدعاء الرسالة الترحيبية لتظهر مباشرة
             send_welcome(message)
         except Exception as e:
             bot.edit_message_text(f"⚠️ حدث خطأ أثناء التسجيل: {e}", message.chat.id, loading.message_id)
         return
 
-    # 2. إدخال أسعار الصباح المجمعة
     if state == "AWAITING_ALL_PRICES":
         loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري حفظ الأسعار...</i>", parse_mode="HTML")
         lines = [line.strip() for line in text.split('\n') if line.strip()]
@@ -331,7 +331,6 @@ def handle_text_inputs(message):
             bot.edit_message_text("⚠️ يرجى إدخال 5 أسطر بالضبط كما في المثال الموضح أعلاه.", message.chat.id, loading_msg.message_id)
         return
 
-    # 3. إدخال وزن البيع
     if state == "WAITING_WEIGHT_SELL":
         loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري احتساب فاتورة البيع...</i>", parse_mode="HTML")
         if re.match(r'^\d+(\.\d+)?$', text):
@@ -342,11 +341,11 @@ def handle_text_inputs(message):
                 goldsmith = utils.get_goldsmith(user_id) or {}
                 
                 if carat == 21:
-                    gram_price = float(prices.get('m21_price', 0)) / 5.0
-                    wage = float(prices.get('m21_wage', 0))
+                    gram_price = float(prices.get('price_21', 0)) / 5.0
+                    wage = float(prices.get('wage_21', 0))
                 else:
-                    gram_price = float(prices.get('m18_price', 0)) / 5.0
-                    wage = float(prices.get('m18_wage', 0))
+                    gram_price = float(prices.get('price_18', 0)) / 5.0
+                    wage = float(prices.get('wage_18', 0))
                     
                 gram_full = gram_price + wage
                 total_iqd = gram_full * w
@@ -373,7 +372,7 @@ def handle_text_inputs(message):
             bot.edit_message_text("⚠️ أرسل رقماً صحيحاً للوزن.", message.chat.id, loading_msg.message_id)
         return
 
-    # 4. إدخال قيم الشراء دفعة واحدة بناءً على طلبك
+    # 4. إكمال الكود المقطوع لحساب الشراء
     if state == "WAITING_BUY_ALL_INPUTS":
         loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري احتساب فاتورة الشراء...</i>", parse_mode="HTML")
         lines = [line.strip() for line in text.split('\n') if line.strip()]
@@ -384,7 +383,6 @@ def handle_text_inputs(message):
                 numbers.append(line)
                 
         if len(numbers) >= 3:
-            # هذا هو الكود الدقيق الذي طلبته 
             try:
                 custom_m_price, w, wage = map(float, numbers[:3])
                 carat = INVOICE_DATA[user_id]['carat']
