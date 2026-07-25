@@ -75,13 +75,13 @@ def send_welcome(message):
     user_id = message.from_user.id
     gs = utils.get_goldsmith(user_id) or {}
     
-    # 🌟 تم ترتيب استمارة التسجيل بشكل عمودي وجميل
     if not gs.get('is_registered', False):
         USER_STATE[user_id] = "WAITING_REGISTRATION_FULL"
         bot.send_message(
             message.chat.id, 
-            f"{COMPANY_HEADER}📝 <b>أهلاً بك يا طيب في نظام أرامكي للحلول الرقمية</b>\n\n"
-            "لتفعيل الفترة المجانية، يرجى إرسال بياناتك برسالة واحدة كالتالي:\n\n"
+            f"{COMPANY_HEADER}🌟 <b>أهلاً بك يا غالي في عائلة أرامكي للحلول الرقمية!</b> 🌟\n\n"
+            "يسعدنا انضمامك لمنظومتنا الذكية لإدارة محلات الصاغة بكل احترافية.\n"
+            "لتفعيل فترتك التجريبية المجانية، يرجى إرسال بياناتك برسالة واحدة كالتالي:\n\n"
             "🏢 <b>اسم المحل:</b>\n"
             "📱 <b>رقم الهاتف:</b>\n\n"
             "💡 <i>مثال (انسخه وعدل عليه):</i>\n"
@@ -303,7 +303,7 @@ def handle_text_inputs(message):
             utils.update_goldsmith_subscription(user_id, days=3) 
             USER_STATE.pop(user_id, None)
             bot.delete_message(message.chat.id, loading.message_id)
-            bot.send_message(message.chat.id, "✅ <b>تم التسجيل بنجاح! تم تفعيل 3 أيام فترة تجريبية مجانية لمحلك.</b>", parse_mode="HTML")
+            bot.send_message(message.chat.id, "🎉 <b>مبارك لك! تم تسجيل محلك بنجاح وتفعيل 3 أيام فترة تجريبية مجانية لتباشر العمل. أهلاً بك في عائلة أرامكي!</b> 💛", parse_mode="HTML")
             send_welcome(message)
         except Exception as e:
             bot.edit_message_text(f"⚠️ حدث خطأ أثناء التسجيل: {e}", message.chat.id, loading.message_id)
@@ -372,15 +372,14 @@ def handle_text_inputs(message):
             bot.edit_message_text("⚠️ أرسل رقماً صحيحاً للوزن.", message.chat.id, loading_msg.message_id)
         return
 
-    # 4. إكمال الكود المقطوع لحساب الشراء
     if state == "WAITING_BUY_ALL_INPUTS":
         loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري احتساب فاتورة الشراء...</i>", parse_mode="HTML")
         lines = [line.strip() for line in text.split('\n') if line.strip()]
         numbers = []
         for line in lines:
-            line = re.sub(r'[^\d.]', '', line)
-            if line:
-                numbers.append(line)
+            cleaned_line = re.sub(r'[^\d.]', '', line)
+            if cleaned_line:
+                numbers.append(cleaned_line)
                 
         if len(numbers) >= 3:
             try:
@@ -400,9 +399,11 @@ def handle_text_inputs(message):
                     f"{COMPANY_HEADER}{TEXTS['invoice_buy']}\n━━━━━━━━━━━━━━━━━\n"
                     f"{TEXTS['shop']}{goldsmith.get('full_name', 'محلي الموقر')}\n"
                     f"{TEXTS['type_buy'].format(carat=carat)}\n"
+                    f"🔷 سعر المثقال (مُدخل): {custom_m_price:,.0f} دينار\n"
                     f"{TEXTS['weight_tot'].format(w=w)}\n{TEXTS['wage_buy'].format(wage=wage)}\n"
                     f"━━━━━━━━━━━━━━━━━\n{TEXTS['clean_p'].format(p=gram_clean_price)}\n"
-                    f"{TEXTS['full_p'].format(p=gram_full_price)}\n{TEXTS['total_iqd'].format(total=total_iqd)}\n\n"
+                    f"💵 سعر الشراء الصافي للغرام: {gram_full_price:,.0f} دينار\n"
+                    f"{TEXTS['total_iqd'].format(total=total_iqd)}\n\n"
                     f"{TEXTS['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
                 )
                 USER_STATE.pop(user_id, None)
@@ -410,9 +411,9 @@ def handle_text_inputs(message):
                 bot.delete_message(message.chat.id, loading_msg.message_id)
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML")
             except Exception as e:
-                bot.edit_message_text(f"⚠️ خطأ: <code>{str(e)}</code>", message.chat.id, loading_msg.message_id, parse_mode="HTML")
+                bot.edit_message_text(f"⚠️ خطأ في البيانات: <code>{str(e)}</code>", message.chat.id, loading_msg.message_id, parse_mode="HTML")
         else:
-            bot.edit_message_text("⚠️ الرجاء إدخال 3 أسطر بالضبط (السعر، الوزن، أجور الكسر) كما هو موضح في المثال.", message.chat.id, loading_msg.message_id)
+            bot.edit_message_text("⚠️ يرجى إرسال القيم الثلاثة المطلوبة (كل قيمة في سطر مستقل).", message.chat.id, loading_msg.message_id)
         return
 
 if __name__ == "__main__":
