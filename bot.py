@@ -59,7 +59,7 @@ TEXTS = {
 }
 
 def to_english_numbers(text):
-    arabic_nums = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
+    arabic_nums = str.maketrans('٠١ي٣٤٥٦٧٨٩', '0123456789')
     persian_nums = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
     return text.translate(arabic_nums).translate(persian_nums)
 
@@ -326,7 +326,11 @@ def handle_text_inputs(message):
             utils.update_goldsmith_subscription(user_id, days=7) 
             USER_STATE.pop(user_id, None)
             bot.delete_message(message.chat.id, loading.message_id)
+            
+            # إرسال رسالة التهنئة ثم جلب وتفعيل الكيبورد الرئيسي فوراً للمستخدم
             bot.send_message(message.chat.id, "🎉 <b>مبارك لك! تم تسجيل محلك بنجاح وتفعيل 7 أيام فترة تجريبية مجانية لتباشر العمل. أهلاً بك في عائلة أرامكي!</b> 💛", parse_mode="HTML")
+            
+            # استدعاء دالة الترحيب لعرض الأزرار الرئيسية فوراً
             send_welcome(message)
         except Exception as e:
             bot.edit_message_text(f"⚠️ حدث خطأ أثناء التسجيل: {e}", message.chat.id, loading.message_id)
@@ -396,52 +400,4 @@ def handle_text_inputs(message):
         return
 
     if state == "WAITING_BUY_ALL_INPUTS":
-        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري احتساب فاتورة الشراء...</i>", parse_mode="HTML")
-        lines = [line.strip() for line in text.split('\n') if line.strip()]
-        numbers = []
-        for line in lines:
-            cleaned_line = re.sub(r'[^\d.]', '', line)
-            if cleaned_line:
-                numbers.append(cleaned_line)
-                
-        if len(numbers) >= 3:
-            try:
-                custom_m_price, w, wage = map(float, numbers[:3])
-                carat = INVOICE_DATA[user_id]['carat']
-                prices = utils.get_goldsmith_prices(user_id) or {}
-                goldsmith = utils.get_goldsmith(user_id) or {}
-                
-                gram_clean_price = custom_m_price / 5.0
-                gram_full_price = gram_clean_price - wage
-                total_iqd = gram_full_price * w
-                usd_rate = float(prices.get('usd_rate', 1))
-                usd_bills = int(total_iqd // usd_rate) if usd_rate > 0 else 0
-                rem_iqd = total_iqd % usd_rate if usd_rate > 0 else total_iqd
-                
-                invoice = (
-                    f"{COMPANY_HEADER}{TEXTS['invoice_buy']}\n━━━━━━━━━━━━━━━━━\n"
-                    f"{TEXTS['shop']}{goldsmith.get('full_name', 'محلي الموقر')}\n"
-                    f"{TEXTS['type_buy'].format(carat=carat)}\n"
-                    f"🔷 سعر المثقال (مُدخل): {custom_m_price:,.0f} دينار\n"
-                    f"{TEXTS['weight_tot'].format(w=w)}\n{TEXTS['wage_buy'].format(wage=wage)}\n"
-                    f"━━━━━━━━━━━━━━━━━\n{TEXTS['clean_p'].format(p=gram_clean_price)}\n"
-                    f"💵 سعر الشراء الصافي للغرام: {gram_full_price:,.0f} دينار\n"
-                    f"{TEXTS['total_iqd'].format(total=total_iqd)}\n\n"
-                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
-                )
-                USER_STATE.pop(user_id, None)
-                INVOICE_DATA.pop(user_id, None)
-                bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, invoice, parse_mode="HTML")
-            except Exception as e:
-                bot.edit_message_text(f"⚠️ خطأ في البيانات: <code>{str(e)}</code>", message.chat.id, loading_msg.message_id, parse_mode="HTML")
-        else:
-            bot.edit_message_text("⚠️ يرجى إرسال القيم الثلاثة المطلوبة (كل قيمة في سطر مستقل).", message.chat.id, loading_msg.message_id)
-        return
-
-# تفعيل ربط معالجات الإدارة تلقائياً
-admin.register_admin_handlers(bot)
-
-if __name__ == "__main__":
-    threading.Thread(target=run_flask).start()
-    bot.infinity_polling()
+        loading_msg = bot.send_message(message.chat.id, "⏳
