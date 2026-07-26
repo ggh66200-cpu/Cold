@@ -80,4 +80,3 @@ def update_morning_prices(user_id, p21, p18, w21, w18, usd_r):
     except Exception as e:
         print(f"Supabase Update Error: {e}")
         raise e
-        
