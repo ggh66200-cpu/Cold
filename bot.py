@@ -22,7 +22,9 @@ def home():
     return "SMART GOLD SYSTEM IS LIVE"
 
 def run_flask():
-    app.run(host='0.0.0.0', port=10000)
+    # استخدام المنفذ الافتراضي المخصص لـ Render أو 10000
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
 
 MASTER_CARD = admin.MASTER_CARD
 MONTHLY_PRICE = admin.MONTHLY_PRICE
@@ -86,7 +88,7 @@ def send_welcome(message):
             message.chat.id, 
             f"{COMPANY_HEADER}🌟 <b>أهلاً بك يا غالي في عائلة أرامكي للحلول الرقمية!</b> 🌟\n\n"
             "يسعدنا انضمامك لمنظومتنا الذكية لإدارة محلات الصاغة بكل احترافية.\n"
-            "لتفعيل فترتك التجريبية المجانية (7 أيام)، يرجى إرسال بياناتك برسالة واحدة كالتالي:\n\n"
+            "لتفعيل فترتك التجريبية المجانية (3 أيام نظراً للإقبال الشديد)، يرجى إرسال بياناتك برسالة واحدة كالتالي:\n\n"
             "🏢 <b>اسم المحل:</b>\n"
             "📱 <b>رقم الهاتف:</b>\n\n"
             "💡 <i>مثال (انسخه وعدل عليه):</i>\n"
@@ -105,9 +107,10 @@ def send_welcome(message):
     
     db_id = gs.get('id', 1)
     try:
+        # اعتماد رقم الترند المطلوب (145 + المعرف أو التسلسل)
         counter = 145 + (int(db_id) if db_id else 1)
     except:
-        counter = 148
+        counter = 145
     
     bot.send_message(message.chat.id, COMPANY_HEADER + TEXTS["welcome"].format(counter=counter), parse_mode="HTML", reply_markup=markup)
 
@@ -127,7 +130,7 @@ def show_system_info(message):
 def show_subscription_form(message, expired=False):
     user_id = message.from_user.id
     USER_STATE[user_id] = "WAITING_RECEIPT"
-    prefix = "⚠️ <b>انتهت فترتك التجريبية (7 أيام) أو صلاحية اشتراكك! يرجى التجديد للاستمرار:</b>\n\n" if expired else ""
+    prefix = "⚠️ <b>انتهت فترتك التجريبية أو صلاحية اشتراكك! يرجى التجديد للاستمرار:</b>\n\n" if expired else ""
     sub_text = (
         f"{COMPANY_HEADER}{prefix}"
         "📝 <b>استمارة الاشتراك وتجديد الصلاحية:</b>\n\n"
@@ -323,11 +326,12 @@ def handle_text_inputs(message):
         
         try:
             utils.register_goldsmith_details(user_id, shop_name, phone)
-            utils.update_goldsmith_subscription(user_id, days=7) 
+            # تعيين الفترة التجريبية إلى 3 أيام حسب توجيهك التسويقي للإقبال
+            utils.update_goldsmith_subscription(user_id, days=3) 
             USER_STATE.pop(user_id, None)
             bot.delete_message(message.chat.id, loading.message_id)
             
-            bot.send_message(message.chat.id, "🎉 <b>مبارك لك! تم تسجيل محلك بنجاح وتفعيل 7 أيام فترة تجريبية مجانية لتباشر العمل. أهلاً بك في عائلة أرامكي!</b> 💛", parse_mode="HTML")
+            bot.send_message(message.chat.id, "🎉 <b>مبارك لك! تم تسجيل محلك بنجاح وتفعيل 3 أيام فترة تجريبية مجانية (بسبب الإقبال الشديد على المنظومة) لتباشر العمل. أهلاً بك في عائلة أرامكي!</b> 💛", parse_mode="HTML")
             send_welcome(message)
         except Exception as e:
             bot.edit_message_text(f"⚠️ حدث خطأ أثناء التسجيل: {e}", message.chat.id, loading.message_id)
