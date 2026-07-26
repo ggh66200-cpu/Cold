@@ -39,6 +39,7 @@ TEXTS = {
     "btn_buy": "📤 حساب شراء من زبون",
     "btn_info": "📖 شرح النظام",
     "btn_clients": "👥 جرد العملاء والعمليات",
+    "btn_admin_panel": "🛠️ لوحة تحكم الإدارة",
     "invoice_sell": "🧾 <b>فاتورة بيع ذهب للزبون</b> 🧾",
     "invoice_buy": "📥 <b>فاتورة شراء ذهب من الزبون</b> 📥",
     "shop": "🔷 المحل العامر: ",
@@ -62,11 +63,15 @@ def to_english_numbers(text):
     persian_nums = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
     return text.translate(arabic_nums).translate(persian_nums)
 
-def get_main_keyboard():
+def get_main_keyboard(user_id):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(types.KeyboardButton(TEXTS["btn_prices"]))
     markup.add(types.KeyboardButton(TEXTS["btn_sell"]), types.KeyboardButton(TEXTS["btn_buy"]))
     markup.add(types.KeyboardButton(TEXTS["btn_info"]), types.KeyboardButton(TEXTS["btn_clients"]))
+    
+    if user_id == ADMIN_ID:
+        markup.add(types.KeyboardButton(TEXTS["btn_admin_panel"]))
+        
     return markup
 
 @bot.message_handler(commands=['start'])
@@ -96,10 +101,8 @@ def send_welcome(message):
         return
 
     USER_STATE.pop(user_id, None)
+    markup = get_main_keyboard(user_id)
     
-    markup = get_main_keyboard()
-    
-    # حساب الترند الفعّال لعدد المشتركين
     db_id = gs.get('id', 1)
     try:
         counter = 145 + (int(db_id) if db_id else 1)
@@ -152,6 +155,11 @@ def show_clients_summary(message):
         "🟢 الحالة: حسابك مرتبط بقاعدة البيانات السحابية (Supabase) والعمليات مسجلة بأمان."
     )
     bot.send_message(message.chat.id, summary_text, parse_mode="HTML")
+
+@bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_admin_panel"])
+def admin_panel_shortcut(message):
+    if message.from_user.id == ADMIN_ID:
+        admin.admin_panel_start(message)
 
 @bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_prices"])
 def morning_prices_start(message):
@@ -230,7 +238,7 @@ def handle_admin_actions(call):
         markup.add(types.InlineKeyboardButton("🛑 تصفير الوقت (إيقاف)", callback_data=f"time_zero_{target_user}"))
         bot.edit_message_caption(f"🧾 تم اعتماد الإيصال وتفعيل اشتراك الصائغ (آيدي): <code>{target_user}</code>", call.message.chat.id, call.message.message_id, parse_mode="HTML", reply_markup=markup)
         try:
-            bot.send_message(target_user, f"{COMPANY_HEADER}✅ <b>تهانينا! تم تفعيل اشتراكك وتحديث رصيد أيامك بنجاح. يمكنك الآن العمل على النظام.</b>", parse_mode="HTML", reply_markup=get_main_keyboard())
+            bot.send_message(target_user, f"{COMPANY_HEADER}✅ <b>تهانينا! تم تفعيل اشتراكك وتحديث رصيد أيامك بنجاح. يمكنك الآن العمل على النظام.</b>", parse_mode="HTML", reply_markup=get_main_keyboard(target_user))
         except:
             pass
 
@@ -430,6 +438,9 @@ def handle_text_inputs(message):
         else:
             bot.edit_message_text("⚠️ يرجى إرسال القيم الثلاثة المطلوبة (كل قيمة في سطر مستقل).", message.chat.id, loading_msg.message_id)
         return
+
+# تفعيل ربط معالجات الإدارة تلقائياً
+admin.register_admin_handlers(bot)
 
 if __name__ == "__main__":
     threading.Thread(target=run_flask).start()
