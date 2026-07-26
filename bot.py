@@ -400,4 +400,5 @@ def handle_text_inputs(message):
         return
 
     if state == "WAITING_BUY_ALL_INPUTS":
-        loading_msg = bot.send_message(message.chat.id, "⏳
+    loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري التحقق من الوصل وإرساله للإدارة...</i>", parse_mode="HTML")
+    
