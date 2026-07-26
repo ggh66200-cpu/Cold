@@ -69,7 +69,6 @@ def get_main_keyboard(is_admin=False):
     markup.add(types.KeyboardButton(TEXTS["btn_prices"]))
     markup.add(types.KeyboardButton(TEXTS["btn_sell"]), types.KeyboardButton(TEXTS["btn_buy"]))
     markup.add(types.KeyboardButton(TEXTS["btn_info"]), types.KeyboardButton(TEXTS["btn_clients"]))
-    # زر الاشتراك يظهر للمدير دائماً وللعميل فقط إذا انتهى اشتراكه أو فترته المجانية
     if is_admin:
         markup.add(types.KeyboardButton(TEXTS["btn_sub"]))
     return markup
@@ -309,7 +308,7 @@ def handle_text_inputs(message):
         
         try:
             utils.register_goldsmith_details(user_id, shop_name, phone)
-            utils.update_goldsmith_subscription(user_id, days=7) # منح 7 أيام تجريبية مجانية
+            utils.update_goldsmith_subscription(user_id, days=7) 
             USER_STATE.pop(user_id, None)
             bot.delete_message(message.chat.id, loading.message_id)
             bot.send_message(message.chat.id, "🎉 <b>مبارك لك! تم تسجيل محلك بنجاح وتفعيل 7 أيام فترة تجريبية مجانية لتباشر العمل. أهلاً بك في عائلة أرامكي!</b> 💛", parse_mode="HTML")
@@ -392,4 +391,39 @@ def handle_text_inputs(message):
                 
         if len(numbers) >= 3:
             try:
-                custom_m_price, w,
+                custom_m_price, w, wage = map(float, numbers[:3])
+                carat = INVOICE_DATA[user_id]['carat']
+                prices = utils.get_goldsmith_prices(user_id) or {}
+                goldsmith = utils.get_goldsmith(user_id) or {}
+                
+                gram_clean_price = custom_m_price / 5.0
+                gram_full_price = gram_clean_price - wage
+                total_iqd = gram_full_price * w
+                usd_rate = float(prices.get('usd_rate', 1))
+                usd_bills = int(total_iqd // usd_rate) if usd_rate > 0 else 0
+                rem_iqd = total_iqd % usd_rate if usd_rate > 0 else total_iqd
+                
+                invoice = (
+                    f"{COMPANY_HEADER}{TEXTS['invoice_buy']}\n━━━━━━━━━━━━━━━━━\n"
+                    f"{TEXTS['shop']}{goldsmith.get('full_name', 'محلي الموقر')}\n"
+                    f"{TEXTS['type_buy'].format(carat=carat)}\n"
+                    f"🔷 سعر المثقال (مُدخل): {custom_m_price:,.0f} دينار\n"
+                    f"{TEXTS['weight_tot'].format(w=w)}\n{TEXTS['wage_buy'].format(wage=wage)}\n"
+                    f"━━━━━━━━━━━━━━━━━\n{TEXTS['clean_p'].format(p=gram_clean_price)}\n"
+                    f"💵 سعر الشراء الصافي للغرام: {gram_full_price:,.0f} دينار\n"
+                    f"{TEXTS['total_iqd'].format(total=total_iqd)}\n\n"
+                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
+                )
+                USER_STATE.pop(user_id, None)
+                INVOICE_DATA.pop(user_id, None)
+                bot.delete_message(message.chat.id, loading_msg.message_id)
+                bot.send_message(message.chat.id, invoice, parse_mode="HTML")
+            except Exception as e:
+                bot.edit_message_text(f"⚠️ خطأ في البيانات: <code>{str(e)}</code>", message.chat.id, loading_msg.message_id, parse_mode="HTML")
+        else:
+            bot.edit_message_text("⚠️ يرجى إرسال القيم الثلاثة المطلوبة (كل قيمة في سطر مستقل).", message.chat.id, loading_msg.message_id)
+        return
+
+if __name__ == "__main__":
+    threading.Thread(target=run_flask).start()
+    bot.infinity_polling()
