@@ -399,4 +399,4 @@ def handle_text_inputs(message):
     if state == "WAITING_BUY_ALL_INPUTS":
         loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري احتساب فاتورة الشراء...</i>", parse_mode="HTML")
         lines = [line.strip() for line in text.split('\n') if line.strip()]
-        if len(lines) 
+        if len(lines):
