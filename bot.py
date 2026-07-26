@@ -327,10 +327,7 @@ def handle_text_inputs(message):
             USER_STATE.pop(user_id, None)
             bot.delete_message(message.chat.id, loading.message_id)
             
-            # إرسال رسالة التهنئة ثم جلب وتفعيل الكيبورد الرئيسي فوراً للمستخدم
             bot.send_message(message.chat.id, "🎉 <b>مبارك لك! تم تسجيل محلك بنجاح وتفعيل 7 أيام فترة تجريبية مجانية لتباشر العمل. أهلاً بك في عائلة أرامكي!</b> 💛", parse_mode="HTML")
-            
-            # استدعاء دالة الترحيب لعرض الأزرار الرئيسية فوراً
             send_welcome(message)
         except Exception as e:
             bot.edit_message_text(f"⚠️ حدث خطأ أثناء التسجيل: {e}", message.chat.id, loading.message_id)
@@ -400,5 +397,47 @@ def handle_text_inputs(message):
         return
 
     if state == "WAITING_BUY_ALL_INPUTS":
-    loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري التحقق من الوصل وإرساله للإدارة...</i>", parse_mode="HTML")
-    
+        loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري احتساب فاتورة الشراء...</i>", parse_mode="HTML")
+        lines = [line.strip() for line in text.split('\n') if line.strip()]
+        if len(lines) == 3:
+            try:
+                mithqal_price = float(lines[0])
+                w = float(lines[1])
+                discount_wage = float(lines[2])
+                
+                carat = INVOICE_DATA[user_id]['carat']
+                goldsmith = utils.get_goldsmith(user_id) or {}
+                prices = utils.get_goldsmith_prices(user_id) or {}
+                
+                gram_price = mithqal_price / 5.0
+                gram_net = gram_price - discount_wage
+                total_iqd = gram_net * w
+                usd_rate = float(prices.get('usd_rate', 1))
+                usd_bills = int(total_iqd // usd_rate) if usd_rate > 0 else 0
+                rem_iqd = total_iqd % usd_rate if usd_rate > 0 else total_iqd
+                
+                invoice = (
+                    f"{COMPANY_HEADER}{TEXTS['invoice_buy']}\n━━━━━━━━━━━━━━━━━\n"
+                    f"{TEXTS['shop']}{goldsmith.get('full_name', 'محلي الموقر')}\n"
+                    f"{TEXTS['type_buy'].format(carat=carat)}\n"
+                    f"{TEXTS['weight_tot'].format(w=w)}\n{TEXTS['wage_buy'].format(wage=discount_wage)}\n"
+                    f"━━━━━━━━━━━━━━━━━\n{TEXTS['clean_p'].format(p=gram_net)}\n"
+                    f"{TEXTS['total_iqd'].format(total=total_iqd)}\n\n"
+                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
+                )
+                USER_STATE.pop(user_id, None)
+                INVOICE_DATA.pop(user_id, None)
+                bot.delete_message(message.chat.id, loading_msg.message_id)
+                bot.send_message(message.chat.id, invoice, parse_mode="HTML")
+            except Exception as e:
+                bot.edit_message_text(f"⚠️ خطأ في الحسابات: <code>{str(e)}</code>", message.chat.id, loading_msg.message_id, parse_mode="HTML")
+        else:
+            bot.edit_message_text("⚠️ يرجى إرسال 3 أسطر بالترتيب (سعر المثقال، الوزن، أجور الكسر).", message.chat.id, loading_msg.message_id)
+        return
+
+if __name__ == '__main__':
+    t = threading.Thread(target=run_flask)
+    t.daemon = True
+    t.start()
+    print("BOT IS STARTING...")
+    bot.infinity_polling()
