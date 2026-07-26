@@ -30,9 +30,20 @@ def get_admin_main_keyboard():
     )
     return markup
 
+def admin_panel_start(message):
+    if message.from_user.id != ADMIN_ID:
+        return
+    text = (
+        f"{COMPANY_HEADER}"
+        "👑 <b>مرحباً بك يا مدير النظام في لوحة تحكم أرامكي المركزية</b> 👑\n\n"
+        "اختر العملية المطلوبة من الأزرار أدناه للتحكم التام بالمنظومة 👇"
+    )
+    bot_instance = telebot.TeleBot(os.environ.get("BOT_TOKEN"))
+    bot_instance.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
+
 def register_admin_handlers(bot):
     @bot.message_handler(commands=['admin', 'panel'])
-    def admin_panel_start(message):
+    def admin_panel_command(message):
         if message.from_user.id != ADMIN_ID:
             bot.send_message(message.chat.id, "⚠️ عذراً، هذا الأمر مخصص لإدارة أرامكي فقط.")
             return
@@ -118,23 +129,3 @@ def register_admin_handlers(bot):
 
         USER_STATE.pop(user_id, None)
         bot.edit_message_text(f"✅ <b>تم الانتهاء من الإذاعة!</b>\n\n🟢 نجح الإرسال إلى: {success} صائغ\n🔴 فشل الإرسال إلى: {failed}", chat_id=message.chat.id, message_id=loading_msg.message_id, parse_mode="HTML")
-
-    @bot.callback_query_handler(func=lambda call: call.data.startswith("approve_sub_") or call.data.startswith("reject_sub_"))
-    def handle_subscription_approval(call):
-        if call.from_user.id != ADMIN_ID:
-            return
-        data_parts = call.data.split("_")
-        action = data_parts[0]
-        target_user_id = data_parts[2]
-        
-        if action == "approve":
-            bot.answer_callback_query(call.id, text="✅ تم تفعيل الاشتراك بنجاح!")
-            bot.edit_message_caption(caption=f"{call.message.caption}\n\n✅ <b>حالة الإيصال:</b> تم القبول والتفعيل بنجاح 👑", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML")
-            try: bot.send_message(target_user_id, "🎉 <b>مبروك! تم تفعيل اشتراكك الشهري بنجاح في منظومة أرامكي.</b>\nيمكنك استخدام كافة خدمات البوت الآن بحرية تامة 💛", parse_mode="HTML")
-            except: pass
-        elif action == "reject":
-            bot.answer_callback_query(call.id, text="❌ تم رفض الإيصال.")
-            bot.edit_message_caption(caption=f"{call.message.caption}\n\n❌ <b>حالة الإيصال:</b> تم الرفض (يرجى مراجعة الدعم: {SUPPORT_PHONE})", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML")
-            try: bot.send_message(target_user_id, f"⚠️ عذراً، تم رفض إيصال التحويل المرفق. يرجى التواصل مع الدعم الفني: {SUPPORT_PHONE}", parse_mode="HTML")
-            except: pass
-                                
