@@ -9,7 +9,6 @@ import admin
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
-# قراءة الآيدي الخاص بالمدير بدقة لضمان ظهور أزرار الأدمن وصلاحياته
 try:
     ADMIN_ID = int(os.environ.get("ADMIN_ID", getattr(admin, "ADMIN_ID", 0)))
 except:
@@ -39,7 +38,6 @@ TEXTS = {
     "btn_sell": "📥 حساب بيع لزبون",
     "btn_buy": "📤 حساب شراء من زبون",
     "btn_info": "📖 شرح النظام",
-    "btn_sub": "📝 استمارة الاشتراك",
     "btn_clients": "👥 جرد العملاء والعمليات",
     "invoice_sell": "🧾 <b>فاتورة بيع ذهب للزبون</b> 🧾",
     "invoice_buy": "📥 <b>فاتورة شراء ذهب من الزبون</b> 📥",
@@ -64,13 +62,11 @@ def to_english_numbers(text):
     persian_nums = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
     return text.translate(arabic_nums).translate(persian_nums)
 
-def get_main_keyboard(is_admin=False):
+def get_main_keyboard():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(types.KeyboardButton(TEXTS["btn_prices"]))
     markup.add(types.KeyboardButton(TEXTS["btn_sell"]), types.KeyboardButton(TEXTS["btn_buy"]))
     markup.add(types.KeyboardButton(TEXTS["btn_info"]), types.KeyboardButton(TEXTS["btn_clients"]))
-    if is_admin:
-        markup.add(types.KeyboardButton(TEXTS["btn_sub"]))
     return markup
 
 @bot.message_handler(commands=['start'])
@@ -94,14 +90,22 @@ def send_welcome(message):
         )
         return
 
-    if gs.get('remaining_days', 0) <= 0 and not is_admin:
+    remaining_days = gs.get('remaining_days', 0)
+    if remaining_days <= 0 and not is_admin:
         show_subscription_form(message, expired=True)
         return
 
     USER_STATE.pop(user_id, None)
-    markup = get_main_keyboard(is_admin=is_admin)
+    
+    markup = get_main_keyboard()
+    
+    # حساب الترند الفعّال لعدد المشتركين
     db_id = gs.get('id', 1)
-    counter = 145 + (int(db_id) if str(db_id).isdigit() else 1)
+    try:
+        counter = 145 + (int(db_id) if db_id else 1)
+    except:
+        counter = 148
+    
     bot.send_message(message.chat.id, COMPANY_HEADER + TEXTS["welcome"].format(counter=counter), parse_mode="HTML", reply_markup=markup)
 
 @bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_info"])
@@ -112,11 +116,11 @@ def show_system_info(message):
         "1️⃣ <b>إدخال أسعار الصباح:</b> لتحديث أسعار الذهب وسعر صرف الدولار المعتمد للبيع والشراء مع الزبون ليومك الحالي.\n"
         "2️⃣ <b>حساب البيع:</b> لاحتساب تكلفة بيع القطعة للزبون بالدينار والدولار (الورق) تلقائياً.\n"
         "3️⃣ <b>حساب الشراء (الكسر):</b> لاحتساب كسر الذهب وأجور الصياغة المخصومة بدقة متناهية.\n"
-        "4️⃣ <b>جرد العملاء:</b> لمتابعة وعرض حالة حسابك وحفظ كافة العمليات في قاعدة البيانات السحابية بأمان."
+        "4️⃣ <b>جرد العملاء:</b> لمتابعة وعرض حالة حسابك وحفظ كافة العمليات في قاعدة البيانات السحابية بأمان.\n\n"
+        f"📞 <b>رقم الطوارئ والدعم الفني:</b> <code>{SUPPORT_NUMBER}</code>"
     )
     bot.send_message(message.chat.id, info_text, parse_mode="HTML")
 
-@bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_sub"])
 def show_subscription_form(message, expired=False):
     user_id = message.from_user.id
     USER_STATE[user_id] = "WAITING_RECEIPT"
@@ -126,7 +130,7 @@ def show_subscription_form(message, expired=False):
         "📝 <b>استمارة الاشتراك وتجديد الصلاحية:</b>\n\n"
         f"🔹 <b>قيمة الاشتراك الشهري:</b> {MONTHLY_PRICE}\n"
         f"🔹 <b>رقم التحويل (زين كاش أو ماستر):</b> <code>{MASTER_CARD}</code>\n"
-        f"📞 <b>للتواصل والدعم الفني:</b> <code>{SUPPORT_NUMBER}</code>\n\n"
+        f"📞 <b>رقم الطوارئ والدعم الفني:</b> <code>{SUPPORT_NUMBER}</code>\n\n"
         "📸 <b>الخطوة المطلوبة:</b>\n"
         "أرسل **صورة وصل التحويل** (سكرين شوت) هنا في الدردشة ليتم تفعيل اشتراكك من قبل الإدارة فوراً."
     )
@@ -135,12 +139,16 @@ def show_subscription_form(message, expired=False):
 @bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_clients"])
 def show_clients_summary(message):
     user_id = message.from_user.id
-    gs = utils.get_goldsmith(user_id)
+    gs = utils.get_goldsmith(user_id) or {}
+    shop_name = gs.get('full_name', 'محلي الموقر')
+    remaining_days = gs.get('remaining_days', 0)
+    
     summary_text = (
         f"{COMPANY_HEADER}"
         "📊 <b>جرد العمليات والعملاء:</b>\n\n"
-        f"🔷 المحل: {gs.get('full_name', 'محلي الموقر')}\n"
-        f"⏳ الأيام المتبقية للاشتراك: <b>{gs.get('remaining_days', 0)} يوم</b>\n"
+        f"🔷 اسم المحل: <b>{shop_name}</b>\n"
+        f"⏳ الأيام المتبقية للاشتراك: <b>{remaining_days} يوم</b>\n"
+        f"📞 رقم الطوارئ والدعم الفني: <code>{SUPPORT_NUMBER}</code>\n"
         "🟢 الحالة: حسابك مرتبط بقاعدة البيانات السحابية (Supabase) والعمليات مسجلة بأمان."
     )
     bot.send_message(message.chat.id, summary_text, parse_mode="HTML")
@@ -148,7 +156,7 @@ def show_clients_summary(message):
 @bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_prices"])
 def morning_prices_start(message):
     user_id = message.from_user.id
-    gs = utils.get_goldsmith(user_id)
+    gs = utils.get_goldsmith(user_id) or {}
     is_admin = (user_id == ADMIN_ID)
     if gs.get('remaining_days', 0) <= 0 and not is_admin:
         return show_subscription_form(message, expired=True)
@@ -169,7 +177,7 @@ def morning_prices_start(message):
 @bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_sell"])
 def customer_sell_init(message):
     user_id = message.from_user.id
-    gs = utils.get_goldsmith(user_id)
+    gs = utils.get_goldsmith(user_id) or {}
     is_admin = (user_id == ADMIN_ID)
     if gs.get('remaining_days', 0) <= 0 and not is_admin:
         return show_subscription_form(message, expired=True)
@@ -182,7 +190,7 @@ def customer_sell_init(message):
 @bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_buy"])
 def customer_buy_init(message):
     user_id = message.from_user.id
-    gs = utils.get_goldsmith(user_id)
+    gs = utils.get_goldsmith(user_id) or {}
     is_admin = (user_id == ADMIN_ID)
     if gs.get('remaining_days', 0) <= 0 and not is_admin:
         return show_subscription_form(message, expired=True)
@@ -222,8 +230,7 @@ def handle_admin_actions(call):
         markup.add(types.InlineKeyboardButton("🛑 تصفير الوقت (إيقاف)", callback_data=f"time_zero_{target_user}"))
         bot.edit_message_caption(f"🧾 تم اعتماد الإيصال وتفعيل اشتراك الصائغ (آيدي): <code>{target_user}</code>", call.message.chat.id, call.message.message_id, parse_mode="HTML", reply_markup=markup)
         try:
-            target_is_admin = (target_user == ADMIN_ID)
-            bot.send_message(target_user, f"{COMPANY_HEADER}✅ <b>تهانينا! تم تفعيل اشتراكك وتحديث رصيد أيامك بنجاح. يمكنك الآن العمل على النظام.</b>", parse_mode="HTML", reply_markup=get_main_keyboard(is_admin=target_is_admin))
+            bot.send_message(target_user, f"{COMPANY_HEADER}✅ <b>تهانينا! تم تفعيل اشتراكك وتحديث رصيد أيامك بنجاح. يمكنك الآن العمل على النظام.</b>", parse_mode="HTML", reply_markup=get_main_keyboard())
         except:
             pass
 
