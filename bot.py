@@ -41,7 +41,7 @@ TEXTS = {
     "btn_buy": "📤 حساب شراء من زبون",
     "btn_info": "📖 شرح النظام والمواصفات",
     "btn_clients": "👥 جرد العملاء والعمليات",
-    "btn_admin_panel": "🛠️ لوحة تحكم الإدارة",
+    "btn_admin_panel": "🛠️ لوحة تحكم الإدارة (خاص)",
     "invoice_sell": "🧾 <b>فاتورة بيع ذهب للزبون</b> 🧾",
     "invoice_buy": "📥 <b>فاتورة شراء ذهب من الزبون</b> 📥",
     "shop": "🔷 المحل العامر: ",
@@ -61,14 +61,14 @@ TEXTS = {
 }
 
 def notify_admin_error(user_id, error_msg, traceback_str=""):
-    """دالة مركزية لإرسال الأخطاء البرمجية للآدمن مع التفاصيل الكاملة"""
+    """دالة مركزية لإرسال الأخطاء البرمجية وأسباب عدم الاستجابة للآدمن فوراً"""
     if not ADMIN_ID:
         return
     try:
         error_report = (
-            f"🚨 <b>تقرير خطأ برمجي (Exception Alert)</b> 🚨\n\n"
+            f"🚨 <b>تقرير خطأ أو تعثر استجابة (Exception Alert)</b> 🚨\n\n"
             f"👤 <b>معرف المستخدم (User ID):</b> <code>{user_id}</code>\n"
-            f"⚠️ <b>رسالة الخطأ:</b>\n<code>{error_msg}</code>\n\n"
+            f"⚠️ <b>السبب / رسالة الخطأ:</b>\n<code>{error_msg}</code>\n\n"
             f"📜 <b>التفاصيل التقنية (Traceback):</b>\n"
             f"<pre>{traceback_str[:3000]}</pre>"
         )
@@ -82,11 +82,13 @@ def to_english_numbers(text):
     return text.translate(arabic_nums).translate(persian_nums)
 
 def get_main_keyboard(user_id):
+    """كيبورد المستخدمين العاديين، مع عزل زر الآدمن وجعله يظهر لمدير النظام فقط"""
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(types.KeyboardButton(TEXTS["btn_prices"]))
     markup.add(types.KeyboardButton(TEXTS["btn_sell"]), types.KeyboardButton(TEXTS["btn_buy"]))
     markup.add(types.KeyboardButton(TEXTS["btn_info"]), types.KeyboardButton(TEXTS["btn_clients"]))
     
+    # عزل زر الآدمن تماماً عن لوحة الصاغة العاديين
     if user_id == ADMIN_ID:
         markup.add(types.KeyboardButton(TEXTS["btn_admin_panel"]))
         
@@ -209,7 +211,7 @@ def admin_panel_shortcut(message):
     user_id = message.from_user.id
     if user_id == ADMIN_ID:
         try:
-            admin.admin_panel_start(message)
+            admin.admin_panel_start(message, bot)
         except Exception as e:
             notify_admin_error(user_id, str(e), traceback.format_exc())
 
@@ -430,7 +432,8 @@ def handle_text_inputs(message):
                 bot.send_message(message.chat.id, success_luxury_msg, parse_mode="HTML")
                 send_main_menu(message, user_id)
             except Exception as e:
-                notify_admin_error(user_id, str(e), traceback.format_exc())
+                # رصد أسباب فشل التسجيل وإبلاغ الآدمن فوراً
+                notify_admin_error(user_id, f"فشل تسجيل المستخدم في قاعدة البيانات: {str(e)}", traceback.format_exc())
                 bot.edit_message_text(f"⚠️ حدث خطأ أثناء التسجيل السحابي: {e}", message.chat.id, loading.message_id)
             return
 
