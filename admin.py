@@ -20,7 +20,6 @@ COMPANY_HEADER = (
 USER_STATE = {}
 
 def get_admin_main_keyboard():
-    """أزرار لوحة تحكم الآدمن حصراً (مفصولة تماماً عن المستخدمين)"""
     markup = types.InlineKeyboardMarkup(row_width=2)
     markup.add(
         types.InlineKeyboardButton("👥 إدارة الصاغة", callback_data="admin_goldsmiths"),
@@ -33,7 +32,6 @@ def get_admin_main_keyboard():
     return markup
 
 def notify_admin_panel_error(bot_instance, error_msg, traceback_str=""):
-    """دالة خاصة لإرسال أسباب عدم الاستجابة والأخطاء البرمجية للآدمن"""
     if not ADMIN_ID:
         return
     try:
@@ -116,7 +114,6 @@ def register_admin_handlers(bot):
                 bot.send_message(call.message.chat.id, "🛠️ لتصفير أو زيادة اشتراك صائغ، أرسل الآيدي مع الأمر بالشكل التالي:\n`/reset_sub [User_ID]` أو `/add_days [User_ID] [Days]`")
 
         except Exception as e:
-            # التقاط وإرسال أي سبب لعدم الاستجابة داخل أزرار الآدمن
             error_reason = f"فشل تنفيذ إجراء الآدمن ({action}): {str(e)}"
             notify_admin_panel_error(bot, error_reason, traceback.format_exc())
             bot.answer_callback_query(call.id, text="⚠️ حدث خطأ وتم إبلاغ النظام التقني.", show_alert=True)
