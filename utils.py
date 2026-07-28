@@ -17,6 +17,14 @@ def get_goldsmith(user_id):
         print(f"Supabase Error: {e}")
         return {"user_id": str(user_id), "full_name": "أرامكي للحلول الرقمية", "is_registered": False, "remaining_days": 0}
 
+def get_all_goldsmiths():
+    try:
+        res = supabase.table("goldsmiths").select("*").execute()
+        return res.data if res.data else []
+    except Exception as e:
+        print(f"Supabase All Users Error: {e}")
+        return []
+
 def register_goldsmith_details(user_id, shop_name, phone):
     try:
         data = {
@@ -28,6 +36,7 @@ def register_goldsmith_details(user_id, shop_name, phone):
         supabase.table("goldsmiths").upsert(data).execute()
     except Exception as e:
         print(f"Error registering: {e}")
+        raise e
 
 def update_goldsmith_subscription(user_id, days):
     try:
