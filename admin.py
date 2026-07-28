@@ -22,12 +22,12 @@ USER_STATE = {}
 def get_admin_main_keyboard():
     markup = types.InlineKeyboardMarkup(row_width=2)
     markup.add(
-        types.InlineKeyboardButton("👥 إدارة الصاغة", callback_data="admin_goldsmiths"),
+        types.InlineKeyboardButton("👥 جرد وإدارة الصاغة", callback_data="admin_goldsmiths"),
+        types.InlineKeyboardButton("🚨 الصاغة المنتهية", callback_data="admin_expired"),
+        types.InlineKeyboardButton("🔍 البحث عن صائغ", callback_data="admin_search"),
         types.InlineKeyboardButton("📊 إحصائيات النظام", callback_data="admin_stats"),
-        types.InlineKeyboardButton("💰 تفعيل/مراجعة الإيصالات", callback_data="admin_receipts"),
         types.InlineKeyboardButton("📢 إذاعة رسالة للكل", callback_data="admin_broadcast"),
-        types.InlineKeyboardButton("⚙️ تعديل أيام التجربة", callback_data="admin_set_trial"),
-        types.InlineKeyboardButton("🛠️ تصفير/تعديل اشتراك", callback_data="admin_manage_sub")
+        types.InlineKeyboardButton("⚙️ تعديل أيام التجربة", callback_data="admin_set_trial")
     )
     return markup
 
@@ -36,10 +36,8 @@ def notify_admin_panel_error(bot_instance, error_msg, traceback_str=""):
         return
     try:
         error_report = (
-            f"🚨 <b>تقرير خطأ في لوحة تحكم الآدمن (Admin Panel Error)</b> 🚨\n\n"
-            f"⚠️ <b>سبب عدم الاستجابة / الخطأ:</b>\n<code>{error_msg}</code>\n\n"
-            f"📜 <b>التفاصيل التقنية (Traceback):</b>\n"
-            f"<pre>{traceback_str[:3000]}</pre>"
+            f"🚨 <b>تقرير خطأ في لوحة تحكم الآدمن</b> 🚨\n\n"
+            f"⚠️ <b>السبب:</b>\n<code>{error_msg}</code>"
         )
         bot_instance.send_message(ADMIN_ID, error_report, parse_mode="HTML")
     except Exception as e:
@@ -51,8 +49,8 @@ def admin_panel_start(message, bot_instance):
     try:
         text = (
             f"{COMPANY_HEADER}"
-            "👑 <b>مرحباً بك يا مدير النظام في لوحة تحكم أرامكي المركزية</b> 👑\n\n"
-            "اختر العملية المطلوبة من الأزرار أدناه للتحكم التام بالمنظومة 👇"
+            "👑 <b>مرحباً بك يا مدير النظام في لوحة تحكم أرامكي</b> 👑\n\n"
+            "اختر العملية المطلوبة أدناه للتحكم السريع 👇"
         )
         bot_instance.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
     except Exception as e:
@@ -62,19 +60,19 @@ def register_admin_handlers(bot):
     @bot.message_handler(commands=['admin', 'panel'])
     def admin_panel_command(message):
         if message.from_user.id != ADMIN_ID:
-            bot.send_message(message.chat.id, "⚠️ عذراً، هذا الأمر مخصص لإدارة أرامكي فقط.")
+            bot.send_message(message.chat.id, "⚠️ عذراً، هذا الأمر مخصص للإدارة فقط.")
             return
         admin_panel_start(message, bot)
 
-    @bot.callback_query_handler(func=lambda call: call.data.startswith("admin_"))
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("admin_") or call.data.startswith("adm_sub_"))
     def handle_admin_callbacks(call):
         if call.from_user.id != ADMIN_ID:
-            bot.answer_callback_query(call.id, text="⚠️ غير مسموح لك بالوصول!", show_alert=True)
+            bot.answer_callback_query(call.id, text="⚠️ غير مسموح!", show_alert=True)
             return
         
-        action = call.data
+        data = call.data
         try:
-            if action == "admin_stats":
+            if data == "admin_stats":
                 bot.answer_callback_query(call.id)
                 res = utils.supabase.table("goldsmiths").select("user_id", count="exact").execute()
                 db_count = res.count if hasattr(res, 'count') and res.count is not None else 0
@@ -82,41 +80,161 @@ def register_admin_handlers(bot):
                 
                 stats_text = (
                     f"{COMPANY_HEADER}"
-                    "📊 <b>إحصائيات منصة أرامكي لأنظمة الصاغة:</b>\n\n"
-                    f"👥 <b>إجمالي عدد الصاغة النشطين:</b> {total_users} صائغ\n"
+                    "📊 <b>إحصائيات المنصة:</b>\n\n"
+                    f"👥 <b>إجمالي الصاغة النشطين:</b> {total_users} صائغ\n"
                     f"⏳ <b>فترة التجربة المجانية الحالية:</b> {FREE_TRIAL_DAYS} أيام\n"
                     f"💵 <b>سعر الاشتراك الشهري:</b> {MONTHLY_PRICE}\n"
-                    f"💳 <b>رقم الماستر كارد المعتمد:</b> <code>{MASTER_CARD}</code>\n"
-                    f"📞 <b>خط الدعم الفني:</b> {SUPPORT_PHONE}\n\n"
-                    "🟢 <b>حالة السيرفر:</b> يعمل بكفاءة تامة 100%"
+                    f"💳 <b>رقم الماستر المعتمد:</b> <code>{MASTER_CARD}</code>\n\n"
+                    "🟢 <b>حالة السيرفر:</b> يعمل بكفاءة 100%"
                 )
-                bot.edit_message_text(stats_text, chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
+                try:
+                    bot.edit_message_text(stats_text, chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
+                except telebot.apihelper.ApiTelegramException as e:
+                    if "message is not modified" not in str(e):
+                        raise e
 
-            elif action == "admin_goldsmiths":
+            elif data == "admin_goldsmiths":
                 bot.answer_callback_query(call.id)
-                bot.edit_message_text(f"{COMPANY_HEADER}👥 <b>إدارة الصاغة والمشتركين:</b>\n\nقريباً سيتم عرض قائمة تفصيلية بجميع الصاغة المشتركين.", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
+                goldsmiths = utils.get_all_goldsmiths()
+                
+                if not goldsmiths:
+                    bot.edit_message_text(f"{COMPANY_HEADER}👥 <b>جرد الصاغة:</b>\n\nلا يوجد صاغة مسجلين في القاعدة حالياً.", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
+                    return
 
-            elif action == "admin_receipts":
+                text = f"{COMPANY_HEADER}👥 <b>قائمة وجرد الصاغة المشتركين ({len(goldsmiths)}):</b>\nاختر الصائغ للتحكم السريع بحسابه 👇"
+                markup = types.InlineKeyboardMarkup(row_width=1)
+                
+                for g in goldsmiths[:15]: 
+                    uid = g.get('user_id')
+                    name = g.get('full_name') or 'بدون اسم'
+                    days = g.get('remaining_days', 0)
+                    btn_text = f"👤 {name} | (رصيد: {days} يوم)"
+                    markup.add(types.InlineKeyboardButton(btn_text, callback_data=f"adm_sub_view_{uid}"))
+                
+                markup.add(types.InlineKeyboardButton("🔙 عودة للرئيسية", callback_data="admin_home"))
+                try:
+                    bot.edit_message_text(text, chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=markup)
+                except telebot.apihelper.ApiTelegramException as e:
+                    if "message is not modified" not in str(e):
+                        raise e
+
+            elif data == "admin_expired":
                 bot.answer_callback_query(call.id)
-                bot.edit_message_text(f"{COMPANY_HEADER}💰 <b>قسم مراجعة الإيصالات:</b>\n\nالإيصالات المرسلة من الصاغة (على رقم الماستر <code>{MASTER_CARD}</code>) تظهر لك هنا تلقائياً لتفعيلها.", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
+                goldsmiths = utils.get_all_goldsmiths()
+                expired_users = [g for g in goldsmiths if int(g.get('remaining_days', 0)) <= 0]
+                
+                if not expired_users:
+                    bot.edit_message_text(f"{COMPANY_HEADER}🚨 <b>الصاغة المنتهية اشتراكاتهم:</b>\n\nممتاز! لا يوجد أي صائغ منتهي الاشتراك حالياً، الكل مشترك وفعال.", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
+                    return
 
-            elif action == "admin_broadcast":
+                text = f"{COMPANY_HEADER}🚨 <b>قائمة الصاغة الذين انتهت اشتراكاتهم ({len(expired_users)}):</b>\nاختر الصائغ لتجديد اشتراكه فورا 👇"
+                markup = types.InlineKeyboardMarkup(row_width=1)
+                
+                for g in expired_users[:15]:
+                    uid = g.get('user_id')
+                    name = g.get('full_name') or 'بدون اسم'
+                    markup.add(types.InlineKeyboardButton(f"🚨 {name} | منتهي الصلاحية", callback_data=f"adm_sub_view_{uid}"))
+                
+                markup.add(types.InlineKeyboardButton("🔙 عودة للرئيسية", callback_data="admin_home"))
+                try:
+                    bot.edit_message_text(text, chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=markup)
+                except telebot.apihelper.ApiTelegramException as e:
+                    if "message is not modified" not in str(e):
+                        raise e
+
+            elif data == "admin_search":
+                bot.answer_callback_query(call.id)
+                USER_STATE[call.from_user.id] = "WAITING_GOLDSMITH_SEARCH"
+                bot.send_message(call.message.chat.id, "🔍 <b>البحث السريع عن صائغ:</b>\n\nأرسل جزءاً من <b>اسم المحل</b> أو <b>رقم الهاتف</b> للبحث عنه فوراً:")
+
+            elif data.startswith("adm_sub_view_"):
+                bot.answer_callback_query(call.id)
+                target_uid = data.split("_")[3]
+                gs = utils.get_goldsmith(target_uid) or {}
+                
+                name = gs.get('full_name', 'غير معروف')
+                phone = gs.get('phone', 'غير متوفر')
+                days = gs.get('remaining_days', 0)
+                
+                info_text = (
+                    f"{COMPANY_HEADER}"
+                    f"👤 <b>تفاصيل الصائغ:</b>\n\n"
+                    f"🏢 المحل: <b>{name}</b>\n"
+                    f"📱 الهاتف: <code>{phone}</code>\n"
+                    f"🆔 الآيدي: <code>{target_uid}</code>\n"
+                    f"⏳ الأيام المتبقية: <b>{days} يوم</b>\n\n"
+                    "اختر الإجراء المناسب أدناه بضغطة زر:"
+                )
+                markup = types.InlineKeyboardMarkup(row_width=2)
+                markup.add(
+                    types.InlineKeyboardButton("➕ تفعيل/إضافة 30 يوم", callback_data=f"adm_sub_add_{target_uid}"),
+                    types.InlineKeyboardButton("🛑 إيقاف/تصفير الحساب", callback_data=f"adm_sub_zero_{target_uid}")
+                )
+                markup.add(types.InlineKeyboardButton("⬅️ رجوع لقائمة الصاغة", callback_data="admin_goldsmiths"))
+                bot.edit_message_text(info_text, chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=markup)
+
+            elif data.startswith("adm_sub_add_"):
+                target_uid = data.split("_")[3]
+                utils.update_goldsmith_subscription(target_uid, days=30)
+                bot.answer_callback_query(call.id, text="✅ تمت إضافة 30 يوم بنجاح!", show_alert=True)
+                call.data = f"adm_sub_view_{target_uid}"
+                handle_admin_callbacks(call)
+
+            elif data.startswith("adm_sub_zero_"):
+                target_uid = data.split("_")[3]
+                utils.adjust_goldsmith_days(target_uid, 0, set_zero=True)
+                bot.answer_callback_query(call.id, text="🛑 تم إيقاف وتصفير أيام الصائغ!", show_alert=True)
+                call.data = f"adm_sub_view_{target_uid}"
+                handle_admin_callbacks(call)
+
+            elif data == "admin_home":
+                bot.answer_callback_query(call.id)
+                text = f"{COMPANY_HEADER}👑 <b>لوحة تحكم أرامكي المركزية</b> 👑\n\nاختر العملية المطلوبة أدناه:"
+                bot.edit_message_text(text, chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
+
+            elif data == "admin_broadcast":
                 bot.answer_callback_query(call.id)
                 USER_STATE[call.from_user.id] = "WAITING_BROADCAST"
-                bot.send_message(call.message.chat.id, "📢 أرسل الرسالة التي تريد إذاعتها لجميع الصاغة الآن:")
+                bot.send_message(call.message.chat.id, "📢 أرسل الرسالة (نص، صورة، أو فيديو) التي تريد إذاعتها لجميع الصاغة الآن:")
 
-            elif action == "admin_set_trial":
+            elif data == "admin_set_trial":
                 bot.answer_callback_query(call.id)
-                bot.send_message(call.message.chat.id, f"⚙️ فترة التجربة الحالية هي: **{FREE_TRIAL_DAYS} أيام**.\nلتغييرها، يمكنك تعديل المتغير `FREE_TRIAL_DAYS` في الكود بسهولة.", parse_mode="Markdown")
-
-            elif action == "admin_manage_sub":
-                bot.answer_callback_query(call.id)
-                bot.send_message(call.message.chat.id, "🛠️ لتصفير أو زيادة اشتراك صائغ، أرسل الآيدي مع الأمر بالشكل التالي:\n`/reset_sub [User_ID]` أو `/add_days [User_ID] [Days]`")
+                bot.send_message(call.message.chat.id, f"⚙️ فترة التجربة الحالية مضبوطة على: **{FREE_TRIAL_DAYS} أيام**.", parse_mode="Markdown")
 
         except Exception as e:
-            error_reason = f"فشل تنفيذ إجراء الآدمن ({action}): {str(e)}"
+            error_reason = f"خطأ في لوحة التحكم ({data}): {str(e)}"
             notify_admin_panel_error(bot, error_reason, traceback.format_exc())
-            bot.answer_callback_query(call.id, text="⚠️ حدث خطأ وتم إبلاغ النظام التقني.", show_alert=True)
+            bot.answer_callback_query(call.id, text="⚠️ حدث خطأ تقني.", show_alert=True)
+
+    @bot.message_handler(func=lambda m: USER_STATE.get(m.from_user.id) == "WAITING_GOLDSMITH_SEARCH")
+    def process_goldsmith_search(message):
+        user_id = message.from_user.id
+        if user_id != ADMIN_ID:
+            return
+        
+        query = message.text.strip().lower()
+        USER_STATE.pop(user_id, None)
+        
+        try:
+            goldsmiths = utils.get_all_goldsmiths()
+            matched = [g for g in goldsmiths if query in str(g.get('full_name', '')).lower() or query in str(g.get('phone', '')) or query in str(g.get('user_id', ''))]
+            
+            if not matched:
+                bot.send_message(message.chat.id, "❌ لم يتم العثور على أي صائغ مطابق لبحثك.", reply_markup=get_admin_main_keyboard())
+                return
+                
+            text = f"{COMPANY_HEADER}🔍 <b>نتائج البحث عن ({query}):</b>\nاختر الصائغ المطلوب للتحكم السريع بحسابه 👇"
+            markup = types.InlineKeyboardMarkup(row_width=1)
+            for g in matched:
+                uid = g.get('user_id')
+                name = g.get('full_name') or 'بدون اسم'
+                days = g.get('remaining_days', 0)
+                markup.add(types.InlineKeyboardButton(f"👤 {name} | (رصيد: {days} يوم)", callback_data=f"adm_sub_view_{uid}"))
+            
+            markup.add(types.InlineKeyboardButton("🔙 عودة للرئيسية", callback_data="admin_home"))
+            bot.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=markup)
+        except Exception as e:
+            bot.send_message(message.chat.id, f"⚠️ خطأ أثناء البحث: {e}")
 
     @bot.message_handler(func=lambda m: USER_STATE.get(m.from_user.id) == "WAITING_BROADCAST", content_types=['text', 'photo', 'video', 'document', 'voice'])
     def process_admin_broadcast(message):
@@ -126,16 +244,15 @@ def register_admin_handlers(bot):
         
         loading_msg = bot.reply_to(message, "⏳ جاري إرسال الإذاعة لجميع الصاغة...")
         try:
-            res = utils.supabase.table("goldsmiths").select("user_id").execute()
-            users = [row['user_id'] for row in res.data if row.get('user_id')]
+            users = utils.get_all_goldsmiths()
+            user_ids = [row['user_id'] for row in users if row.get('user_id')]
         except Exception as e:
-            notify_admin_panel_error(bot, f"خطأ في جلب الصاغة للإذاعة: {e}", traceback.format_exc())
             bot.edit_message_text(f"⚠️ خطأ في جلب الصاغة: {e}", message.chat.id, loading_msg.message_id)
             return
 
         success = 0
         failed = 0
-        for uid in users:
+        for uid in user_ids:
             try:
                 bot.copy_message(chat_id=uid, from_chat_id=message.chat.id, message_id=message.message_id)
                 success += 1
