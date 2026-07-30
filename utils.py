@@ -34,7 +34,6 @@ def get_goldsmith(user_id):
             if "is_registered" not in gs:
                 gs["is_registered"] = True
             
-            # الاعتماد على الحقل القديم والموجود أصلاً في قاعدة البيانات trial_expires_at
             expiry = gs.get("trial_expires_at")
             if not expiry:
                 now_utc = datetime.now(timezone.utc)
@@ -47,12 +46,31 @@ def get_goldsmith(user_id):
                 gs["trial_expires_at"] = expiry_str
             
             gs["remaining_days"] = calculate_remaining_days(gs.get("trial_expires_at"))
+            
+            # تحديد نوع الحالة (تجريبي أو مدفوع)
+            created_at = gs.get("created_at")
+            gs["subscription_type"] = "مجاني (تجريبي)" if gs["remaining_days"] <= FREE_TRIAL_DAYS else "اشتراك مدفوع"
             return gs
         else:
-            return {"user_id": str(user_id), "full_name": "أرامكي للحلول الرقمية", "is_registered": False, "remaining_days": 0}
+            return {"user_id": str(user_id), "full_name": "أرامكي للحلول الرقمية", "is_registered": False, "remaining_days": 0, "subscription_type": "غير مسجل"}
     except Exception as e:
         print(f"Supabase Error: {e}")
-        return {"user_id": str(user_id), "full_name": "أرامكي للحلول الرقمية", "is_registered": False, "remaining_days": 0}
+        return {"user_id": str(user_id), "full_name": "أرامكي للحلول الرقمية", "is_registered": False, "remaining_days": 0, "subscription_type": "غير مسجل"}
+
+def search_goldsmith(query_str):
+    """بحث فعّال عن عميل بالاسم، المعرف، أو رقم الهاتف"""
+    try:
+        query_str = str(query_str).strip()
+        # محاولة البحث بالمعرف أو الهاتف أو جزء من الاسم
+        res = supabase.table("goldsmiths").select("*").or_(f"user_id.eq.{query_str},phone.ilike.%{query_str}%,full_name.ilike.%{query_str}%").execute()
+        
+        goldsmiths = res.data if res.data else []
+        for gs in goldsmiths:
+            gs["remaining_days"] = calculate_remaining_days(gs.get("trial_expires_at"))
+        return goldsmiths
+    except Exception as e:
+        print(f"Search Error: {e}")
+        return []
 
 def get_all_goldsmiths():
     try:
@@ -76,6 +94,11 @@ def get_all_goldsmiths():
             
             gs["remaining_days"] = calculate_remaining_days(gs.get("trial_expires_at"))
             gs["member_serial"] = 145 + index
+            
+            # تحديد نوع الاشتراك بدقة للأدمن
+            exp_date_str = gs.get("trial_expires_at", "")
+            gs["subscription_type"] = "🎁 فترة تجريبية مجانية" if gs["remaining_days"] <= FREE_TRIAL_DAYS else "💎 اشتراك رسمي مدفوع"
+            
         return goldsmiths
     except Exception as e:
         print(f"Supabase All Users Error: {e}")
@@ -98,6 +121,7 @@ def register_goldsmith_details(user_id, shop_name, phone):
         raise e
 
 def update_goldsmith_subscription(user_id, days):
+    """إضافة أو خصم أيام من اشتراك العميل"""
     try:
         res = supabase.table("goldsmiths").select("trial_expires_at").eq("user_id", str(user_id)).execute()
         current_expiry = None
@@ -114,10 +138,9 @@ def update_goldsmith_subscription(user_id, days):
         
         now_utc = datetime.now(timezone.utc)
         
-        if current_expiry and current_expiry > now_utc:
-            new_expiry = current_expiry + timedelta(days=days)
-        else:
-            new_expiry = now_utc + timedelta(days=days)
+        # إذا كانت الأيام سالبة (خصم) أو موجبة (إضافة)
+        base_time = current_expiry if (current_expiry and current_expiry > now_utc) else now_utc
+        new_expiry = base_time + timedelta(days=int(days))
             
         supabase.table("goldsmiths").update({"trial_expires_at": new_expiry.isoformat()}).eq("user_id", str(user_id)).execute()
     except Exception as e:
