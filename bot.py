@@ -124,7 +124,7 @@ def send_welcome(message):
                 message.chat.id, 
                 f"{COMPANY_HEADER}🌟 <b>مرحباً بك في قمة الاحتراف الرقمي لعالم الصياغة!</b> 🌟\n\n"
                 "لقد انضمت الآن إلى النخبة من صاغة العراق الذين يديرون حساباتهم بدقة متناهية بعيداً عن حسابات الورق والخطأ البشري.\n"
-                "لتفعيل فترتك التجريبية الحصرية (7 أيام مجاناً)، يرجى إرسال بيانات محلك برسالة واحدة كالتالي:\n\n"
+                "لتفعيل فترتك التجريبية الحصرية (3 أيام مجاناً)، يرجى إرسال بيانات محلك برسالة واحدة كالتالي:\n\n"
                 "🏢 <b>اسم المحل:</b>\n"
                 "📱 <b>رقم الهاتف:</b>\n\n"
                 "💡 <i>مثال للنسخ والتعديل:</i>\n"
@@ -402,14 +402,14 @@ def handle_text_inputs(message):
             
             try:
                 utils.register_goldsmith_details(user_id, shop_name, phone)
-                utils.update_goldsmith_subscription(user_id, days=7) 
+                utils.update_goldsmith_subscription(user_id, days=3) 
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading.message_id)
                 
                 success_luxury_msg = (
                     f"{COMPANY_HEADER}"
                     "💎 <b>مبارك لك الانضمام لنخبة الصاغة المحترفين!</b> 💎\n\n"
-                    "لقد تم تسجيل محلك العامر بنجاح وتفعيل <b>الفترة التجريبية الحصرية (7 أيام مجانية كاملة)</b>.\n\n"
+                    "لقد تم تسجيل محلك العامر بنجاح وتفعيل <b>الفترة التجريبية الحصرية (3 أيام مجانية كاملة)</b>.\n\n"
                     "🚀 <i>أنت الآن تملك أقوى أداة ذكية في السوق العراقي لإدارة الحسابات!</i> 💛"
                 )
                 bot.send_message(message.chat.id, success_luxury_msg, parse_mode="HTML")
@@ -536,7 +536,6 @@ def handle_text_inputs(message):
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
-# تفعيل تسجيل هاندلرز الآدمن المستقلة
 admin.register_admin_handlers(bot)
 
 if __name__ == "__main__":
