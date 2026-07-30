@@ -147,7 +147,7 @@ def register_admin_handlers(bot):
             elif data == "admin_search":
                 bot.answer_callback_query(call.id)
                 USER_STATE[call.from_user.id] = "WAITING_GOLDSMITH_SEARCH"
-                bot.send_message(call.message.chat.id, "🔍 <b>البحث السريع عن صائغ:</b>\n\nأرسل جزءاً من <b>اسم المحل</b> أو <b>رقم الهاتف</b> للبحث عنه فوراً:")
+                bot.send_message(call.message.chat.id, "🔍 <b>البحث السريع عن صائغ:</b>\n\nأرسل جزءاً من <b>اسم المحل</b> أو <b>رقم الهاتف</b> للبحث عنه فوراً:", parse_mode="HTML")
 
             elif data.startswith("adm_sub_view_"):
                 bot.answer_callback_query(call.id)
@@ -222,7 +222,7 @@ def register_admin_handlers(bot):
         
         try:
             parts = state.split("_")
-            action_type = parts[1] # ADD or SUB
+            action_type = parts[1]
             target_uid = parts[2]
             
             days_val = int(message.text.strip())
@@ -289,4 +289,3 @@ def register_admin_handlers(bot):
 
         USER_STATE.pop(user_id, None)
         bot.edit_message_text(f"✅ <b>تم الانتهاء من الإذاعة!</b>\n\n🟢 نجح الإرسال إلى: {success} صائغ\n🔴 فشل الإرسال إلى: {failed}", chat_id=message.chat.id, message_id=loading_msg.message_id, parse_mode="HTML")
-            
