@@ -35,7 +35,7 @@ USER_STATE = {}
 INVOICE_DATA = {}
 
 TEXTS = {
-    "welcome": "👋 أهلاً بك في عمالقة الصياغة <b>SMART GOLD SYSTEM</b>\n\nالمنظومة الذكية الأسرع والأدق لإدارة حسابات الصياغة محلياً ودولياً بمعايير المصارف العالمية.\n🔥 <i>عدد المشتركين النشطين الآن في المنظومة:</i> <b>{counter} صايغ معتمد</b>\n\nالرعاة الرسميون لنجاح عملك.. استخدم الأزرار أدناه للبدء بالعمليات اليومية 👇",
+    "welcome": "👋 أهلاً بك في عمالقة الصياغة <b>SMART GOLD SYSTEM</b>\n\nالمنظومة الذكية الأسرع والأدق لإدارة حسابات الصياغة محلياً ودولياً بمعايير المصارف العالمية.\n🔑 <i>رقم عضويتك التسلسلي في النخبة:</i> <b>#{serial} صايغ معتمد</b>\n\nالرعاة الرسميون لنجاح عملك.. استخدم الأزرار أدناه للبدء بالعمليات اليومية 👇",
     "btn_prices": "⚙️ إدخال أسعار الصباح اليومية",
     "btn_sell": "📥 حساب بيع لزبون",
     "btn_buy": "📤 حساب شراء من زبون",
@@ -94,16 +94,19 @@ def get_main_keyboard(user_id):
 def send_main_menu(message, user_id):
     try:
         markup = get_main_keyboard(user_id)
+        serial = 145
         try:
-            all_users = utils.get_all_goldsmiths() 
-            total_count = len(all_users) if all_users else 1
-            counter = 145 + total_count
+            all_users = utils.get_all_goldsmiths()
+            for u in all_users:
+                if str(u.get('user_id')) == str(user_id):
+                    serial = u.get('member_serial', 145)
+                    break
         except:
-            counter = 146
+            pass
         
         bot.send_message(
             message.chat.id, 
-            COMPANY_HEADER + TEXTS["welcome"].format(counter=counter), 
+            COMPANY_HEADER + TEXTS["welcome"].format(serial=serial), 
             parse_mode="HTML", 
             reply_markup=markup
         )
@@ -293,7 +296,7 @@ def handle_admin_actions(call):
         if data.startswith("approve_sub_"):
             target_user = int(data.split("_")[2])
             utils.update_goldsmith_subscription(target_user, days=30)
-            bot.answer_callback_query(call.id, text="✅ تم اعتماد التفعيل بنجاح تام!")
+            bot.answer_callback_query(call.id, text="✅ تم اعتماد التفعيل وإضافة 30 يوم بنجاح تام!")
             markup = types.InlineKeyboardMarkup()
             markup.add(
                 types.InlineKeyboardButton("➕ إضافة 30 يوم", callback_data=f"time_add_{target_user}"),
@@ -302,15 +305,15 @@ def handle_admin_actions(call):
             markup.add(types.InlineKeyboardButton("🛑 تصفير الأيام وإيقاف", callback_data=f"time_zero_{target_user}"))
             
             try:
-                bot.edit_message_caption(f"🧾 تم اعتماد الوصل وتفعيل اشتراك الصائغ برقم تعريفي: <code>{target_user}</code>", call.message.chat.id, call.message.message_id, parse_mode="HTML", reply_markup=markup)
+                bot.edit_message_caption(f"🧾 تم اعتماد الوصل وتفعيل اشتراك الصائغ (30 يوم إضافية) برقم تعريفي: <code>{target_user}</code>", call.message.chat.id, call.message.message_id, parse_mode="HTML", reply_markup=markup)
             except:
                 try:
-                    bot.edit_message_text(f"🧾 تم اعتماد الوصل وتفعيل اشتراك الصائغ برقم تعريفي: <code>{target_user}</code>", call.message.chat.id, call.message.message_id, parse_mode="HTML", reply_markup=markup)
+                    bot.edit_message_text(f"🧾 تم اعتماد الوصل وتفعيل اشتراك الصائغ (30 يوم إضافية) برقم تعريفي: <code>{target_user}</code>", call.message.chat.id, call.message.message_id, parse_mode="HTML", reply_markup=markup)
                 except:
                     pass
 
             try:
-                bot.send_message(target_user, f"{COMPANY_HEADER}🎉 <b>تهانينا القلبية! تم اعتماد وصل التحويل وتجديد اشتراكك الشهري بنجاح في منظومة أرامكي للحلول الرقمية. محلك الآن جاهز للعمل بكامل طاقته الاستيعابية وبدون أي قيود!</b> 💛", parse_mode="HTML", reply_markup=get_main_keyboard(target_user))
+                bot.send_message(target_user, f"{COMPANY_HEADER}🎉 <b>تهانينا القلبية! تم اعتماد وصل التحويل وتجديد اشتراكك الشهري بنجاح لمدة 30 يوم في منظومة أرامكي للحلول الرقمية. محلك الآن جاهز للعمل بكامل طاقته الاستيعابية وبدون أي قيود!</b> 💛", parse_mode="HTML", reply_markup=get_main_keyboard(target_user))
             except:
                 pass
 
@@ -374,7 +377,7 @@ def process_customer_receipt(message):
                 types.InlineKeyboardButton("✅ موافقة وتفعيل (30 يوم)", callback_data=f"approve_sub_{user_id}"),
                 types.InlineKeyboardButton("❌ رفض الإيصال", callback_data=f"reject_sub_{user_id}")
             )
-            admin_text = f"🚨 <b>طلب اشتراك أو تجديد مالي جديد!</b>\n\n👤 الآيدي: <code>{user_id}</code>\n🔷 المحل: {shop_name}\n📱 الهاتف: {phone}\n\nيرجى التدقيق واعتماد الوصل أدناه بدقة."
+            admin_text = f"🚨 <b>طلب اشتراك أو تجديد مالي جديد!</b>\n\n👤 الآيدي: <code>{user_id}</code>\n🔷 المحل: {shop_name}\n📱 الهاتف: {phone}\n\nيرجى التدقيق واعتماد الوصل أدناه لتفعيل 30 يوم فوراً."
             bot.send_photo(ADMIN_ID, photo, caption=admin_text, parse_mode="HTML", reply_markup=markup)
             
             bot.delete_message(message.chat.id, loading_msg.message_id)
@@ -402,7 +405,6 @@ def handle_text_inputs(message):
             
             try:
                 utils.register_goldsmith_details(user_id, shop_name, phone)
-                utils.update_goldsmith_subscription(user_id, days=3) 
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading.message_id)
                 
