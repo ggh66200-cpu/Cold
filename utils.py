@@ -31,13 +31,11 @@ def get_goldsmith(user_id):
         if res.data:
             gs = res.data[0]
             
-            # التحقق من أن المستخدم مسجل بالفعل لكي لا يظهر له نموذج التسجيل مجدداً
             if "is_registered" not in gs:
                 gs["is_registered"] = True
             
             expiry = gs.get("expiry_date")
             if not expiry:
-                # إذا لم يكن هناك تاريخ انتهاء، نأخذ الأيام القديمة أو نعطيه التجريبي وننشئ التاريخ تلقائياً
                 old_days = int(gs.get("remaining_days", FREE_TRIAL_DAYS))
                 today = datetime.now(timezone.utc).date()
                 new_expiry = today + timedelta(days=old_days)
@@ -165,4 +163,3 @@ def update_morning_prices(user_id, p21, p18, w21, w18, usd_r):
     except Exception as e:
         print(f"Supabase Update Error: {e}")
         raise e
-                                       
