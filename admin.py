@@ -81,8 +81,8 @@ def register_admin_handlers(bot):
                 stats_text = (
                     f"{COMPANY_HEADER}"
                     "📊 <b>إحصائيات المنصة:</b>\n\n"
-                    f"👥 <b>إجمالي الصاغة النشطين:</b> {total_users} صائغ\n"
-                    f"⏳ <b>فترة التجربة المجانية الحالية:</b> {FREE_TRIAL_DAYS} أيام\n"
+                    f"👥 <b>إجمالي الصاغة في القاعدة:</b> {total_users} صائغ\n"
+                    f"⏳ <b>فترة التجربة المجانية الحالية:</b> {FREE_TRIAL_DAYS} أيام دقيقة\n"
                     f"💵 <b>سعر الاشتراك الشهري:</b> {MONTHLY_PRICE}\n"
                     f"💳 <b>رقم الماستر المعتمد:</b> <code>{MASTER_CARD}</code>\n\n"
                     "🟢 <b>حالة السيرفر:</b> يعمل بكفاءة 100%"
@@ -108,8 +108,9 @@ def register_admin_handlers(bot):
                     uid = g.get('user_id')
                     name = g.get('full_name') or 'بدون اسم'
                     days = int(g.get('remaining_days', 0))
+                    serial = g.get('member_serial', 145)
                     status_str = f"متبقي: {days} يوم" if days > 0 else "منتهي الصلاحية ⚠️"
-                    btn_text = f"👤 {name} | ({status_str})"
+                    btn_text = f"👤 #{serial} - {name} | ({status_str})"
                     markup.add(types.InlineKeyboardButton(btn_text, callback_data=f"adm_sub_view_{uid}"))
                 
                 markup.add(types.InlineKeyboardButton("🔙 عودة للرئيسية", callback_data="admin_home"))
@@ -135,7 +136,8 @@ def register_admin_handlers(bot):
                     uid = g.get('user_id')
                     name = g.get('full_name') or 'بدون اسم'
                     days = int(g.get('remaining_days', 0))
-                    markup.add(types.InlineKeyboardButton(f"🚨 {name} | الرصيد: {days} يوم", callback_data=f"adm_sub_view_{uid}"))
+                    serial = g.get('member_serial', 145)
+                    markup.add(types.InlineKeyboardButton(f"🚨 #{serial} - {name} | الرصيد: {days} يوم", callback_data=f"adm_sub_view_{uid}"))
                 
                 markup.add(types.InlineKeyboardButton("🔙 عودة للرئيسية", callback_data="admin_home"))
                 try:
@@ -257,7 +259,8 @@ def register_admin_handlers(bot):
                 uid = g.get('user_id')
                 name = g.get('full_name') or 'بدون اسم'
                 days = int(g.get('remaining_days', 0))
-                markup.add(types.InlineKeyboardButton(f"👤 {name} | (رصيد: {days} يوم)", callback_data=f"adm_sub_view_{uid}"))
+                serial = g.get('member_serial', 145)
+                markup.add(types.InlineKeyboardButton(f"👤 #{serial} - {name} | (رصيد: {days} يوم)", callback_data=f"adm_sub_view_{uid}"))
             
             markup.add(types.InlineKeyboardButton("🔙 عودة للرئيسية", callback_data="admin_home"))
             bot.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=markup)
@@ -289,3 +292,4 @@ def register_admin_handlers(bot):
 
         USER_STATE.pop(user_id, None)
         bot.edit_message_text(f"✅ <b>تم الانتهاء من الإذاعة!</b>\n\n🟢 نجح الإرسال إلى: {success} صائغ\n🔴 فشل الإرسال إلى: {failed}", chat_id=message.chat.id, message_id=loading_msg.message_id, parse_mode="HTML")
+                         
