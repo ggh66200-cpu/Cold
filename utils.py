@@ -36,9 +36,8 @@ def get_goldsmith(user_id):
             
             expiry = gs.get("expiry_date")
             if not expiry:
-                old_days = int(gs.get("remaining_days", FREE_TRIAL_DAYS))
                 today = datetime.now(timezone.utc).date()
-                new_expiry = today + timedelta(days=old_days)
+                new_expiry = today + timedelta(days=FREE_TRIAL_DAYS)
                 expiry = new_expiry.strftime("%Y-%m-%d")
                 try:
                     supabase.table("goldsmiths").update({"expiry_date": expiry, "is_registered": True}).eq("user_id", str(user_id)).execute()
@@ -56,18 +55,17 @@ def get_goldsmith(user_id):
 
 def get_all_goldsmiths():
     try:
-        res = supabase.table("goldsmiths").select("*").execute()
+        res = supabase.table("goldsmiths").select("*").order("created_at", desc=False).execute()
         goldsmiths = res.data if res.data else []
         
         today = datetime.now(timezone.utc).date()
-        for gs in goldsmiths:
+        for index, gs in enumerate(goldsmiths):
             if "is_registered" not in gs:
                 gs["is_registered"] = True
                 
             expiry = gs.get("expiry_date")
             if not expiry:
-                old_days = int(gs.get("remaining_days", FREE_TRIAL_DAYS))
-                new_expiry = today + timedelta(days=old_days)
+                new_expiry = today + timedelta(days=FREE_TRIAL_DAYS)
                 expiry = new_expiry.strftime("%Y-%m-%d")
                 try:
                     supabase.table("goldsmiths").update({"expiry_date": expiry}).eq("user_id", str(gs.get("user_id"))).execute()
@@ -76,6 +74,7 @@ def get_all_goldsmiths():
                 gs["expiry_date"] = expiry
             
             gs["remaining_days"] = calculate_remaining_days(gs.get("expiry_date"))
+            gs["member_serial"] = 145 + index
         return goldsmiths
     except Exception as e:
         print(f"Supabase All Users Error: {e}")
@@ -90,8 +89,7 @@ def register_goldsmith_details(user_id, shop_name, phone):
             "full_name": shop_name,
             "phone": phone,
             "is_registered": True,
-            "expiry_date": initial_expiry,
-            "remaining_days": FREE_TRIAL_DAYS
+            "expiry_date": initial_expiry
         }
         supabase.table("goldsmiths").upsert(data).execute()
     except Exception as e:
@@ -122,6 +120,7 @@ def update_goldsmith_subscription(user_id, days):
         supabase.table("goldsmiths").update({"expiry_date": new_expiry.strftime("%Y-%m-%d")}).eq("user_id", str(user_id)).execute()
     except Exception as e:
         print(f"Error updating sub: {e}")
+        raise e
 
 def adjust_goldsmith_days(user_id, days, set_zero=False):
     try:
