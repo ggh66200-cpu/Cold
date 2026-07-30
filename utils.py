@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timezone
 from supabase import create_client, Client
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
@@ -6,11 +7,32 @@ SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+def calculate_remaining_days(expiry_date_str):
+    if not expiry_date_str:
+        return 0
+    try:
+        # التعامل مع صيغة التاريخ المخزنة (YYYY-MM-DD أو YYYY-MM-DD HH:MM:SS)
+        if 'T' in expiry_date_str:
+            exp_date = datetime.fromisoformat(expiry_date_str.replace('Z', '+00:00')).date()
+        else:
+            exp_date = datetime.strptime(expiry_date_str.split()[0], "%Y-%m-%d").date()
+        
+        current_date = datetime.now(timezone.utc).date()
+        delta = (exp_date - current_date).days
+        return max(0, delta)
+    except Exception as e:
+        print(f"Date calculation error: {e}")
+        return 0
+
 def get_goldsmith(user_id):
     try:
         res = supabase.table("goldsmiths").select("*").eq("user_id", str(user_id)).execute()
         if res.data:
-            return res.data[0]
+            gs = res.data[0]
+            # حساب الأيام ذاتياً من تاريخ الانتهاء
+            expiry = gs.get("expiry_date")
+            gs["remaining_days"] = calculate_remaining_days(expiry) if expiry else int(gs.get("remaining_days", 0))
+            return gs
         else:
             return {"user_id": str(user_id), "full_name": "أرامكي للحلول الرقمية", "is_registered": False, "remaining_days": 0}
     except Exception as e:
@@ -20,18 +42,29 @@ def get_goldsmith(user_id):
 def get_all_goldsmiths():
     try:
         res = supabase.table("goldsmiths").select("*").execute()
-        return res.data if res.data else []
+        goldsmiths = res.data if res.data else []
+        # تحديث الأيام ذاتياً لكل الصاغة في القائمة
+        for gs in goldsmiths:
+            expiry = gs.get("expiry_date")
+            if expiry:
+                gs["remaining_days"] = calculate_remaining_days(expiry)
+        return goldsmiths
     except Exception as e:
         print(f"Supabase All Users Error: {e}")
         return []
 
 def register_goldsmith_details(user_id, shop_name, phone):
     try:
+        # تعيين تاريخ انتهاء أولي (مثلاً 7 أيام تجريبية من تاريخ اليوم)
+        from datetime import timedelta
+        initial_expiry = (datetime.now(timezone.utc) + timedelta(days=7)).strftime("%Y-%m-%d")
+        
         data = {
             "user_id": str(user_id),
             "full_name": shop_name,
             "phone": phone,
-            "is_registered": True
+            "is_registered": True,
+            "expiry_date": initial_expiry
         }
         supabase.table("goldsmiths").upsert(data).execute()
     except Exception as e:
@@ -40,20 +73,36 @@ def register_goldsmith_details(user_id, shop_name, phone):
 
 def update_goldsmith_subscription(user_id, days):
     try:
-        res = supabase.table("goldsmiths").select("remaining_days").eq("user_id", str(user_id)).execute()
-        current_days = 0
-        if res.data and res.data[0].get("remaining_days"):
-            current_days = int(res.data[0]["remaining_days"])
+        # جلب تاريخ الانتهاء الحالي أو البدء من تاريخ اليوم إذا منتهي
+        res = supabase.table("goldsmiths").select("expiry_date").eq("user_id", str(user_id)).execute()
+        current_expiry = None
+        if res.data and res.data[0].get("expiry_date"):
+            current_expiry_str = res.data[0]["expiry_date"]
+            try:
+                if 'T' in current_expiry_str:
+                    current_expiry = datetime.fromisoformat(current_expiry_str.replace('Z', '+00:00')).date()
+                else:
+                    current_expiry = datetime.strptime(current_expiry_str.split()[0], "%Y-%m-%d").date()
+            except:
+                pass
         
-        new_days = current_days + days
-        supabase.table("goldsmiths").update({"remaining_days": new_days}).eq("user_id", str(user_id)).execute()
+        from datetime import timedelta, datetime
+        today = datetime.now(timezone.utc).date()
+        
+        if current_expiry and current_expiry > today:
+            new_expiry = current_expiry + timedelta(days=days)
+        else:
+            new_expiry = today + timedelta(days=days)
+            
+        supabase.table("goldsmiths").update({"expiry_date": new_expiry.strftime("%Y-%m-%d")}).eq("user_id", str(user_id)).execute()
     except Exception as e:
         print(f"Error updating sub: {e}")
 
 def adjust_goldsmith_days(user_id, days, set_zero=False):
     try:
         if set_zero:
-            supabase.table("goldsmiths").update({"remaining_days": 0}).eq("user_id", str(user_id)).execute()
+            today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            supabase.table("goldsmiths").update({"expiry_date": today_str}).eq("user_id", str(user_id)).execute()
         else:
             update_goldsmith_subscription(user_id, days)
     except Exception as e:
