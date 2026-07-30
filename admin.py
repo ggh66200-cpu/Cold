@@ -107,8 +107,9 @@ def register_admin_handlers(bot):
                 for g in goldsmiths[:15]: 
                     uid = g.get('user_id')
                     name = g.get('full_name') or 'بدون اسم'
-                    days = g.get('remaining_days', 0)
-                    btn_text = f"👤 {name} | (رصيد: {days} يوم)"
+                    days = int(g.get('remaining_days', 0))
+                    status_str = f"متبقي: {days} يوم" if days > 0 else "منتهي الصلاحية ⚠️"
+                    btn_text = f"👤 {name} | ({status_str})"
                     markup.add(types.InlineKeyboardButton(btn_text, callback_data=f"adm_sub_view_{uid}"))
                 
                 markup.add(types.InlineKeyboardButton("🔙 عودة للرئيسية", callback_data="admin_home"))
@@ -133,7 +134,8 @@ def register_admin_handlers(bot):
                 for g in expired_users[:15]:
                     uid = g.get('user_id')
                     name = g.get('full_name') or 'بدون اسم'
-                    markup.add(types.InlineKeyboardButton(f"🚨 {name} | منتهي الصلاحية", callback_data=f"adm_sub_view_{uid}"))
+                    days = int(g.get('remaining_days', 0))
+                    markup.add(types.InlineKeyboardButton(f"🚨 {name} | الرصيد: {days} يوم", callback_data=f"adm_sub_view_{uid}"))
                 
                 markup.add(types.InlineKeyboardButton("🔙 عودة للرئيسية", callback_data="admin_home"))
                 try:
@@ -154,7 +156,7 @@ def register_admin_handlers(bot):
                 
                 name = gs.get('full_name', 'غير معروف')
                 phone = gs.get('phone', 'غير متوفر')
-                days = gs.get('remaining_days', 0)
+                days = int(gs.get('remaining_days', 0))
                 
                 info_text = (
                     f"{COMPANY_HEADER}"
@@ -162,28 +164,34 @@ def register_admin_handlers(bot):
                     f"🏢 المحل: <b>{name}</b>\n"
                     f"📱 الهاتف: <code>{phone}</code>\n"
                     f"🆔 الآيدي: <code>{target_uid}</code>\n"
-                    f"⏳ الأيام المتبقية: <b>{days} يوم</b>\n\n"
-                    "اختر الإجراء المناسب أدناه بضغطة زر:"
+                    f"⏳ الأيام المتبقية فعلياً: <b>{days} يوم</b>\n\n"
+                    "اختر الإجراء المناسب أدناه لتعديل الأيام:"
                 )
                 markup = types.InlineKeyboardMarkup(row_width=2)
                 markup.add(
-                    types.InlineKeyboardButton("➕ تفعيل/إضافة 30 يوم", callback_data=f"adm_sub_add_{target_uid}"),
-                    types.InlineKeyboardButton("🛑 إيقاف/تصفير الحساب", callback_data=f"adm_sub_zero_{target_uid}")
+                    types.InlineKeyboardButton("➕ إضافة أيام (تخصيص)", callback_data=f"adm_input_add_{target_uid}"),
+                    types.InlineKeyboardButton("➖ خصم أيام (تخصيص)", callback_data=f"adm_input_sub_{target_uid}")
                 )
+                markup.add(types.InlineKeyboardButton("🛑 إيقاف وتصفير الحساب", callback_data=f"adm_sub_zero_{target_uid}"))
                 markup.add(types.InlineKeyboardButton("⬅️ رجوع لقائمة الصاغة", callback_data="admin_goldsmiths"))
                 bot.edit_message_text(info_text, chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=markup)
 
-            elif data.startswith("adm_sub_add_"):
+            elif data.startswith("adm_input_add_"):
+                bot.answer_callback_query(call.id)
                 target_uid = data.split("_")[3]
-                utils.update_goldsmith_subscription(target_uid, days=30)
-                bot.answer_callback_query(call.id, text="✅ تمت إضافة 30 يوم بنجاح!", show_alert=True)
-                call.data = f"adm_sub_view_{target_uid}"
-                handle_admin_callbacks(call)
+                USER_STATE[call.from_user.id] = f"CUSTOM_ADD_{target_uid}"
+                bot.send_message(call.message.chat.id, f"➕ <b>إضافة أيام مخصصة:</b>\nأرسل عدد الأيام التي تريد <b>إضافتها</b> لهذا الصائغ (مثال: <code>30</code> أو <code>7</code>):", parse_mode="HTML")
+
+            elif data.startswith("adm_input_sub_"):
+                bot.answer_callback_query(call.id)
+                target_uid = data.split("_")[3]
+                USER_STATE[call.from_user.id] = f"CUSTOM_SUB_{target_uid}"
+                bot.send_message(call.message.chat.id, f"➖ <b>خصم أيام مخصصة:</b>\nأرسل عدد الأيام التي تريد <b>خصمها</b> من هذا الصائغ (مثال: <code>5</code> أو <code>10</code>):", parse_mode="HTML")
 
             elif data.startswith("adm_sub_zero_"):
                 target_uid = data.split("_")[3]
                 utils.adjust_goldsmith_days(target_uid, 0, set_zero=True)
-                bot.answer_callback_query(call.id, text="🛑 تم إيقاف وتصفير أيام الصائغ!", show_alert=True)
+                bot.answer_callback_query(call.id, text="🛑 تم تصفير الأيام وإيقاف الحساب!", show_alert=True)
                 call.data = f"adm_sub_view_{target_uid}"
                 handle_admin_callbacks(call)
 
@@ -205,6 +213,26 @@ def register_admin_handlers(bot):
             error_reason = f"خطأ في لوحة التحكم ({data}): {str(e)}"
             notify_admin_panel_error(bot, error_reason, traceback.format_exc())
             bot.answer_callback_query(call.id, text="⚠️ حدث خطأ تقني.", show_alert=True)
+
+    @bot.message_handler(func=lambda m: m.from_user.id == ADMIN_ID and (USER_STATE.get(m.from_user.id, "").startswith("CUSTOM_ADD_") or USER_STATE.get(m.from_user.id, "").startswith("CUSTOM_SUB_")))
+    def process_custom_days_input(message):
+        user_id = message.from_user.id
+        state = USER_STATE.get(user_id)
+        USER_STATE.pop(user_id, None)
+        
+        try:
+            parts = state.split("_")
+            action_type = parts[1] # ADD or SUB
+            target_uid = parts[2]
+            
+            days_val = int(message.text.strip())
+            if action_type == "SUB":
+                days_val = -days_val
+                
+            utils.adjust_goldsmith_days(target_uid, days_val)
+            bot.reply_to(message, f"✅ تم تحديث رصيد الصائغ بنجاح وتعديل الأيام بقيمة ({days_val} يوم).")
+        except Exception as e:
+            bot.reply_to(message, f"⚠️ خطأ في الرقم المدخل: {e}")
 
     @bot.message_handler(func=lambda m: USER_STATE.get(m.from_user.id) == "WAITING_GOLDSMITH_SEARCH")
     def process_goldsmith_search(message):
@@ -228,7 +256,7 @@ def register_admin_handlers(bot):
             for g in matched:
                 uid = g.get('user_id')
                 name = g.get('full_name') or 'بدون اسم'
-                days = g.get('remaining_days', 0)
+                days = int(g.get('remaining_days', 0))
                 markup.add(types.InlineKeyboardButton(f"👤 {name} | (رصيد: {days} يوم)", callback_data=f"adm_sub_view_{uid}"))
             
             markup.add(types.InlineKeyboardButton("🔙 عودة للرئيسية", callback_data="admin_home"))
@@ -261,3 +289,4 @@ def register_admin_handlers(bot):
 
         USER_STATE.pop(user_id, None)
         bot.edit_message_text(f"✅ <b>تم الانتهاء من الإذاعة!</b>\n\n🟢 نجح الإرسال إلى: {success} صائغ\n🔴 فشل الإرسال إلى: {failed}", chat_id=message.chat.id, message_id=loading_msg.message_id, parse_mode="HTML")
+            
