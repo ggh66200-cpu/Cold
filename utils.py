@@ -7,12 +7,11 @@ SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# فترة التجربة المجانية المحددة بـ 3 أيام
 FREE_TRIAL_DAYS = 3
 
 def calculate_remaining_days(expiry_date_str):
     if not expiry_date_str:
-        return 0
+        return FREE_TRIAL_DAYS
     try:
         if 'T' in expiry_date_str:
             exp_date = datetime.fromisoformat(expiry_date_str.replace('Z', '+00:00')).date()
@@ -24,26 +23,32 @@ def calculate_remaining_days(expiry_date_str):
         return max(0, delta)
     except Exception as e:
         print(f"Date calculation error: {e}")
-        return 0
+        return FREE_TRIAL_DAYS
 
 def get_goldsmith(user_id):
     try:
         res = supabase.table("goldsmiths").select("*").eq("user_id", str(user_id)).execute()
         if res.data:
             gs = res.data[0]
-            expiry = gs.get("expiry_date")
             
-            # إذا كان المستخدم القديم لا يمتلك حقل expiry_date ولكن لديه remaining_days قديم، نقوم بتحويله تلقائياً لتاريخ انتهاء
+            # التحقق من أن المستخدم مسجل بالفعل لكي لا يظهر له نموذج التسجيل مجدداً
+            if "is_registered" not in gs:
+                gs["is_registered"] = True
+            
+            expiry = gs.get("expiry_date")
             if not expiry:
+                # إذا لم يكن هناك تاريخ انتهاء، نأخذ الأيام القديمة أو نعطيه التجريبي وننشئ التاريخ تلقائياً
                 old_days = int(gs.get("remaining_days", FREE_TRIAL_DAYS))
                 today = datetime.now(timezone.utc).date()
                 new_expiry = today + timedelta(days=old_days)
                 expiry = new_expiry.strftime("%Y-%m-%d")
-                # حفظه تلقائياً في قاعدة البيانات ليعمل ذاتياً للأبد
-                supabase.table("goldsmiths").update({"expiry_date": expiry}).eq("user_id", str(user_id)).execute()
+                try:
+                    supabase.table("goldsmiths").update({"expiry_date": expiry, "is_registered": True}).eq("user_id", str(user_id)).execute()
+                except:
+                    pass
                 gs["expiry_date"] = expiry
             
-            gs["remaining_days"] = calculate_remaining_days(expiry)
+            gs["remaining_days"] = calculate_remaining_days(gs.get("expiry_date"))
             return gs
         else:
             return {"user_id": str(user_id), "full_name": "أرامكي للحلول الرقمية", "is_registered": False, "remaining_days": 0}
@@ -58,8 +63,10 @@ def get_all_goldsmiths():
         
         today = datetime.now(timezone.utc).date()
         for gs in goldsmiths:
+            if "is_registered" not in gs:
+                gs["is_registered"] = True
+                
             expiry = gs.get("expiry_date")
-            # معالجة العملاء القدامى الذين ليس لديهم تاريخ انتهاء مسجل
             if not expiry:
                 old_days = int(gs.get("remaining_days", FREE_TRIAL_DAYS))
                 new_expiry = today + timedelta(days=old_days)
@@ -70,7 +77,7 @@ def get_all_goldsmiths():
                     pass
                 gs["expiry_date"] = expiry
             
-            gs["remaining_days"] = calculate_remaining_days(expiry)
+            gs["remaining_days"] = calculate_remaining_days(gs.get("expiry_date"))
         return goldsmiths
     except Exception as e:
         print(f"Supabase All Users Error: {e}")
@@ -78,7 +85,6 @@ def get_all_goldsmiths():
 
 def register_goldsmith_details(user_id, shop_name, phone):
     try:
-        # تعيين 3 أيام تجريبية مجانية للمسجل الجديد تلقائياً
         initial_expiry = (datetime.now(timezone.utc) + timedelta(days=FREE_TRIAL_DAYS)).strftime("%Y-%m-%d")
         
         data = {
@@ -159,4 +165,4 @@ def update_morning_prices(user_id, p21, p18, w21, w18, usd_r):
     except Exception as e:
         print(f"Supabase Update Error: {e}")
         raise e
-        
+                                       
