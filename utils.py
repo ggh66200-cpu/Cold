@@ -130,16 +130,6 @@ def update_goldsmith_subscription(user_id, days):
         print(f"Error updating sub: {e}")
         raise e
 
-def adjust_goldsmith_days(user_id, days, set_zero=False):
-    try:
-        if set_zero:
-            now_str = datetime.now(timezone.utc).isoformat()
-            supabase.table("goldsmiths").update({"trial_expires_at": now_str}).eq("user_id", str(user_id)).execute()
-        else:
-            update_goldsmith_subscription(user_id, days)
-    except Exception as e:
-        print(f"Error adjusting days: {e}")
-
 def get_goldsmith_prices(user_id):
     try:
         res = supabase.table("morning_prices").select("*").eq("user_id", int(user_id)).execute()
@@ -178,4 +168,3 @@ def update_morning_prices(user_id, p24, p22, p21, p18, w24, w22, w21, w18, usd_r
     except Exception as e:
         print(f"Supabase Update Error: {e}")
         raise e
-                
