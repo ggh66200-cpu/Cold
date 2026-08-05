@@ -37,6 +37,7 @@ INVOICE_DATA = {}
 TEXTS = {
     "welcome": "👋 أهلاً بك في عمالقة الصياغة <b>SMART GOLD SYSTEM</b>\n\nالمنظومة الذكية الأسرع والأدق لإدارة حسابات الصياغة محلياً ودولياً بمعايير المصارف العالمية.\n🔑 <i>رقم عضويتك التسلسلي في النخبة:</i> <b>#{serial} صايغ معتمد</b>\n\nالرعاة الرسميون لنجاح عملك.. استخدم الأزرار أدناه للبدء بالعمليات اليومية 👇",
     "btn_prices": "⚙️ إدخال أسعار الصباح اليومية",
+    "btn_single_price": "🔄 تعديل سعر فردي أو الدولار",
     "btn_sell": "📥 حساب بيع لزبون",
     "btn_buy": "📤 حساب شراء من زبون",
     "btn_info": "📖 شرح النظام والمواصفات",
@@ -47,7 +48,6 @@ TEXTS = {
     "shop": "🔷 المحل العامر: ",
     "type_sell": "🔷 العيار ونوع الحساب: عيار {carat} (حساب بيع بالغرام)",
     "type_buy": "🔷 العيار ونوع الحساب: عيار {carat} (حساب شراء بالغرام)",
-    "weight_req": "🔷 الوزن المطلوب: {w} غرام",
     "weight_tot": "⚖️ الوزن الإجمالي بالجرام: {w} غرام",
     "wage_sell": "🔨 أجور صياغة الغرام (مضافة): {wage:,.0f} دينار",
     "wage_buy": "🔨 كسر أجور الصياغة (مخصومة): {wage:,.0f} دينار",
@@ -55,9 +55,7 @@ TEXTS = {
     "full_p": "💵 سعر الغرام مع أجور الصائغ: {p:,.0f} دينار",
     "total_iqd": "💵 <b>السعر الكلي بالدينار العراقي:</b>\n👉 <b>{total:,.0f} دينار</b>",
     "total_usd": "💵 <b>صافي الحساب بالورق والدينار:</b>\n👉 <b>{usd} ورقة و {rem:,.0f} دينار</b>",
-    "footer": "🌸 ألف مبروك وحلال عليكم! ربي يجعلها فاتحة خير وبركة ورزق واسع ومبارك لمحلك الطيب! 💛",
-    "req_weight_sell": "⚖️ <b>عيار {carat} (حساب بيع للزبون):</b>\nأرسل وزن الذهب بالغرام فقط (مثال: 8.963):",
-    "req_buy_inputs": "📥 <b>عيار {carat} (حساب شراء من زبون):</b>\nيرجى إرسال البيانات المطلوبة بالترتيب في رسالة واحدة (كل قيمة بسطر):\n\n<code>1️⃣ سعر المثقال للشراء\n2️⃣ الوزن بالغرام\n3️⃣ أجور الكسر للغرام</code>\n\n💡 <i>مثال للنسخ والتعديل:</i>\n<code>780000\n15.420\n2000</code>"
+    "footer": "🌸 ألف مبروك وحلال عليكم! ربي يجعلها فاتحة خير وبركة ورزق واسع ومبارك لمحلك الطيب! 💛"
 }
 
 def notify_admin_error(user_id, error_msg, traceback_str=""):
@@ -82,7 +80,7 @@ def to_english_numbers(text):
 
 def get_main_keyboard(user_id):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    markup.add(types.KeyboardButton(TEXTS["btn_prices"]))
+    markup.add(types.KeyboardButton(TEXTS["btn_prices"]), types.KeyboardButton(TEXTS["btn_single_price"]))
     markup.add(types.KeyboardButton(TEXTS["btn_sell"]), types.KeyboardButton(TEXTS["btn_buy"]))
     markup.add(types.KeyboardButton(TEXTS["btn_info"]), types.KeyboardButton(TEXTS["btn_clients"]))
     if user_id == ADMIN_ID:
@@ -150,8 +148,8 @@ def show_system_info(message):
             f"{COMPANY_HEADER}"
             "📖 <b>شرح النظام والمواصفات الفنية:</b>\n\n"
             "1️⃣ <b>إدخال أسعار الصباح:</b> لتحديث أسعار الذهب والعيارات مع أجورها والدولار (11 حقلاً عمودياً).\n"
-            "2️⃣ <b>حساب البيع والشراء:</b> لاحتساب دقيق ومباشر لجميع العيارات.\n"
-            "3️⃣ <b>جرد العملاء:</b> لمتابعة الأيام المتبقية وحالة الاشتراك.\n\n"
+            "2️⃣ <b>تعديل سعر فردي:</b> لتحديث سعر عيار معين أو الدولار مباشرة دون إعادة القائمة كاملة.\n"
+            "3️⃣ <b>حساب البيع والشراء:</b> لاحتساب دقيق ومباشر ومؤكد للعيارات مع خيار التأكيد.\n\n"
             f"📞 <b>الدعم الفني:</b> <code>{SUPPORT_NUMBER}</code>"
         )
         bot.send_message(message.chat.id, info_text, parse_mode="HTML")
@@ -215,14 +213,12 @@ def morning_prices_start(message):
         instruction = (
             f"{COMPANY_HEADER}"
             "☀️ <b>تحديث أسعار البورصة الصباحية (11 حقلاً عمودياً):</b>\n\n"
-            "💡 <b>نموذج الإدخال بالترتيب:</b>\n"
-            "<code>1020000\n935000\n900000\n450000\n400000\n3000\n3500\n4500\n7500\n2500\n153000</code>\n\n"
-            "✍️ <b>تفصيل الأسطر الـ 11:</b>\n"
-            "1️⃣ سعر عيار 24\n"
-            "2️⃣ سعر عيار 22\n"
-            "3️⃣ سعر عيار 21\n"
-            "4️⃣ سعر عيار 18\n"
-            "5️⃣ سعر عيار 9 (أو المعيار الجديد)\n"
+            "✍️ <b>أرسل الأسعار والأجور بالترتيب التالي (كل قيمة بسطر):</b>\n\n"
+            "1️⃣ سعر المثقال عيار 24\n"
+            "2️⃣ سعر المثقال عيار 22\n"
+            "3️⃣ سعر المثقال عيار 21\n"
+            "4️⃣ سعر المثقال عيار 18\n"
+            "5️⃣ سعر المثقال عيار 9\n"
             "6️⃣ أجور غرام 24\n"
             "7️⃣ أجور غرام 22\n"
             "8️⃣ أجور غرام 21\n"
@@ -232,6 +228,51 @@ def morning_prices_start(message):
             "👉 <i>أرسل الأسطر الـ 11 الآن.</i>"
         )
         bot.send_message(message.chat.id, instruction, parse_mode="HTML")
+    except Exception as e:
+        notify_admin_error(user_id, str(e), traceback.format_exc())
+
+@bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_single_price"])
+def single_price_menu(message):
+    user_id = message.from_user.id
+    try:
+        gs = utils.get_goldsmith(user_id) or {}
+        is_admin = (user_id == ADMIN_ID)
+        if gs.get('remaining_days', 0) <= 0 and not is_admin:
+            return show_subscription_form(message, expired=True)
+
+        current_p = utils.get_goldsmith_prices(user_id) or {}
+        markup = types.InlineKeyboardMarkup(row_width=2)
+        markup.add(
+            types.InlineKeyboardButton(f"سعر عيار 24 ({current_p.get('price_24', 0):,.0f})", callback_data="edit_price_24"),
+            types.InlineKeyboardButton(f"سعر عيار 22 ({current_p.get('price_22', 0):,.0f})", callback_data="edit_price_22"),
+            types.InlineKeyboardButton(f"سعر عيار 21 ({current_p.get('price_21', 0):,.0f})", callback_data="edit_price_21"),
+            types.InlineKeyboardButton(f"سعر عيار 18 ({current_p.get('price_18', 0):,.0f})", callback_data="edit_price_18"),
+            types.InlineKeyboardButton(f"سعر عيار 9 ({current_p.get('price_9', 0):,.0f})", callback_data="edit_price_9"),
+            types.InlineKeyboardButton(f"سعر 100$ ({current_p.get('usd_rate', 0):,.0f})", callback_data="edit_price_usd")
+        )
+        bot.send_message(message.chat.id, f"{COMPANY_HEADER}🔄 <b>اختر الحقل المراد تعديله بشكل فردي:</b>", parse_mode="HTML", reply_markup=markup)
+    except Exception as e:
+        notify_admin_error(user_id, str(e), traceback.format_exc())
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("edit_price_"))
+def handle_single_price_edit(call):
+    user_id = call.from_user.id
+    try:
+        bot.answer_callback_query(call.id, text="⏳ جاري التحميل...")
+        field_type = call.data.replace("edit_price_", "")
+        INVOICE_DATA[user_id] = {'edit_field': field_type}
+        USER_STATE[user_id] = "WAITING_SINGLE_PRICE_VALUE"
+        
+        names_map = {
+            "24": "سعر المثقال عيار 24 الجديد",
+            "22": "سعر المثقال عيار 22 الجديد",
+            "21": "سعر المثقال عيار 21 الجديد",
+            "18": "سعر المثقال عيار 18 الجديد",
+            "9": "سعر المثقال عيار 9 الجديد",
+            "usd": "سعر صرف 100$ الجديد"
+        }
+        target_name = names_map.get(field_type, "القيمة الجديدة")
+        bot.send_message(call.message.chat.id, f"📝 <b>أرسل {target_name}:</b>", parse_mode="HTML")
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
@@ -283,7 +324,7 @@ def customer_buy_init(message):
 def handle_calc_buttons(call):
     user_id = call.from_user.id
     try:
-        bot.answer_callback_query(call.id, text="⚡ جاري تفعيل الحاسبة...")
+        bot.answer_callback_query(call.id, text="⏳ جاري التحميل والحساب...")
         parts = call.data.split("_")
         mode = parts[0]     
         carat = int(parts[1]) 
@@ -291,14 +332,30 @@ def handle_calc_buttons(call):
         
         if mode == "sell":
             USER_STATE[user_id] = "WAITING_WEIGHT_SELL"
-            bot.send_message(call.message.chat.id, TEXTS["req_weight_sell"].format(carat=carat), parse_mode="HTML")
+            bot.send_message(call.message.chat.id, f"⚖️ <b>عيار {carat} (حساب بيع للزبون):</b>\nأرسل وزن الذهب بالغرام فقط (مثال: 8.963):", parse_mode="HTML")
         elif mode == "buy":
             USER_STATE[user_id] = "WAITING_BUY_ALL_INPUTS"
-            bot.send_message(call.message.chat.id, TEXTS["req_buy_inputs"].format(carat=carat), parse_mode="HTML")
+            bot.send_message(call.message.chat.id, f"📥 <b>عيار {carat} (حساب شراء من زبون):</b>\nأرسل بالترتيب في رسالة واحدة (كل قيمة بسطر):\n1️⃣ سعر المثقال للشراء\n2️⃣ الوزن بالغرام\n3️⃣ أجور الكسر للغرام", parse_mode="HTML")
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("approve_sub_") or call.data.startswith("reject_sub_") or call.data.startswith("time_"))
+@bot.callback_query_handler(func=lambda call: call.data in ["confirm_invoice", "cancel_invoice"])
+def handle_invoice_confirmation(call):
+    user_id = call.from_user.id
+    try:
+        if call.data == "confirm_invoice":
+            bot.answer_callback_query(call.id, text="✅ تمت عملية الاعتماد بنجاح!")
+            bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
+            bot.send_message(call.message.chat.id, "✅ <b>تم اعتماد الفاتورة وتثبيتها بنجاح!</b> 💛", parse_mode="HTML")
+        else:
+            bot.answer_callback_query(call.id, text="❌ تم إلغاء العملية")
+            bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
+            bot.send_message(call.message.chat.id, "❌ <b>تم إلغاء الفاتورة والعملية بنجاح.</b>", parse_mode="HTML")
+        INVOICE_DATA.pop(user_id, None)
+    except Exception as e:
+        notify_admin_error(user_id, str(e), traceback.format_exc())
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("approve_sub_") or call.data.startswith("reject_sub_"))
 def handle_admin_actions(call):
     user_id = call.from_user.id
     data = call.data
@@ -374,23 +431,50 @@ def handle_text_inputs(message):
 
                 utils.update_morning_prices(
                     user_id,
-                    p24=float(lines[0]),
-                    p22=float(lines[1]),
-                    p21=float(lines[2]),
-                    p18=float(lines[3]),
-                    p9=float(lines[4]),
-                    w24=float(lines[5]),
-                    w22=float(lines[6]),
-                    w21=float(lines[7]),
-                    w18=float(lines[8]),
-                    w9=float(lines[9]),
+                    p24=float(lines[0]), p22=float(lines[1]), p21=float(lines[2]), p18=float(lines[3]), p9=float(lines[4]),
+                    w24=float(lines[5]), w22=float(lines[6]), w21=float(lines[7]), w18=float(lines[8]), w9=float(lines[9]),
                     usd_r=usd_rate_single  
                 )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, "✅ <b>تم تحديث أسعار الصباح والأجور للعيارات الخمسة بنجاح تام!</b>", parse_mode="HTML")
+                bot.send_message(message.chat.id, "✅ <b>تم تحديث أسعار الصباح والأجور بنجاح تام!</b>", parse_mode="HTML")
             else:
                 bot.edit_message_text(f"⚠️ خطأ: يرجى إرسال **11 حقلاً** بالضبط (أنت أرسلت {len(lines)} أسطر).", message.chat.id, loading_msg.message_id, parse_mode="HTML")
+            return
+
+        if state == "WAITING_SINGLE_PRICE_VALUE":
+            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري تحديث السعر الفردي...</i>", parse_mode="HTML")
+            if re.match(r'^\d+(\.\d+)?$', text):
+                val = float(text)
+                data_info = INVOICE_DATA.get(user_id, {})
+                field = data_info.get('edit_field')
+                
+                current_p = utils.get_goldsmith_prices(user_id) or {}
+                
+                p24 = current_p.get('price_24', 1020000)
+                p22 = current_p.get('price_22', 935000)
+                p21 = current_p.get('price_21', 900000)
+                p18 = current_p.get('price_18', 450000)
+                p9 = current_p.get('price_9', 400000)
+                w24 = current_p.get('wage_24', 3000)
+                w22 = current_p.get('wage_22', 3500)
+                w21 = current_p.get('wage_21', 4500)
+                w18 = current_p.get('wage_18', 7500)
+                w9 = current_p.get('wage_9', 2500)
+                usd_r = current_p.get('usd_rate', 1530)
+                
+                if field == "24": p24 = val
+                elif field == "22": p22 = val
+                elif field == "21": p21 = val
+                elif field == "18": p18 = val
+                elif field == "9": p9 = val
+                elif field == "usd": usd_r = (val / 100.0 if val > 1000 else val)
+                
+                utils.update_morning_prices(user_id, p24, p22, p21, p18, p9, w24, w22, w21, w18, w9, usd_r)
+                USER_STATE.pop(user_id, None)
+                INVOICE_DATA.pop(user_id, None)
+                bot.delete_message(message.chat.id, loading_msg.message_id)
+                bot.send_message(message.chat.id, f"✅ <b>تم تحديث السعر بنجاح إلى:</b> <code>{val:,.0f}</code>", parse_mode="HTML")
             return
 
         if state == "WAITING_WEIGHT_SELL":
@@ -417,6 +501,12 @@ def handle_text_inputs(message):
                 
                 shop_name = goldsmith.get('full_name') or 'محلي الموقر'
                 
+                markup = types.InlineKeyboardMarkup(row_width=2)
+                markup.add(
+                    types.InlineKeyboardButton("✅ تأكيد العملية", callback_data="confirm_invoice"),
+                    types.InlineKeyboardButton("❌ إلغاء العملية", callback_data="cancel_invoice")
+                )
+                
                 invoice = (
                     f"{COMPANY_HEADER}{TEXTS['invoice_sell']}\n━━━━━━━━━━━━━━━━━\n"
                     f"{TEXTS['shop']}{shop_name}\n"
@@ -427,9 +517,8 @@ def handle_text_inputs(message):
                     f"{TEXTS['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
                 )
                 USER_STATE.pop(user_id, None)
-                INVOICE_DATA.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, invoice, parse_mode="HTML")
+                bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
             return
 
         if state == "WAITING_BUY_ALL_INPUTS":
@@ -455,6 +544,12 @@ def handle_text_inputs(message):
                 
                 shop_name = goldsmith.get('full_name') or 'محلي الموقر'
                 
+                markup = types.InlineKeyboardMarkup(row_width=2)
+                markup.add(
+                    types.InlineKeyboardButton("✅ تأكيد العملية", callback_data="confirm_invoice"),
+                    types.InlineKeyboardButton("❌ إلغاء العملية", callback_data="cancel_invoice")
+                )
+                
                 invoice = (
                     f"{COMPANY_HEADER}{TEXTS['invoice_buy']}\n━━━━━━━━━━━━━━━━━\n"
                     f"{TEXTS['shop']}{shop_name}\n"
@@ -468,9 +563,8 @@ def handle_text_inputs(message):
                     f"{TEXTS['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
                 )
                 USER_STATE.pop(user_id, None)
-                INVOICE_DATA.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, invoice, parse_mode="HTML")
+                bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
             return
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
