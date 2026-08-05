@@ -142,14 +142,16 @@ def get_goldsmith_prices(user_id):
         "price_22": 935000,
         "price_21": 900000,
         "price_18": 450000,
+        "price_9": 400000, # الحقل الجديد للمثقال 9
         "wage_24": 3000,
         "wage_22": 3500,
         "wage_21": 4500,
         "wage_18": 7500,
+        "wage_9": 2500,    # أجور الحقل الجديد
         "usd_rate": 153000
     }
 
-def update_morning_prices(user_id, p24, p22, p21, p18, w24, w22, w21, w18, usd_r):
+def update_morning_prices(user_id, p24, p22, p21, p18, p9, w24, w22, w21, w18, w9, usd_r):
     try:
         uid = int(user_id)
         data = {
@@ -158,10 +160,12 @@ def update_morning_prices(user_id, p24, p22, p21, p18, w24, w22, w21, w18, usd_r
             "price_22": float(p22),
             "price_21": float(p21),
             "price_18": float(p18),
+            "price_9": float(p9),
             "wage_24": float(w24),
             "wage_22": float(w22),
             "wage_21": float(w21),
             "wage_18": float(w18),
+            "wage_9": float(w9),
             "usd_rate": float(usd_r)
         }
         supabase.table("morning_prices").upsert(data).execute()
