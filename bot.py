@@ -149,7 +149,7 @@ def show_system_info(message):
         info_text = (
             f"{COMPANY_HEADER}"
             "📖 <b>شرح النظام والمواصفات الفنية:</b>\n\n"
-            "1️⃣ <b>إدخال أسعار الصباح:</b> لتحديث أسعار الذهب (للعيارات 18، 21، 22، 24) مع أجورها والدولار (9 أسطر).\n"
+            "1️⃣ <b>إدخال أسعار الصباح:</b> لتحديث أسعار الذهب والعيارات مع أجورها والدولار (11 حقلاً عمودياً).\n"
             "2️⃣ <b>حساب البيع والشراء:</b> لاحتساب دقيق ومباشر لجميع العيارات.\n"
             "3️⃣ <b>جرد العملاء:</b> لمتابعة الأيام المتبقية وحالة الاشتراك.\n\n"
             f"📞 <b>الدعم الفني:</b> <code>{SUPPORT_NUMBER}</code>"
@@ -214,20 +214,22 @@ def morning_prices_start(message):
         USER_STATE[user_id] = "AWAITING_ALL_PRICES"
         instruction = (
             f"{COMPANY_HEADER}"
-            "☀️ <b>تحديث أسعار البورصة الصباحية (9 أسطر عمودية):</b>\n\n"
+            "☀️ <b>تحديث أسعار البورصة الصباحية (11 حقلاً عمودياً):</b>\n\n"
             "💡 <b>نموذج الإدخال بالترتيب:</b>\n"
-            "<code>1020000\n935000\n900000\n450000\n3000\n3500\n4500\n7500\n153000</code>\n\n"
-            "✍️ <b>تفصيل الأسطر:</b>\n"
+            "<code>1020000\n935000\n900000\n450000\n400000\n3000\n3500\n4500\n7500\n2500\n153000</code>\n\n"
+            "✍️ <b>تفصيل الأسطر الـ 11:</b>\n"
             "1️⃣ سعر عيار 24\n"
             "2️⃣ سعر عيار 22\n"
             "3️⃣ سعر عيار 21\n"
             "4️⃣ سعر عيار 18\n"
-            "5️⃣ أجور غرام 24\n"
-            "6️⃣ أجور غرام 22\n"
-            "7️⃣ أجور غرام 21\n"
-            "8️⃣ أجور غرام 18\n"
-            "9️⃣ سعر صرف 100$\n\n"
-            "👉 <i>أرسل الأسطر التسعة الآن.</i>"
+            "5️⃣ سعر عيار 9 (أو المعيار الجديد)\n"
+            "6️⃣ أجور غرام 24\n"
+            "7️⃣ أجور غرام 22\n"
+            "8️⃣ أجور غرام 21\n"
+            "9️⃣ أجور غرام 18\n"
+            "🔟 أجور غرام 9\n"
+            "1️⃣1️⃣ سعر صرف 100$\n\n"
+            "👉 <i>أرسل الأسطر الـ 11 الآن.</i>"
         )
         bot.send_message(message.chat.id, instruction, parse_mode="HTML")
     except Exception as e:
@@ -248,7 +250,8 @@ def customer_sell_init(message):
             types.InlineKeyboardButton("🟡 عيار 24", callback_data="sell_24"),
             types.InlineKeyboardButton("🟡 عيار 22", callback_data="sell_22"),
             types.InlineKeyboardButton("🟡 عيار 21", callback_data="sell_21"),
-            types.InlineKeyboardButton("🟡 عيار 18", callback_data="sell_18")
+            types.InlineKeyboardButton("🟡 عيار 18", callback_data="sell_18"),
+            types.InlineKeyboardButton("🟡 عيار 9", callback_data="sell_9")
         )
         bot.send_message(message.chat.id, f"{COMPANY_HEADER}📥 <b>اختر عيار البيع للزبون:</b>", parse_mode="HTML", reply_markup=markup)
     except Exception as e:
@@ -269,7 +272,8 @@ def customer_buy_init(message):
             types.InlineKeyboardButton("🪙 عيار 24 (شراء كسر)", callback_data="buy_24"),
             types.InlineKeyboardButton("🪙 عيار 22 (شراء كسر)", callback_data="buy_22"),
             types.InlineKeyboardButton("🪙 عيار 21 (شراء كسر)", callback_data="buy_21"),
-            types.InlineKeyboardButton("🪙 عيار 18 (شراء كسر)", callback_data="buy_18")
+            types.InlineKeyboardButton("🪙 عيار 18 (شراء كسر)", callback_data="buy_18"),
+            types.InlineKeyboardButton("🪙 عيار 9 (شراء كسر)", callback_data="buy_9")
         )
         bot.send_message(message.chat.id, f"{COMPANY_HEADER}📤 <b>اختر عيار الشراء (الكسر) من الزبون:</b>", parse_mode="HTML", reply_markup=markup)
     except Exception as e:
@@ -364,8 +368,8 @@ def handle_text_inputs(message):
         if state == "AWAITING_ALL_PRICES":
             loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري حفظ الأسعار والأجور...</i>", parse_mode="HTML")
             lines = [line.strip() for line in text.split('\n') if line.strip()]
-            if len(lines) == 9:
-                usd_100_input = float(lines[8])
+            if len(lines) == 11:
+                usd_100_input = float(lines[10])
                 usd_rate_single = usd_100_input / 100.0 if usd_100_input > 1000 else usd_100_input
 
                 utils.update_morning_prices(
@@ -374,17 +378,19 @@ def handle_text_inputs(message):
                     p22=float(lines[1]),
                     p21=float(lines[2]),
                     p18=float(lines[3]),
-                    w24=float(lines[4]),
-                    w22=float(lines[5]),
-                    w21=float(lines[6]),
-                    w18=float(lines[7]),
+                    p9=float(lines[4]),
+                    w24=float(lines[5]),
+                    w22=float(lines[6]),
+                    w21=float(lines[7]),
+                    w18=float(lines[8]),
+                    w9=float(lines[9]),
                     usd_r=usd_rate_single  
                 )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, "✅ <b>تم تحديث أسعار الصباح والأجور للعيارات الأربعة بنجاح تام!</b>", parse_mode="HTML")
+                bot.send_message(message.chat.id, "✅ <b>تم تحديث أسعار الصباح والأجور للعيارات الخمسة بنجاح تام!</b>", parse_mode="HTML")
             else:
-                bot.edit_message_text(f"⚠️ خطأ: يرجى إرسال **9 أسطر** بالضبط (أنت أرسلت {len(lines)} أسطر).", message.chat.id, loading_msg.message_id, parse_mode="HTML")
+                bot.edit_message_text(f"⚠️ خطأ: يرجى إرسال **11 حقلاً** بالضبط (أنت أرسلت {len(lines)} أسطر).", message.chat.id, loading_msg.message_id, parse_mode="HTML")
             return
 
         if state == "WAITING_WEIGHT_SELL":
