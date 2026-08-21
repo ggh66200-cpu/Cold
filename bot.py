@@ -40,22 +40,23 @@ TEXTS = {
     "btn_single_price": "🔄 تعديل سعر فردي أو الدولار",
     "btn_sell": "📥 حساب بيع لزبون",
     "btn_buy": "📤 حساب شراء من زبون",
+    "btn_crafting": "📄 قائمة الصياغة",  # الزر الجديد
     "btn_info": "📖 شرح النظام والمواصفات",
     "btn_clients": "👥 جرد العملاء والعمليات",
     "btn_admin_panel": "🛠️ لوحة تحكم الإدارة (خاص)",
     "invoice_sell": "🧾 <b>فاتورة بيع ذهب للزبون</b> 🧾",
     "invoice_buy": "📥 <b>فاتورة شراء ذهب من الزبون</b> 📥",
+    "invoice_crafting": "📄 <b>قائمة الصياغة</b> 📄",
     "shop": "🔷 المحل العامر: ",
     "type_sell": "🔷 العيار ونوع الحساب: عيار {carat} (حساب بيع بالغرام)",
     "type_buy": "🔷 العيار ونوع الحساب: عيار {carat} (حساب شراء بالغرام)",
-    "weight_tot": "⚖️ الوزن الإجمالي بالجرام: {w} غرام",
+    "weight_tot": "⚖️ الوزن الإجمالي بالغرام: {w} غرام",
     "wage_sell": "🔨 أجور صياغة الغرام (مضافة): {wage:,.0f} دينار",
-    "wage_buy": "🔨 كسر أجور الصياغة (مخصومة): {wage:,.0f} دينار",
     "clean_p": "💰 سعر غرام الذهب الصافي: {p:,.0f} دينار",
     "full_p": "💵 سعر الغرام مع أجور الصائغ: {p:,.0f} دينار",
     "total_iqd": "💵 <b>السعر الكلي بالدينار العراقي:</b>\n👉 <b>{total:,.0f} دينار</b>",
     "total_usd": "💵 <b>صافي الحساب بالورق والدينار:</b>\n👉 <b>{usd} ورقة و {rem:,.0f} دينار</b>",
-    "footer": "🌸 ألف مبروك وحلال عليكم! ربي يجعلها فاتحة خير وبركة ورزق واسع ومبارك لمحلك الطيب! 💛"
+    "footer": "نظام آراُمكي - دقة وأمان لحساباتك اليومية"
 }
 
 def notify_admin_error(user_id, error_msg, traceback_str=""):
@@ -82,7 +83,8 @@ def get_main_keyboard(user_id):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(types.KeyboardButton(TEXTS["btn_prices"]), types.KeyboardButton(TEXTS["btn_single_price"]))
     markup.add(types.KeyboardButton(TEXTS["btn_sell"]), types.KeyboardButton(TEXTS["btn_buy"]))
-    markup.add(types.KeyboardButton(TEXTS["btn_info"]), types.KeyboardButton(TEXTS["btn_clients"]))
+    markup.add(types.KeyboardButton(TEXTS["btn_crafting"]), types.KeyboardButton(TEXTS["btn_info"]))
+    markup.add(types.KeyboardButton(TEXTS["btn_clients"]))
     if user_id == ADMIN_ID:
         markup.add(types.KeyboardButton(TEXTS["btn_admin_panel"]))
     return markup
@@ -147,9 +149,9 @@ def show_system_info(message):
         info_text = (
             f"{COMPANY_HEADER}"
             "📖 <b>شرح النظام والمواصفات الفنية:</b>\n\n"
-            "1️⃣ <b>إدخال أسعار الصباح:</b> لتحديث أسعار الذهب والعيارات مع أجورها والدولار (11 حقلاً عمودياً).\n"
-            "2️⃣ <b>تعديل سعر فردي:</b> لتحديث سعر عيار معين أو الدولار مباشرة دون إعادة القائمة كاملة.\n"
-            "3️⃣ <b>حساب البيع والشراء:</b> لاحتساب دقيق ومباشر ومؤكد للعيارات مع خيار التأكيد.\n\n"
+            "1️⃣ <b>إدخال أسعار الصباح:</b> لتحديث أسعار الذهب والعيارات مع أجورها والدولار.\n"
+            "2️⃣ <b>تعديل سعر فردي:</b> لتحديث سعر عيار معين أو الدولار مباشرة.\n"
+            "3️⃣ <b>حساب البيع والشراء وقائمة الصياغة:</b> لاحتساب دقيق ومباشر ومؤكد للعيارات والأجور.\n\n"
             f"📞 <b>الدعم الفني:</b> <code>{SUPPORT_NUMBER}</code>"
         )
         bot.send_message(message.chat.id, info_text, parse_mode="HTML")
@@ -320,6 +322,42 @@ def customer_buy_init(message):
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
+# معالجة زر قائمة الصياغة الجديد
+@bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_crafting"])
+def crafting_menu_init(message):
+    user_id = message.from_user.id
+    try:
+        gs = utils.get_goldsmith(user_id) or {}
+        is_admin = (user_id == ADMIN_ID)
+        if gs.get('remaining_days', 0) <= 0 and not is_admin:
+            return show_subscription_form(message, expired=True)
+
+        USER_STATE.pop(user_id, None)
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        markup.add(
+            types.InlineKeyboardButton("🔹 خيار 1: (سعر المثقال + الوزن + الأجور)", callback_data="craft_mode_mithqal"),
+            types.InlineKeyboardButton("🔹 خيار 2: (سعر الغرام اليدوي + الوزن + الأجور)", callback_data="craft_mode_gram")
+        )
+        bot.send_message(message.chat.id, f"{COMPANY_HEADER}📄 <b>اختر طريقة إدخال حساب قائمة الصياغة:</b>", parse_mode="HTML", reply_markup=markup)
+    except Exception as e:
+        notify_admin_error(user_id, str(e), traceback.format_exc())
+
+@bot.callback_query_handler(func=lambda call: call.data in ["craft_mode_mithqal", "craft_mode_gram"])
+def handle_craft_mode_selection(call):
+    user_id = call.from_user.id
+    try:
+        bot.answer_callback_query(call.id, text="⏳ جاري التحميل...")
+        if call.data == "craft_mode_mithqal":
+            INVOICE_DATA[user_id] = {'mode': 'craft_mithqal'}
+            USER_STATE[user_id] = "WAITING_CRAFT_MITHQAL_INPUTS"
+            bot.send_message(call.message.chat.id, f"📝 <b>أرسل بالترتيب في رسالة واحدة (كل قيمة بسطر):</b>\n1️⃣ سعر المثقال\n2️⃣ الوزن بالغرام\n3️⃣ أجور صياغة الغرام المضافة", parse_mode="HTML")
+        else:
+            INVOICE_DATA[user_id] = {'mode': 'craft_gram'}
+            USER_STATE[user_id] = "WAITING_CRAFT_GRAM_INPUTS"
+            bot.send_message(call.message.chat.id, f"📝 <b>أرسل بالترتيب في رسالة واحدة (كل قيمة بسطر):</b>\n1️⃣ سعر غرام الذهب الصافي (يدوياً)\n2️⃣ الوزن بالغرام\n3️⃣ أجور صياغة الغرام المضافة", parse_mode="HTML")
+    except Exception as e:
+        notify_admin_error(user_id, str(e), traceback.format_exc())
+
 @bot.callback_query_handler(func=lambda call: call.data.startswith("sell_") or call.data.startswith("buy_"))
 def handle_calc_buttons(call):
     user_id = call.from_user.id
@@ -477,6 +515,95 @@ def handle_text_inputs(message):
                 bot.send_message(message.chat.id, f"✅ <b>تم تحديث السعر بنجاح إلى:</b> <code>{val:,.0f}</code>", parse_mode="HTML")
             return
 
+        # معالجة المدخلات لخيار قائمة الصياغة (سعر المثقال)
+        if state == "WAITING_CRAFT_MITHQAL_INPUTS":
+            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML")
+            lines = [line.strip() for line in text.split('\n') if line.strip()]
+            if len(lines) == 3:
+                mithqal_price = float(lines[0])
+                w = float(lines[1])
+                wage = float(lines[2])
+                
+                gram_price = mithqal_price / 5.0
+                gram_full = gram_price + wage
+                total_iqd = gram_full * w
+                
+                prices = utils.get_goldsmith_prices(user_id) or {}
+                goldsmith = utils.get_goldsmith(user_id) or {}
+                
+                usd_rate_single = float(prices.get('usd_rate', 1))
+                sheet_price = usd_rate_single * 100 if usd_rate_single < 5000 else usd_rate_single
+                usd_bills = int(total_iqd // sheet_price) if sheet_price > 0 else 0
+                rem_iqd = total_iqd % sheet_price if sheet_price > 0 else total_iqd
+                
+                shop_name = goldsmith.get('full_name') or 'محلي الموقر'
+                
+                markup = types.InlineKeyboardMarkup(row_width=2)
+                markup.add(
+                    types.InlineKeyboardButton("✅ تأكيد العملية", callback_data="confirm_invoice"),
+                    types.InlineKeyboardButton("❌ إلغاء العملية", callback_data="cancel_invoice")
+                )
+                
+                invoice = (
+                    f"{COMPANY_HEADER}{TEXTS['invoice_crafting']}\n━━━━━━━━━━━━━━━━━\n"
+                    f"{TEXTS['shop']}{shop_name}\n"
+                    f"⚖️ <b>الوزن الإجمالي بالغرام:</b> {w} غرام\n"
+                    f"{TEXTS['wage_sell'].format(wage=wage)}\n"
+                    f"━━━━━━━━━━━━━━━━━\n"
+                    f"{TEXTS['clean_p'].format(p=gram_price)}\n"
+                    f"{TEXTS['full_p'].format(p=gram_full)}\n"
+                    f"{TEXTS['total_iqd'].format(total=total_iqd)}\n\n"
+                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
+                )
+                USER_STATE.pop(user_id, None)
+                bot.delete_message(message.chat.id, loading_msg.message_id)
+                bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
+            return
+
+        # معالجة المدخلات لخيار قائمة الصياغة (سعر الغرام يدوياً)
+        if state == "WAITING_CRAFT_GRAM_INPUTS":
+            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML")
+            lines = [line.strip() for line in text.split('\n') if line.strip()]
+            if len(lines) == 3:
+                gram_price = float(lines[0])
+                w = float(lines[1])
+                wage = float(lines[2])
+                
+                gram_full = gram_price + wage
+                total_iqd = gram_full * w
+                
+                prices = utils.get_goldsmith_prices(user_id) or {}
+                goldsmith = utils.get_goldsmith(user_id) or {}
+                
+                usd_rate_single = float(prices.get('usd_rate', 1))
+                sheet_price = usd_rate_single * 100 if usd_rate_single < 5000 else usd_rate_single
+                usd_bills = int(total_iqd // sheet_price) if sheet_price > 0 else 0
+                rem_iqd = total_iqd % sheet_price if sheet_price > 0 else total_iqd
+                
+                shop_name = goldsmith.get('full_name') or 'محلي الموقر'
+                
+                markup = types.InlineKeyboardMarkup(row_width=2)
+                markup.add(
+                    types.InlineKeyboardButton("✅ تأكيد العملية", callback_data="confirm_invoice"),
+                    types.InlineKeyboardButton("❌ إلغاء العملية", callback_data="cancel_invoice")
+                )
+                
+                invoice = (
+                    f"{COMPANY_HEADER}{TEXTS['invoice_crafting']}\n━━━━━━━━━━━━━━━━━\n"
+                    f"{TEXTS['shop']}{shop_name}\n"
+                    f"⚖️ <b>الوزن الإجمالي بالغرام:</b> {w} غرام\n"
+                    f"{TEXTS['wage_sell'].format(wage=wage)}\n"
+                    f"━━━━━━━━━━━━━━━━━\n"
+                    f"{TEXTS['clean_p'].format(p=gram_price)}\n"
+                    f"{TEXTS['full_p'].format(p=gram_full)}\n"
+                    f"{TEXTS['total_iqd'].format(total=total_iqd)}\n\n"
+                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
+                )
+                USER_STATE.pop(user_id, None)
+                bot.delete_message(message.chat.id, loading_msg.message_id)
+                bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
+            return
+
         if state == "WAITING_WEIGHT_SELL":
             loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML")
             if re.match(r'^\d+(\.\d+)?$', text):
@@ -556,7 +683,7 @@ def handle_text_inputs(message):
                     f"{TEXTS['type_buy'].format(carat=carat)}\n"
                     f"📥 <b>سعر شراء المثقال:</b> <code>{mithqal_buy_price:,.0f} دينار</code>\n"
                     f"{TEXTS['weight_tot'].format(w=w)}\n"
-                    f"{TEXTS['wage_buy'].format(wage=wage_cut)}\n"
+                    f"{TEXTS['wage_sell'].format(wage=wage_cut)}\n"
                     f"━━━━━━━━━━━━━━━━━\n"
                     f"💰 <b>سعر غرام الكسر الصافي:</b> <code>{net_gram_price:,.0f} دينار</code>\n"
                     f"{TEXTS['total_iqd'].format(total=total_iqd)}\n\n"
