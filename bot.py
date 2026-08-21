@@ -40,16 +40,17 @@ TEXTS = {
     "btn_single_price": "🔄 تعديل سعر فردي أو الدولار",
     "btn_sell": "📥 حساب بيع لزبون",
     "btn_buy": "📤 حساب شراء من زبون",
-    "btn_crafting": "📄 قائمة الصياغة",  # الزر الجديد
+    "btn_crafting": "📄 قائمة صياغة (حساب حر)",  # اسم مرتب ومنسق
     "btn_info": "📖 شرح النظام والمواصفات",
     "btn_clients": "👥 جرد العملاء والعمليات",
     "btn_admin_panel": "🛠️ لوحة تحكم الإدارة (خاص)",
     "invoice_sell": "🧾 <b>فاتورة بيع ذهب للزبون</b> 🧾",
     "invoice_buy": "📥 <b>فاتورة شراء ذهب من الزبون</b> 📥",
-    "invoice_crafting": "📄 <b>قائمة الصياغة</b> 📄",
+    "invoice_crafting": "📄 <b>قائمة صياغة (حساب حر)</b> 📄",
     "shop": "🔷 المحل العامر: ",
     "type_sell": "🔷 العيار ونوع الحساب: عيار {carat} (حساب بيع بالغرام)",
     "type_buy": "🔷 العيار ونوع الحساب: عيار {carat} (حساب شراء بالغرام)",
+    "type_craft": "🔷 العيار وحساب الصياغة: عيار {carat}",
     "weight_tot": "⚖️ الوزن الإجمالي بالغرام: {w} غرام",
     "wage_sell": "🔨 أجور صياغة الغرام (مضافة): {wage:,.0f} دينار",
     "clean_p": "💰 سعر غرام الذهب الصافي: {p:,.0f} دينار",
@@ -322,7 +323,7 @@ def customer_buy_init(message):
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
-# معالجة زر قائمة الصياغة الجديد
+# معالجة زر قائمة صياغة (حساب حر)
 @bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_crafting"])
 def crafting_menu_init(message):
     user_id = message.from_user.id
@@ -335,26 +336,45 @@ def crafting_menu_init(message):
         USER_STATE.pop(user_id, None)
         markup = types.InlineKeyboardMarkup(row_width=1)
         markup.add(
-            types.InlineKeyboardButton("🔹 خيار 1: (سعر المثقال + الوزن + الأجور)", callback_data="craft_mode_mithqal"),
-            types.InlineKeyboardButton("🔹 خيار 2: (سعر الغرام اليدوي + الوزن + الأجور)", callback_data="craft_mode_gram")
+            types.InlineKeyboardButton("🔹 الخيار الأول: (سحب سعر المثقال من الصباحي + إرسال الوزن والأجور)", callback_data="craft_mode_morning"),
+            types.InlineKeyboardButton("🔹 الخيار الثاني: (إدخال سعر المثقال + الوزن + الأجور يدوياً)", callback_data="craft_mode_manual")
         )
-        bot.send_message(message.chat.id, f"{COMPANY_HEADER}📄 <b>اختر طريقة إدخال حساب قائمة الصياغة:</b>", parse_mode="HTML", reply_markup=markup)
+        bot.send_message(message.chat.id, f"{COMPANY_HEADER}📄 <b>اختر آلية حساب قائمة الصياغة:</b>", parse_mode="HTML", reply_markup=markup)
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
-@bot.callback_query_handler(func=lambda call: call.data in ["craft_mode_mithqal", "craft_mode_gram"])
+@bot.callback_query_handler(func=lambda call: call.data in ["craft_mode_morning", "craft_mode_manual"])
 def handle_craft_mode_selection(call):
     user_id = call.from_user.id
     try:
         bot.answer_callback_query(call.id, text="⏳ جاري التحميل...")
-        if call.data == "craft_mode_mithqal":
-            INVOICE_DATA[user_id] = {'mode': 'craft_mithqal'}
-            USER_STATE[user_id] = "WAITING_CRAFT_MITHQAL_INPUTS"
-            bot.send_message(call.message.chat.id, f"📝 <b>أرسل بالترتيب في رسالة واحدة (كل قيمة بسطر):</b>\n1️⃣ سعر المثقال\n2️⃣ الوزن بالغرام\n3️⃣ أجور صياغة الغرام المضافة", parse_mode="HTML")
+        if call.data == "craft_mode_morning":
+            INVOICE_DATA[user_id] = {'mode': 'craft_morning'}
+            markup = types.InlineKeyboardMarkup(row_width=2)
+            markup.add(
+                types.InlineKeyboardButton("🟡 عيار 24", callback_data="craft_carat_24"),
+                types.InlineKeyboardButton("🟡 عيار 22", callback_data="craft_carat_22"),
+                types.InlineKeyboardButton("🟡 عيار 21", callback_data="craft_carat_21"),
+                types.InlineKeyboardButton("🟡 عيار 18", callback_data="craft_carat_18"),
+                types.InlineKeyboardButton("🟡 عيار 9", callback_data="craft_carat_9")
+            )
+            bot.send_message(call.message.chat.id, f"{COMPANY_HEADER}🔷 <b>اختر عيار الذهب (سيتم اعتماد سعر المثقال من أسعار الصباح):</b>", parse_mode="HTML", reply_markup=markup)
         else:
-            INVOICE_DATA[user_id] = {'mode': 'craft_gram'}
-            USER_STATE[user_id] = "WAITING_CRAFT_GRAM_INPUTS"
-            bot.send_message(call.message.chat.id, f"📝 <b>أرسل بالترتيب في رسالة واحدة (كل قيمة بسطر):</b>\n1️⃣ سعر غرام الذهب الصافي (يدوياً)\n2️⃣ الوزن بالغرام\n3️⃣ أجور صياغة الغرام المضافة", parse_mode="HTML")
+            INVOICE_DATA[user_id] = {'mode': 'craft_manual'}
+            USER_STATE[user_id] = "WAITING_CRAFT_MANUAL_INPUTS"
+            bot.send_message(call.message.chat.id, f"📝 <b>أرسل القيم التالية في رسالة واحدة (كل قيمة بسطر):</b>\n\n1️⃣ سعر المثقال (يدوياً)\n2️⃣ الوزن بالغرام\n3️⃣ أجور صياغة الغرام المضافة", parse_mode="HTML")
+    except Exception as e:
+        notify_admin_error(user_id, str(e), traceback.format_exc())
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("craft_carat_"))
+def handle_craft_carat_selection(call):
+    user_id = call.from_user.id
+    try:
+        bot.answer_callback_query(call.id, text="⏳ جاري التحميل...")
+        carat = int(call.data.replace("craft_carat_", ""))
+        INVOICE_DATA[user_id]['carat'] = carat
+        USER_STATE[user_id] = "WAITING_CRAFT_MORNING_INPUTS"
+        bot.send_message(call.message.chat.id, f"⚖️ <b>عيار {carat} (سحب السعر من الصباحي):</b>\nأرسل بالترتيب في رسالة واحدة (كل قيمة بسطر):\n\n1️⃣ الوزن بالغرام\n2️⃣ أجور صياغة الغرام المضافة", parse_mode="HTML")
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
@@ -515,21 +535,23 @@ def handle_text_inputs(message):
                 bot.send_message(message.chat.id, f"✅ <b>تم تحديث السعر بنجاح إلى:</b> <code>{val:,.0f}</code>", parse_mode="HTML")
             return
 
-        # معالجة المدخلات لخيار قائمة الصياغة (سعر المثقال)
-        if state == "WAITING_CRAFT_MITHQAL_INPUTS":
+        # معالجة الخيار الأول لقائمة الصياغة (سحب السعر من الصباحي + إرسال الوزن والأجور)
+        if state == "WAITING_CRAFT_MORNING_INPUTS":
             loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML")
             lines = [line.strip() for line in text.split('\n') if line.strip()]
-            if len(lines) == 3:
-                mithqal_price = float(lines[0])
-                w = float(lines[1])
-                wage = float(lines[2])
+            if len(lines) == 2:
+                w = float(lines[0])
+                wage = float(lines[1])
                 
+                carat = INVOICE_DATA[user_id].get('carat', 21)
+                prices = utils.get_goldsmith_prices(user_id) or {}
+                goldsmith = utils.get_goldsmith(user_id) or {}
+                
+                price_key = f"price_{carat}"
+                mithqal_price = float(prices.get(price_key, 0))
                 gram_price = mithqal_price / 5.0
                 gram_full = gram_price + wage
                 total_iqd = gram_full * w
-                
-                prices = utils.get_goldsmith_prices(user_id) or {}
-                goldsmith = utils.get_goldsmith(user_id) or {}
                 
                 usd_rate_single = float(prices.get('usd_rate', 1))
                 sheet_price = usd_rate_single * 100 if usd_rate_single < 5000 else usd_rate_single
@@ -547,7 +569,8 @@ def handle_text_inputs(message):
                 invoice = (
                     f"{COMPANY_HEADER}{TEXTS['invoice_crafting']}\n━━━━━━━━━━━━━━━━━\n"
                     f"{TEXTS['shop']}{shop_name}\n"
-                    f"⚖️ <b>الوزن الإجمالي بالغرام:</b> {w} غرام\n"
+                    f"{TEXTS['type_craft'].format(carat=carat)}\n"
+                    f"{TEXTS['weight_tot'].format(w=w)}\n"
                     f"{TEXTS['wage_sell'].format(wage=wage)}\n"
                     f"━━━━━━━━━━━━━━━━━\n"
                     f"{TEXTS['clean_p'].format(p=gram_price)}\n"
@@ -560,15 +583,16 @@ def handle_text_inputs(message):
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
             return
 
-        # معالجة المدخلات لخيار قائمة الصياغة (سعر الغرام يدوياً)
-        if state == "WAITING_CRAFT_GRAM_INPUTS":
+        # معالجة الخيار الثاني لقائمة الصياغة (إدخال سعر المثقال + الوزن + الأجور يدوياً)
+        if state == "WAITING_CRAFT_MANUAL_INPUTS":
             loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML")
             lines = [line.strip() for line in text.split('\n') if line.strip()]
             if len(lines) == 3:
-                gram_price = float(lines[0])
+                mithqal_price = float(lines[0])
                 w = float(lines[1])
                 wage = float(lines[2])
                 
+                gram_price = mithqal_price / 5.0
                 gram_full = gram_price + wage
                 total_iqd = gram_full * w
                 
