@@ -35,6 +35,20 @@ SUPPORT_NUMBER = "07766083622"
 USER_STATE = {}
 INVOICE_DATA = {}
 
+def fmt(value):
+    """دالة لتنسيق الأرقام بفاصلة الآلاف، وعرض الكسور فقط إذا وجدت بدون أصفار .00 زائدة"""
+    try:
+        d = Decimal(str(value))
+        # إذا كان الرقم صحيحاً بدون كسور
+        if d == d.to_integral_value():
+            return f"{int(d):,}"
+        else:
+            # تقريب وعرض مرتبتين عشريتين مع إزالة الأصفار الزائدة من النهاية إن وجدت
+            formatted = f"{d:,.2f}"
+            return formatted
+    except Exception:
+        return str(value)
+
 TEXTS = {
     "welcome": "👋 أهلاً بك في عمالقة الصياغة <b>SMART GOLD SYSTEM</b>\n\nالمنظومة الذكية الأسرع والأدق لإدارة حسابات الصياغة محلياً ودولياً بمعايير المصارف العالمية.\n🔑 <i>رقم عضويتك التسلسلي في النخبة:</i> <b>#{serial} صايغ معتمد</b>\n\nالرعاة الرسميون لنجاح عملك.. استخدم الأزرار أدناه للبدء بالعمليات اليومية 👇",
     "btn_prices": "⚙️ إدخال أسعار الصباح اليومية",
@@ -53,11 +67,11 @@ TEXTS = {
     "type_buy": "🔷 العيار ونوع الحساب: عيار {carat} (حساب شراء بالغرام)",
     "type_craft": "🔷 العيار وحساب الصياغة: عيار {carat}",
     "weight_tot": "⚖️ الوزن الإجمالي بالغرام: {w} غرام",
-    "wage_sell": "🔨 أجور صياغة الغرام (مضافة): {wage:,.2f} دينار",
-    "clean_p": "💰 سعر غرام الذهب الصافي: {p:,.2f} دينار",
-    "full_p": "💵 سعر الغرام مع أجور الصائغ: {p:,.2f} دينار",
-    "total_iqd": "💵 <b>السعر الكلي بالدينار العراقي:</b>\n👉 <b>{total:,.2f} دينار</b>",
-    "total_usd": "💵 <b>صافي الحساب بالورق والدينار:</b>\n👉 <b>{usd} ورقة و {rem:,.2f} دينار</b>",
+    "wage_sell": "🔨 أجور صياغة الغرام (مضافة): {wage} دينار",
+    "clean_p": "💰 سعر غرام الذهب الصافي: {p} دينار",
+    "full_p": "💵 سعر الغرام مع أجور الصائغ: {p} دينار",
+    "total_iqd": "💵 <b>السعر الكلي بالدينار العراقي:</b>\n👉 <b>{total} دينار</b>",
+    "total_usd": "💵 <b>صافي الحساب بالورق والدينار:</b>\n👉 <b>{usd} ورقة و {rem} دينار</b>",
     "footer": "نظام آراُمكي - دقة وأمان لحساباتك اليومية"
 }
 
@@ -79,7 +93,7 @@ def notify_admin_error(user_id, error_msg, traceback_str=""):
 def to_english_numbers(text):
     if not text:
         return ""
-    arabic_nums = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
+    arabic_nums = str.maketrans('٠١ي٣٤٥٦٧٨٩', '0123456789')
     persian_nums = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
     return text.translate(arabic_nums).translate(persian_nums)
 
@@ -155,7 +169,7 @@ def show_system_info(message):
             "📖 <b>شرح النظام والمواصفات الفنية:</b>\n\n"
             "1️⃣ <b>إدخال أسعار الصباح:</b> لتحديث أسعار الذهب والعيارات مع أجورها والدولار.\n"
             "2️⃣ <b>تعديل سعر فردي:</b> لتحديث سعر عيار معين أو الدولار مباشرة.\n"
-            "3️⃣ <b>حساب البيع والشراء وقائمة الصياغة:</b> لاحتساب دقيق ومباشر ومؤكد مع الكسور الكاملة بدقة Decimal.\n\n"
+            "3️⃣ <b>حساب البيع والشراء وقائمة الصياغة:</b> لاحتساب دقيق ومباشر ومؤكد مع عرض الكسور الحقيقية بدقة Decimal.\n\n"
             f"📞 <b>الدعم الفني / الطوارئ (واتساب):</b> <code>{SUPPORT_NUMBER}</code>"
         )
         bot.send_message(message.chat.id, info_text, parse_mode="HTML")
@@ -249,12 +263,12 @@ def single_price_menu(message):
         current_p = utils.get_goldsmith_prices(user_id) or {}
         markup = types.InlineKeyboardMarkup(row_width=2)
         markup.add(
-            types.InlineKeyboardButton(f"سعر عيار 24 ({Decimal(str(current_p.get('price_24', 0))):,.2f})", callback_data="edit_price_24"),
-            types.InlineKeyboardButton(f"سعر عيار 22 ({Decimal(str(current_p.get('price_22', 0))):,.2f})", callback_data="edit_price_22"),
-            types.InlineKeyboardButton(f"سعر عيار 21 ({Decimal(str(current_p.get('price_21', 0))):,.2f})", callback_data="edit_price_21"),
-            types.InlineKeyboardButton(f"سعر عيار 18 ({Decimal(str(current_p.get('price_18', 0))):,.2f})", callback_data="edit_price_18"),
-            types.InlineKeyboardButton(f"سعر عيار 9 ({Decimal(str(current_p.get('price_9', 0))):,.2f})", callback_data="edit_price_9"),
-            types.InlineKeyboardButton(f"سعر 100$ ({Decimal(str(current_p.get('usd_rate', 0))):,.2f})", callback_data="edit_price_usd")
+            types.InlineKeyboardButton(f"سعر عيار 24 ({fmt(current_p.get('price_24', 0))})", callback_data="edit_price_24"),
+            types.InlineKeyboardButton(f"سعر عيار 22 ({fmt(current_p.get('price_22', 0))})", callback_data="edit_price_22"),
+            types.InlineKeyboardButton(f"سعر عيار 21 ({fmt(current_p.get('price_21', 0))})", callback_data="edit_price_21"),
+            types.InlineKeyboardButton(f"سعر عيار 18 ({fmt(current_p.get('price_18', 0))})", callback_data="edit_price_18"),
+            types.InlineKeyboardButton(f"سعر عيار 9 ({fmt(current_p.get('price_9', 0))})", callback_data="edit_price_9"),
+            types.InlineKeyboardButton(f"سعر 100$ ({fmt(current_p.get('usd_rate', 0))})", callback_data="edit_price_usd")
         )
         bot.send_message(message.chat.id, f"{COMPANY_HEADER}🔄 <b>اختر الحقل المراد تعديله بشكل فردي:</b>", parse_mode="HTML", reply_markup=markup)
     except Exception as e:
@@ -534,7 +548,7 @@ def handle_text_inputs(message):
                 USER_STATE.pop(user_id, None)
                 INVOICE_DATA.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, f"✅ <b>تم تحديث السعر بنجاح إلى:</b> <code>{val:,.2f}</code>", parse_mode="HTML")
+                bot.send_message(message.chat.id, f"✅ <b>تم تحديث السعر بنجاح إلى:</b> <code>{fmt(val)}</code>", parse_mode="HTML")
             return
 
         if state == "WAITING_CRAFT_MORNING_INPUTS":
@@ -573,12 +587,12 @@ def handle_text_inputs(message):
                     f"{TEXTS['shop']}{shop_name}\n"
                     f"{TEXTS['type_craft'].format(carat=carat)}\n"
                     f"{TEXTS['weight_tot'].format(w=float(w))}\n"
-                    f"{TEXTS['wage_sell'].format(wage=float(wage))}\n"
+                    f"{TEXTS['wage_sell'].format(wage=fmt(wage))}\n"
                     f"━━━━━━━━━━━━━━━━━\n"
-                    f"{TEXTS['clean_p'].format(p=float(gram_price))}\n"
-                    f"{TEXTS['full_p'].format(p=float(gram_full))}\n"
-                    f"{TEXTS['total_iqd'].format(total=float(total_iqd))}\n\n"
-                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=float(rem_iqd))}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
+                    f"{TEXTS['clean_p'].format(p=fmt(gram_price))}\n"
+                    f"{TEXTS['full_p'].format(p=fmt(gram_full))}\n"
+                    f"{TEXTS['total_iqd'].format(total=fmt(total_iqd))}\n\n"
+                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=fmt(rem_iqd))}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
                 )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
@@ -617,12 +631,12 @@ def handle_text_inputs(message):
                     f"{COMPANY_HEADER}{TEXTS['invoice_crafting']}\n━━━━━━━━━━━━━━━━━\n"
                     f"{TEXTS['shop']}{shop_name}\n"
                     f"⚖️ <b>الوزن الإجمالي بالغرام:</b> {float(w)} غرام\n"
-                    f"{TEXTS['wage_sell'].format(wage=float(wage))}\n"
+                    f"{TEXTS['wage_sell'].format(wage=fmt(wage))}\n"
                     f"━━━━━━━━━━━━━━━━━\n"
-                    f"{TEXTS['clean_p'].format(p=float(gram_price))}\n"
-                    f"{TEXTS['full_p'].format(p=float(gram_full))}\n"
-                    f"{TEXTS['total_iqd'].format(total=float(total_iqd))}\n\n"
-                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=float(rem_iqd))}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
+                    f"{TEXTS['clean_p'].format(p=fmt(gram_price))}\n"
+                    f"{TEXTS['full_p'].format(p=fmt(gram_full))}\n"
+                    f"{TEXTS['total_iqd'].format(total=fmt(total_iqd))}\n\n"
+                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=fmt(rem_iqd))}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
                 )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
@@ -663,10 +677,10 @@ def handle_text_inputs(message):
                     f"{COMPANY_HEADER}{TEXTS['invoice_sell']}\n━━━━━━━━━━━━━━━━━\n"
                     f"{TEXTS['shop']}{shop_name}\n"
                     f"{TEXTS['type_sell'].format(carat=carat)}\n"
-                    f"{TEXTS['weight_tot'].format(w=float(w))}\n{TEXTS['wage_sell'].format(wage=float(wage))}\n"
-                    f"━━━━━━━━━━━━━━━━━\n{TEXTS['clean_p'].format(p=float(gram_price))}\n"
-                    f"{TEXTS['full_p'].format(p=float(gram_full))}\n{TEXTS['total_iqd'].format(total=float(total_iqd))}\n\n"
-                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=float(rem_iqd))}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
+                    f"{TEXTS['weight_tot'].format(w=float(w))}\n{TEXTS['wage_sell'].format(wage=fmt(wage))}\n"
+                    f"━━━━━━━━━━━━━━━━━\n{TEXTS['clean_p'].format(p=fmt(gram_price))}\n"
+                    f"{TEXTS['full_p'].format(p=fmt(gram_full))}\n{TEXTS['total_iqd'].format(total=fmt(total_iqd))}\n\n"
+                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=fmt(rem_iqd))}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
                 )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
@@ -706,13 +720,13 @@ def handle_text_inputs(message):
                     f"{COMPANY_HEADER}{TEXTS['invoice_buy']}\n━━━━━━━━━━━━━━━━━\n"
                     f"{TEXTS['shop']}{shop_name}\n"
                     f"{TEXTS['type_buy'].format(carat=carat)}\n"
-                    f"📥 <b>سعر شراء المثقال:</b> <code>{float(mithqal_buy_price):,.2f} دينار</code>\n"
+                    f"📥 <b>سعر شراء المثقال:</b> <code>{fmt(mithqal_buy_price)} دينار</code>\n"
                     f"{TEXTS['weight_tot'].format(w=float(w))}\n"
-                    f"{TEXTS['wage_sell'].format(wage=float(wage_cut))}\n"
+                    f"{TEXTS['wage_sell'].format(wage=fmt(wage_cut))}\n"
                     f"━━━━━━━━━━━━━━━━━\n"
-                    f"💰 <b>سعر غرام الكسر الصافي:</b> <code>{float(net_gram_price):,.2f} دينار</code>\n"
-                    f"{TEXTS['total_iqd'].format(total=float(total_iqd))}\n\n"
-                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=float(rem_iqd))}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
+                    f"💰 <b>سعر غرام الكسر الصافي:</b> <code>{fmt(net_gram_price)} دينار</code>\n"
+                    f"{TEXTS['total_iqd'].format(total=fmt(total_iqd))}\n\n"
+                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=fmt(rem_iqd))}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
                 )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
