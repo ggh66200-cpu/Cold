@@ -12,7 +12,7 @@ BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
 try:
     ADMIN_ID = int(os.environ.get("ADMIN_ID", getattr(admin, "ADMIN_ID", 0)))
-except:
+except Exception:
     ADMIN_ID = 0
 
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -76,7 +76,9 @@ def notify_admin_error(user_id, error_msg, traceback_str=""):
         print(f"Failed to send error notification to admin: {e}")
 
 def to_english_numbers(text):
-    arabic_nums = str.maketrans('٠١ي٣٤٥٦٧٨٩', '0123456789')
+    if not text:
+        return ""
+    arabic_nums = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
     persian_nums = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
     return text.translate(arabic_nums).translate(persian_nums)
 
@@ -100,7 +102,7 @@ def send_main_menu(message, user_id):
                 if str(u.get('user_id')) == str(user_id):
                     serial = u.get('member_serial', 145)
                     break
-        except:
+        except Exception:
             pass
         
         bot.send_message(
@@ -423,14 +425,14 @@ def handle_admin_actions(call):
             bot.answer_callback_query(call.id, text="✅ تم التفعيل بنجاح!")
             try:
                 bot.send_message(target_user, f"{COMPANY_HEADER}🎉 <b>تم تفعيل اشتراكك الشهري بنجاح لمدة 30 يوم!</b> 💛", parse_mode="HTML", reply_markup=get_main_keyboard(target_user))
-            except:
+            except Exception:
                 pass
         elif data.startswith("reject_sub_"):
             target_user = int(data.split("_")[2])
             bot.answer_callback_query(call.id, text="❌ تم الرفض")
             try:
                 bot.send_message(target_user, f"{COMPANY_HEADER}⚠️ <b>عفواً، تم رفض الإيصال من قبل الإدارة.</b>", parse_mode="HTML")
-            except:
+            except Exception:
                 pass
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
