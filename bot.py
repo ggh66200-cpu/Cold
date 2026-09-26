@@ -29,7 +29,7 @@ def run_flask():
 MASTER_CARD = admin.MASTER_CARD
 MONTHLY_PRICE = admin.MONTHLY_PRICE
 COMPANY_HEADER = admin.COMPANY_HEADER
-SUPPORT_NUMBER = "07872180902" 
+SUPPORT_NUMBER = "07766083622" 
 
 USER_STATE = {}
 INVOICE_DATA = {}
@@ -40,7 +40,7 @@ TEXTS = {
     "btn_single_price": "🔄 تعديل سعر فردي أو الدولار",
     "btn_sell": "📥 حساب بيع لزبون",
     "btn_buy": "📤 حساب شراء من زبون",
-    "btn_crafting": "📄 قائمة صياغة (حساب حر)",  # اسم مرتب ومنسق
+    "btn_crafting": "📄 قائمة صياغة (حساب حر)",  
     "btn_info": "📖 شرح النظام والمواصفات",
     "btn_clients": "👥 جرد العملاء والعمليات",
     "btn_admin_panel": "🛠️ لوحة تحكم الإدارة (خاص)",
@@ -52,11 +52,11 @@ TEXTS = {
     "type_buy": "🔷 العيار ونوع الحساب: عيار {carat} (حساب شراء بالغرام)",
     "type_craft": "🔷 العيار وحساب الصياغة: عيار {carat}",
     "weight_tot": "⚖️ الوزن الإجمالي بالغرام: {w} غرام",
-    "wage_sell": "🔨 أجور صياغة الغرام (مضافة): {wage:,.0f} دينار",
-    "clean_p": "💰 سعر غرام الذهب الصافي: {p:,.0f} دينار",
-    "full_p": "💵 سعر الغرام مع أجور الصائغ: {p:,.0f} دينار",
-    "total_iqd": "💵 <b>السعر الكلي بالدينار العراقي:</b>\n👉 <b>{total:,.0f} دينار</b>",
-    "total_usd": "💵 <b>صافي الحساب بالورق والدينار:</b>\n👉 <b>{usd} ورقة و {rem:,.0f} دينار</b>",
+    "wage_sell": "🔨 أجور صياغة الغرام (مضافة): {wage:,.3f} دينار",
+    "clean_p": "💰 سعر غرام الذهب الصافي: {p:,.3f} دينار",
+    "full_p": "💵 سعر الغرام مع أجور الصائغ: {p:,.3f} دينار",
+    "total_iqd": "💵 <b>السعر الكلي بالدينار العراقي:</b>\n👉 <b>{total:,.3f} دينار</b>",
+    "total_usd": "💵 <b>صافي الحساب بالورق والدينار:</b>\n👉 <b>{usd} ورقة و {rem:,.3f} دينار</b>",
     "footer": "نظام آراُمكي - دقة وأمان لحساباتك اليومية"
 }
 
@@ -152,8 +152,8 @@ def show_system_info(message):
             "📖 <b>شرح النظام والمواصفات الفنية:</b>\n\n"
             "1️⃣ <b>إدخال أسعار الصباح:</b> لتحديث أسعار الذهب والعيارات مع أجورها والدولار.\n"
             "2️⃣ <b>تعديل سعر فردي:</b> لتحديث سعر عيار معين أو الدولار مباشرة.\n"
-            "3️⃣ <b>حساب البيع والشراء وقائمة الصياغة:</b> لاحتساب دقيق ومباشر ومؤكد للعيارات والأجور.\n\n"
-            f"📞 <b>الدعم الفني:</b> <code>{SUPPORT_NUMBER}</code>"
+            "3️⃣ <b>حساب البيع والشراء وقائمة الصياغة:</b> لاحتساب دقيق ومباشر ومؤكد بدون أي تقريب للكسور.\n\n"
+            f"📞 <b>الدعم الفني / الطوارئ (واتساب):</b> <code>{SUPPORT_NUMBER}</code>"
         )
         bot.send_message(message.chat.id, info_text, parse_mode="HTML")
     except Exception as e:
@@ -168,7 +168,7 @@ def show_subscription_form(message, expired=False):
             f"{COMPANY_HEADER}{prefix}"
             f"🔹 <b>الاشتراك الشهري:</b> <b>{MONTHLY_PRICE}</b>\n"
             f"🔹 <b>ماستر كارد التحويل:</b> <code>{MASTER_CARD}</code>\n"
-            f"📞 <b>الدعم الفني:</b> <code>{SUPPORT_NUMBER}</code>\n\n"
+            f"📞 <b>الدعم الفني / الطوارئ (واتساب):</b> <code>{SUPPORT_NUMBER}</code>\n\n"
             "📸 أرسل صورة وصل التحويل هنا لتفعيل اشتراكك."
         )
         bot.send_message(message.chat.id, sub_text, parse_mode="HTML")
@@ -246,12 +246,12 @@ def single_price_menu(message):
         current_p = utils.get_goldsmith_prices(user_id) or {}
         markup = types.InlineKeyboardMarkup(row_width=2)
         markup.add(
-            types.InlineKeyboardButton(f"سعر عيار 24 ({current_p.get('price_24', 0):,.0f})", callback_data="edit_price_24"),
-            types.InlineKeyboardButton(f"سعر عيار 22 ({current_p.get('price_22', 0):,.0f})", callback_data="edit_price_22"),
-            types.InlineKeyboardButton(f"سعر عيار 21 ({current_p.get('price_21', 0):,.0f})", callback_data="edit_price_21"),
-            types.InlineKeyboardButton(f"سعر عيار 18 ({current_p.get('price_18', 0):,.0f})", callback_data="edit_price_18"),
-            types.InlineKeyboardButton(f"سعر عيار 9 ({current_p.get('price_9', 0):,.0f})", callback_data="edit_price_9"),
-            types.InlineKeyboardButton(f"سعر 100$ ({current_p.get('usd_rate', 0):,.0f})", callback_data="edit_price_usd")
+            types.InlineKeyboardButton(f"سعر عيار 24 ({current_p.get('price_24', 0):,.3f})", callback_data="edit_price_24"),
+            types.InlineKeyboardButton(f"سعر عيار 22 ({current_p.get('price_22', 0):,.3f})", callback_data="edit_price_22"),
+            types.InlineKeyboardButton(f"سعر عيار 21 ({current_p.get('price_21', 0):,.3f})", callback_data="edit_price_21"),
+            types.InlineKeyboardButton(f"سعر عيار 18 ({current_p.get('price_18', 0):,.3f})", callback_data="edit_price_18"),
+            types.InlineKeyboardButton(f"سعر عيار 9 ({current_p.get('price_9', 0):,.3f})", callback_data="edit_price_9"),
+            types.InlineKeyboardButton(f"سعر 100$ ({current_p.get('usd_rate', 0):,.3f})", callback_data="edit_price_usd")
         )
         bot.send_message(message.chat.id, f"{COMPANY_HEADER}🔄 <b>اختر الحقل المراد تعديله بشكل فردي:</b>", parse_mode="HTML", reply_markup=markup)
     except Exception as e:
@@ -323,7 +323,6 @@ def customer_buy_init(message):
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
-# معالجة زر قائمة صياغة (حساب حر)
 @bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_crafting"])
 def crafting_menu_init(message):
     user_id = message.from_user.id
@@ -532,10 +531,9 @@ def handle_text_inputs(message):
                 USER_STATE.pop(user_id, None)
                 INVOICE_DATA.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, f"✅ <b>تم تحديث السعر بنجاح إلى:</b> <code>{val:,.0f}</code>", parse_mode="HTML")
+                bot.send_message(message.chat.id, f"✅ <b>تم تحديث السعر بنجاح إلى:</b> <code>{val:,.3f}</code>", parse_mode="HTML")
             return
 
-        # معالجة الخيار الأول لقائمة الصياغة (سحب السعر من الصباحي + إرسال الوزن والأجور)
         if state == "WAITING_CRAFT_MORNING_INPUTS":
             loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML")
             lines = [line.strip() for line in text.split('\n') if line.strip()]
@@ -583,7 +581,6 @@ def handle_text_inputs(message):
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
             return
 
-        # معالجة الخيار الثاني لقائمة الصياغة (إدخال سعر المثقال + الوزن + الأجور يدوياً)
         if state == "WAITING_CRAFT_MANUAL_INPUTS":
             loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML")
             lines = [line.strip() for line in text.split('\n') if line.strip()]
@@ -705,11 +702,11 @@ def handle_text_inputs(message):
                     f"{COMPANY_HEADER}{TEXTS['invoice_buy']}\n━━━━━━━━━━━━━━━━━\n"
                     f"{TEXTS['shop']}{shop_name}\n"
                     f"{TEXTS['type_buy'].format(carat=carat)}\n"
-                    f"📥 <b>سعر شراء المثقال:</b> <code>{mithqal_buy_price:,.0f} دينار</code>\n"
+                    f"📥 <b>سعر شراء المثقال:</b> <code>{mithqal_buy_price:,.3f} دينار</code>\n"
                     f"{TEXTS['weight_tot'].format(w=w)}\n"
                     f"{TEXTS['wage_sell'].format(wage=wage_cut)}\n"
                     f"━━━━━━━━━━━━━━━━━\n"
-                    f"💰 <b>سعر غرام الكسر الصافي:</b> <code>{net_gram_price:,.0f} دينار</code>\n"
+                    f"💰 <b>سعر غرام الكسر الصافي:</b> <code>{net_gram_price:,.3f} دينار</code>\n"
                     f"{TEXTS['total_iqd'].format(total=total_iqd)}\n\n"
                     f"{TEXTS['total_usd'].format(usd=usd_bills, rem=rem_iqd)}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
                 )
