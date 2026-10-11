@@ -143,7 +143,7 @@ def send_welcome(message):
                 "📱 <b>رقم الهاتف:</b> (مثال: 07800000000)\n\n"
                 "✍️ <i>أرسل المعلومات في رسالة واحدة:</i>", 
                 parse_mode="HTML",
-                reply_markup=types.ReplyKeyboardRemove()
+                reply_markup=types.ForceReply(selective=True)
             )
             return
 
@@ -188,7 +188,7 @@ def show_subscription_form(message, expired=False):
             f"📞 <b>الدعم الفني:</b> <code>{SUPPORT_NUMBER}</code>\n\n"
             "📸 أرسل صورة وصل التحويل هنا لتفعيل اشتراكك."
         )
-        bot.send_message(message.chat.id, sub_text, parse_mode="HTML", reply_markup=types.ReplyKeyboardRemove())
+        bot.send_message(message.chat.id, sub_text, parse_mode="HTML", reply_markup=types.ForceReply(selective=True))
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
@@ -233,7 +233,7 @@ def handle_dollar_edit_callback(call):
             "📝 <b>أرسل سعر صرف الـ 100$ الجديد:</b>\n"
             "<i>(مثال: اكتب 153000 أو 1530)</i>", 
             parse_mode="HTML",
-            reply_markup=types.ReplyKeyboardRemove()
+            reply_markup=types.ForceReply(selective=True)
         )
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
@@ -252,7 +252,7 @@ def customer_sell_init(message):
             "3️⃣ أجور صياغة الغرام\n\n"
             "💡 <i>مثال:</i>\n<code>520000\n10.5\n5000</code>", 
             parse_mode="HTML",
-            reply_markup=types.ReplyKeyboardRemove()
+            reply_markup=types.ForceReply(selective=True)
         )
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
@@ -271,7 +271,7 @@ def customer_buy_init(message):
             "3️⃣ أجور الخصم للغرام\n\n"
             "💡 <i>مثال:</i>\n<code>510000\n15.2\n2000</code>", 
             parse_mode="HTML",
-            reply_markup=types.ReplyKeyboardRemove()
+            reply_markup=types.ForceReply(selective=True)
         )
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
@@ -308,8 +308,7 @@ def handle_text_inputs(message):
             utils.register_goldsmith_details(user_id, shop_name, phone)
             USER_STATE.pop(user_id, None)
             bot.delete_message(message.chat.id, loading.message_id)
-            bot.send_message(message.chat.id, "💎 <b>تم تسجيل محلك وتفعيل الفترة التجريبية بنجاح!</b>", parse_mode="HTML")
-            send_main_menu(message, user_id)
+            bot.send_message(message.chat.id, "💎 <b>تم تسجيل محلك وتفعيل الفترة التجريبية بنجاح!</b>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
             return
 
         if state == "WAITING_SINGLE_PRICE_VALUE":
