@@ -30,6 +30,7 @@ def run_flask():
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
 
+# خيط منع سيرفر Render من النوم وإبقاء النظام شغالاً 24 ساعة دون انقطاع
 def keep_alive_ping():
     port = os.environ.get("PORT", 10000)
     url = f"http://127.0.0.1:{port}/"
@@ -48,6 +49,7 @@ SUPPORT_NUMBER = "07766083622"
 USER_STATE = {}
 
 def fmt(value):
+    """تنسيق الأرقام بفاصلة الآلاف وبدقة الحاسبة المباشرة"""
     try:
         d = Decimal(str(value))
         if d == d.to_integral_value():
@@ -135,6 +137,7 @@ def send_welcome(message):
         gs = utils.get_goldsmith(user_id) or {}
         is_admin = (user_id == ADMIN_ID)
         
+        # إذا لم يكن مفعلاً يتم نقله للتسجيل فوراً
         if not gs.get('is_registered', False):
             USER_STATE[user_id] = {"state": "WAITING_REGISTRATION_FULL", "referrer": referrer_id}
             bot.send_message(
@@ -154,6 +157,7 @@ def send_welcome(message):
             show_subscription_form(message, expired=True)
             return
 
+        # إذا كان مسجلاً يفتح القائمة الرئيسية فوراً دون تكرار التسجيل
         USER_STATE.pop(user_id, None)
         send_main_menu(message, user_id)
     except Exception as e:
@@ -171,7 +175,7 @@ def show_referral_program(message):
         ref_text = (
             f"{COMPANY_HEADER}\n"
             "🎁 <b>برنامج إحالة ودعوة الصاغة:</b>\n\n"
-            "شارك رابطك الخاص مع زملائك الصاغة، وعند اشتراك أي صايغ ودفعه لاشتراكه الشهري عن طريقك، **تكتسب أسبوعاً مجانياً (+7 أيام)** يضاف لاشتراكك تلقائياً وبدون حد أقصى!\n\n"
+            "شارك رابطك الخاص مع زملائك الصاغة، وعند اشتراك أي صايغ ودفعه لااشتراكه الشهري عن طريقك، **تكتسب أسبوعاً مجانياً (+7 أيام)** يضاف لااشتراكك تلقائياً وبدون حد أقصى!\n\n"
             f"👥 <b>عدد المشتركين المدفوعين عن طريقك:</b> <code>{ref_count} صايغ</code>\n\n"
             f"🔗 <b>رابط الدعوة الخاص بك:</b>\n<code>{ref_link}</code>"
         )
@@ -179,6 +183,7 @@ def show_referral_program(message):
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
+# رسالة معلومات النظام المحدثة بأسلوب اخترافي ومختصر
 @bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_info"])
 def show_system_info(message):
     user_id = message.from_user.id
@@ -190,9 +195,8 @@ def show_system_info(message):
             "📖 <b>تفاصيل النظام ومعلومات الحساب:</b>\n\n"
             f"⏳ الأيام المتبقية للاشتراك: <b>{remaining_days} يوم</b>\n"
             "🔹 نظام حساب حر مباشر (سعر المثقال + الوزن + الأجور)\n"
-            "🔹 مطابقة تامة لنتائج الحاسبة المكتبية بدون تقريب\n"
-            "🔹 يعمل أونلاين بالخلفية 24/7 دون انقطاع\n\n"
-            f"📞 <b>الدعم الفني والطوارئ:</b> <code>{SUPPORT_NUMBER}</code>"
+            "🔹 مطابقة تامة لنتائج الحاسبة المكتبية\n\n"
+            f"📞 <b>الدعم الفني والطوارئ:</b>\n<code>{SUPPORT_NUMBER}</code>"
         )
         bot.send_message(message.chat.id, info_text, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
     except Exception as e:
@@ -566,7 +570,7 @@ def handle_text_inputs(message):
 
 admin.register_admin_handlers(bot)
 
-# خيط آلي لمتابعة إرسال رسائل اليوم الثاني (التقييم + عرض الإحالة)
+# أتمتة اليوم الثاني (Day-2 Automation): إرسال التقييم ورابط الإحالة تلقائياً
 def day_two_automation_scheduler():
     iraq_tz = timezone(timedelta(hours=3))
     while True:
@@ -581,14 +585,14 @@ def day_two_automation_scheduler():
                 if u_id and reg_date_str and not sent_day_two:
                     try:
                         reg_date = datetime.fromisoformat(reg_date_str)
-                        if (now - reg_date).total_seconds() >= 86400: # 24 ساعة
+                        if (now - reg_date).total_seconds() >= 86400: # مرت 24 ساعة
                             bot_info = bot.get_me()
                             ref_link = f"https://t.me/{bot_info.username}?start=ref_{u_id}"
                             
                             rate_msg = (
                                 f"{COMPANY_HEADER}\n"
                                 "⭐ <b>نتمنى أن تكون تجربتك في اليوم الأول ممتازة!</b>\n\n"
-                                "كيف تقيِّم سرعة ودقة حسابات المنظومة؟ اضغط زر التقييم بالأسفل لشاركنا رأيك 💛"
+                                "كيف تقيّم سرعة ودقة حسابات المنظومة؟ اضغط زر التقييم بالأسفل لشاركنا رأيك 💛"
                             )
                             
                             ref_msg = (
@@ -609,8 +613,9 @@ def day_two_automation_scheduler():
             print(f"Day 2 automation error: {e}")
             time.sleep(3600)
 
+# التنبيه الصباحي اليومي المجدول بدقة على الساعة 10:00 صباحاً بتوقيت العراق (UTC+3)
 def morning_reminder_scheduler():
-    iraq_tz = timezone(timedelta(hours=3))
+    iraq_tz = timezone(timedelta(hours=3)) # محدد بدقة بتوقيت بغداد والعراق
     while True:
         try:
             now_iraq = datetime.now(iraq_tz)
@@ -629,7 +634,7 @@ def morning_reminder_scheduler():
                             )
                         except Exception:
                             pass
-                time.sleep(60)
+                time.sleep(60) # الانتظار دقيقة حتى لا تتكرر بنفس الدقيقة
         except Exception as e:
             print(f"Reminder error: {e}")
         time.sleep(30)
