@@ -49,13 +49,17 @@ SUPPORT_NUMBER = "07766083622"
 USER_STATE = {}
 
 def fmt(value):
-    """تنسيق الأرقام بفاصلة الآلاف وبدقة الحاسبة المباشرة"""
+    """تنسيق الأرقام بفاصلة الآلاف وإظهار الكسور مثلما أدخلها المستخدم تماماً بدون أصفار زائدة"""
     try:
-        d = Decimal(str(value))
-        if d == d.to_integral_value():
-            return f"{int(d):,}"
+        s = str(value).strip()
+        if '.' in s:
+            parts = s.split('.')
+            int_part = int(parts[0])
+            dec_part = parts[1]
+            return f"{int_part:,}.{dec_part}"
         else:
-            return f"{d:,.2f}"
+            d = Decimal(s)
+            return f"{int(d):,}"
     except Exception:
         return str(value)
 
@@ -175,7 +179,7 @@ def show_referral_program(message):
         ref_text = (
             f"{COMPANY_HEADER}\n"
             "🎁 <b>برنامج إحالة ودعوة الصاغة:</b>\n\n"
-            "شارك رابطك الخاص مع زملائك الصاغة، وعند اشتراك أي صايغ ودفعه لااشتراكه الشهري عن طريقك، **تكتسب أسبوعاً مجانياً (+7 أيام)** يضاف لااشتراكك تلقائياً وبدون حد أقصى!\n\n"
+            "شارك رابطك الخاص مع زملائك الصاغة، وعند اشتراك أي صايغ ودفعه لاشتراكه الشهري عن طريقك، **تكتسب أسبوعاً مجانياً (+7 أيام)** يضاف لاشتراكك تلقائياً وبدون حد أقصى!\n\n"
             f"👥 <b>عدد المشتركين المدفوعين عن طريقك:</b> <code>{ref_count} صايغ</code>\n\n"
             f"🔗 <b>رابط الدعوة الخاص بك:</b>\n<code>{ref_link}</code>"
         )
@@ -183,7 +187,7 @@ def show_referral_program(message):
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
-# رسالة معلومات النظام المحدثة بأسلوب اخترافي ومختصر
+# رسالة معلومات النظام المختصرة
 @bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_info"])
 def show_system_info(message):
     user_id = message.from_user.id
