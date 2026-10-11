@@ -48,7 +48,7 @@ SUPPORT_NUMBER = "07766083622"
 USER_STATE = {}
 
 def fmt(value):
-    """تنسيق الأرقام بفاصلة الآلاف وبدقة متناهية بدون مسافات خربانة"""
+    """تنسيق الأرقام بفاصلة الآلاف وبدقة متناهية"""
     try:
         d = Decimal(str(value))
         if d == d.to_integral_value():
@@ -85,7 +85,7 @@ def notify_admin_error(user_id, error_msg, traceback_str=""):
 def to_english_numbers(text):
     if not text:
         return ""
-    arabic_nums = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
+    arabic_nums = str.maketrans('٠١ي٣٤٥٦٧٨٩', '0123456789')
     persian_nums = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
     return text.translate(arabic_nums).translate(persian_nums)
 
@@ -194,10 +194,10 @@ def handle_rating_callbacks(call):
     user_id = call.from_user.id
     try:
         if call.data == "rate_5_stars":
-            bot.answer_callback_query(call.id, text="🌟 شكراً لتقييمك العالي! نعتز ببركتكم.")
+            bot.answer_callback_query(call.id, text="🌟 شكراً لتقييمك العالي! نعتز برأيك.")
             bot.send_message(
                 call.message.chat.id, 
-                "💛 <b>شكراً لتقييمكم الممتاز (5 نجوم)!</b>\n\nنحن مستمرون بالتطوير والتحديث لضمان دقة وسرعة حساباتكم دائماً.",
+                "💛 <b>شكراً لتقييمكم الممتاز (5 نجوم)!</b>\n\nنحن مستمرون بالتطوير لضمان دقة وسرعة حساباتكم دائماً.",
                 parse_mode="HTML",
                 reply_markup=get_main_keyboard(user_id)
             )
@@ -317,7 +317,7 @@ def handle_invoice_confirmation(call):
         if call.data == "confirm_invoice":
             bot.answer_callback_query(call.id, text="✅ تمت العملية بنجاح!")
             bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
-            bot.send_message(call.message.chat.id, "✅ <b>تم اعتماد الفاتورة بنجاح!</b> 💛", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+            bot.send_message(call.message.chat.id, "✅ <b>تم اعتماد الفاتورة بنجاح!</b>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
         else:
             bot.answer_callback_query(call.id, text="❌ تم إلغاء العملية")
             bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
@@ -344,7 +344,7 @@ def handle_text_inputs(message):
             
             bot.send_message(
                 message.chat.id, 
-                "💎 <b>تم تسجيل محلك وتفعيل الفترة التجريبية بنجاح!</b>\n\nاختر العملية المطلوبة من الأزرار أدناه للبدء 👇", 
+                "💎 <b>تم تسجيل محلك وتفعيل الفترة التجريبية بنجاح!</b>", 
                 parse_mode="HTML", 
                 reply_markup=get_main_keyboard(user_id)
             )
@@ -378,7 +378,7 @@ def handle_text_inputs(message):
             return
 
         if state == "WAITING_SELL_INPUTS":
-            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب بدقة...</i>", parse_mode="HTML")
+            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML")
             lines = [line.strip() for line in text.split('\n') if line.strip()]
             if len(lines) >= 3:
                 mithqal_price = Decimal(lines[0])
@@ -426,9 +426,11 @@ def handle_text_inputs(message):
                 )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                # إرسال الفاتورة وتثبيت الأزرار الرئيسية أسفل الشاشة فوراً معها
-                bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
-                bot.send_message(message.chat.id, "👇 <b>اختر العملية التالية:</b>", reply_markup=get_main_keyboard(user_id))
+                
+                # إرسال الفاتورة ومعها الأزرار الرئيسية مباشرة بحيث تكون ظاهرة أمامه بالأسفل فوراً بدون أي رسالة زائدة
+                bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+                # إرسال أزرار التأكيد كـ Inline أسفل الفاتورة مباشرة
+                bot.send_message(message.chat.id, "📌 <b>يرجى اعتماد أو إلغاء الفاتورة أعلاه:</b>", parse_mode="HTML", reply_markup=markup)
             return
 
         if state == "WAITING_BUY_INPUTS":
@@ -479,9 +481,11 @@ def handle_text_inputs(message):
                 )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                # إرسال الفاتورة وتثبيت الأزرار الرئيسية أسفل الشاشة فوراً معها
-                bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
-                bot.send_message(message.chat.id, "👇 <b>اختر العملية التالية:</b>", reply_markup=get_main_keyboard(user_id))
+                
+                # إرسال الفاتورة ومعها الأزرار الرئيسية مباشرة بحيث تكون ظاهرة أمامه بالأسفل فوراً بدون أي رسالة زائدة
+                bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+                # إرسال أزرار التأكيد كـ Inline أسفل الفاتورة مباشرة
+                bot.send_message(message.chat.id, "📌 <b>يرجى اعتماد أو إلغاء الفاتورة أعلاه:</b>", parse_mode="HTML", reply_markup=markup)
             return
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
