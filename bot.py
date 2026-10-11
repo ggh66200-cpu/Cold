@@ -35,7 +35,7 @@ def keep_alive_ping():
     url = f"http://127.0.0.1:{port}/"
     while True:
         try:
-            time.sleep(300) # كل 5 دقائق
+            time.sleep(300)
             urllib.request.urlopen(url)
         except Exception as e:
             print(f"Keep-alive ping status: {e}")
@@ -142,7 +142,8 @@ def send_welcome(message):
                 "🏢 <b>اسم المحل:</b> (مثال: مجوهرات الذهب الأخضر)\n"
                 "📱 <b>رقم الهاتف:</b> (مثال: 07800000000)\n\n"
                 "✍️ <i>أرسل المعلومات في رسالة واحدة:</i>", 
-                parse_mode="HTML"
+                parse_mode="HTML",
+                reply_markup=types.ReplyKeyboardRemove()
             )
             return
 
@@ -171,7 +172,7 @@ def show_system_info(message):
             "🔹 يعمل أونلاين بالخلفية 24/7 دون انقطاع\n\n"
             f"📞 <b>الدعم الفني والطوارئ:</b> <code>{SUPPORT_NUMBER}</code>"
         )
-        bot.send_message(message.chat.id, info_text, parse_mode="HTML")
+        bot.send_message(message.chat.id, info_text, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
@@ -187,7 +188,7 @@ def show_subscription_form(message, expired=False):
             f"📞 <b>الدعم الفني:</b> <code>{SUPPORT_NUMBER}</code>\n\n"
             "📸 أرسل صورة وصل التحويل هنا لتفعيل اشتراكك."
         )
-        bot.send_message(message.chat.id, sub_text, parse_mode="HTML")
+        bot.send_message(message.chat.id, sub_text, parse_mode="HTML", reply_markup=types.ReplyKeyboardRemove())
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
@@ -231,7 +232,8 @@ def handle_dollar_edit_callback(call):
             call.message.chat.id, 
             "📝 <b>أرسل سعر صرف الـ 100$ الجديد:</b>\n"
             "<i>(مثال: اكتب 153000 أو 1530)</i>", 
-            parse_mode="HTML"
+            parse_mode="HTML",
+            reply_markup=types.ReplyKeyboardRemove()
         )
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
@@ -249,7 +251,8 @@ def customer_sell_init(message):
             "2️⃣ الوزن بالغرام\n"
             "3️⃣ أجور صياغة الغرام\n\n"
             "💡 <i>مثال:</i>\n<code>520000\n10.5\n5000</code>", 
-            parse_mode="HTML"
+            parse_mode="HTML",
+            reply_markup=types.ReplyKeyboardRemove()
         )
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
@@ -267,7 +270,8 @@ def customer_buy_init(message):
             "2️⃣ الوزن بالغرام\n"
             "3️⃣ أجور الخصم للغرام\n\n"
             "💡 <i>مثال:</i>\n<code>510000\n15.2\n2000</code>", 
-            parse_mode="HTML"
+            parse_mode="HTML",
+            reply_markup=types.ReplyKeyboardRemove()
         )
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
@@ -279,11 +283,11 @@ def handle_invoice_confirmation(call):
         if call.data == "confirm_invoice":
             bot.answer_callback_query(call.id, text="✅ تمت العملية بنجاح!")
             bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
-            bot.send_message(call.message.chat.id, "✅ <b>تم اعتماد الفاتورة بنجاح!</b> 💛", parse_mode="HTML")
+            bot.send_message(call.message.chat.id, "✅ <b>تم اعتماد الفاتورة بنجاح!</b> 💛", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
         else:
             bot.answer_callback_query(call.id, text="❌ تم إلغاء العملية")
             bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
-            bot.send_message(call.message.chat.id, "❌ <b>تم إلغاء الفاتورة.</b>", parse_mode="HTML")
+            bot.send_message(call.message.chat.id, "❌ <b>تم إلغاء الفاتورة.</b>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
         INVOICE_DATA.pop(user_id, None)
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
@@ -332,7 +336,7 @@ def handle_text_inputs(message):
                 )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, f"✅ <b>تم تحديث سعر صرف الـ 100$ بنجاح إلى:</b> <code>{fmt(usd_100_val)} دينار</code>", parse_mode="HTML")
+                bot.send_message(message.chat.id, f"✅ <b>تم تحديث سعر صرف الـ 100$ بنجاح إلى:</b> <code>{fmt(usd_100_val)} دينار</code>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
             return
 
         if state == "WAITING_SELL_INPUTS":
@@ -453,17 +457,14 @@ def morning_reminder_scheduler():
         time.sleep(30)
 
 if __name__ == "__main__":
-    # تشغيل خيط الحفاظ على عمل السيرفر 24/7 بالخلفية
     keep_alive_thread = threading.Thread(target=keep_alive_ping)
     keep_alive_thread.daemon = True
     keep_alive_thread.start()
 
-    # تشغيل خيط التذكير الصباحي
     reminder_thread = threading.Thread(target=morning_reminder_scheduler)
     reminder_thread.daemon = True
     reminder_thread.start()
 
-    # تشغيل تطبيق Flask والـ Polling الخاص بتليغرام
     t = threading.Thread(target=run_flask)
     t.daemon = True
     t.start()
