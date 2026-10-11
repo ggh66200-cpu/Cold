@@ -46,7 +46,7 @@ COMPANY_HEADER = admin.COMPANY_HEADER
 SUPPORT_NUMBER = "07766083622" 
 
 USER_STATE = {}
-CALC_BUFFERS = {}  # تخزين القيم الحية لكل مستخدم
+USER_INPUT_BUFFER = {}
 
 def fmt(value):
     try:
@@ -59,7 +59,7 @@ def fmt(value):
         return str(value)
 
 TEXTS = {
-    "welcome": "👋 أهلاً بك في منصة <b>SMART GOLD SYSTEM</b>\n\nالمنظومة الذكية الأسرع والأدق لإدارة حسابات الذهب بدقة الحاسبة المكتبية المباشرة.\n🔑 <i>رقم العضوية:</i> <b>#{serial} صايغ معتمد</b>\n\nاختر العملية المطلوبة من الأزرار المثبتة أدناه للبدء فوراً 👇",
+    "welcome": "👋 أهلاً بك في منصة <b>SMART GOLD SYSTEM</b>\n\nالمنظومة الذكية الأسرع والأدق لإدارة حسابات الذهب بدقة الحاسبة المكتبية المباشرة.\n🔑 <i>رقم العضوية:</i> <b>#{serial} صايغ معتمد</b>\n\nاختر العملية المطلوبة من الأزرار أدناه للبدء فوراً 👇",
     "btn_sell": "🛍️ بيع للزبون",
     "btn_buy": "📥 شراء من الزبون",
     "btn_dollar": "💵 سعر الدولار والتعديل",
@@ -91,7 +91,7 @@ def notify_admin_error(user_id, error_msg, traceback_str=""):
 def to_english_numbers(text):
     if not text:
         return ""
-    arabic_nums = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
+    arabic_nums = str.maketrans('٠١ي٣٤٥٦٧٨٩', '0123456789')
     persian_nums = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
     return text.translate(arabic_nums).translate(persian_nums)
 
@@ -103,25 +103,16 @@ def get_main_keyboard(user_id):
         markup.add(types.KeyboardButton("🛠️ لوحة تحكم الإدارة (خاص)"))
     return markup
 
-# صانع الحاسبة الحية التفاعلية (أزرار تحت الرسالة تنبض بالحياة)
-def get_live_calculator_markup(current_text=""):
-    markup = types.InlineKeyboardMarkup(row_width=3)
+# كيبورد أرقام سريع يظهر مكان كيبورد الهاتف مباشرة
+def get_fast_numpad_keyboard():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
     markup.add(
-        types.InlineKeyboardButton("1️⃣", callback_data="calc_1"),
-        types.InlineKeyboardButton("2️⃣", callback_data="calc_2"),
-        types.InlineKeyboardButton("3️⃣", callback_data="calc_3"),
-        types.InlineKeyboardButton("4️⃣", callback_data="calc_4"),
-        types.InlineKeyboardButton("5️⃣", callback_data="calc_5"),
-        types.InlineKeyboardButton("6️⃣", callback_data="calc_6"),
-        types.InlineKeyboardButton("7️⃣", callback_data="calc_7"),
-        types.InlineKeyboardButton("8️⃣", callback_data="calc_8"),
-        types.InlineKeyboardButton("9️⃣", callback_data="calc_9"),
-        types.InlineKeyboardButton("0️⃣", callback_data="calc_0"),
-        types.InlineKeyboardButton("🔸 .", callback_data="calc_dot"),
-        types.InlineKeyboardButton("⌫ مسح حرف", callback_data="calc_back"),
-        types.InlineKeyboardButton("⏎ سطر جديد (إنتر)", callback_data="calc_newline"),
-        types.InlineKeyboardButton("❌ إلغاء", callback_data="calc_cancel"),
-        types.InlineKeyboardButton("✅ تم الحساب", callback_data="calc_done")
+        types.KeyboardButton("1"), types.KeyboardButton("2"), types.KeyboardButton("3"),
+        types.KeyboardButton("4"), types.KeyboardButton("5"), types.KeyboardButton("6"),
+        types.KeyboardButton("7"), types.KeyboardButton("8"), types.KeyboardButton("9"),
+        types.KeyboardButton("0"), types.KeyboardButton("."), types.KeyboardButton("⌫ مسح"),
+        types.KeyboardButton("⏎ سطر جديد"),
+        types.KeyboardButton("✓ تم الإرسال"), types.KeyboardButton("❌ إلغاء")
     )
     return markup
 
@@ -156,12 +147,12 @@ def send_welcome(message):
         
         if not gs.get('is_registered', False):
             USER_STATE[user_id] = "WAITING_REGISTRATION_FULL"
-            CALC_BUFFERS[user_id] = ""
+            USER_INPUT_BUFFER[user_id] = ""
             bot.send_message(
                 message.chat.id, 
-                f"{COMPANY_HEADER}🌟 <b>مرحباً بك في منظومة ARAMKY الاحترافية!</b> 🌟\n\n"
-                "لتفعيل حسابك، أرسل اسم المحل ورقم هاتفك:", 
-                parse_mode="HTML"
+                f"{COMPANY_HEADER}🌟 <b>مرحباً بك في منظومة ARAMKY الاحترافية!</b> 🌟\n\nأرسل اسم المحل ورقم هاتفك:", 
+                parse_mode="HTML",
+                reply_markup=get_fast_numpad_keyboard()
             )
             return
 
@@ -171,7 +162,7 @@ def send_welcome(message):
             return
 
         USER_STATE.pop(user_id, None)
-        CALC_BUFFERS.pop(user_id, None)
+        USER_INPUT_BUFFER.pop(user_id, None)
         send_main_menu(message, user_id)
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
@@ -186,9 +177,8 @@ def show_system_info(message):
             f"{COMPANY_HEADER}"
             "📖 <b>تفاصيل النظام ومعلومات الحساب:</b>\n\n"
             f"⏳ الأيام المتبقية للاشتراك: <b>{remaining_days} يوم</b>\n"
-            "🔹 حاسبة أزرار تفاعلية حية داخل البوت\n"
-            "🔹 مطابقة تامة لنتائج الحاسبة المكتبية بدون تقريب\n"
-            "🔹 يعمل أونلاين بالخلفية 24/7 دون انقطاع\n\n"
+            "🔹 نظام حاسبة أرقام سريع وثابت مكان الكيبورد\n"
+            "🔹 مطابقة تامة لنتائج الحاسبة المكتبية بدون تقريب\n\n"
             f"📞 <b>الدعم الفني والطوارئ:</b> <code>{SUPPORT_NUMBER}</code>"
         )
         bot.send_message(message.chat.id, info_text, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
@@ -245,15 +235,15 @@ def dollar_management_menu(message):
 def handle_dollar_edit_callback(call):
     user_id = call.from_user.id
     try:
-        bot.answer_callback_query(call.id, text="🧮 فتح الحاسبة الحية...")
+        bot.answer_callback_query(call.id, text="⚡ افتح لوحة الأرقام السريعة...")
         USER_STATE[user_id] = "WAITING_SINGLE_PRICE_VALUE"
-        CALC_BUFFERS[user_id] = ""
-        
-        text = (
-            f"💵 <b>أدخل سعر صرف الـ 100$ الجديد عبر الحاسبة الحية:</b>\n\n"
-            f"📥 <i>القيمة المتراكمة حالياً:</i>\n<code>(فارغ)</code>"
+        USER_INPUT_BUFFER[user_id] = ""
+        bot.send_message(
+            call.message.chat.id, 
+            "📝 <b>أدخل سعر صرف الـ 100$ الجديد عبر لوحة الأرقام السريعة أدناه:</b>\n<i>(مثال: 153000)</i>", 
+            parse_mode="HTML",
+            reply_markup=get_fast_numpad_keyboard()
         )
-        bot.send_message(call.message.chat.id, text, parse_mode="HTML", reply_markup=get_live_calculator_markup())
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
@@ -262,17 +252,18 @@ def customer_sell_init(message):
     user_id = message.from_user.id
     try:
         USER_STATE[user_id] = "WAITING_SELL_INPUTS"
-        CALC_BUFFERS[user_id] = ""
-        
-        text = (
-            f"{COMPANY_HEADER}🛍️ <b>حساب بيع زبون (حاسبة تفاعلية حية):</b>\n\n"
-            "استخدم أزرار الحاسبة أدناه لإدخال:\n"
+        USER_INPUT_BUFFER[user_id] = ""
+        bot.send_message(
+            message.chat.id, 
+            f"{COMPANY_HEADER}🛍️ <b>حساب بيع زبون (لوحة أرقام سريعة):</b>\n\n"
+            "استخدم لوحة الأرقام أدناه لإدخال:\n"
             "1️⃣ سعر المثقال ⟵ ⏎ سطر جديد\n"
             "2️⃣ الوزن ⟵ ⏎ سطر جديد\n"
-            "3️⃣ أجور الصياغة\nثم اضغط <b>✅ تم الحساب</b>\n\n"
-            f"📥 <i>القيمة المدخلة حالياً:</i>\n<code>(فارغ)</code>"
+            "3️⃣ أجور الصياغة\nثم اضغط <b>✓ تم الإرسال</b>\n\n"
+            "📥 <i>النسخة الحالية:</i> <code>(فارغ)</code>", 
+            parse_mode="HTML",
+            reply_markup=get_fast_numpad_keyboard()
         )
-        bot.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=get_live_calculator_markup())
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
@@ -281,223 +272,208 @@ def customer_buy_init(message):
     user_id = message.from_user.id
     try:
         USER_STATE[user_id] = "WAITING_BUY_INPUTS"
-        CALC_BUFFERS[user_id] = ""
-        
-        text = (
-            f"{COMPANY_HEADER}📥 <b>حساب شراء كسر (حاسبة تفاعلية حية):</b>\n\n"
-            "استخدم أزرار الحاسبة أدناه لإدخال:\n"
+        USER_INPUT_BUFFER[user_id] = ""
+        bot.send_message(
+            message.chat.id, 
+            f"{COMPANY_HEADER}📥 <b>حساب شراء كسر (لوحة أرقام سريعة):</b>\n\n"
+            "استخدم لوحة الأرقام أدناه لإدخال:\n"
             "1️⃣ سعر شراء المثقال ⟵ ⏎ سطر جديد\n"
             "2️⃣ الوزن ⟵ ⏎ سطر جديد\n"
-            "3️⃣ أجور الخصم\nثم اضغط <b>✅ تم الحساب</b>\n\n"
-            f"📥 <i>القيمة المدخلة حالياً:</i>\n<code>(فارغ)</code>"
+            "3️⃣ أجور الخصم\nثم اضغط <b>✓ تم الإرسال</b>\n\n"
+            "📥 <i>النسخة الحالية:</i> <code>(فارغ)</code>", 
+            parse_mode="HTML",
+            reply_markup=get_fast_numpad_keyboard()
         )
-        bot.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=get_live_calculator_markup())
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
-# معالج ضغطات أزرار الحاسبة الحية التفاعلية
-@bot.callback_query_handler(func=lambda call: call.data.startswith("calc_") or call.data in ["confirm_invoice", "cancel_invoice"])
-def handle_calculator_callbacks(call):
+@bot.callback_query_handler(func=lambda call: call.data in ["confirm_invoice", "cancel_invoice"])
+def handle_invoice_confirmation(call):
     user_id = call.from_user.id
     try:
-        data = call.data
-        
-        if data in ["confirm_invoice", "cancel_invoice"]:
-            if data == "confirm_invoice":
-                bot.answer_callback_query(call.id, text="✅ تمت العملية بنجاح!")
-                bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
-                bot.send_message(call.message.chat.id, "✅ <b>تم اعتماد الفاتورة بنجاح!</b> 💛", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
-            else:
-                bot.answer_callback_query(call.id, text="❌ تم إلغاء العملية")
-                bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
-                bot.send_message(call.message.chat.id, "❌ <b>تم إلغاء الفاتورة.</b>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
-            USER_STATE.pop(user_id, None)
-            CALC_BUFFERS.pop(user_id, None)
-            return
+        if call.data == "confirm_invoice":
+            bot.answer_callback_query(call.id, text="✅ تمت العملية بنجاح!")
+            bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
+            bot.send_message(call.message.chat.id, "✅ <b>تم اعتماد الفاتورة بنجاح!</b> 💛", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+        else:
+            bot.answer_callback_query(call.id, text="❌ تم إلغاء العملية")
+            bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
+            bot.send_message(call.message.chat.id, "❌ <b>تم إلغاء الفاتورة.</b>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+        USER_INPUT_BUFFER.pop(user_id, None)
+    except Exception as e:
+        notify_admin_error(user_id, str(e), traceback.format_exc())
 
-        current_buf = CALC_BUFFERS.get(user_id, "")
+@bot.message_handler(func=lambda message: True)
+def handle_text_inputs(message):
+    user_id = message.from_user.id
+    try:
+        raw_text = message.text.strip() if message.text else ""
         state = USER_STATE.get(user_id)
 
-        if data == "calc_cancel":
+        if raw_text == "❌ إلغاء":
             USER_STATE.pop(user_id, None)
-            CALC_BUFFERS.pop(user_id, None)
-            bot.answer_callback_query(call.id, text="❌ تم إلغاء العملية")
-            try:
-                bot.delete_message(call.message.chat.id, call.message.message_id)
-            except Exception:
-                pass
-            bot.send_message(call.message.chat.id, "❌ <b>تم الإلغاء.</b>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+            USER_INPUT_BUFFER.pop(user_id, None)
+            bot.send_message(message.chat.id, "❌ <b>تم إلغاء العملية.</b>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
             return
 
-        elif data.startswith("calc_") and data not in ["calc_cancel", "calc_done", "calc_back", "calc_newline"]:
-            char = data.replace("calc_", "")
-            current_buf += char
-            CALC_BUFFERS[user_id] = current_buf
-            bot.answer_callback_query(call.id, text=f"إضافه: {char}")
+        if state in ["WAITING_SELL_INPUTS", "WAITING_BUY_INPUTS", "WAITING_SINGLE_PRICE_VALUE", "WAITING_REGISTRATION_FULL"]:
+            current_buf = USER_INPUT_BUFFER.get(user_id, "")
 
-        elif data == "calc_back":
-            current_buf = current_buf[:-1]
-            CALC_BUFFERS[user_id] = current_buf
-            bot.answer_callback_query(call.id, text="⌫ مسح حرف")
-
-        elif data == "calc_newline":
-            current_buf += "\n"
-            CALC_BUFFERS[user_id] = current_buf
-            bot.answer_callback_query(call.id, text="⏎ سطر جديد")
-
-        elif data == "calc_done":
-            bot.answer_callback_query(call.id, text="✅ جاري التنفيذ والحساب...")
-            text = to_english_numbers(current_buf)
-            
-            if state == "WAITING_SINGLE_PRICE_VALUE":
-                clean_val = text.replace('\n', '').strip()
-                if re.match(r'^\d+(\.\d+)?$', clean_val):
-                    val = Decimal(clean_val)
-                    usd_r = (val / Decimal('100') if val > Decimal('5000') else val)
-                    usd_100_val = usd_r * Decimal('100')
-                    
-                    current_p = utils.get_goldsmith_prices(user_id) or {}
-                    utils.update_morning_prices(
-                        user_id,
-                        p24=float(current_p.get('price_24', 1020000)),
-                        p22=float(current_p.get('price_22', 935000)),
-                        p21=float(current_p.get('price_21', 900000)),
-                        p18=float(current_p.get('price_18', 450000)),
-                        p9=float(current_p.get('price_9', 400000)),
-                        w24=float(current_p.get('wage_24', 3000)),
-                        w22=float(current_p.get('wage_22', 3500)),
-                        w21=float(current_p.get('wage_21', 4500)),
-                        w18=float(current_p.get('wage_18', 7500)),
-                        w9=float(current_p.get('wage_9', 2500)),
-                        usd_r=float(usd_r)
-                    )
-                    USER_STATE.pop(user_id, None)
-                    CALC_BUFFERS.pop(user_id, None)
-                    try:
-                        bot.delete_message(call.message.chat.id, call.message.message_id)
-                    except Exception:
-                        pass
-                    bot.send_message(call.message.chat.id, f"✅ <b>تم تحديث سعر صرف الـ 100$ بنجاح إلى:</b> <code>{fmt(usd_100_val)} دينار</code>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+            if raw_text == "⌫ مسح":
+                current_buf = current_buf[:-1]
+                USER_INPUT_BUFFER[user_id] = current_buf
+                bot.send_message(message.chat.id, f"📥 <i>المتراكم:</i> <code>{current_buf if current_buf else '(فارغ)'}</code>", parse_mode="HTML", reply_markup=get_fast_numpad_keyboard())
                 return
-
-            elif state == "WAITING_SELL_INPUTS":
-                lines = [line.strip() for line in text.split('\n') if line.strip()]
-                if len(lines) >= 3:
-                    mithqal_price = Decimal(lines[0])
-                    w = Decimal(lines[1])
-                    wage = Decimal(lines[2])
-                    
-                    gram_price = mithqal_price / Decimal('5')
-                    gram_full = gram_price + wage
-                    total_iqd = gram_full * w
-                    
-                    prices = utils.get_goldsmith_prices(user_id) or {}
-                    goldsmith = utils.get_goldsmith(user_id) or {}
-                    
-                    usd_rate_single = Decimal(str(prices.get('usd_rate', 1530)))
-                    sheet_price = usd_rate_single * Decimal('100') if usd_rate_single < Decimal('5000') else usd_rate_single
-                    usd_bills = int(total_iqd // sheet_price) if sheet_price > 0 else 0
-                    rem_iqd = total_iqd % sheet_price if sheet_price > 0 else total_iqd
-                    
-                    shop_name = goldsmith.get('full_name') or 'محلي الموقر'
-                    
-                    markup = types.InlineKeyboardMarkup(row_width=2)
-                    markup.add(
-                        types.InlineKeyboardButton("✅ تأكيد العملية", callback_data="confirm_invoice"),
-                        types.InlineKeyboardButton("❌ إلغاء العملية", callback_data="cancel_invoice")
-                    )
-                    
-                    invoice = (
-                        f"{COMPANY_HEADER}{TEXTS['invoice_sell']}\n━━━━━━━━━━━━━━━━━\n"
-                        f"{TEXTS['shop']}{shop_name}\n"
-                        f"🟡 <b>سعر المثقال المعتمد:</b> <code>{fmt(mithqal_price)} دينار</code>\n"
-                        f"{TEXTS['weight_tot'].format(w=float(w))}\n"
-                        f"{TEXTS['wage_sell'].format(wage=fmt(wage))}\n"
-                        f"━━━━━━━━━━━━━━━━━\n"
-                        f"💰 <b>سعر غرام الصافي:</b> <code>{fmt(gram_price)} دينار</code>\n"
-                        f"💵 <b>سعر غرام مع الأجور:</b> <code>{fmt(gram_full)} دينار</code>\n"
-                        f"{TEXTS['total_iqd'].format(total=fmt(total_iqd))}\n\n"
-                        f"{TEXTS['total_usd'].format(usd=usd_bills, rem=fmt(rem_iqd))}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
-                    )
-                    USER_STATE.pop(user_id, None)
-                    CALC_BUFFERS.pop(user_id, None)
-                    try:
-                        bot.delete_message(call.message.chat.id, call.message.message_id)
-                    except Exception:
-                        pass
-                    bot.send_message(call.message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
+            elif raw_text == "⏎ سطر جديد":
+                current_buf += "\n"
+                USER_INPUT_BUFFER[user_id] = current_buf
+                bot.send_message(message.chat.id, f"📥 <i>المتراكم:</i> <code>{current_buf}</code>", parse_mode="HTML", reply_markup=get_fast_numpad_keyboard())
                 return
+            elif raw_text in ["0","1","2","3","4","5","6","7","8","9","."]:
+                current_buf += raw_text
+                USER_INPUT_BUFFER[user_id] = current_buf
+                return # سرعة فائقة بدون رسائل مزعجة لكل ضغطة رقم
 
-            elif state == "WAITING_BUY_INPUTS":
-                lines = [line.strip() for line in text.split('\n') if line.strip()]
-                if len(lines) >= 3:
-                    mithqal_buy_price = Decimal(lines[0])
-                    w = Decimal(lines[1])
-                    wage_cut = Decimal(lines[2])
+            if raw_text == "✓ تم الإرسال" or len(current_buf) > 0:
+                text = to_english_numbers(current_buf if raw_text == "✓ تم الإرسال" else current_buf + ("\n" + raw_text if raw_text not in ["✓ تم الإرسال"] else ""))
+
+                if state == "WAITING_REGISTRATION_FULL":
+                    loading = bot.send_message(message.chat.id, "⏳ <i>جاري التأسيس...</i>", parse_mode="HTML")
+                    lines = [line.strip() for line in text.split('\n') if line.strip()]
+                    shop_name = lines[0] if len(lines) >= 1 else text
+                    phone = lines[1] if len(lines) >= 2 else "غير محدد"
                     
-                    gram_buy_price = mithqal_buy_price / Decimal('5')
-                    net_gram_price = gram_buy_price - wage_cut
-                    total_iqd = net_gram_price * w
-                    
-                    prices = utils.get_goldsmith_prices(user_id) or {}
-                    goldsmith = utils.get_goldsmith(user_id) or {}
-                    
-                    usd_rate_single = Decimal(str(prices.get('usd_rate', 1530)))
-                    sheet_price = usd_rate_single * Decimal('100') if usd_rate_single < Decimal('5000') else usd_rate_single
-                    usd_bills = int(total_iqd // sheet_price) if sheet_price > 0 else 0
-                    rem_iqd = total_iqd % sheet_price if sheet_price > 0 else total_iqd
-                    
-                    shop_name = goldsmith.get('full_name') or 'محلي الموقر'
-                    
-                    markup = types.InlineKeyboardMarkup(row_width=2)
-                    markup.add(
-                        types.InlineKeyboardButton("✅ تأكيد العملية", callback_data="confirm_invoice"),
-                        types.InlineKeyboardButton("❌ إلغاء العملية", callback_data="cancel_invoice")
-                    )
-                    
-                    invoice = (
-                        f"{COMPANY_HEADER}{TEXTS['invoice_buy']}\n━━━━━━━━━━━━━━━━━\n"
-                        f"{TEXTS['shop']}{shop_name}\n"
-                        f"📥 <b>سعر شراء المثقال:</b> <code>{fmt(mithqal_buy_price)} دينار</code>\n"
-                        f"{TEXTS['weight_tot'].format(w=float(w))}\n"
-                        f"🔨 <b>أجور الخصم للغرام:</b> {fmt(wage_cut)} دينار\n"
-                        f"━━━━━━━━━━━━━━━━━\n"
-                        f"💰 <b>سعر غرام الكسر الصافي:</b> <code>{fmt(net_gram_price)} دينار</code>\n"
-                        f"{TEXTS['total_iqd'].format(total=fmt(total_iqd))}\n\n"
-                        f"{TEXTS['total_usd'].format(usd=usd_bills, rem=fmt(rem_iqd))}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
-                    )
+                    utils.register_goldsmith_details(user_id, shop_name, phone)
                     USER_STATE.pop(user_id, None)
-                    CALC_BUFFERS.pop(user_id, None)
-                    try:
-                        bot.delete_message(call.message.chat.id, call.message.message_id)
-                    except Exception:
-                        pass
-                    bot.send_message(call.message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
-                return
+                    USER_INPUT_BUFFER.pop(user_id, None)
+                    bot.delete_message(message.chat.id, loading.message_id)
+                    bot.send_message(message.chat.id, "💎 <b>تم التسجيل بنجاح!</b>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+                    return
 
-        # تحديث شاشة الحاسبة الحية بالقيم الجديدة فوراً
-        display_text = current_buf if current_buf else "(فارغ)"
-        updated_msg = (
-            f"🧮 <b>الحاسبة التفاعلية الحية:</b>\n\n"
-            f"📥 <i>القيمة المدخلة حالياً:</i>\n<code>{display_text}</code>"
-        )
-        try:
-            bot.edit_message_text(
-                updated_msg,
-                chat_id=call.message.chat.id,
-                message_id=call.message.message_id,
-                parse_mode="HTML",
-                reply_markup=get_live_calculator_markup(current_buf)
-            )
-        except Exception:
-            pass
+                if state == "WAITING_SINGLE_PRICE_VALUE":
+                    loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري التحديث...</i>", parse_mode="HTML")
+                    clean_val = text.replace('\n', '').strip()
+                    if re.match(r'^\d+(\.\d+)?$', clean_val):
+                        val = Decimal(clean_val)
+                        usd_r = (val / Decimal('100') if val > Decimal('5000') else val)
+                        usd_100_val = usd_r * Decimal('100')
+                        
+                        current_p = utils.get_goldsmith_prices(user_id) or {}
+                        utils.update_morning_prices(
+                            user_id,
+                            p24=float(current_p.get('price_24', 1020000)),
+                            p22=float(current_p.get('price_22', 935000)),
+                            p21=float(current_p.get('price_21', 900000)),
+                            p18=float(current_p.get('price_18', 450000)),
+                            p9=float(current_p.get('price_9', 400000)),
+                            w24=float(current_p.get('wage_24', 3000)),
+                            w22=float(current_p.get('wage_22', 3500)),
+                            w21=float(current_p.get('wage_21', 4500)),
+                            w18=float(current_p.get('wage_18', 7500)),
+                            w9=float(current_p.get('wage_9', 2500)),
+                            usd_r=float(usd_r)
+                        )
+                        USER_STATE.pop(user_id, None)
+                        USER_INPUT_BUFFER.pop(user_id, None)
+                        bot.delete_message(message.chat.id, loading_msg.message_id)
+                        bot.send_message(message.chat.id, f"✅ <b>تم تحديث سعر صرف الـ 100$ إلى:</b> <code>{fmt(usd_100_val)} دينار</code>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+                    return
 
+                if state == "WAITING_SELL_INPUTS":
+                    loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML")
+                    lines = [line.strip() for line in text.split('\n') if line.strip()]
+                    if len(lines) >= 3:
+                        mithqal_price = Decimal(lines[0])
+                        w = Decimal(lines[1])
+                        wage = Decimal(lines[2])
+                        
+                        gram_price = mithqal_price / Decimal('5')
+                        gram_full = gram_price + wage
+                        total_iqd = gram_full * w
+                        
+                        prices = utils.get_goldsmith_prices(user_id) or {}
+                        goldsmith = utils.get_goldsmith(user_id) or {}
+                        
+                        usd_rate_single = Decimal(str(prices.get('usd_rate', 1530)))
+                        sheet_price = usd_rate_single * Decimal('100') if usd_rate_single < Decimal('5000') else usd_rate_single
+                        usd_bills = int(total_iqd // sheet_price) if sheet_price > 0 else 0
+                        rem_iqd = total_iqd % sheet_price if sheet_price > 0 else total_iqd
+                        
+                        shop_name = goldsmith.get('full_name') or 'محلي الموقر'
+                        
+                        markup = types.InlineKeyboardMarkup(row_width=2)
+                        markup.add(
+                            types.InlineKeyboardButton("✅ تأكيد العملية", callback_data="confirm_invoice"),
+                            types.InlineKeyboardButton("❌ إلغاء العملية", callback_data="cancel_invoice")
+                        )
+                        
+                        invoice = (
+                            f"{COMPANY_HEADER}{TEXTS['invoice_sell']}\n━━━━━━━━━━━━━━━━━\n"
+                            f"{TEXTS['shop']}{shop_name}\n"
+                            f"🟡 <b>سعر المثقال المعتمد:</b> <code>{fmt(mithqal_price)} دينار</code>\n"
+                            f"{TEXTS['weight_tot'].format(w=float(w))}\n"
+                            f"{TEXTS['wage_sell'].format(wage=fmt(wage))}\n"
+                            f"━━━━━━━━━━━━━━━━━\n"
+                            f"💰 <b>سعر غرام الصافي:</b> <code>{fmt(gram_price)} دينار</code>\n"
+                            f"💵 <b>سعر غرام مع الأجور:</b> <code>{fmt(gram_full)} دينار</code>\n"
+                            f"{TEXTS['total_iqd'].format(total=fmt(total_iqd))}\n\n"
+                            f"{TEXTS['total_usd'].format(usd=usd_bills, rem=fmt(rem_iqd))}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
+                        )
+                        USER_STATE.pop(user_id, None)
+                        USER_INPUT_BUFFER.pop(user_id, None)
+                        bot.delete_message(message.chat.id, loading_msg.message_id)
+                        bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
+                    return
+
+                if state == "WAITING_BUY_INPUTS":
+                    loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML")
+                    lines = [line.strip() for line in text.split('\n') if line.strip()]
+                    if len(lines) >= 3:
+                        mithqal_buy_price = Decimal(lines[0])
+                        w = Decimal(lines[1])
+                        wage_cut = Decimal(lines[2])
+                        
+                        gram_buy_price = mithqal_buy_price / Decimal('5')
+                        net_gram_price = gram_buy_price - wage_cut
+                        total_iqd = net_gram_price * w
+                        
+                        prices = utils.get_goldsmith_prices(user_id) or {}
+                        goldsmith = utils.get_goldsmith(user_id) or {}
+                        
+                        usd_rate_single = Decimal(str(prices.get('usd_rate', 1530)))
+                        sheet_price = usd_rate_single * Decimal('100') if usd_rate_single < Decimal('5000') else usd_rate_single
+                        usd_bills = int(total_iqd // sheet_price) if sheet_price > 0 else 0
+                        rem_iqd = total_iqd % sheet_price if sheet_price > 0 else total_iqd
+                        
+                        shop_name = goldsmith.get('full_name') or 'محلي الموقر'
+                        
+                        markup = types.InlineKeyboardMarkup(row_width=2)
+                        markup.add(
+                            types.InlineKeyboardButton("✅ تأكيد العملية", callback_data="confirm_invoice"),
+                            types.InlineKeyboardButton("❌ إلغاء العملية", callback_data="cancel_invoice")
+                        )
+                        
+                        invoice = (
+                            f"{COMPANY_HEADER}{TEXTS['invoice_buy']}\n━━━━━━━━━━━━━━━━━\n"
+                            f"{TEXTS['shop']}{shop_name}\n"
+                            f"📥 <b>سعر شراء المثقال:</b> <code>{fmt(mithqal_buy_price)} دينار</code>\n"
+                            f"{TEXTS['weight_tot'].format(w=float(w))}\n"
+                            f"🔨 <b>أجور الخصم للغرام:</b> {fmt(wage_cut)} دينار\n"
+                            f"━━━━━━━━━━━━━━━━━\n"
+                            f"💰 <b>سعر غرام الكسر الصافي:</b> <code>{fmt(net_gram_price)} دينار</code>\n"
+                            f"{TEXTS['total_iqd'].format(total=fmt(total_iqd))}\n\n"
+                            f"{TEXTS['total_usd'].format(usd=usd_bills, rem=fmt(rem_iqd))}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
+                        )
+                        USER_STATE.pop(user_id, None)
+                        USER_INPUT_BUFFER.pop(user_id, None)
+                        bot.delete_message(message.chat.id, loading_msg.message_id)
+                        bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
+                    return
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
 admin.register_admin_handlers(bot)
 
-# جدولة إرسال تذكير صباحي يومي الساعة 10:00 صباحاً
 def morning_reminder_scheduler():
     while True:
         try:
