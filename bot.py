@@ -66,6 +66,7 @@ TEXTS = {
     "btn_buy": "📥 شراء من الزبون",
     "btn_dollar": "💵 سعر الدولار والتعديل",
     "btn_info": "📖 معلومات النظام",
+    "btn_rate": "⭐ تقييم المنظومة",
     "invoice_sell": "🧾 <b>فاتورة بيع ذهب للزبون</b> 🧾",
     "invoice_buy": "📥 <b>فاتورة شراء ذهب من الزبون</b> 📥",
     "shop": "🔷 المحل العامر: ",
@@ -101,6 +102,7 @@ def get_main_keyboard(user_id):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(types.KeyboardButton(TEXTS["btn_sell"]), types.KeyboardButton(TEXTS["btn_buy"]))
     markup.add(types.KeyboardButton(TEXTS["btn_dollar"]), types.KeyboardButton(TEXTS["btn_info"]))
+    markup.add(types.KeyboardButton(TEXTS["btn_rate"]))
     if user_id == ADMIN_ID:
         markup.add(types.KeyboardButton("🛠️ لوحة تحكم الإدارة (خاص)"))
     return markup
@@ -139,7 +141,10 @@ def send_welcome(message):
             bot.send_message(
                 message.chat.id, 
                 f"{COMPANY_HEADER}🌟 <b>مرحباً بك في منظومة ARAMKY الاحترافية!</b> 🌟\n\n"
-                "لتفعيل حسابك، أرسل اسم المحل ورقم هاتفك في رسالة واحدة:", 
+                "لتفعيل حسابك فوراً، أرسل بيانات محلك بالترتيب التالي:\n\n"
+                "🏢 <b>اسم المحل:</b> (مثال: مجوهرات الذهب الأخضر)\n"
+                "📱 <b>رقم الهاتف:</b> (مثال: 07800000000)\n\n"
+                "✍️ <i>أرسل المعلومات في رسالة واحدة:</i>", 
                 parse_mode="HTML",
                 reply_markup=types.ReplyKeyboardRemove()
             )
@@ -171,6 +176,47 @@ def show_system_info(message):
             f"📞 <b>الدعم الفني والطوارئ:</b> <code>{SUPPORT_NUMBER}</code>"
         )
         bot.send_message(message.chat.id, info_text, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+    except Exception as e:
+        notify_admin_error(user_id, str(e), traceback.format_exc())
+
+@bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_rate"])
+def rate_system_menu(message):
+    user_id = message.from_user.id
+    try:
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        markup.add(
+            types.InlineKeyboardButton("⭐⭐⭐⭐⭐ ممتاز جدًا - سرعة ودقة متناهية", callback_data="rate_5_stars"),
+            types.InlineKeyboardButton("💬 إرسال مقترح للتطوير", callback_data="rate_feedback")
+        )
+        text = (
+            f"{COMPANY_HEADER}"
+            "⭐ <b>تقييم منظومة SMART GOLD SYSTEM:</b>\n\n"
+            "رأيكم وسام نعتز به لتقديم أفضل وأدق خدمة لصاغة العراق.\n"
+            "يرجى تحديد تقييمك للمنظومة أدناه 👇"
+        )
+        bot.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=markup)
+    except Exception as e:
+        notify_admin_error(user_id, str(e), traceback.format_exc())
+
+@bot.callback_query_handler(func=lambda call: call.data in ["rate_5_stars", "rate_feedback"])
+def handle_rating_callbacks(call):
+    user_id = call.from_user.id
+    try:
+        if call.data == "rate_5_stars":
+            bot.answer_callback_query(call.id, text="🌟 شكراً لتقييمك العالي! نعتز ببركتكم.")
+            bot.send_message(
+                call.message.chat.id, 
+                "💛 <b>شكراً لتقييمكم الممتاز (5 نجوم)!</b>\n\nنحن مستمرون بالتطوير والتحديث لضمان دقة وسرعة حساباتكم دائماً.",
+                parse_mode="HTML",
+                reply_markup=get_main_keyboard(user_id)
+            )
+        elif call.data == "rate_feedback":
+            bot.answer_callback_query(call.id, text="💬 اكتب مقترحك مباشرة...")
+            bot.send_message(
+                call.message.chat.id, 
+                "✍️ <b>اكتب مقترحك أو ملاحظتك هنا وسيقوم فريق الدعم الفني بمراجعتها فوراً:</b>",
+                parse_mode="HTML"
+            )
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
@@ -305,11 +351,18 @@ def handle_text_inputs(message):
             utils.register_goldsmith_details(user_id, shop_name, phone)
             USER_STATE.pop(user_id, None)
             bot.delete_message(message.chat.id, loading.message_id)
-            bot.send_message(message.chat.id, "💎 <b>تم تسجيل محلك وتفعيل الفترة التجريبية بنجاح!</b>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+            
+            # حُلت المشكلة: الآن ترجع الأزرار الرئيسية فوراً بعد كمال التسجيل!
+            bot.send_message(
+                message.chat.id, 
+                "💎 <b>تم تسجيل محلك وتفعيل الفترة التجريبية بنجاح!</b>\n\nالمنظومة جاهزة لاستقبال عملياتك الآن 👇", 
+                parse_mode="HTML", 
+                reply_markup=get_main_keyboard(user_id)
+            )
             return
 
         if state == "WAITING_SINGLE_PRICE_VALUE":
-            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري تحديث سعر الدولار...</i>", parse_mode="HTML", reply_markup=types.ReplyKeyboardRemove())
+            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري تحديث سعر الدولار...</i>", parse_mode="HTML")
             if re.match(r'^\d+(\.\d+)?$', text):
                 val = Decimal(text)
                 usd_r = (val / Decimal('100') if val > Decimal('5000') else val)
@@ -336,7 +389,7 @@ def handle_text_inputs(message):
             return
 
         if state == "WAITING_SELL_INPUTS":
-            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب بدقة الحاسبة...</i>", parse_mode="HTML", reply_markup=types.ReplyKeyboardRemove())
+            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب بدقة الحاسبة...</i>", parse_mode="HTML")
             lines = [line.strip() for line in text.split('\n') if line.strip()]
             if len(lines) >= 3:
                 mithqal_price = Decimal(lines[0])
@@ -377,11 +430,13 @@ def handle_text_inputs(message):
                 )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
+                # تظهر الفاتورة ويظهر الكيبورد الرئيسي فوراً ليرجع النظام جاهزاً للعملية القادمة
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
+                bot.send_message(message.chat.id, "👇 <b>المنظومة جاهزة للعملية القادمة:</b>", reply_markup=get_main_keyboard(user_id))
             return
 
         if state == "WAITING_BUY_INPUTS":
-            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML", reply_markup=types.ReplyKeyboardRemove())
+            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML")
             lines = [line.strip() for line in text.split('\n') if line.strip()]
             if len(lines) >= 3:
                 mithqal_buy_price = Decimal(lines[0])
@@ -421,7 +476,9 @@ def handle_text_inputs(message):
                 )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
+                # تظهر الفاتورة ويظهر الكيبورد الرئيسي فوراً ليرجع النظام جاهزاً للعملية القادمة
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
+                bot.send_message(message.chat.id, "👇 <b>المنظومة جاهزة للعملية القادمة:</b>", reply_markup=get_main_keyboard(user_id))
             return
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
