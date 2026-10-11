@@ -309,7 +309,7 @@ def handle_text_inputs(message):
             return
 
         if state == "WAITING_SINGLE_PRICE_VALUE":
-            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري تحديث سعر الدولار...</i>", parse_mode="HTML")
+            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري تحديث سعر الدولار...</i>", parse_mode="HTML", reply_markup=types.ReplyKeyboardRemove())
             if re.match(r'^\d+(\.\d+)?$', text):
                 val = Decimal(text)
                 usd_r = (val / Decimal('100') if val > Decimal('5000') else val)
@@ -336,7 +336,7 @@ def handle_text_inputs(message):
             return
 
         if state == "WAITING_SELL_INPUTS":
-            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب بدقة الحاسبة...</i>", parse_mode="HTML")
+            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب بدقة الحاسبة...</i>", parse_mode="HTML", reply_markup=types.ReplyKeyboardRemove())
             lines = [line.strip() for line in text.split('\n') if line.strip()]
             if len(lines) >= 3:
                 mithqal_price = Decimal(lines[0])
@@ -381,7 +381,7 @@ def handle_text_inputs(message):
             return
 
         if state == "WAITING_BUY_INPUTS":
-            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML")
+            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML", reply_markup=types.ReplyKeyboardRemove())
             lines = [line.strip() for line in text.split('\n') if line.strip()]
             if len(lines) >= 3:
                 mithqal_buy_price = Decimal(lines[0])
@@ -444,7 +444,8 @@ def morning_reminder_scheduler():
                                 u_id,
                                 f"{COMPANY_HEADER}☀️ <b>صباح الخير ومبارك رزقكم!</b>\n\n"
                                 "جاهزون لإدارة حسابات اليوم بدقة تامة ومطابقة للحاسبة. أرسل العمليات مباشرة عبر الأزرار أدناه 💛",
-                                parse_mode="HTML"
+                                parse_mode="HTML",
+                                reply_markup=get_main_keyboard(u_id)
                             )
                         except Exception:
                             pass
