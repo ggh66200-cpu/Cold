@@ -30,7 +30,6 @@ def run_flask():
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
 
-# خيط منع سيرفر Render من النوم 24/7
 def keep_alive_ping():
     port = os.environ.get("PORT", 10000)
     url = f"http://127.0.0.1:{port}/"
@@ -43,14 +42,13 @@ def keep_alive_ping():
 
 MASTER_CARD = admin.MASTER_CARD
 MONTHLY_PRICE = admin.MONTHLY_PRICE
-COMPANY_HEADER = admin.COMPANY_HEADER
+COMPANY_HEADER = getattr(admin, "COMPANY_HEADER", "⚜️ <b>ARAMKY | SMART GOLD SYSTEM</b> ⚜️\n")
 SUPPORT_NUMBER = "07766083622" 
 
 USER_STATE = {}
-INVOICE_DATA = {}
 
 def fmt(value):
-    """تنسيق الأرقام بفاصلة الآلاف وبدقة الحاسبة الرسمية بدون تقريب"""
+    """تنسيق الأرقام بفاصلة الآلاف وبدقة متناهية بدون مسافات خربانة"""
     try:
         d = Decimal(str(value))
         if d == d.to_integral_value():
@@ -67,13 +65,6 @@ TEXTS = {
     "btn_dollar": "💵 سعر الدولار والتعديل",
     "btn_info": "📖 معلومات النظام",
     "btn_rate": "⭐ تقييم المنظومة",
-    "invoice_sell": "🧾 <b>فاتورة بيع ذهب للزبون</b> 🧾",
-    "invoice_buy": "📥 <b>فاتورة شراء ذهب من الزبون</b> 📥",
-    "shop": "🔷 المحل العامر: ",
-    "weight_tot": "⚖️ الوزن الإجمالي بالغرام: {w} غرام",
-    "wage_sell": "🔨 أجور صياغة الغرام: {wage} دينار",
-    "total_iqd": "💵 <b>السعر الكلي بالدينار العراقي:</b>\n👉 <b>{total} دينار</b>",
-    "total_usd": "💵 <b>صافي الحساب بالورق والدينار:</b>\n👉 <b>{usd} ورقة و {rem} دينار</b>",
     "footer": "نظام آراُمكي - دقة وأمان لحساباتك اليومية"
 }
 
@@ -122,7 +113,7 @@ def send_main_menu(message, user_id):
         
         bot.send_message(
             message.chat.id, 
-            COMPANY_HEADER + TEXTS["welcome"].format(serial=serial), 
+            COMPANY_HEADER + "\n" + TEXTS["welcome"].format(serial=serial), 
             parse_mode="HTML", 
             reply_markup=markup
         )
@@ -140,7 +131,7 @@ def send_welcome(message):
             USER_STATE[user_id] = "WAITING_REGISTRATION_FULL"
             bot.send_message(
                 message.chat.id, 
-                f"{COMPANY_HEADER}🌟 <b>مرحباً بك في منظومة ARAMKY الاحترافية!</b> 🌟\n\n"
+                f"{COMPANY_HEADER}\n🌟 <b>مرحباً بك في منظومة ARAMKY الاحترافية!</b> 🌟\n\n"
                 "لتفعيل حسابك فوراً، أرسل بيانات محلك بالترتيب التالي:\n\n"
                 "🏢 <b>اسم المحل:</b> (مثال: مجوهرات الذهب الأخضر)\n"
                 "📱 <b>رقم الهاتف:</b> (مثال: 07800000000)\n\n"
@@ -167,7 +158,7 @@ def show_system_info(message):
         gs = utils.get_goldsmith(user_id) or {}
         remaining_days = gs.get('remaining_days', 0)
         info_text = (
-            f"{COMPANY_HEADER}"
+            f"{COMPANY_HEADER}\n"
             "📖 <b>تفاصيل النظام ومعلومات الحساب:</b>\n\n"
             f"⏳ الأيام المتبقية للاشتراك: <b>{remaining_days} يوم</b>\n"
             "🔹 نظام حساب حر مباشر (سعر المثقال + الوزن + الأجور)\n"
@@ -189,7 +180,7 @@ def rate_system_menu(message):
             types.InlineKeyboardButton("💬 إرسال مقترح للتطوير", callback_data="rate_feedback")
         )
         text = (
-            f"{COMPANY_HEADER}"
+            f"{COMPANY_HEADER}\n"
             "⭐ <b>تقييم منظومة SMART GOLD SYSTEM:</b>\n\n"
             "رأيكم وسام نعتز به لتقديم أفضل وأدق خدمة لصاغة العراق.\n"
             "يرجى تحديد تقييمك للمنظومة أدناه 👇"
@@ -226,7 +217,7 @@ def show_subscription_form(message, expired=False):
         USER_STATE[user_id] = "WAITING_RECEIPT"
         prefix = "🚨 <b>انتهت فترتك التجريبية! يرجى التجديد للاستمرار:</b>\n\n" if expired else ""
         sub_text = (
-            f"{COMPANY_HEADER}{prefix}"
+            f"{COMPANY_HEADER}\n{prefix}"
             f"🔹 <b>الاشتراك الشهري:</b> <b>{MONTHLY_PRICE}</b>\n"
             f"🔹 <b>ماستر كارد التحويل:</b> <code>{MASTER_CARD}</code>\n"
             f"📞 <b>الدعم الفني:</b> <code>{SUPPORT_NUMBER}</code>\n\n"
@@ -257,7 +248,7 @@ def dollar_management_menu(message):
         markup.add(types.InlineKeyboardButton("🔄 تعديل سعر الـ 100$ الآن", callback_data="edit_price_usd"))
         
         text = (
-            f"{COMPANY_HEADER}"
+            f"{COMPANY_HEADER}\n"
             f"💵 <b>سعر صرف 100$ الحالي بالدينار:</b>\n\n"
             f"👉 <code>{fmt(usd_100_display)} دينار</code>\n\n"
             "اضغط الزر أدناه لتحديث السعر عند تغير البورصة:"
@@ -288,7 +279,7 @@ def customer_sell_init(message):
         USER_STATE[user_id] = "WAITING_SELL_INPUTS"
         bot.send_message(
             message.chat.id, 
-            f"{COMPANY_HEADER}🛍️ <b>حساب بيع زبون:</b>\n\n"
+            f"{COMPANY_HEADER}\n🛍️ <b>حساب بيع زبون:</b>\n\n"
             "✍️ أرسل المعطيات في رسالة واحدة (كل قيمة بسطر):\n\n"
             "1️⃣ سعر المثقال\n"
             "2️⃣ الوزن بالغرام\n"
@@ -307,7 +298,7 @@ def customer_buy_init(message):
         USER_STATE[user_id] = "WAITING_BUY_INPUTS"
         bot.send_message(
             message.chat.id, 
-            f"{COMPANY_HEADER}📥 <b>حساب شراء (كسر) من الزبون:</b>\n\n"
+            f"{COMPANY_HEADER}\n📥 <b>حساب شراء (كسر) من الزبون:</b>\n\n"
             "✍️ أرسل المعطيات في رسالة واحدة (كل قيمة بسطر):\n\n"
             "1️⃣ سعر شراء المثقال\n"
             "2️⃣ الوزن بالغرام\n"
@@ -331,7 +322,6 @@ def handle_invoice_confirmation(call):
             bot.answer_callback_query(call.id, text="❌ تم إلغاء العملية")
             bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
             bot.send_message(call.message.chat.id, "❌ <b>تم إلغاء الفاتورة.</b>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
-        INVOICE_DATA.pop(user_id, None)
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
@@ -352,10 +342,9 @@ def handle_text_inputs(message):
             USER_STATE.pop(user_id, None)
             bot.delete_message(message.chat.id, loading.message_id)
             
-            # حُلت المشكلة: الآن ترجع الأزرار الرئيسية فوراً بعد كمال التسجيل!
             bot.send_message(
                 message.chat.id, 
-                "💎 <b>تم تسجيل محلك وتفعيل الفترة التجريبية بنجاح!</b>\n\nالمنظومة جاهزة لاستقبال عملياتك الآن 👇", 
+                "💎 <b>تم تسجيل محلك وتفعيل الفترة التجريبية بنجاح!</b>\n\nاختر العملية المطلوبة من الأزرار أدناه للبدء 👇", 
                 parse_mode="HTML", 
                 reply_markup=get_main_keyboard(user_id)
             )
@@ -389,7 +378,7 @@ def handle_text_inputs(message):
             return
 
         if state == "WAITING_SELL_INPUTS":
-            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب بدقة الحاسبة...</i>", parse_mode="HTML")
+            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب بدقة...</i>", parse_mode="HTML")
             lines = [line.strip() for line in text.split('\n') if line.strip()]
             if len(lines) >= 3:
                 mithqal_price = Decimal(lines[0])
@@ -417,22 +406,29 @@ def handle_text_inputs(message):
                 )
                 
                 invoice = (
-                    f"{COMPANY_HEADER}{TEXTS['invoice_sell']}\n━━━━━━━━━━━━━━━━━\n"
-                    f"{TEXTS['shop']}{shop_name}\n"
-                    f"🟡 <b>سعر المثقال المعتمد:</b> <code>{fmt(mithqal_price)} دينار</code>\n"
-                    f"{TEXTS['weight_tot'].format(w=float(w))}\n"
-                    f"{TEXTS['wage_sell'].format(wage=fmt(wage))}\n"
-                    f"━━━━━━━━━━━━━━━━━\n"
-                    f"💰 <b>سعر غرام الصافي:</b> <code>{fmt(gram_price)} دينار</code>\n"
-                    f"💵 <b>سعر غرام مع الأجور:</b> <code>{fmt(gram_full)} دينار</code>\n"
-                    f"{TEXTS['total_iqd'].format(total=fmt(total_iqd))}\n\n"
-                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=fmt(rem_iqd))}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
+                    f"{COMPANY_HEADER}\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"🧾 <b>فاتورة بيع ذهب للزبون</b>\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"🔷 <b>المحل العامر:</b> {shop_name}\n\n"
+                    f"🟡 <b>سعر المثقال المعتمد:</b> {fmt(mithqal_price)} دينار\n"
+                    f"⚖️ <b>الوزن الإجمالي:</b> {fmt(w)} غرام\n"
+                    f"🔨 <b>أجور صياغة الغرام:</b> {fmt(wage)} دينار\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"💰 <b>سعر الغرام الصافي:</b> {fmt(gram_price)} دينار\n"
+                    f"✨ <b>سعر الغرام مع الأجور:</b> {fmt(gram_full)} دينار\n\n"
+                    f"💵 <b>إجمالي الحساب بالدينار:</b>\n"
+                    f"👉 <b>{fmt(total_iqd)} دينار</b>\n\n"
+                    f"💵 <b>صافي الحساب (ورق ودينار):</b>\n"
+                    f"👉 <b>{usd_bills} ورقة و {fmt(rem_iqd)} دينار</b>\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"{TEXTS['footer']}"
                 )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                # تظهر الفاتورة ويظهر الكيبورد الرئيسي فوراً ليرجع النظام جاهزاً للعملية القادمة
+                # إرسال الفاتورة وتثبيت الأزرار الرئيسية أسفل الشاشة فوراً معها
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
-                bot.send_message(message.chat.id, "👇 <b>المنظومة جاهزة للعملية القادمة:</b>", reply_markup=get_main_keyboard(user_id))
+                bot.send_message(message.chat.id, "👇 <b>اختر العملية التالية:</b>", reply_markup=get_main_keyboard(user_id))
             return
 
         if state == "WAITING_BUY_INPUTS":
@@ -464,28 +460,34 @@ def handle_text_inputs(message):
                 )
                 
                 invoice = (
-                    f"{COMPANY_HEADER}{TEXTS['invoice_buy']}\n━━━━━━━━━━━━━━━━━\n"
-                    f"{TEXTS['shop']}{shop_name}\n"
-                    f"📥 <b>سعر شراء المثقال:</b> <code>{fmt(mithqal_buy_price)} دينار</code>\n"
-                    f"{TEXTS['weight_tot'].format(w=float(w))}\n"
+                    f"{COMPANY_HEADER}\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"📥 <b>فاتورة شراء ذهب (كسر)</b>\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"🔷 <b>المحل العامر:</b> {shop_name}\n\n"
+                    f"📥 <b>سعر شراء المثقال:</b> {fmt(mithqal_buy_price)} دينار\n"
+                    f"⚖️ <b>الوزن الإجمالي:</b> {fmt(w)} غرام\n"
                     f"🔨 <b>أجور الخصم للغرام:</b> {fmt(wage_cut)} دينار\n"
-                    f"━━━━━━━━━━━━━━━━━\n"
-                    f"💰 <b>سعر غرام الكسر الصافي:</b> <code>{fmt(net_gram_price)} دينار</code>\n"
-                    f"{TEXTS['total_iqd'].format(total=fmt(total_iqd))}\n\n"
-                    f"{TEXTS['total_usd'].format(usd=usd_bills, rem=fmt(rem_iqd))}\n━━━━━━━━━━━━━━━━━\n{TEXTS['footer']}"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"💰 <b>سعر غرام الكسر الصافي:</b> {fmt(net_gram_price)} دينار\n\n"
+                    f"💵 <b>إجمالي صافي الحساب بالدينار:</b>\n"
+                    f"👉 <b>{fmt(total_iqd)} دينار</b>\n\n"
+                    f"💵 <b>صافي الحساب (ورق ودينار):</b>\n"
+                    f"👉 <b>{usd_bills} ورقة و {fmt(rem_iqd)} دينار</b>\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"{TEXTS['footer']}"
                 )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                # تظهر الفاتورة ويظهر الكيبورد الرئيسي فوراً ليرجع النظام جاهزاً للعملية القادمة
+                # إرسال الفاتورة وتثبيت الأزرار الرئيسية أسفل الشاشة فوراً معها
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=markup)
-                bot.send_message(message.chat.id, "👇 <b>المنظومة جاهزة للعملية القادمة:</b>", reply_markup=get_main_keyboard(user_id))
+                bot.send_message(message.chat.id, "👇 <b>اختر العملية التالية:</b>", reply_markup=get_main_keyboard(user_id))
             return
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
 admin.register_admin_handlers(bot)
 
-# جدولة إرسال تذكير صباحي يومي الساعة 10:00 صباحاً بتوقيت العراق (UTC+3)
 def morning_reminder_scheduler():
     iraq_tz = timezone(timedelta(hours=3))
     while True:
@@ -499,7 +501,7 @@ def morning_reminder_scheduler():
                         try:
                             bot.send_message(
                                 u_id,
-                                f"{COMPANY_HEADER}☀️ <b>صباح الخير ومبارك رزقكم!</b>\n\n"
+                                f"{COMPANY_HEADER}\n☀️ <b>صباح الخير ومبارك رزقكم!</b>\n\n"
                                 "جاهزون لإدارة حسابات اليوم بدقة تامة ومطابقة للحاسبة. أرسل العمليات مباشرة عبر الأزرار أدناه 💛",
                                 parse_mode="HTML",
                                 reply_markup=get_main_keyboard(u_id)
