@@ -2,6 +2,7 @@ import os
 import re
 import time
 import threading
+import urllib.request
 import traceback
 from decimal import Decimal
 import telebot
@@ -28,6 +29,17 @@ def run_flask():
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
 
+# خيط منع سيرفر Render من النوم (Self-Ping) لإبقاء البوت شغال بالخلفية 24/7
+def keep_alive_ping():
+    port = os.environ.get("PORT", 10000)
+    url = f"http://127.0.0.1:{port}/"
+    while True:
+        try:
+            time.sleep(300) # كل 5 دقائق
+            urllib.request.urlopen(url)
+        except Exception as e:
+            print(f"Keep-alive ping status: {e}")
+
 MASTER_CARD = admin.MASTER_CARD
 MONTHLY_PRICE = admin.MONTHLY_PRICE
 COMPANY_HEADER = admin.COMPANY_HEADER
@@ -37,19 +49,18 @@ USER_STATE = {}
 INVOICE_DATA = {}
 
 def fmt(value):
-    """دالة لتنسيق الأرقام بفاصلة الآلاف وبدون تقريب عشوائي لتطابق الحاسبة بدقة"""
+    """تنسيق الأرقام بفاصلة الآلاف وبدقة الحاسبة الرسمية بدون تقريب عشوائي"""
     try:
         d = Decimal(str(value))
         if d == d.to_integral_value():
             return f"{int(d):,}"
         else:
-            formatted = f"{d:,.2f}"
-            return formatted
+            return f"{d:,.2f}"
     except Exception:
         return str(value)
 
 TEXTS = {
-    "welcome": "👋 أهلاً بك في عمالقة الصياغة <b>SMART GOLD SYSTEM</b>\n\nالمنظومة الذكية الأسرع والأدق لإدارة الحسابات بدقة الحاسبة التقليدية.\n🔑 <i>رقم عضويتك:</i> <b>#{serial} صايغ معتمد</b>\n\nاستخدم الأزرار أدناه للبدء بالعمليات 👇",
+    "welcome": "👋 أهلاً بك في منصة <b>SMART GOLD SYSTEM</b>\n\nالمنظومة الذكية الأسرع والأدق لإدارة حسابات الذهب بدقة الحاسبة المكتبية المباشرة.\n🔑 <i>رقم العضوية:</i> <b>#{serial} صايغ معتمد</b>\n\nاختر العملية المطلوبة من الأزرار المثبتة أدناه للبدء فوراً 👇",
     "btn_sell": "🛍️ بيع للزبون",
     "btn_buy": "📥 شراء من الزبون",
     "btn_dollar": "💵 سعر الدولار والتعديل",
@@ -81,7 +92,7 @@ def notify_admin_error(user_id, error_msg, traceback_str=""):
 def to_english_numbers(text):
     if not text:
         return ""
-    arabic_nums = str.maketrans('٠١ي٣٤٥٦٧٨٩', '0123456789')
+    arabic_nums = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
     persian_nums = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
     return text.translate(arabic_nums).translate(persian_nums)
 
@@ -127,7 +138,7 @@ def send_welcome(message):
             bot.send_message(
                 message.chat.id, 
                 f"{COMPANY_HEADER}🌟 <b>مرحباً بك في منظومة ARAMKY الاحترافية!</b> 🌟\n\n"
-                "لتفعيل اشتراكك وتأمين حسابات محلك بدقة مطلقة، يرجى إرسال بياناتك بالترتيب التالي:\n\n"
+                "لتفعيل حسابك وتأمين العمليات بدقة مطلقة، يرجى إرسال بيانات محلك بالترتيب التالي:\n\n"
                 "🏢 <b>اسم المحل:</b> (مثال: مجوهرات الذهب الأخضر)\n"
                 "📱 <b>رقم الهاتف:</b> (مثال: 07800000000)\n\n"
                 "✍️ <i>أرسل المعلومات في رسالة واحدة:</i>", 
@@ -156,7 +167,8 @@ def show_system_info(message):
             "📖 <b>تفاصيل النظام ومعلومات الحساب:</b>\n\n"
             f"⏳ الأيام المتبقية للاشتراك: <b>{remaining_days} يوم</b>\n"
             "🔹 نظام حساب حر مباشر (سعر المثقال + الوزن + الأجور)\n"
-            "🔹 مطابقة تامة لنتائج الحاسبة المكتبية بدون تقريب\n\n"
+            "🔹 مطابقة تامة لنتائج الحاسبة المكتبية بدون تقريب عشوائي\n"
+            "🔹 يعمل أونلاين بالخلفية 24/7 دون انقطاع\n\n"
             f"📞 <b>الدعم الفني والطوارئ:</b> <code>{SUPPORT_NUMBER}</code>"
         )
         bot.send_message(message.chat.id, info_text, parse_mode="HTML")
@@ -193,15 +205,17 @@ def dollar_management_menu(message):
     user_id = message.from_user.id
     try:
         current_p = utils.get_goldsmith_prices(user_id) or {}
-        usd_rate = current_p.get('usd_rate', 1530)
+        usd_rate = Decimal(str(current_p.get('usd_rate', 1530)))
+        usd_100_display = usd_rate * Decimal('100') if usd_rate < Decimal('5000') else usd_rate
+        
         markup = types.InlineKeyboardMarkup(row_width=1)
-        markup.add(types.InlineKeyboardButton("🔄 تعديل سعر الدولار الجديد", callback_data="edit_price_usd"))
+        markup.add(types.InlineKeyboardButton("🔄 تعديل سعر الـ 100$ الآن", callback_data="edit_price_usd"))
         
         text = (
             f"{COMPANY_HEADER}"
-            f"💵 <b>إدارة سعر الصرف الحالي:</b>\n\n"
-            f"السعر المخزن حالياً: <code>{fmt(usd_rate)}</code>\n\n"
-            "اضغط الزر أدناه لتحديثه:"
+            f"💵 <b>سعر صرف 100$ الحالي بالدينار:</b>\n\n"
+            f"👉 <code>{fmt(usd_100_display)} دينار</code>\n\n"
+            "اضغط الزر أدناه لتحديث السعر عند تغير البورصة:"
         )
         bot.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=markup)
     except Exception as e:
@@ -211,9 +225,14 @@ def dollar_management_menu(message):
 def handle_dollar_edit_callback(call):
     user_id = call.from_user.id
     try:
-        bot.answer_callback_query(call.id, text="⏳ يرجى إرسال السعر...")
+        bot.answer_callback_query(call.id, text="⏳ يرجى إرسال السعر الجديد...")
         USER_STATE[user_id] = "WAITING_SINGLE_PRICE_VALUE"
-        bot.send_message(call.message.chat.id, "📝 <b>أرسل سعر صرف 100$ الجديد أو سعر الورقة:</b>", parse_mode="HTML")
+        bot.send_message(
+            call.message.chat.id, 
+            "📝 <b>أرسل سعر صرف الـ 100$ الجديد:</b>\n"
+            "<i>(مثال: اكتب 153000 أو 1530)</i>", 
+            parse_mode="HTML"
+        )
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
@@ -224,11 +243,12 @@ def customer_sell_init(message):
         USER_STATE[user_id] = "WAITING_SELL_INPUTS"
         bot.send_message(
             message.chat.id, 
-            f"{COMPANY_HEADER}🛍️ <b>حساب بيع للزبون (طريقة حرة دقيقة):</b>\n\n"
-            "أرسل القيم التالية في رسالة واحدة (كل قيمة بسطر):\n\n"
+            f"{COMPANY_HEADER}🛍️ <b>حساب بيع زبون (حاسبة مباشرة):</b>\n\n"
+            "✍️ أرسل المعطيات في رسالة واحدة (كل قيمة بسطر):\n\n"
             "1️⃣ سعر المثقال\n"
             "2️⃣ الوزن بالغرام\n"
-            "3️⃣ أجور صياغة الغرام", 
+            "3️⃣ أجور صياغة الغرام\n\n"
+            "💡 <i>مثال:</i>\n<code>520000\n10.5\n5000</code>", 
             parse_mode="HTML"
         )
     except Exception as e:
@@ -242,10 +262,11 @@ def customer_buy_init(message):
         bot.send_message(
             message.chat.id, 
             f"{COMPANY_HEADER}📥 <b>حساب شراء (كسر) من الزبون:</b>\n\n"
-            "أرسل القيم التالية في رسالة واحدة (كل قيمة بسطر):\n\n"
+            "✍️ أرسل المعطيات في رسالة واحدة (كل قيمة بسطر):\n\n"
             "1️⃣ سعر شراء المثقال\n"
             "2️⃣ الوزن بالغرام\n"
-            "3️⃣ أجور الكسر للغرام", 
+            "3️⃣ أجور الخصم للغرام\n\n"
+            "💡 <i>مثال:</i>\n<code>510000\n15.2\n2000</code>", 
             parse_mode="HTML"
         )
     except Exception as e:
@@ -291,7 +312,8 @@ def handle_text_inputs(message):
             loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري تحديث سعر الدولار...</i>", parse_mode="HTML")
             if re.match(r'^\d+(\.\d+)?$', text):
                 val = Decimal(text)
-                usd_r = (val / Decimal('100') if val > Decimal('1000') else val)
+                usd_r = (val / Decimal('100') if val > Decimal('5000') else val)
+                usd_100_val = usd_r * Decimal('100')
                 
                 current_p = utils.get_goldsmith_prices(user_id) or {}
                 utils.update_morning_prices(
@@ -310,7 +332,7 @@ def handle_text_inputs(message):
                 )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, f"✅ <b>تم تحديث سعر الصرف بنجاح إلى:</b> <code>{fmt(usd_r * 100)}</code>", parse_mode="HTML")
+                bot.send_message(message.chat.id, f"✅ <b>تم تحديث سعر صرف الـ 100$ بنجاح إلى:</b> <code>{fmt(usd_100_val)} دينار</code>", parse_mode="HTML")
             return
 
         if state == "WAITING_SELL_INPUTS":
@@ -406,12 +428,11 @@ def handle_text_inputs(message):
 
 admin.register_admin_handlers(bot)
 
-# نظام إرسال رسالة تذكير صباحية للصاغة كل يوم الساعة 10:00 صباحاً
+# جدولة إرسال تذكير صباحي يومي الساعة 10:00 صباحاً
 def morning_reminder_scheduler():
     while True:
         try:
             now = time.localtime()
-            # فحص إذا كان الوقت الساعة 10:00 صباحاً
             if now.tm_hour == 10 and now.tm_min == 0:
                 all_users = utils.get_all_goldsmiths()
                 for u in all_users:
@@ -421,23 +442,4 @@ def morning_reminder_scheduler():
                             bot.send_message(
                                 u_id,
                                 f"{COMPANY_HEADER}☀️ <b>صباح الخير ومبارك رزقكم!</b>\n\n"
-                                "جاهزون لإدارة حسابات اليوم بدقة تامة ومطابقة للحاسبة. أرسل العمليات مباشرة عبر الأزرار أدناه 💛",
-                                parse_mode="HTML"
-                            )
-                        except Exception:
-                            pass
-                time.sleep(60) # الانتظار دقيقة حتى لا تتكرر الرسالة في نفس الدقيقة
-        except Exception as e:
-            print(f"Reminder error: {e}")
-        time.sleep(30)
-
-if __name__ == "__main__":
-    # تشغيل خيط التذكير الصباحي في الخلفية
-    reminder_thread = threading.Thread(target=morning_reminder_scheduler)
-    reminder_thread.daemon = True
-    reminder_thread.start()
-
-    t = threading.Thread(target=run_flask)
-    t.daemon = True
-    t.start()
-    bot.infinity_polling(skip_pending=True)
+                                "جاهزون لإدارة ح
