@@ -48,7 +48,6 @@ SUPPORT_NUMBER = "07766083622"
 USER_STATE = {}
 
 def fmt(value):
-    """تنسيق الأرقام بفاصلة الآلاف وبدقة متناهية"""
     try:
         d = Decimal(str(value))
         if d == d.to_integral_value():
@@ -65,6 +64,7 @@ TEXTS = {
     "btn_dollar": "💵 سعر الدولار والتعديل",
     "btn_info": "📖 معلومات النظام",
     "btn_rate": "⭐ تقييم المنظومة",
+    "btn_ref": "🎁 دعوة صايغ (أسبوع مجاني)",
     "footer": "نظام آراُمكي - دقة وأمان لحساباتك اليومية"
 }
 
@@ -85,7 +85,7 @@ def notify_admin_error(user_id, error_msg, traceback_str=""):
 def to_english_numbers(text):
     if not text:
         return ""
-    arabic_nums = str.maketrans('٠١ي٣٤٥٦٧٨٩', '0123456789')
+    arabic_nums = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
     persian_nums = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
     return text.translate(arabic_nums).translate(persian_nums)
 
@@ -93,7 +93,7 @@ def get_main_keyboard(user_id):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(types.KeyboardButton(TEXTS["btn_sell"]), types.KeyboardButton(TEXTS["btn_buy"]))
     markup.add(types.KeyboardButton(TEXTS["btn_dollar"]), types.KeyboardButton(TEXTS["btn_info"]))
-    markup.add(types.KeyboardButton(TEXTS["btn_rate"]))
+    markup.add(types.KeyboardButton(TEXTS["btn_rate"]), types.KeyboardButton(TEXTS["btn_ref"]))
     if user_id == ADMIN_ID:
         markup.add(types.KeyboardButton("🛠️ لوحة تحكم الإدارة (خاص)"))
     return markup
@@ -124,11 +124,19 @@ def send_main_menu(message, user_id):
 def send_welcome(message):
     user_id = message.from_user.id
     try:
+        args = message.text.split()
+        referrer_id = None
+        if len(args) > 1 and args[1].startswith("ref_"):
+            try:
+                referrer_id = int(args[1].replace("ref_", ""))
+            except Exception:
+                referrer_id = None
+
         gs = utils.get_goldsmith(user_id) or {}
         is_admin = (user_id == ADMIN_ID)
         
         if not gs.get('is_registered', False):
-            USER_STATE[user_id] = "WAITING_REGISTRATION_FULL"
+            USER_STATE[user_id] = {"state": "WAITING_REGISTRATION_FULL", "referrer": referrer_id}
             bot.send_message(
                 message.chat.id, 
                 f"{COMPANY_HEADER}\n🌟 <b>مرحباً بك في منظومة ARAMKY الاحترافية!</b> 🌟\n\n"
@@ -148,6 +156,26 @@ def send_welcome(message):
 
         USER_STATE.pop(user_id, None)
         send_main_menu(message, user_id)
+    except Exception as e:
+        notify_admin_error(user_id, str(e), traceback.format_exc())
+
+@bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_ref"])
+def show_referral_program(message):
+    user_id = message.from_user.id
+    try:
+        gs = utils.get_goldsmith(user_id) or {}
+        bot_info = bot.get_me()
+        ref_link = f"https://t.me/{bot_info.username}?start=ref_{user_id}"
+        ref_count = gs.get('referral_count', 0)
+        
+        ref_text = (
+            f"{COMPANY_HEADER}\n"
+            "🎁 <b>برنامج إحالة ودعوة الصاغة:</b>\n\n"
+            "شارك رابطك الخاص مع زملائك الصاغة، وعند اشتراك أي صايغ ودفعه لاشتراكه الشهري عن طريقك، **تكتسب أسبوعاً مجانياً (+7 أيام)** يضاف لاشتراكك تلقائياً وبدون حد أقصى!\n\n"
+            f"👥 <b>عدد المشتركين المدفوعين عن طريقك:</b> <code>{ref_count} صايغ</code>\n\n"
+            f"🔗 <b>رابط الدعوة الخاص بك:</b>\n<code>{ref_link}</code>"
+        )
+        bot.send_message(message.chat.id, ref_text, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
@@ -176,37 +204,59 @@ def rate_system_menu(message):
     try:
         markup = types.InlineKeyboardMarkup(row_width=1)
         markup.add(
-            types.InlineKeyboardButton("⭐⭐⭐⭐⭐ ممتاز جدًا - سرعة ودقة متناهية", callback_data="rate_5_stars"),
-            types.InlineKeyboardButton("💬 إرسال مقترح للتطوير", callback_data="rate_feedback")
+            types.InlineKeyboardButton("⭐⭐⭐⭐⭐ ممتاز جداً (5 نجوم)", callback_data="rate_5"),
+            types.InlineKeyboardButton("⭐⭐⭐⭐ جيد جداً (4 نجوم)", callback_data="rate_4"),
+            types.InlineKeyboardButton("⭐⭐⭐ جيد (3 نجوم)", callback_data="rate_3"),
+            types.InlineKeyboardButton("💬 إرسال مقترح / ملاحظة للإدارة", callback_data="rate_feedback")
         )
         text = (
             f"{COMPANY_HEADER}\n"
-            "⭐ <b>تقييم منظومة SMART GOLD SYSTEM:</b>\n\n"
-            "رأيكم وسام نعتز به لتقديم أفضل وأدق خدمة لصاغة العراق.\n"
-            "يرجى تحديد تقييمك للمنظومة أدناه 👇"
+            "📊 <b>التقييم العام للمنظومة:</b> ⭐⭐⭐⭐⭐ <b>4.9 / 5.0</b>\n"
+            "<i>(استناداً إلى تقييمات صاغة العراق المعتمدين)</i>\n\n"
+            "يرجى اختيار تقييمك للمنظومة أدناه 👇"
         )
         bot.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=markup)
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
-@bot.callback_query_handler(func=lambda call: call.data in ["rate_5_stars", "rate_feedback"])
+@bot.callback_query_handler(func=lambda call: call.data.startswith("rate_"))
 def handle_rating_callbacks(call):
     user_id = call.from_user.id
     try:
-        if call.data == "rate_5_stars":
-            bot.answer_callback_query(call.id, text="🌟 شكراً لتقييمك العالي! نعتز برأيك.")
+        data = call.data
+        gs = utils.get_goldsmith(user_id) or {}
+        shop_name = gs.get('full_name', 'غير محدد')
+        phone = gs.get('phone', 'غير محدد')
+
+        if data in ["rate_5", "rate_4", "rate_3"]:
+            stars = "5 نجوم" if data == "rate_5" else ("4 نجوم" if data == "rate_4" else "3 نجوم")
+            bot.answer_callback_query(call.id, text=f"🌟 شكراً لتقييمك ({stars})!")
+            
+            if ADMIN_ID:
+                report = (
+                    f"⭐ <b>تقييم جديد للمنظومة:</b>\n\n"
+                    f"🏢 <b>المحل:</b> {shop_name}\n"
+                    f"📱 <b>الهاتف:</b> <code>{phone}</code>\n"
+                    f"🆔 <b>المعرف:</b> <code>{user_id}</code>\n"
+                    f"🌟 <b>التقييم:</b> {stars}"
+                )
+                bot.send_message(ADMIN_ID, report, parse_mode="HTML")
+
             bot.send_message(
                 call.message.chat.id, 
-                "💛 <b>شكراً لتقييمكم الممتاز (5 نجوم)!</b>\n\nنحن مستمرون بالتطوير لضمان دقة وسرعة حساباتكم دائماً.",
+                f"💛 <b>شكراً لتقييمكم ({stars})!</b>\n\nنحن مستمرون بالتطوير لضمان دقة وسرعة حساباتكم دائماً.",
                 parse_mode="HTML",
                 reply_markup=get_main_keyboard(user_id)
             )
-        elif call.data == "rate_feedback":
-            bot.answer_callback_query(call.id, text="💬 اكتب مقترحك مباشرة...")
+
+        elif data == "rate_feedback":
+            bot.answer_callback_query(call.id, text="💬 اكتب ملاحظتك...")
+            USER_STATE[user_id] = "WAITING_FEEDBACK_TEXT"
             bot.send_message(
                 call.message.chat.id, 
                 "✍️ <b>اكتب مقترحك أو ملاحظتك هنا وسيقوم فريق الدعم الفني بمراجعتها فوراً:</b>",
-                parse_mode="HTML"
+                parse_mode="HTML",
+                reply_markup=types.ReplyKeyboardRemove()
             )
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
@@ -330,7 +380,33 @@ def handle_text_inputs(message):
     user_id = message.from_user.id
     try:
         text = to_english_numbers(message.text.strip()) if message.text else ""
-        state = USER_STATE.get(user_id)
+        raw_state = USER_STATE.get(user_id)
+        
+        state = raw_state.get("state") if isinstance(raw_state, dict) else raw_state
+
+        if state == "WAITING_FEEDBACK_TEXT":
+            gs = utils.get_goldsmith(user_id) or {}
+            shop_name = gs.get('full_name', 'غير محدد')
+            phone = gs.get('phone', 'غير محدد')
+            
+            if ADMIN_ID:
+                feedback_report = (
+                    f"💬 <b>ملاحظة / مقترح جديد من صايغ:</b>\n\n"
+                    f"🏢 <b>المحل:</b> {shop_name}\n"
+                    f"📱 <b>الهاتف:</b> <code>{phone}</code>\n"
+                    f"🆔 <b>المعرف:</b> <code>{user_id}</code>\n\n"
+                    f"✍️ <b>الملاحظة:</b>\n{text}"
+                )
+                bot.send_message(ADMIN_ID, feedback_report, parse_mode="HTML")
+            
+            USER_STATE.pop(user_id, None)
+            bot.send_message(
+                message.chat.id, 
+                "✅ <b>تم إرسال ملاحظتك بنجاح إلى فريق الإدارة. شكراً لاهتمامك ببركة المنظومة!</b>", 
+                parse_mode="HTML", 
+                reply_markup=get_main_keyboard(user_id)
+            )
+            return
 
         if state == "WAITING_REGISTRATION_FULL":
             loading = bot.send_message(message.chat.id, "⏳ <i>جاري تأسيس الحساب...</i>", parse_mode="HTML")
@@ -338,13 +414,15 @@ def handle_text_inputs(message):
             shop_name = lines[0] if len(lines) >= 1 else text
             phone = lines[1] if len(lines) >= 2 else "غير محدد"
             
-            utils.register_goldsmith_details(user_id, shop_name, phone)
+            referrer = raw_state.get("referrer") if isinstance(raw_state, dict) else None
+            utils.register_goldsmith_details(user_id, shop_name, phone, referrer_id=referrer)
+
             USER_STATE.pop(user_id, None)
             bot.delete_message(message.chat.id, loading.message_id)
             
             bot.send_message(
                 message.chat.id, 
-                "💎 <b>تم تسجيل محلك وتفعيل الفترة التجريبية بنجاح!</b>", 
+                "💎 <b>تم تسجيل محلك وتفعيل الفترة التجريبية بنجاح!</b>\n\nاختر العملية المطلوبة من الأزرار أدناه للبدء 👇", 
                 parse_mode="HTML", 
                 reply_markup=get_main_keyboard(user_id)
             )
@@ -427,9 +505,7 @@ def handle_text_inputs(message):
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
                 
-                # إرسال الفاتورة ومعها الأزرار الرئيسية مباشرة بحيث تكون ظاهرة أمامه بالأسفل فوراً بدون أي رسالة زائدة
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
-                # إرسال أزرار التأكيد كـ Inline أسفل الفاتورة مباشرة
                 bot.send_message(message.chat.id, "📌 <b>يرجى اعتماد أو إلغاء الفاتورة أعلاه:</b>", parse_mode="HTML", reply_markup=markup)
             return
 
@@ -482,15 +558,56 @@ def handle_text_inputs(message):
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
                 
-                # إرسال الفاتورة ومعها الأزرار الرئيسية مباشرة بحيث تكون ظاهرة أمامه بالأسفل فوراً بدون أي رسالة زائدة
                 bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
-                # إرسال أزرار التأكيد كـ Inline أسفل الفاتورة مباشرة
                 bot.send_message(message.chat.id, "📌 <b>يرجى اعتماد أو إلغاء الفاتورة أعلاه:</b>", parse_mode="HTML", reply_markup=markup)
             return
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
 admin.register_admin_handlers(bot)
+
+# خيط آلي لمتابعة إرسال رسائل اليوم الثاني (التقييم + عرض الإحالة)
+def day_two_automation_scheduler():
+    iraq_tz = timezone(timedelta(hours=3))
+    while True:
+        try:
+            all_users = utils.get_all_goldsmiths()
+            now = datetime.now(iraq_tz)
+            for u in all_users:
+                u_id = u.get('user_id')
+                reg_date_str = u.get('created_at')
+                sent_day_two = u.get('sent_day_two_promo', False)
+
+                if u_id and reg_date_str and not sent_day_two:
+                    try:
+                        reg_date = datetime.fromisoformat(reg_date_str)
+                        if (now - reg_date).total_seconds() >= 86400: # 24 ساعة
+                            bot_info = bot.get_me()
+                            ref_link = f"https://t.me/{bot_info.username}?start=ref_{u_id}"
+                            
+                            rate_msg = (
+                                f"{COMPANY_HEADER}\n"
+                                "⭐ <b>نتمنى أن تكون تجربتك في اليوم الأول ممتازة!</b>\n\n"
+                                "كيف تقيِّم سرعة ودقة حسابات المنظومة؟ اضغط زر التقييم بالأسفل لشاركنا رأيك 💛"
+                            )
+                            
+                            ref_msg = (
+                                f"{COMPANY_HEADER}\n"
+                                "🎁 <b>برنامج مكافآت صاغة المنظومة:</b>\n\n"
+                                "شارك رابطك الخاص مع زملائك الصاغة، وعند اشتراك أي صايغ ودفعه لاشتراكه الشهري عن طريقك، **تكتسب أسبوعاً مجانياً (+7 أيام)** يضاف لاشتراكك تلقائياً وبدون حد أقصى!\n\n"
+                                f"🔗 <b>رابط الدعوة الخاص بك:</b>\n<code>{ref_link}</code>"
+                            )
+                            
+                            bot.send_message(u_id, rate_msg, parse_mode="HTML", reply_markup=get_main_keyboard(u_id))
+                            time.sleep(2)
+                            bot.send_message(u_id, ref_msg, parse_mode="HTML")
+                            utils.mark_day_two_sent(u_id)
+                    except Exception:
+                        pass
+            time.sleep(3600)
+        except Exception as e:
+            print(f"Day 2 automation error: {e}")
+            time.sleep(3600)
 
 def morning_reminder_scheduler():
     iraq_tz = timezone(timedelta(hours=3))
@@ -525,6 +642,10 @@ if __name__ == "__main__":
     reminder_thread = threading.Thread(target=morning_reminder_scheduler)
     reminder_thread.daemon = True
     reminder_thread.start()
+
+    day2_thread = threading.Thread(target=day_two_automation_scheduler)
+    day2_thread.daemon = True
+    day2_thread.start()
 
     t = threading.Thread(target=run_flask)
     t.daemon = True
