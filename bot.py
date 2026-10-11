@@ -442,4 +442,29 @@ def morning_reminder_scheduler():
                             bot.send_message(
                                 u_id,
                                 f"{COMPANY_HEADER}☀️ <b>صباح الخير ومبارك رزقكم!</b>\n\n"
-                                "جاهزون لإدارة ح
+                                "جاهزون لإدارة حسابات اليوم بدقة تامة ومطابقة للحاسبة. أرسل العمليات مباشرة عبر الأزرار أدناه 💛",
+                                parse_mode="HTML"
+                            )
+                        except Exception:
+                            pass
+                time.sleep(60)
+        except Exception as e:
+            print(f"Reminder error: {e}")
+        time.sleep(30)
+
+if __name__ == "__main__":
+    # تشغيل خيط الحفاظ على عمل السيرفر 24/7 بالخلفية
+    keep_alive_thread = threading.Thread(target=keep_alive_ping)
+    keep_alive_thread.daemon = True
+    keep_alive_thread.start()
+
+    # تشغيل خيط التذكير الصباحي
+    reminder_thread = threading.Thread(target=morning_reminder_scheduler)
+    reminder_thread.daemon = True
+    reminder_thread.start()
+
+    # تشغيل تطبيق Flask والـ Polling الخاص بتليغرام
+    t = threading.Thread(target=run_flask)
+    t.daemon = True
+    t.start()
+    bot.infinity_polling(skip_pending=True)
