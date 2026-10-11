@@ -141,7 +141,6 @@ def send_welcome(message):
         gs = utils.get_goldsmith(user_id) or {}
         is_admin = (user_id == ADMIN_ID)
         
-        # إذا لم يكن مفعلاً يتم نقله للتسجيل فوراً
         if not gs.get('is_registered', False):
             USER_STATE[user_id] = {"state": "WAITING_REGISTRATION_FULL", "referrer": referrer_id}
             bot.send_message(
@@ -161,7 +160,6 @@ def send_welcome(message):
             show_subscription_form(message, expired=True)
             return
 
-        # إذا كان مسجلاً يفتح القائمة الرئيسية فوراً دون تكرار التسجيل
         USER_STATE.pop(user_id, None)
         send_main_menu(message, user_id)
     except Exception as e:
@@ -179,7 +177,7 @@ def show_referral_program(message):
         ref_text = (
             f"{COMPANY_HEADER}\n"
             "🎁 <b>برنامج إحالة ودعوة الصاغة:</b>\n\n"
-            "شارك رابطك الخاص مع زملائك الصاغة، وعند اشتراك أي صايغ ودفعه لاشتراكه الشهري عن طريقك، **تكتسب أسبوعاً مجانياً (+7 أيام)** يضاف لاشتراكك تلقائياً وبدون حد أقصى!\n\n"
+            "شارك رابطك الخاص مع زملائك الصاغة، وعند اشتراك أي صايغ ودفعه لاشتراكه الشهري عن طريقك، <b>تكتسب أسبوعاً مجانياً (+7 أيام)</b> يضاف لاشتراكك تلقائياً وبدون حد أقصى!\n\n"
             f"👥 <b>عدد المشتركين المدفوعين عن طريقك:</b> <code>{ref_count} صايغ</code>\n\n"
             f"🔗 <b>رابط الدعوة الخاص بك:</b>\n<code>{ref_link}</code>"
         )
@@ -187,7 +185,6 @@ def show_referral_program(message):
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
-# رسالة معلومات النظام المختصرة
 @bot.message_handler(func=lambda message: message.text and message.text.strip() == TEXTS["btn_info"])
 def show_system_info(message):
     user_id = message.from_user.id
@@ -574,7 +571,7 @@ def handle_text_inputs(message):
 
 admin.register_admin_handlers(bot)
 
-# أتمتة اليوم الثاني (Day-2 Automation): إرسال التقييم ورابط الإحالة تلقائياً
+# أتمتة اليوم الثاني (Day-2 Automation): إرسال التقييم ورابط الإحالة تلقائياً برسالة واحدة مرتبة
 def day_two_automation_scheduler():
     iraq_tz = timezone(timedelta(hours=3))
     while True:
@@ -593,22 +590,16 @@ def day_two_automation_scheduler():
                             bot_info = bot.get_me()
                             ref_link = f"https://t.me/{bot_info.username}?start=ref_{u_id}"
                             
-                            rate_msg = (
+                            combined_msg = (
                                 f"{COMPANY_HEADER}\n"
                                 "⭐ <b>نتمنى أن تكون تجربتك في اليوم الأول ممتازة!</b>\n\n"
-                                "كيف تقيّم سرعة ودقة حسابات المنظومة؟ اضغط زر التقييم بالأسفل لشاركنا رأيك 💛"
-                            )
-                            
-                            ref_msg = (
-                                f"{COMPANY_HEADER}\n"
-                                "🎁 <b>برنامج مكافآت صاغة المنظومة:</b>\n\n"
-                                "شارك رابطك الخاص مع زملائك الصاغة، وعند اشتراك أي صايغ ودفعه لاشتراكه الشهري عن طريقك، **تكتسب أسبوعاً مجانياً (+7 أيام)** يضاف لاشتراكك تلقائياً وبدون حد أقصى!\n\n"
+                                "كيف تقيّم سرعة ودقة حسابات المنظومة؟ اضغط زر التقييم بالأسفل لشاركنا رأيك 💛\n\n"
+                                "🎁 <b>برنامج مكافآت صاغة المنظومة:</b>\n"
+                                "شارك رابطك الخاص مع زملائك الصاغة، وعند اشتراك أي صايغ ودفعه لاشتراكه الشهري عن طريقك، <b>تكتسب أسبوعاً مجانياً (+7 أيام)</b> يضاف لاشتراكك تلقائياً وبدون حد أقصى!\n\n"
                                 f"🔗 <b>رابط الدعوة الخاص بك:</b>\n<code>{ref_link}</code>"
                             )
                             
-                            bot.send_message(u_id, rate_msg, parse_mode="HTML", reply_markup=get_main_keyboard(u_id))
-                            time.sleep(2)
-                            bot.send_message(u_id, ref_msg, parse_mode="HTML")
+                            bot.send_message(u_id, combined_msg, parse_mode="HTML", reply_markup=get_main_keyboard(u_id))
                             utils.mark_day_two_sent(u_id)
                     except Exception:
                         pass
