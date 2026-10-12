@@ -94,8 +94,8 @@ def to_english_numbers(text):
     return text.translate(arabic_nums).translate(persian_nums)
 
 def get_main_keyboard(user_id):
-    # تثبيت دائم للكيبورد السفلي بحيث يعود فوراً وظاهر دائماً أمام المستخدم
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2, persistent=True)
+    # استخدام الكيبورد القياسي الآمن والمتوافق 100% بدون أي وسوم خاطئة
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(types.KeyboardButton(TEXTS["btn_sell"]), types.KeyboardButton(TEXTS["btn_buy"]))
     markup.add(types.KeyboardButton(TEXTS["btn_dollar"]), types.KeyboardButton(TEXTS["btn_info"]))
     markup.add(types.KeyboardButton(TEXTS["btn_rate"]), types.KeyboardButton(TEXTS["btn_ref"]))
@@ -570,7 +570,6 @@ def handle_text_inputs(message):
 
 admin.register_admin_handlers(bot)
 
-# التنبيه الصباحي اليومي (يعمل مرة واحدة فقط كل يوم الساعة 10:00 صباحاً بتوقيت العراق)
 def morning_reminder_scheduler():
     iraq_tz = timezone(timedelta(hours=3))
     last_sent_date = None
@@ -592,7 +591,7 @@ def morning_reminder_scheduler():
                                 f"{COMPANY_HEADER}\n☀️ <b>صباح الخير ومبارك رزقكم!</b>\n\n"
                                 "جاهزون لإدارة حسابات اليوم بدقة تامة ومطابقة للحاسبة. أرسل العمليات مباشرة عبر الأزرار أدناه 💛",
                                 parse_mode="HTML",
-                                reply_markup=get_main_keyboard(u_id)
+                                reply_markup=get_main_keyboard(user_id)
                             )
                         except Exception:
                             pass
