@@ -30,7 +30,6 @@ def run_flask():
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
 
-# خيط منع سيرفر Render من النوم وإبقاء النظام شغالاً 24 ساعة دون انقطاع
 def keep_alive_ping():
     port = os.environ.get("PORT", 10000)
     url = f"http://127.0.0.1:{port}/"
@@ -49,7 +48,6 @@ SUPPORT_NUMBER = "07766083622"
 USER_STATE = {}
 
 def fmt(value):
-    """تنسيق الأرقام بفاصلة الآلاف وإظهار الكسور مثلما أدخلها المستخدم تماماً بدون أصفار زائدة"""
     try:
         s = str(value).strip()
         if '.' in s:
@@ -96,7 +94,8 @@ def to_english_numbers(text):
     return text.translate(arabic_nums).translate(persian_nums)
 
 def get_main_keyboard(user_id):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    # تثبيت دائم للكيبورد السفلي بحيث يعود فوراً وظاهر دائماً أمام المستخدم
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2, persistent=True)
     markup.add(types.KeyboardButton(TEXTS["btn_sell"]), types.KeyboardButton(TEXTS["btn_buy"]))
     markup.add(types.KeyboardButton(TEXTS["btn_dollar"]), types.KeyboardButton(TEXTS["btn_info"]))
     markup.add(types.KeyboardButton(TEXTS["btn_rate"]), types.KeyboardButton(TEXTS["btn_ref"]))
@@ -571,50 +570,18 @@ def handle_text_inputs(message):
 
 admin.register_admin_handlers(bot)
 
-# أتمتة اليوم الثاني (Day-2 Automation): إرسال التقييم ورابط الإحالة تلقائياً برسالة واحدة مرتبة
-def day_two_automation_scheduler():
-    iraq_tz = timezone(timedelta(hours=3))
-    while True:
-        try:
-            all_users = utils.get_all_goldsmiths()
-            now = datetime.now(iraq_tz)
-            for u in all_users:
-                u_id = u.get('user_id')
-                reg_date_str = u.get('created_at')
-                sent_day_two = u.get('sent_day_two_promo', False)
-
-                if u_id and reg_date_str and not sent_day_two:
-                    try:
-                        reg_date = datetime.fromisoformat(reg_date_str)
-                        if (now - reg_date).total_seconds() >= 86400: # مرت 24 ساعة
-                            bot_info = bot.get_me()
-                            ref_link = f"https://t.me/{bot_info.username}?start=ref_{u_id}"
-                            
-                            combined_msg = (
-                                f"{COMPANY_HEADER}\n"
-                                "⭐ <b>نتمنى أن تكون تجربتك في اليوم الأول ممتازة!</b>\n\n"
-                                "كيف تقيّم سرعة ودقة حسابات المنظومة؟ اضغط زر التقييم بالأسفل لشاركنا رأيك 💛\n\n"
-                                "🎁 <b>برنامج مكافآت صاغة المنظومة:</b>\n"
-                                "شارك رابطك الخاص مع زملائك الصاغة، وعند اشتراك أي صايغ ودفعه لاشتراكه الشهري عن طريقك، <b>تكتسب أسبوعاً مجانياً (+7 أيام)</b> يضاف لاشتراكك تلقائياً وبدون حد أقصى!\n\n"
-                                f"🔗 <b>رابط الدعوة الخاص بك:</b>\n<code>{ref_link}</code>"
-                            )
-                            
-                            bot.send_message(u_id, combined_msg, parse_mode="HTML", reply_markup=get_main_keyboard(u_id))
-                            utils.mark_day_two_sent(u_id)
-                    except Exception:
-                        pass
-            time.sleep(3600)
-        except Exception as e:
-            print(f"Day 2 automation error: {e}")
-            time.sleep(3600)
-
-# التنبيه الصباحي اليومي المجدول بدقة على الساعة 10:00 صباحاً بتوقيت العراق (UTC+3)
+# التنبيه الصباحي اليومي (يعمل مرة واحدة فقط كل يوم الساعة 10:00 صباحاً بتوقيت العراق)
 def morning_reminder_scheduler():
-    iraq_tz = timezone(timedelta(hours=3)) # محدد بدقة بتوقيت بغداد والعراق
+    iraq_tz = timezone(timedelta(hours=3))
+    last_sent_date = None
+
     while True:
         try:
             now_iraq = datetime.now(iraq_tz)
-            if now_iraq.hour == 10 and now_iraq.minute == 0:
+            current_date_str = now_iraq.strftime("%Y-%m-%d")
+
+            if now_iraq.hour == 10 and now_iraq.minute == 0 and last_sent_date != current_date_str:
+                last_sent_date = current_date_str
                 all_users = utils.get_all_goldsmiths()
                 for u in all_users:
                     u_id = u.get('user_id')
@@ -629,7 +596,7 @@ def morning_reminder_scheduler():
                             )
                         except Exception:
                             pass
-                time.sleep(60) # الانتظار دقيقة حتى لا تتكرر بنفس الدقيقة
+                time.sleep(60)
         except Exception as e:
             print(f"Reminder error: {e}")
         time.sleep(30)
@@ -642,10 +609,6 @@ if __name__ == "__main__":
     reminder_thread = threading.Thread(target=morning_reminder_scheduler)
     reminder_thread.daemon = True
     reminder_thread.start()
-
-    day2_thread = threading.Thread(target=day_two_automation_scheduler)
-    day2_thread.daemon = True
-    day2_thread.start()
 
     t = threading.Thread(target=run_flask)
     t.daemon = True
