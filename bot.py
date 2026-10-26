@@ -382,8 +382,7 @@ def handle_invoice_confirmation(call):
             bot.send_message(call.message.chat.id, "❌ <b>تم إلغاء الفاتورة.</b>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
-
-@bot.message_handler(func=lambda message: True)
+        @bot.message_handler(func=lambda message: True)
 def handle_text_inputs(message):
     user_id = message.from_user.id
     try:
@@ -461,4 +460,160 @@ def handle_text_inputs(message):
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
                 bot.send_message(message.chat.id, f"✅ <b>تم تحديث سعر صرف الـ 100$ بنجاح إلى:</b> <code>{fmt(usd_100_val)} دينار</code>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
-            
+            return
+
+        if state == "WAITING_SELL_INPUTS":
+            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML")
+            lines = [line.strip() for line in text.split('\n') if line.strip()]
+            if len(lines) >= 3:
+                mithqal_price = Decimal(lines[0])
+                w = Decimal(lines[1])
+                wage = Decimal(lines[2])
+                
+                gram_price = mithqal_price / Decimal('5')
+                gram_full = gram_price + wage
+                total_iqd = gram_full * w
+                
+                prices = utils.get_goldsmith_prices(user_id) or {}
+                goldsmith = utils.get_goldsmith(user_id) or {}
+                
+                usd_rate_single = Decimal(str(prices.get('usd_rate', 1530)))
+                sheet_price = usd_rate_single * Decimal('100') if usd_rate_single < Decimal('5000') else usd_rate_single
+                usd_bills = int(total_iqd // sheet_price) if sheet_price > 0 else 0
+                rem_iqd = total_iqd % sheet_price if sheet_price > 0 else total_iqd
+                
+                shop_name = goldsmith.get('full_name') or 'محلي الموقر'
+                
+                markup = types.InlineKeyboardMarkup(row_width=2)
+                markup.add(
+                    types.InlineKeyboardButton("✅ تأكيد العملية", callback_data="confirm_invoice"),
+                    types.InlineKeyboardButton("❌ إلغاء العملية", callback_data="cancel_invoice")
+                )
+                
+                invoice = (
+                    f"{COMPANY_HEADER}\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"🧾 <b>فاتورة بيع ذهب للزبون</b>\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"🔷 <b>المحل العامر:</b> {shop_name}\n\n"
+                    f"🟡 <b>سعر المثقال المعتمد:</b> {fmt(mithqal_price)} دينار\n"
+                    f"⚖️ <b>الوزن الإجمالي:</b> {fmt(w)} غرام\n"
+                    f"🔨 <b>أجور صياغة الغرام:</b> {fmt(wage)} دينار\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"💰 <b>سعر الغرام الصافي:</b> {fmt(gram_price)} دينار\n"
+                    f"✨ <b>سعر الغرام مع الأجور:</b> {fmt(gram_full)} دينار\n\n"
+                    f"💵 <b>إجمالي الحساب بالدينار:</b>\n"
+                    f"👉 <b>{fmt(total_iqd)} دينار</b>\n\n"
+                    f"💵 <b>صافي الحساب (ورق ودينار):</b>\n"
+                    f"👉 <b>{fmt(usd_bills)} ورقة و {fmt(rem_iqd)} دينار</b>\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"{TEXTS['footer']}"
+                )
+                USER_STATE.pop(user_id, None)
+                bot.delete_message(message.chat.id, loading_msg.message_id)
+                
+                bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+                bot.send_message(message.chat.id, "📌 <b>يرجى اعتماد أو إلغاء الفاتورة أعلاه:</b>", parse_mode="HTML", reply_markup=markup)
+            return
+
+        if state == "WAITING_BUY_INPUTS":
+            loading_msg = bot.send_message(message.chat.id, "⏳ <i>جاري الحساب...</i>", parse_mode="HTML")
+            lines = [line.strip() for line in text.split('\n') if line.strip()]
+            if len(lines) >= 3:
+                mithqal_buy_price = Decimal(lines[0])
+                w = Decimal(lines[1])
+                wage_cut = Decimal(lines[2])
+                
+                gram_buy_price = mithqal_buy_price / Decimal('5')
+                net_gram_price = gram_buy_price - wage_cut
+                total_iqd = net_gram_price * w
+                
+                prices = utils.get_goldsmith_prices(user_id) or {}
+                goldsmith = utils.get_goldsmith(user_id) or {}
+                
+                usd_rate_single = Decimal(str(prices.get('usd_rate', 1530)))
+                sheet_price = usd_rate_single * Decimal('100') if usd_rate_single < Decimal('5000') else usd_rate_single
+                usd_bills = int(total_iqd // sheet_price) if sheet_price > 0 else 0
+                rem_iqd = total_iqd % sheet_price if sheet_price > 0 else total_iqd
+                
+                shop_name = goldsmith.get('full_name') or 'محلي الموقر'
+                
+                markup = types.InlineKeyboardMarkup(row_width=2)
+                markup.add(
+                    types.InlineKeyboardButton("✅ تأكيد العملية", callback_data="confirm_invoice"),
+                    types.InlineKeyboardButton("❌ إلغاء العملية", callback_data="cancel_invoice")
+                )
+                
+                invoice = (
+                    f"{COMPANY_HEADER}\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"📥 <b>فاتورة شراء ذهب (كسر)</b>\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"🔷 <b>المحل العامر:</b> {shop_name}\n\n"
+                    f"📥 <b>سعر شراء المثقال:</b> {fmt(mithqal_buy_price)} دينار\n"
+                    f"⚖️ <b>الوزن الإجمالي:</b> {fmt(w)} غرام\n"
+                    f"🔨 <b>أجور الخصم للغرام:</b> {fmt(wage_cut)} دينار\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"💰 <b>سعر غرام الكسر الصافي:</b> {fmt(gram_buy_price)} دينار\n"
+                    f"✨ <b>سعر الغرام بعد الخصم:</b> {fmt(net_gram_price)} دينار\n\n"
+                    f"💵 <b>إجمالي صافي الحساب بالدينار:</b>\n"
+                    f"👉 <b>{fmt(total_iqd)} دينار</b>\n\n"
+                    f"💵 <b>صافي الحساب (ورق ودينار):</b>\n"
+                    f"👉 <b>{fmt(usd_bills)} ورقة و {fmt(rem_iqd)} دينار</b>\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"{TEXTS['footer']}"
+                )
+                USER_STATE.pop(user_id, None)
+                bot.delete_message(message.chat.id, loading_msg.message_id)
+                
+                bot.send_message(message.chat.id, invoice, parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+                bot.send_message(message.chat.id, "📌 <b>يرجى اعتماد أو إلغاء الفاتورة أعلاه:</b>", parse_mode="HTML", reply_markup=markup)
+            return
+    except Exception as e:
+        notify_admin_error(user_id, str(e), traceback.format_exc())
+
+admin.register_admin_handlers(bot)
+
+def morning_reminder_scheduler():
+    iraq_tz = timezone(timedelta(hours=3))
+    last_sent_date = None
+
+    while True:
+        try:
+            now_iraq = datetime.now(iraq_tz)
+            current_date_str = now_iraq.strftime("%Y-%m-%d")
+
+            if now_iraq.hour == 10 and now_iraq.minute == 0 and last_sent_date != current_date_str:
+                last_sent_date = current_date_str
+                all_users = utils.get_all_goldsmiths()
+                for u in all_users:
+                    u_id = u.get('user_id')
+                    if u_id:
+                        try:
+                            bot.send_message(
+                                u_id,
+                                f"{COMPANY_HEADER}\n☀️ <b>صباح الخير ومبارك رزقكم!</b>\n\n"
+                                "جاهزون لإدارة حسابات اليوم بدقة تامة ومطابقة للحاسبة. أرسل العمليات مباشرة عبر الأزرار أدناه 💛",
+                                parse_mode="HTML",
+                                reply_markup=get_main_keyboard(u_id)
+                            )
+                        except Exception:
+                            pass
+                time.sleep(60)
+        except Exception as e:
+            print(f"Reminder error: {e}")
+        time.sleep(30)
+
+if __name__ == "__main__":
+    keep_alive_thread = threading.Thread(target=keep_alive_ping)
+    keep_alive_thread.daemon = True
+    keep_alive_thread.start()
+
+    reminder_thread = threading.Thread(target=morning_reminder_scheduler)
+    reminder_thread.daemon = True
+    reminder_thread.start()
+
+    t = threading.Thread(target=run_flask)
+    t.daemon = True
+    t.start()
+    bot.infinity_polling(skip_pending=True)
