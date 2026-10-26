@@ -48,16 +48,17 @@ SUPPORT_NUMBER = "07766083622"
 USER_STATE = {}
 
 def fmt(value):
+    """تنسيق الأرقام: إزالة الأصفار العشرية الزائدة تماماً للأرقام الصحيحة وإظهار الكسور الصريحة كالأوزان فقط"""
     try:
-        s = str(value).strip()
-        if '.' in s:
-            parts = s.split('.')
-            int_part = int(parts[0])
-            dec_part = parts[1]
-            return f"{int_part:,}.{dec_part}"
-        else:
-            d = Decimal(s)
+        d = Decimal(str(value))
+        if d == d.to_integral_value():
             return f"{int(d):,}"
+        else:
+            s = str(value).strip()
+            if '.' in s:
+                parts = s.split('.')
+                return f"{int(parts[0]):,}.{parts[1]}"
+            return f"{d:,.2f}"
     except Exception:
         return str(value)
 
@@ -94,7 +95,6 @@ def to_english_numbers(text):
     return text.translate(arabic_nums).translate(persian_nums)
 
 def get_main_keyboard(user_id):
-    # استخدام الكيبورد القياسي الآمن والمتوافق 100% بدون أي وسوم خاطئة
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(types.KeyboardButton(TEXTS["btn_sell"]), types.KeyboardButton(TEXTS["btn_buy"]))
     markup.add(types.KeyboardButton(TEXTS["btn_dollar"]), types.KeyboardButton(TEXTS["btn_info"]))
@@ -487,6 +487,7 @@ def handle_text_inputs(message):
                     types.InlineKeyboardButton("❌ إلغاء العملية", callback_data="cancel_invoice")
                 )
                 
+                # تنسيق فاتورة بيع الزبون مطابقة تماماً لفاتورة الشراء ومنسقة بدون أصفار عشرية
                 invoice = (
                     f"{COMPANY_HEADER}\n"
                     f"━━━━━━━━━━━━━━━━━━━━━\n"
