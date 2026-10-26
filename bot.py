@@ -382,7 +382,8 @@ def handle_invoice_confirmation(call):
             bot.send_message(call.message.chat.id, "❌ <b>تم إلغاء الفاتورة.</b>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
-        @bot.message_handler(func=lambda message: True)
+
+@bot.message_handler(func=lambda message: True)
 def handle_text_inputs(message):
     user_id = message.from_user.id
     try:
