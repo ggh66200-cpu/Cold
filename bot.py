@@ -48,7 +48,6 @@ SUPPORT_NUMBER = "07766083622"
 USER_STATE = {}
 
 def fmt(value):
-    """تنسيق حاسم ونهائي: إزالة تامة لأي أصفار عشرية للأرقام الصحيحة والمالية، وإبقاء الكسور الصريحة للأوزان فقط"""
     try:
         if value is None:
             return "0"
@@ -95,7 +94,7 @@ def notify_admin_error(user_id, error_msg, traceback_str=""):
 def to_english_numbers(text):
     if not text:
         return ""
-    arabic_nums = str.maketrans('٠١ي٣٤٥٦٧٨٩', '0123456789')
+    arabic_nums = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
     persian_nums = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
     return text.translate(arabic_nums).translate(persian_nums)
 
@@ -461,4 +460,5 @@ def handle_text_inputs(message):
                 )
                 USER_STATE.pop(user_id, None)
                 bot.delete_message(message.chat.id, loading_msg.message_id)
-                bot.send_message(message.chat.id, f"✅ <b>تم تحديث سعر صرف الـ 100$ بنجاح إلى:<
+                bot.send_message(message.chat.id, f"✅ <b>تم تحديث سعر صرف الـ 100$ بنجاح إلى:</b> <code>{fmt(usd_100_val)} دينار</code>", parse_mode="HTML", reply_markup=get_main_keyboard(user_id))
+            
