@@ -383,9 +383,47 @@ def handle_invoice_confirmation(call):
     except Exception as e:
         notify_admin_error(user_id, str(e), traceback.format_exc())
 
-@bot.message_handler(func=lambda message: True)
-def handle_text_inputs(message):
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
     user_id = message.from_user.id
+    try:
+        args = message.text.split()
+        referrer_id = None
+        if len(args) > 1 and args[1].startswith("ref_"):
+            try:
+                referrer_id = int(args[1].replace("ref_", ""))
+            except Exception:
+                referrer_id = None
+
+        gs = utils.get_goldsmith(user_id) or {}
+        is_admin = (user_id == ADMIN_ID)
+        
+        # القيد الحارم: إذا لم يكن مسجلاً ولديه اسم محل، نجبره على التسجيل فوراً ولا نتركها تمر
+        if not gs.get('is_registered', False) or not gs.get('full_name'):
+            USER_STATE[user_id] = {"state": "WAITING_REGISTRATION_FULL", "referrer": referrer_id}
+            bot.send_message(
+                message.chat.id, 
+                f"{COMPANY_HEADER}\n🌟 <b>مرحباً بك في منظومة ARAMKY الاحترافية!</b> 🌟\n\n"
+                "لتفعيل حسابك وتدشين فترتك التجريبية بدقة، أرسل بيانات محلك بالترتيب التالي:\n\n"
+                "🏢 <b>اسم المحل:</b>  ( مثال: مجوهرات ارامكي الفاخره)\n"
+                "📱 <b>رقم الهاتف:</b> (مثال: 07800000000)\n\n"
+                "✍️ <i>أرسل المعلومات في رسالة واحدة:</i>", 
+                parse_mode="HTML",
+                reply_markup=types.ReplyKeyboardRemove()
+            )
+            return
+
+        remaining_days = gs.get('remaining_days', 0)
+        if remaining_days <= 0 and not is_admin:
+            show_subscription_form(message, expired=True)
+            return
+
+        USER_STATE.pop(user_id, None)
+        send_main_menu(message, user_id)
+    except Exception as e:
+        notify_admin_error(user_id, str(e), traceback.format_exc())
+        
+
     try:
         text = to_english_numbers(message.text.strip()) if message.text else ""
         raw_state = USER_STATE.get(user_id)
