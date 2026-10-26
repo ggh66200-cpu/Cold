@@ -48,16 +48,23 @@ SUPPORT_NUMBER = "07766083622"
 USER_STATE = {}
 
 def fmt(value):
-    """تنسيق الأرقام: إزالة الأصفار العشرية الزائدة تماماً للأرقام الصحيحة وإظهار الكسور الصريحة كالأوزان فقط"""
+    """تنسيق حاسم ونهائي: إزالة تامة لأي أصفار عشرية للأرقام الصحيحة والمالية، وإبقاء الكسور الصريحة للأوزان فقط"""
     try:
+        if value is None:
+            return "0"
         d = Decimal(str(value))
+        # تحويل القيمة إلى رقم صحيح إذا كانت لا تحتوي على كسر حقيقي
         if d == d.to_integral_value():
             return f"{int(d):,}"
         else:
             s = str(value).strip()
             if '.' in s:
                 parts = s.split('.')
-                return f"{int(parts[0]):,}.{parts[1]}"
+                # إزالة أي أصفار زائدة على اليمين في الكسور إن وجدت
+                dec_clean = parts[1].rstrip('0')
+                if not dec_clean:
+                    return f"{int(parts[0]):,}"
+                return f"{int(parts[0]):,}.{dec_clean}"
             return f"{d:,.2f}"
     except Exception:
         return str(value)
@@ -90,7 +97,7 @@ def notify_admin_error(user_id, error_msg, traceback_str=""):
 def to_english_numbers(text):
     if not text:
         return ""
-    arabic_nums = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
+    arabic_nums = str.maketrans('٠١ي٣٤٥٦٧٨٩', '0123456789')
     persian_nums = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
     return text.translate(arabic_nums).translate(persian_nums)
 
@@ -487,7 +494,6 @@ def handle_text_inputs(message):
                     types.InlineKeyboardButton("❌ إلغاء العملية", callback_data="cancel_invoice")
                 )
                 
-                # تنسيق فاتورة بيع الزبون مطابقة تماماً لفاتورة الشراء ومنسقة بدون أصفار عشرية
                 invoice = (
                     f"{COMPANY_HEADER}\n"
                     f"━━━━━━━━━━━━━━━━━━━━━\n"
@@ -503,7 +509,7 @@ def handle_text_inputs(message):
                     f"💵 <b>إجمالي الحساب بالدينار:</b>\n"
                     f"👉 <b>{fmt(total_iqd)} دينار</b>\n\n"
                     f"💵 <b>صافي الحساب (ورق ودينار):</b>\n"
-                    f"👉 <b>{usd_bills} ورقة و {fmt(rem_iqd)} دينار</b>\n"
+                    f"👉 <b>{fmt(usd_bills)} ورقة و {fmt(rem_iqd)} دينار</b>\n"
                     f"━━━━━━━━━━━━━━━━━━━━━\n"
                     f"{TEXTS['footer']}"
                 )
@@ -542,6 +548,7 @@ def handle_text_inputs(message):
                     types.InlineKeyboardButton("❌ إلغاء العملية", callback_data="cancel_invoice")
                 )
                 
+                # تنسيق فاتورة الشراء مطابقة تماماً لهيكل ورتیب فاتورة البيع
                 invoice = (
                     f"{COMPANY_HEADER}\n"
                     f"━━━━━━━━━━━━━━━━━━━━━\n"
@@ -556,7 +563,7 @@ def handle_text_inputs(message):
                     f"💵 <b>إجمالي صافي الحساب بالدينار:</b>\n"
                     f"👉 <b>{fmt(total_iqd)} دينار</b>\n\n"
                     f"💵 <b>صافي الحساب (ورق ودينار):</b>\n"
-                    f"👉 <b>{usd_bills} ورقة و {fmt(rem_iqd)} دينار</b>\n"
+                    f"👉 <b>{fmt(usd_bills)} ورقة و {fmt(rem_iqd)} دينار</b>\n"
                     f"━━━━━━━━━━━━━━━━━━━━━\n"
                     f"{TEXTS['footer']}"
                 )
@@ -592,7 +599,7 @@ def morning_reminder_scheduler():
                                 f"{COMPANY_HEADER}\n☀️ <b>صباح الخير ومبارك رزقكم!</b>\n\n"
                                 "جاهزون لإدارة حسابات اليوم بدقة تامة ومطابقة للحاسبة. أرسل العمليات مباشرة عبر الأزرار أدناه 💛",
                                 parse_mode="HTML",
-                                reply_markup=get_main_keyboard(user_id)
+                                reply_markup=get_main_keyboard(u_id)
                             )
                         except Exception:
                             pass
