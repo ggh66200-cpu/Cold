@@ -8,7 +8,7 @@ ADMIN_ID = int(os.environ.get("ADMIN_ID", "0"))
 
 FREE_TRIAL_DAYS = 3
 MASTER_CARD = "910400201646"
-SUPPORT_PHONE = "07872180902"
+SUPPORT_PHONE = "07766083622"
 MONTHLY_PRICE = "176,000 دينار عراقي (بدلاً من 183,000 دينار)"
 
 COMPANY_HEADER = (
@@ -37,11 +37,28 @@ def notify_admin_panel_error(bot_instance, error_msg, traceback_str=""):
     try:
         error_report = (
             f"🚨 <b>تقرير خطأ في لوحة تحكم الآدمن</b> 🚨\n\n"
-            f"⚠️ <b>السبب:</b>\n<code>{error_msg}</code>"
+            f"⚠️ <b>السبب:</b>\n<code>{error_msg}</code>\n\n"
+            f"📜 <b>التفاصيل:</b>\n<pre>{traceback_str[:3000]}</pre>"
         )
         bot_instance.send_message(ADMIN_ID, error_report, parse_mode="HTML")
     except Exception as e:
         print(f"Failed to send admin error notification: {e}")
+
+def send_subscription_expired_notice(bot_instance, chat_id):
+    """دالة إرسال إشعار وفاتورة انتهاء الاشتراك للصائغ فوراً"""
+    try:
+        sub_text = (
+            f"{COMPANY_HEADER}"
+            "🚨 <b>انتهت فترتك التجريبية/اشتراكك الحالي!</b>\n\n"
+            "يرجى تجديد الاشتراك للاستمرار في استخدام المنظومة وحسابات الذهب والدولار:\n\n"
+            f"🔹 <b>قيمة الاشتراك الشهري:</b> <b>{MONTHLY_PRICE}</b>\n"
+            f"💳 <b>ماستر كارد التحويل:</b> <code>{MASTER_CARD}</code>\n"
+            f"📞 <b>الدعم الفني والطوارئ:</b> <code>{SUPPORT_PHONE}</code>\n\n"
+            "📸 <b>أرسل صورة وصل التحويل هنا فوراً لتفعيل اشتراكك تلقائياً.</b>"
+        )
+        bot_instance.send_message(chat_id, sub_text, parse_mode="HTML", reply_markup=types.ReplyKeyboardRemove())
+    except Exception as e:
+        print(f"Failed to send expiration notice: {e}")
 
 def admin_panel_start(message, bot_instance):
     if message.from_user.id != ADMIN_ID:
@@ -72,7 +89,63 @@ def register_admin_handlers(bot):
         
         data = call.data
         try:
-            if data == "admin_stats":
+            # --- تفعيل أو رفض اشتراك من صورة الوصل المرفوعة ---
+            if data.startswith("admin_sub_30_"):
+                target_uid = data.split("_")[3]
+                utils.update_goldsmith_subscription(target_uid, 30)
+                bot.answer_callback_query(call.id, text="✅ تم تفعيل الاشتراك بنجاح لمدة 30 يوماً!", show_alert=True)
+                
+                # تعديل نص الصورة عند الأدمن
+                try:
+                    bot.edit_message_caption(
+                        chat_id=call.message.chat.id,
+                        message_id=call.message.message_id,
+                        caption=call.message.caption + "\n\n✅ <b>[تم اعتماد الوصل وتفعيل الاشتراك لمدة شهر]</b>",
+                        parse_mode="HTML",
+                        reply_markup=None
+                    )
+                except Exception:
+                    pass
+
+                # إرسال التفعيل والفاتورة للصائغ
+                try:
+                    invoice_success = (
+                        f"{COMPANY_HEADER}"
+                        "🎉 <b>مبارك! تم اعتماد وصل التحويل وتفعيل اشتراكك الشهري بنجاح.</b>\n\n"
+                        "🗓 <b>فترة الاشتراك:</b> 30 يوماً\n"
+                        "✨ يمكنك الآن استخدام كافة خيارات وأزرار المنظومة بحرية تامة 💛"
+                    )
+                    bot.send_message(target_uid, invoice_success, parse_mode="HTML")
+                except Exception:
+                    pass
+
+            elif data.startswith("admin_sub_zero_"):
+                target_uid = data.split("_")[3]
+                utils.adjust_goldsmith_days(target_uid, 0, set_zero=True)
+                bot.answer_callback_query(call.id, text="❌ تم رفض الوصل وتصفير/إيقاف الحساب!", show_alert=True)
+                
+                try:
+                    bot.edit_message_caption(
+                        chat_id=call.message.chat.id,
+                        message_id=call.message.message_id,
+                        caption=call.message.caption + "\n\n❌ <b>[تم رفض وصل التحويل]</b>",
+                        parse_mode="HTML",
+                        reply_markup=None
+                    )
+                except Exception:
+                    pass
+
+                try:
+                    bot.send_message(
+                        target_uid,
+                        "❌ <b>نأسف، تم رفض وصل التحويل من قبل الإدارة.</b>\n\nيرجى التأكد من صحة الوصل وإعادة إرساله أو التواصل مع الدعم الفني.",
+                        parse_mode="HTML"
+                    )
+                except Exception:
+                    pass
+
+            # --- باقي الإحصائيات وجرد الصاغة ---
+            elif data == "admin_stats":
                 bot.answer_callback_query(call.id)
                 res = utils.supabase.table("goldsmiths").select("user_id", count="exact").execute()
                 db_count = res.count if hasattr(res, 'count') and res.count is not None else 0
@@ -292,4 +365,4 @@ def register_admin_handlers(bot):
 
         USER_STATE.pop(user_id, None)
         bot.edit_message_text(f"✅ <b>تم الانتهاء من الإذاعة!</b>\n\n🟢 نجح الإرسال إلى: {success} صائغ\n🔴 فشل الإرسال إلى: {failed}", chat_id=message.chat.id, message_id=loading_msg.message_id, parse_mode="HTML")
-                         
+                
