@@ -92,7 +92,8 @@ def get_all_goldsmiths():
         print(f"Supabase All Users Error: {e}")
         return []
 
-def register_goldsmith_details(user_id, shop_name, phone):
+def register_goldsmith_details(user_id, shop_name, phone, referrer_id=None):
+    """تسجيل بيانات الصايغ الجديد وحفظ معرف المُحيل بدون منح المكافأة لحين الدفع"""
     try:
         initial_expiry = (datetime.now(timezone.utc) + timedelta(days=FREE_TRIAL_DAYS)).isoformat()
         data = {
@@ -102,17 +103,26 @@ def register_goldsmith_details(user_id, shop_name, phone):
             "is_registered": True,
             "trial_expires_at": initial_expiry
         }
+        
+        # حفظ المعرّف فقط لحين قيامه بالدفع والتجديد لاحقاً
+        if referrer_id and str(referrer_id) != str(user_id):
+            data["referred_by"] = str(referrer_id)
+            data["reward_claimed"] = False # مؤشر لتحديد ما إذا مُنحت المكافأة للمُحيل أم لا
+
         supabase.table("goldsmiths").upsert(data).execute()
     except Exception as e:
         print(f"Error registering: {e}")
         raise e
 
 def update_goldsmith_subscription(user_id, days):
+    """تحديث اشتراك الصايغ وعند أول تجديد مدفوع، يتم مكافأة الشخص الذي دعاه تلقائياً"""
     try:
-        res = supabase.table("goldsmiths").select("trial_expires_at").eq("user_id", str(user_id)).execute()
+        user_res = supabase.table("goldsmiths").select("*").eq("user_id", str(user_id)).execute()
         current_expiry = None
-        if res.data and res.data[0].get("trial_expires_at"):
-            current_expiry_str = res.data[0]["trial_expires_at"]
+        user_data = user_res.data[0] if user_res.data else {}
+        
+        if user_data.get("trial_expires_at"):
+            current_expiry_str = user_data["trial_expires_at"]
             try:
                 if 'T' in str(current_expiry_str):
                     current_expiry = datetime.fromisoformat(str(current_expiry_str).replace('Z', '+00:00'))
@@ -125,7 +135,46 @@ def update_goldsmith_subscription(user_id, days):
         now_utc = datetime.now(timezone.utc)
         base_time = current_expiry if (current_expiry and current_expiry > now_utc) else now_utc
         new_expiry = base_time + timedelta(days=int(days))
+        
+        # تحديث اشتراك العميل الحالي
         supabase.table("goldsmiths").update({"trial_expires_at": new_expiry.isoformat()}).eq("user_id", str(user_id)).execute()
+        
+        # التحقق مما إذا كان هذا العميل مدعوماً من شخص ولم تُصرف المكافأة من قبل
+        if user_data.get("referred_by") and not user_data.get("reward_claimed", False):
+            referrer_id = user_data["referred_by"]
+            try:
+                ref_user_res = supabase.table("goldsmiths").select("*").eq("user_id", str(referrer_id)).execute()
+                if ref_user_res.data:
+                    ref_user = ref_user_res.data[0]
+                    # منح المُحيل 7 أيام إضافية
+                    base_ref_expiry = None
+                    ref_expiry_str = ref_user.get("trial_expires_at")
+                    if ref_expiry_str:
+                        try:
+                            if 'T' in str(ref_expiry_str):
+                                base_ref_expiry = datetime.fromisoformat(str(ref_expiry_str).replace('Z', '+00:00'))
+                            else:
+                                base_ref_expiry = datetime.strptime(str(ref_expiry_str).split()[0], "%Y-%m-%d")
+                                base_ref_expiry = base_ref_expiry.replace(tzinfo=timezone.utc)
+                        except:
+                            pass
+                    
+                    base_time_ref = base_ref_expiry if (base_ref_expiry and base_ref_expiry > now_utc) else now_utc
+                    new_ref_expiry = base_time_ref + timedelta(days=7)
+                    
+                    current_refs = int(ref_user.get('referral_count', 0))
+                    
+                    # تحديث أيام المُحيل وزيادة عداد الإحالات لديه
+                    supabase.table("goldsmiths").update({
+                        "trial_expires_at": new_ref_expiry.isoformat(),
+                        "referral_count": current_refs + 1
+                    }).eq("user_id", str(referrer_id)).execute()
+                    
+                    # تعليم أن مكافأة هذا المدعو قد تم صرفها للمُحيل لكي لا تتكرر
+                    supabase.table("goldsmiths").update({"reward_claimed": True}).eq("user_id", str(user_id)).execute()
+            except Exception as ref_err:
+                print(f"Referral reward distribution error: {ref_err}")
+
     except Exception as e:
         print(f"Error updating sub: {e}")
         raise e
@@ -142,12 +191,12 @@ def get_goldsmith_prices(user_id):
         "price_22": 935000,
         "price_21": 900000,
         "price_18": 450000,
-        "price_9": 400000, # الحقل الجديد للمثقال 9
+        "price_9": 400000,
         "wage_24": 3000,
         "wage_22": 3500,
         "wage_21": 4500,
         "wage_18": 7500,
-        "wage_9": 2500,    # أجور الحقل الجديد
+        "wage_9": 2500,
         "usd_rate": 153000
     }
 
@@ -172,8 +221,9 @@ def update_morning_prices(user_id, p24, p22, p21, p18, p9, w24, w22, w21, w18, w
     except Exception as e:
         print(f"Supabase Update Error: {e}")
         raise e
+
 def adjust_goldsmith_days(user_id, days_to_add):
-    """دالة تعديل أيام الاشتراك المتبقية للصايغ من قبل الأدمن"""
+    """دالة تعديل أيام الاشتراك المتبقية للصايغ من قبل لوحة تحكم الأدمن"""
     try:
         res = supabase.table("goldsmiths").select("trial_expires_at").eq("user_id", str(user_id)).execute()
         current_expiry = None
@@ -197,4 +247,3 @@ def adjust_goldsmith_days(user_id, days_to_add):
     except Exception as e:
         print(f"Error adjusting days: {e}")
         return False
-        
