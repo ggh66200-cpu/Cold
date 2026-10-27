@@ -9,7 +9,7 @@ ADMIN_ID = int(os.environ.get("ADMIN_ID", "0"))
 FREE_TRIAL_DAYS = 3
 MASTER_CARD = "910400201646"
 SUPPORT_PHONE = "07872180902"
-MONTHLY_PRICE = "105,000 دينار عراقي (بدلاً من 133,000 دينار)"
+MONTHLY_PRICE = "176,000 دينار عراقي (بدلاً من 183,000 دينار)"
 
 COMPANY_HEADER = (
     "💎 <b>أرامكي للحلول الرقمية | ARAMKY</b> 💎\n"
