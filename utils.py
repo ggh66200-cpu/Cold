@@ -172,3 +172,29 @@ def update_morning_prices(user_id, p24, p22, p21, p18, p9, w24, w22, w21, w18, w
     except Exception as e:
         print(f"Supabase Update Error: {e}")
         raise e
+def adjust_goldsmith_days(user_id, days_to_add):
+    """دالة تعديل أيام الاشتراك المتبقية للصايغ من قبل الأدمن"""
+    try:
+        res = supabase.table("goldsmiths").select("trial_expires_at").eq("user_id", str(user_id)).execute()
+        current_expiry = None
+        if res.data and res.data[0].get("trial_expires_at"):
+            current_expiry_str = res.data[0]["trial_expires_at"]
+            try:
+                if 'T' in str(current_expiry_str):
+                    current_expiry = datetime.fromisoformat(str(current_expiry_str).replace('Z', '+00:00'))
+                else:
+                    current_expiry = datetime.strptime(str(current_expiry_str).split()[0], "%Y-%m-%d")
+                    current_expiry = current_expiry.replace(tzinfo=timezone.utc)
+            except:
+                pass
+        
+        now_utc = datetime.now(timezone.utc)
+        base_time = current_expiry if (current_expiry and current_expiry > now_utc) else now_utc
+        new_expiry = base_time + timedelta(days=int(days_to_add))
+        
+        supabase.table("goldsmiths").update({"trial_expires_at": new_expiry.isoformat()}).eq("user_id", str(user_id)).execute()
+        return True
+    except Exception as e:
+        print(f"Error adjusting days: {e}")
+        return False
+        
