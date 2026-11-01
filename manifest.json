@@ -1,0 +1,15 @@
+{
+  "name": "ARAMKY | أرامكي للحلول الرقمية",
+  "short_name": "ARAMKY",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0f19",
+  "theme_color": "#d4af37",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/color/512/gold-bars.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
