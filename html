@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARAMKY | أرامكي للحلول الرقمية - فرع نواة الذهب</title>
+    <style>
+        :root { --bg-color: #0b0f19; --card-bg: #131b2e; --gold: #d4af37; --text-color: #f3f4f6; --accent: #1e293b; }
+        body { font-family: 'Cairo', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; direction: rtl; }
+        .container { max-width: 500px; margin: auto; background: var(--card-bg); padding: 20px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid rgba(212, 175, 55, 0.3); }
+        h2 { color: var(--gold); text-align: center; font-size: 19px; margin-bottom: 2px; }
+        .subtitle { text-align: center; font-size: 11px; color: #9ca3af; margin-bottom: 15px; }
+        .ticker { background: #1e293b; padding: 10px; border-radius: 8px; font-size: 12px; text-align: center; color: var(--gold); margin-bottom: 15px; border: 1px solid rgba(212,175,55,0.2); }
+        .tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 8px; background: #1e293b; border: 1px solid #374151; color: #9ca3af; border-radius: 6px; cursor: pointer; font-size: 13px; text-align: center; }
+        .tab-btn.active { background: var(--gold); color: #000; font-weight: bold; border-color: var(--gold); }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-size: 12px; margin-bottom: 4px; color: #d1d5db; }
+        input, select { width: 100%; padding: 9px; background: #0b0f19; border: 1px solid #374151; color: white; border-radius: 8px; font-size: 13px; box-sizing: border-box; }
+        input:focus { border-color: var(--gold); outline: none; }
+        .btn { background: linear-gradient(135deg, #d4af37, #aa7c11); color: #000; font-weight: bold; border: none; width: 100%; padding: 11px; border-radius: 8px; cursor: pointer; font-size: 14px; margin-top: 10px; }
+        .result-box { background: #1e293b; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px dashed var(--gold); font-size: 13px; }
+        .result-title { color: var(--gold); font-weight: bold; text-align: center; margin-bottom: 8px; border-bottom: 1px solid #374151; padding-bottom: 5px; }
+        .row-data { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .total-highlight { font-size: 15px; color: var(--gold); font-weight: bold; text-align: center; margin-top: 10px; background: #0b0f19; padding: 8px; border-radius: 6px; }
+        @media print { body { background: white; color: black; } .container { box-shadow: none; border: none; width: 100%; max-width: 100%; } .btn, .no-print, .tabs { display: none; } .result-box { border: 1px solid #000; background: #fff; color: #000; } .result-title, .total-highlight { color: #000; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>⚜️ ARAMKY | أرامكي للحلول الرقمية ⚜️</h2>
+        <div class="subtitle">فرع نواة الذهب لأنظمة الصاغة والـ POS</div>
+        
+        <div class="ticker">
+            📈 عيار 21: <span id="ticker-21">900,000</span> | عيار 18: <span id="ticker-18">450,000</span> | 💵 الدولار: متصل[span_13](start_span)[span_13](end_span)[span_14](start_span)[span_14](end_span)
+        </div>
+
+        <!-- صيغ العمل المتعددة -->
+        <div class="tabs no-print">
+            <div class="tab-btn active" onclick="setMode('smart')">⚡ الحاسبة الذكية (سوق)</div>
+            <div class="tab-btn" onclick="setMode('manual')">✍️ الحاسبة اليدوية</div>
+        </div>
+
+        <div class="form-group">
+            <label>👤 اسم الزبون (اختياري):</label>
+            <input type="text" id="customer_name" placeholder="مثال: حيدر العراقي">
+        </div>
+
+        <div class="form-group">
+            <label>📞 رقم هاتف الزبون (اختياري):</label>
+            <input type="text" id="customer_phone" placeholder="07800000000">
+        </div>
+
+        <div class="form-group">
+            <label>⚖️ الوزن بالغرام:</label>
+            <input type="number" id="weight" placeholder="25" step="0.01">
+        </div>
+
+        <div class="form-group" id="group-caliber">
+            <label>🟡 نوع الذهب (العيار):</label>
+            <select id="caliber" onchange="updateCaliberPrice()">
+                <option value="21">عيار 21 (سعر السوق)</option>
+                <option value="18">عيار 18 (سعر السوق)</option>
+                <option value="24">عيار 24 (سعر السوق)</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="group-mithqal" style="display:none;">
+            <label>🟡 سعر المثقال اليدوي (بالدينار):</label>
+            <input type="number" id="mithqal_price" value="1250000">
+        </div>
+
+        <div class="form-group">
+            <label>🔨 أجور الصياغة للغرام الواحد:</label>
+            <input type="number" id="wage" value="25000">
+        </div>
+
+        <button class="btn no-print" onclick="calculateGold()">🧮 إصدار فاتورة أرامكي الموحدة</button>
+
+        <!-- نافذة الفاتورة الموحدة (مطابقة لتليجرام وتدعم POS) -->
+        <div class="result-box" id="result-container" style="display:none;">
+            <div class="result-title">🧾 فاتورة بيع ذهب للزبون</div>
+            <div class="row-data"><span>🔷 المحل العامر:</span> <span id="res-shop">المحل العامر: D</span>[span_15](start_span)[span_15](end_span)</div>
+            <div class="row-data"><span>👤 الزبون:</span> <span id="res-customer">نقدي</span></div>
+            <div class="row-data"><span>🟡 المثقال المعتمد:</span> <span id="res-mithqal">1,250,000 د.ع</span>[span_16](start_span)[span_16](end_span)</div>
+            <div class="row-data"><span>⚖️ الوزن الإجمالي:</span> <span id="res-weight">25 غرام</span>[span_17](start_span)[span_17](end_span)</div>
+            <div class="row-data"><span>🔨 أجور الصياغة:</span> <span id="res-wage">25,000 د.ع</span>[span_18](start_span)[span_18](end_span)</div>
+            <hr style="border: 0.5px solid #374151; margin: 8px 0;">
+            <div class="row-data"><span>💰 سعر الغرام الصافي:</span> <span id="res-gram-net">250,000 د.ع</span>[span_19](start_span)[span_19](end_span)</div>
+            <div class="row-data"><span>✨ سعر الغرام مع الأجور:</span> <span id="res-gram-total">275,000 د.ع</span>[span_20](start_span)[span_20](end_span)</div>
+            
+            <div class="total-highlight">
+                💵 إجمالي الحساب: <span id="res-total-iqd">6,875,000 دينار</span><br>
+                <span style="font-size: 13px; color: #d4af37;" id="res-bills">💵 (44 ورقة و 55,000 دينار)</span>[span_21](start_span)[span_21](end_span)[span_22](start_span)[span_22](end_span)
+            </div>
+
+            <button class="btn no-print" style="background: #2563eb; color: white; margin-top: 12px;" onclick="window.print()">🖨️ طباعة الفاتورة الحرارية (80 ملم)</button>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'smart';
+        
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if(mode === 'smart') {
+                event.target.classList.add('active');
+                document.getElementById('group-caliber').style.display = 'block';
+                document.getElementById('group-mithqal').style.display = 'none';
+            } else {
+                event.target.classList.add('active');
+                document.getElementById('group-caliber').style.display = 'none';
+                document.getElementById('group-mithqal').style.display = 'block';
+            }
+        }
+
+        function updateCaliberPrice() {
+            // أسعار افتراضية مبنية على البورصة الحية العراقية
+            let cal = document.getElementById('caliber').value;
+            if(cal == '21') document.getElementById('mithqal_price').value = 1250000;
+            else if(cal == '18') document.getElementById('mithqal_price').value = 1070000;
+            else if(cal == '24') document.getElementById('mithqal_price').value = 1420000;
+        }
+
+        function calculateGold() {
+            let weight = parseFloat(document.getElementById('weight').value) || 0;
+            let wage = parseFloat(document.getElementById('wage').value) || 0;
+            let customer = document.getElementById('customer_name').value.trim() || 'زبون عام';
+            
+            let mithqal = 0;
+            if(currentMode === 'smart') {
+                let cal = document.getElementById('caliber').value;
+                if(cal == '21') mithqal = 1250000;
+                else if(cal == '18') mithqal = 1070000;
+                else if(cal == '24') mithqal = 1420000;
+            } else {
+                mithqal = parseFloat(document.getElementById('mithqal_price').value) || 0;
+            }
+
+            if(weight <= 0 || mithqal <= 0) {
+                alert('لطفاً أدخل الوزن وسعر المثقال بشكل صحيح');
+                return;
+            }
+
+            let gramPrice = mithqal / 5;
+            let gramFull = gramPrice + wage;
+            let totalIqd = gramFull * weight;
+
+            let sheetPrice = 153000; // سعر الورقة
+            let bills = Math.floor(totalIqd / sheetPrice);
+            let remIqd = totalIqd % sheetPrice;
+
+            // تعبئة بيانات الفاتورة الموحدة
+            document.getElementById('res-customer').innerText = customer;
+            document.getElementById('res-mithqal').innerText = mithqal.toLocaleString() + " د.ع";
+            document.getElementById('res-weight').innerText = weight + " غرام";[span_23](start_span)[span_23](end_span)
+            document.getElementById('res-wage').innerText = wage.toLocaleString() + " د.ع";[span_24](start_span)[span_24](end_span)
+            document.getElementById('res-gram-net').innerText = Math.round(gramPrice).toLocaleString() + " د.ع";[span_25](start_span)[span_25](end_span)
+            document.getElementById('res-gram-total').innerText = Math.round(gramFull).toLocaleString() + " د.ع";[span_26](start_span)[span_26](end_span)
+            document.getElementById('res-total-iqd').innerText = Math.round(totalIqd).toLocaleString() + " دينار";[span_27](start_span)[span_27](end_span)
+            document.getElementById('res-bills').innerText = `💵 (${bills} ورقة و ${Math.round(remIqd).toLocaleString()} دينار)`;[span_28](start_span)[span_28](end_span)[span_29](start_span)[span_29](end_span)
+
+            document.getElementById('result-container').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
