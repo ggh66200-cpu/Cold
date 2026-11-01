@@ -8,7 +8,7 @@ from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 import telebot
 from telebot import types
-from flask import Flask, render_template_string
+from flask import Flask, render_template
 import utils
 import admin
 
@@ -20,106 +20,17 @@ except Exception:
     ADMIN_ID = 0
 
 bot = telebot.TeleBot(BOT_TOKEN)
-app = Flask(__name__)
+app = Flask(__name__, template_folder='.')
 
 # ==========================================
-# 🌐 مسارات سيرفر الويب لتطبيق POS (أرامكي)
+# 🌐 تشغيل واجهة تطبيق أرامكي من ملف index.html الخارجي
 # ==========================================
 @app.route('/')
 def web_pos_home():
-    # قالب واجهة تطبيق الـ POS الشامل للطباعة والحاسبة والبورصة الحية
-    html_template = """
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ARAMKY | أرامكي للحلول الرقمية - فرع نواة الذهب</title>
-        <style>
-            :root { --bg-color: #0b0f19; --card-bg: #131b2e; --gold: #d4af37; --text-color: #f3f4f6; --accent: #1e293b; }
-            body { font-family: 'Cairo', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; direction: rtl; }
-            .container { max-width: 480px; margin: auto; background: var(--card-bg); padding: 20px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid rgba(212, 175, 55, 0.3); }
-            h2 { color: var(--gold); text-align: center; font-size: 20px; margin-bottom: 5px; }
-            .subtitle { text-align: center; font-size: 12px; color: #9ca3af; margin-bottom: 20px; }
-            .ticker { background: #1e293b; padding: 10px; border-radius: 8px; font-size: 13px; text-align: center; color: var(--gold); margin-bottom: 15px; border: 1px solid rgba(212,175,55,0.2); }
-            .form-group { margin-bottom: 12px; }
-            label { display: block; font-size: 13px; margin-bottom: 5px; color: #d1d5db; }
-            input, select { width: 100%; padding: 10px; background: #0b0f19; border: 1px solid #374151; color: white; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
-            input:focus { border-color: var(--gold); outline: none; }
-            .btn { background: linear-gradient(135deg, #d4af37, #aa7c11); color: #000; font-weight: bold; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 15px; margin-top: 10px; }
-            .btn:hover { opacity: 0.9; }
-            .result-box { background: #1e293b; padding: 12px; border-radius: 8px; margin-top: 15px; border: 1px dashed var(--gold); }
-            .result-text { font-size: 16px; font-weight: bold; color: var(--gold); text-align: center; margin-top: 5px; }
-            @media print { body { background: white; color: black; } .container { box-shadow: none; border: none; width: 100%; max-width: 100%; } .btn, .no-print { display: none; } }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h2>⚜️ ARAMKY | أرامكي للحلول الرقمية ⚜️</h2>
-            <div class="subtitle">فرع نواة الذهب لأنظمة الصاغة والـ POS</div>
-            
-            <div class="ticker">
-                📈 أونصة الذهب الحية: <span id="gold-ounce">$3,876.40</span> | 💵 الدولار: <span id="usd-rate">متصل</span>
-            </div>
-
-            <div class="form-group">
-                <label>👤 اسم الزبون / المحل:</label>
-                <input type="text" id="customer_name" placeholder="مثال: مجوهرات الذهب الأخضر">
-            </div>
-
-            <div class="form-group">
-                <label>⚖️ الوزن بالغرام:</label>
-                <input type="number" id="weight" placeholder="0.00" step="0.01">
-            </div>
-
-            <div class="form-group">
-                <label>🟡 سعر المثقال (بالدينار العراقي):</label>
-                <input type="number" id="mithqal_price" placeholder="520000">
-            </div>
-
-            <div class="form-group">
-                <label>🔨 أجور صياغة الغرام الواحد:</label>
-                <input type="number" id="wage" placeholder="5000">
-            </div>
-
-            <button class="btn" onclick="calculateGold()">🧮 احسب وإصدار الفاتورة</button>
-
-            <div class="result-box" id="result-container" style="display:none;">
-                <div style="font-size: 13px; text-align: center; color: #9ca3af;">ملخص الحساب والفاتورة الحرارية (80 ملم):</div>
-                <div class="result-text" id="final-result">0 دينار</div>
-                <div id="bills-result" style="text-align: center; font-size: 14px; margin-top: 5px; color: #fff;"></div>
-                <button class="btn no-print" style="background: #2563eb; color: white; margin-top: 10px;" onclick="window.print()">🖨️ طباعة الفاتورة الحرارية</button>
-            </div>
-        </div>
-
-        <script>
-            function calculateGold() {
-                let weight = parseFloat(document.getElementById('weight').value) || 0;
-                let mithqal = parseFloat(document.getElementById('mithqal_price').value) || 0;
-                let wage = parseFloat(document.getElementById('wage').value) || 0;
-
-                if(weight <= 0 || mithqal <= 0) {
-                    alert('لطفاً أدخل الوزن وسعر المثقال بشكل صحيح');
-                    return;
-                }
-
-                let gramPrice = mithqal / 5;
-                let totalGramPrice = gramPrice + wage;
-                let totalIqd = totalGramPrice * weight;
-
-                let sheetPrice = 153000; // سعر الورقة الافتراضي
-                let bills = Math.floor(totalIqd / sheetPrice);
-                let remIqd = totalIqd % sheetPrice;
-
-                document.getElementById('final-result').innerText = totalIqd.toLocaleString() + " دينار";
-                document.getElementById('bills-result').innerText = "💵 (" + bills + " ورقة و " + remIqd.toLocaleString() + " دينار)";
-                document.getElementById('result-container').style.display = 'block';
-            }
-        </script>
-    </body>
-    </html>
-    """
-    return render_template_string(html_template)
+    try:
+        return render_template('index.html')
+    except Exception as e:
+        return f"Error loading interface: {e}", 500
 
 def run_flask():
     port = int(os.environ.get("PORT", 10000))
