@@ -8,7 +8,7 @@ from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 import telebot
 from telebot import types
-from flask import Flask, render_template
+from flask import Flask, render_template, Response
 import utils
 import admin
 
@@ -23,7 +23,7 @@ bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__, template_folder='.')
 
 # ==========================================
-# 🌐 تشغيل واجهة تطبيق أرامكي من ملف index.html الخارجي
+# 🌐 مسارات سيرفر الويب وتطبيق PWA (أرامكي)
 # ==========================================
 @app.route('/')
 def web_pos_home():
@@ -31,6 +31,39 @@ def web_pos_home():
         return render_template('index.html')
     except Exception as e:
         return f"Error loading interface: {e}", 500
+
+@app.route('/manifest.json')
+def serve_manifest():
+    manifest_content = """
+    {
+      "name": "ARAMKY | أرامكي للحلول الرقمية",
+      "short_name": "أرامكي",
+      "start_url": "/",
+      "display": "standalone",
+      "background_color": "#0b0f19",
+      "theme_color": "#d4af37",
+      "icons": [
+        {
+          "src": "https://img.icons8.com/color/512/gold-bars.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ]
+    }
+    """
+    return Response(manifest_content, mimetype='application/json')
+
+@app.route('/sw.js')
+def serve_sw():
+    sw_content = """
+    self.addEventListener('install', (e) => {
+      console.log('Service Worker Installed');
+    });
+    self.addEventListener('fetch', (e) => {
+      e.respondWith(fetch(e.request));
+    });
+    """
+    return Response(sw_content, mimetype='application/javascript')
 
 def run_flask():
     port = int(os.environ.get("PORT", 10000))
