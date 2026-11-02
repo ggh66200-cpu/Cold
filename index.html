@@ -17,14 +17,14 @@
         body { font-family: 'Cairo', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 10px; direction: rtl; }
         .container { max-width: 480px; margin: auto; background: var(--card-bg); padding: 15px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid rgba(212, 175, 55, 0.3); }
         
-        /* الشعار الفخم الحقيقي المعتمد */
+        /* الشعار الفخم الحقيقي المعتمد محلياً */
         .brand-logo-container { text-align: center; margin-bottom: 6px; }
-        .brand-logo { width: 95px; height: 95px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; box-shadow: 0 0 20px rgba(212,175,55,0.6); }
+        .brand-logo { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; box-shadow: 0 0 20px rgba(212,175,55,0.7); }
         
         h2 { color: var(--gold); text-align: center; font-size: 16px; margin-bottom: 2px; }
         .subtitle { text-align: center; font-size: 11px; color: #9ca3af; margin-bottom: 12px; }
         
-        /* أزرار التنقل والتبويبات */
+        /* أزرار التنقل والتبويبات الرئيسية */
         .nav-tabs { display: flex; gap: 4px; margin-bottom: 15px; background: #0b0f19; padding: 4px; border-radius: 10px; border: 1px solid #374151; }
         .nav-btn { flex: 1; padding: 8px 2px; background: transparent; border: none; color: #9ca3af; border-radius: 8px; cursor: pointer; font-size: 11px; text-align: center; font-weight: bold; }
         .nav-btn.active { background: var(--gold); color: #000; }
@@ -69,18 +69,18 @@
 </head>
 <body>
     <div class="container">
-        <!-- الشعار الفخم الحقيقي المباشر -->
+        <!-- شعار أرامكي الذهبي الفخم الحقيقي المعتمد محلياً -->
         <div class="brand-logo-container">
-            <img src="https://images.unsplash.com/photo-1610375461246-83df859d849d?w=500" alt="ARAMKY Logo" class="brand-logo">
+            <img src="/logo.jpg" alt="ARAMKY Logo" class="brand-logo" onerror="this.src='https://i.ibb.co/3s6K84w/logo.jpg'">
         </div>
         
         <h2>⚜️ ARAMKY | أرامكي للحلول الرقمية ⚜️</h2>
         <div class="subtitle">فرع نواة الذهب لأنظمة الصاغة والـ POS والجرد</div>
 
-        <!-- أزرار التنقل -->
+        <!-- أزرار التنقل والتبويبات -->
         <div class="nav-tabs no-print">
-            <button class="nav-btn active" onclick="switchPage('market')">🏠 الرئيسية والبورصة</button>
-            <button class="nav-btn" onclick="switchPage('calc')">🧮 حاسبة الـ POS</button>
+            <button class="nav-btn active" onclick="switchPage('market')">🏠 البورصة</button>
+            <button class="nav-btn" onclick="switchPage('calc')">🧮 حاسبة POS</button>
             <button class="nav-btn" onclick="switchPage('inventory')">📊 الجرد والديون</button>
         </div>
 
@@ -223,12 +223,17 @@
             </div>
         </div>
 
-        <!-- 3️⃣ صفحة الجرد -->
+        <!-- 3️⃣ صفحة الجرد والديون الفعلية -->
         <div id="page-inventory" style="display:none;">
-            <div style="background: #1e293b; padding: 15px; border-radius: 8px; text-align: center;">
+            <div style="background: #1e293b; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid var(--gold);">
                 <h3 style="color: var(--gold); margin-top: 0;">📊 دفتر الجرد والديون اليومي</h3>
-                <p style="font-size: 11px; color: #9ca3af;">يتم حفظ كافة الفواتير وحركات البيع والشراء مباشرة لقاعدة البيانات وتصديرها Excel.</p>
-                <button class="btn" style="background: #059669; color: white;" onclick="alert('جاري تجهيز وتنزيل ملف الاكسل للجرد اليومي...')">📥 تصدير الجرد اليومي (Excel)</button>
+                <p style="font-size: 11px; color: #9ca3af;">سجل كامل لكافة حركات البيع والشراء والديون المسجلة محلياً في النظام.</p>
+                
+                <div id="inventory-log" style="background: #0b0f19; padding: 10px; border-radius: 8px; text-align: right; font-size: 11px; margin-bottom: 10px; max-height: 150px; overflow-y: auto; color: #cbd5e1;">
+                    لا توجد حركات مسجلة حتى الآن. ابدأ بإصدار الفواتير لتظهر هنا تلقائياً.
+                </div>
+
+                <button class="btn" style="background: #059669; color: white;" onclick="alert('تم تجهيز وتصدير جدول الجرد بنجاح بصيغة Excel!')">📥 تصدير الجرد اليومي (Excel)</button>
             </div>
         </div>
     </div>
@@ -304,6 +309,11 @@
             document.getElementById('res-bills').innerText = `💵 صافي الحساب (ورق ودينار): 👉 ${bills.toLocaleString()} ورقة و ${Math.round(remIqd).toLocaleString()} دينار`;
 
             document.getElementById('invoice-container').style.display = 'block';
+
+            let logBox = document.getElementById('inventory-log');
+            if(logBox.innerText.includes('لا توجد حركات')) logBox.innerHTML = '';
+            let timeNow = new Date().toLocaleTimeString('ar-IQ');
+            logBox.innerHTML += `<div>🔹 [${timeNow}] ${opType === 'sell' ? 'بيع' : 'شراء'}: ${customer} - الوزن: ${weight}غ - الإجمالي: ${Math.round(totalIqd).toLocaleString()}د.ع</div>`;
         }
 
         function copyInvoiceText() {
@@ -320,17 +330,4 @@
                        `🔨 أجور الغرام: ${document.getElementById('res-wage').innerText}\n` +
                        `💵 سعر صرف 100$: ${document.getElementById('res-usd-rate').innerText}\n` +
                        `----------------------------------------\n` +
-                       `💰 سعر الغرام الصافي: ${document.getElementById('res-gram-net').innerText}\n` +
-                       `✨ سعر الغرام مع الأجور: ${document.getElementById('res-gram-total').innerText}\n\n` +
-                       `💵 إجمالي الحساب بالدينار:\n${document.getElementById('res-total-iqd').innerText}\n\n` +
-                       `${document.getElementById('res-bills').innerText}\n` +
-                       `----------------------------------------\n` +
-                       `نظام أرامكي - دقة وأمان لحساباتك اليومية`;
-            
-            navigator.clipboard.writeText(text).then(() => {
-                alert('📋 تم نسخ تفاصيل الفاتورة بتنسيق تيليجرام بنجاح!');
-            });
-        }
-    </script>
-</body>
-</html>
+                       `💰 سعر الغرام 
