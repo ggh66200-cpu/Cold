@@ -69,9 +69,9 @@
 </head>
 <body>
     <div class="container">
-        <!-- شعار أرامكي الذهبي الفخم الحقيقي المعتمد محلياً -->
+        <!-- الشعار الفخم الحقيقي المعتمد محلياً (تم ضبط المسار على اسم الصورة المرفوعة) -->
         <div class="brand-logo-container">
-            <img src="/logo.jpg" alt="ARAMKY Logo" class="brand-logo" onerror="this.src='https://i.ibb.co/3s6K84w/logo.jpg'">
+            <img src="/IMG_20261102_073122_276.jpg" alt="ARAMKY Logo" class="brand-logo" onerror="this.src='https://i.ibb.co/3s6K84w/logo.jpg'">
         </div>
         
         <h2>⚜️ ARAMKY | أرامكي للحلول الرقمية ⚜️</h2>
@@ -330,4 +330,17 @@
                        `🔨 أجور الغرام: ${document.getElementById('res-wage').innerText}\n` +
                        `💵 سعر صرف 100$: ${document.getElementById('res-usd-rate').innerText}\n` +
                        `----------------------------------------\n` +
-                       `💰 سعر الغرام 
+                       `💰 سعر الغرام الصافي: ${document.getElementById('res-gram-net').innerText}\n` +
+                       `✨ سعر الغرام مع الأجور: ${document.getElementById('res-gram-total').innerText}\n\n` +
+                       `💵 إجمالي الحساب بالدينار:\n${document.getElementById('res-total-iqd').innerText}\n\n` +
+                       `${document.getElementById('res-bills').innerText}\n` +
+                       `----------------------------------------\n` +
+                       `نظام أرامكي - دقة وأمان لحساباتك اليومية`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('📋 تم نسخ تفاصيل الفاتورة بتنسيق تيليجرام بنجاح!');
+            });
+        }
+    </script>
+</body>
+</html>
