@@ -4,12 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARAMKY | أرامكي للحلول الرقمية - فرع نواة الذهب</title>
+    
+    <!-- إعدادات تطبيق الـ PWA والشعار الفخم -->
     <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0b0f19">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ARAMKY">
+    <meta name="mobile-web-app-capable" content="yes">
+
     <style>
         :root { --bg-color: #0b0f19; --card-bg: #131b2e; --gold: #d4af37; --text-color: #f3f4f6; }
         body { font-family: 'Cairo', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 12px; direction: rtl; }
         .container { max-width: 480px; margin: auto; background: var(--card-bg); padding: 18px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid rgba(212, 175, 55, 0.3); }
-        h2 { color: var(--gold); text-align: center; font-size: 18px; margin-bottom: 2px; }
+        
+        /* تنسيق الشعار الفخم الجديد */
+        .brand-logo-container { text-align: center; margin-bottom: 5px; }
+        .brand-logo { width: 75px; height: 75px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; box-shadow: 0 0 15px rgba(212,175,55,0.4); }
+        
+        h2 { color: var(--gold); text-align: center; font-size: 17px; margin-bottom: 2px; }
         .subtitle { text-align: center; font-size: 11px; color: #9ca3af; margin-bottom: 12px; }
         
         /* شريط البورصة الحية */
@@ -53,6 +66,11 @@
 </head>
 <body>
     <div class="container">
+        <!-- عرض الشعار الفخم الجديد داخل واجهة التطبيق -->
+        <div class="brand-logo-container">
+            <img src="https://i.ibb.co/3s6K84w/logo.jpg" alt="ARAMKY Logo" class="brand-logo" onerror="this.src='https://img.icons8.com/color/512/gold-bars.png'">
+        </div>
+        
         <h2>⚜️ ARAMKY | أرامكي للحلول الرقمية ⚜️</h2>
         <div class="subtitle">فرع نواة الذهب لأنظمة الصاغة والـ POS والجرد</div>
 
@@ -60,16 +78,12 @@
         <div class="market-ticker no-print">
             🌍 <b>أسعار البورصة والسوق العراقي الحي:</b>
             <div class="ticker-row">
-                <span>أونصة الذهب: <span id="val-ounce" style="color: #4ade80;">$2,740</span></span> | 
-                <span>100$: <span id="val-usd" style="color: #38bdf8;">153,250</span></span>
-            </div>
-            <div class="ticker-row" style="margin-top: 5px; font-size: 10px;">
-                <span>مثقال 21 (مستورد): <span id="val-m21" style="color: var(--gold);">575,000</span></span> | 
-                <span>مثقال 21 (عراقي): <span id="val-m21-iq" style="color: var(--gold);">525,000</span></span>
+                <span>أونصة الذهب: <span id="val-ounce" style="color: #4ade80;">$3,876.40</span></span> | 
+                <span>100$: <span id="val-usd" style="color: #38bdf8;">153,000</span></span>
             </div>
         </div>
 
-        <!-- أزرار التبويبات (البيع، الشراء، الجرد) -->
+        <!-- أزرار التبويبات -->
         <div class="tabs no-print">
             <div class="tab-btn active" onclick="switchTab('sell')">🛍️ بيع للزبون</div>
             <div class="tab-btn" onclick="switchTab('buy')">📥 شراء كسر</div>
@@ -167,7 +181,6 @@
     <script>
         let currentOperation = 'sell';
 
-        // تسجيل عامل الخدمة PWA لتشغيل التطبيق
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js').then(() => console.log('PWA Ready'));
         }
@@ -259,5 +272,4 @@
         }
     </script>
 </body>
-    </html>
-    
+</html>
