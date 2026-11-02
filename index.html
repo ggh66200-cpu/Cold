@@ -17,19 +17,17 @@
         body { font-family: 'Cairo', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 10px; direction: rtl; }
         .container { max-width: 480px; margin: auto; background: var(--card-bg); padding: 15px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid rgba(212, 175, 55, 0.3); }
         
-        /* الشعار الفخم الحقيقي المعتمد محلياً */
+        /* شعار أرامكي الذهبي الفخم المطابق لملف logo.jpg */
         .brand-logo-container { text-align: center; margin-bottom: 6px; }
         .brand-logo { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; box-shadow: 0 0 20px rgba(212,175,55,0.7); }
         
         h2 { color: var(--gold); text-align: center; font-size: 16px; margin-bottom: 2px; }
         .subtitle { text-align: center; font-size: 11px; color: #9ca3af; margin-bottom: 12px; }
         
-        /* أزرار التنقل والتبويبات الرئيسية */
         .nav-tabs { display: flex; gap: 4px; margin-bottom: 15px; background: #0b0f19; padding: 4px; border-radius: 10px; border: 1px solid #374151; }
         .nav-btn { flex: 1; padding: 8px 2px; background: transparent; border: none; color: #9ca3af; border-radius: 8px; cursor: pointer; font-size: 11px; text-align: center; font-weight: bold; }
         .nav-btn.active { background: var(--gold); color: #000; }
 
-        /* جدول البورصة الحية */
         .market-box { background: #182232; border-radius: 12px; padding: 12px; margin-bottom: 12px; border: 1px solid rgba(212,175,55,0.3); }
         .market-header-main { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #374151; padding-bottom: 8px; margin-bottom: 8px; font-size: 12px; font-weight: bold; }
         .market-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; }
@@ -43,7 +41,7 @@
         input:focus, select:focus { border-color: var(--gold); outline: none; }
         .btn { background: linear-gradient(135deg, #d4af37, #aa7c11); color: #000; font-weight: bold; border: none; width: 100%; padding: 11px; border-radius: 8px; cursor: pointer; font-size: 13px; margin-top: 8px; }
         
-        /* تصميم الفاتورة البيضاء واضحة المعالم (حجم 80 ملم للسوبرماركت) */
+        /* الفاتورة البيضاء الحرارية 80 ملم مع سعر الصرف وتنسيق تيليجرام */
         .tg-invoice { background: #ffffff; color: #000000; padding: 16px; border-radius: 12px; margin-top: 15px; border: 2px solid #d4af37; font-size: 13px; line-height: 1.6; }
         .tg-header { text-align: center; color: #0284c7; font-weight: bold; font-size: 15px; margin-bottom: 2px; }
         .tg-sub { text-align: center; color: #b45309; font-size: 12px; margin-bottom: 8px; }
@@ -69,15 +67,14 @@
 </head>
 <body>
     <div class="container">
-        <!-- الشعار الفخم الحقيقي المعتمد محلياً (تم ضبط المسار على اسم الصورة المرفوعة) -->
+        <!-- ربط الشعار محلياً باسم logo.jpg -->
         <div class="brand-logo-container">
-            <img src="/IMG_20261102_073122_276.jpg" alt="ARAMKY Logo" class="brand-logo" onerror="this.src='https://i.ibb.co/3s6K84w/logo.jpg'">
+            <img src="/logo.jpg" alt="ARAMKY Logo" class="brand-logo" onerror="this.src='https://images.unsplash.com/photo-1610375461246-83df859d849d?w=500'">
         </div>
         
         <h2>⚜️ ARAMKY | أرامكي للحلول الرقمية ⚜️</h2>
         <div class="subtitle">فرع نواة الذهب لأنظمة الصاغة والـ POS والجرد</div>
 
-        <!-- أزرار التنقل والتبويبات -->
         <div class="nav-tabs no-print">
             <button class="nav-btn active" onclick="switchPage('market')">🏠 البورصة</button>
             <button class="nav-btn" onclick="switchPage('calc')">🧮 حاسبة POS</button>
@@ -106,37 +103,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td style="font-weight: bold; color: var(--gold);">مثقال</td>
-                            <td class="price-up">913,298</td>
-                            <td>549.61</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: bold;">عيار 24</td>
-                            <td class="price-up">210,423</td>
-                            <td>125.63</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: bold;">عيار 22</td>
-                            <td class="price-up">192,895</td>
-                            <td>115.16</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: bold;">عيار 21</td>
-                            <td class="price-up">184,120</td>
-                            <td>109.92</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: bold;">عيار 18</td>
-                            <td class="price-up">157,817</td>
-                            <td>94.22</td>
-                        </tr>
+                        <tr><td style="font-weight: bold; color: var(--gold);">مثقال</td><td class="price-up">913,298</td><td>549.61</td></tr>
+                        <tr><td style="font-weight: bold;">عيار 24</td><td class="price-up">210,423</td><td>125.63</td></tr>
+                        <tr><td style="font-weight: bold;">عيار 22</td><td class="price-up">192,895</td><td>115.16</td></tr>
+                        <tr><td style="font-weight: bold;">عيار 21</td><td class="price-up">184,120</td><td>109.92</td></tr>
+                        <tr><td style="font-weight: bold;">عيار 18</td><td class="price-up">157,817</td><td>94.22</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 2️⃣ صفحة حاسبة الـ POS (البيع والشراء كسر) -->
+        <!-- 2️⃣ صفحة حاسبة الـ POS -->
         <div id="page-calc" style="display:none;">
             <div class="form-group">
                 <label>🔷 اسم المحل العامر:</label>
@@ -186,9 +163,9 @@
                 <input type="number" id="usd_rate_input" value="153000">
             </div>
 
-            <button class="btn no-print" onclick="calculateInvoice()">🧮 احسب وإصدار الفاتورة</button>
+            <button class="btn no-print" onclick="calculateInvoice()">🧮 احسب الفاتورة</button>
 
-            <!-- قالب الفاتورة البيضاء الحرارية المطابقة للتيليجرام وسعر الصرف -->
+            <!-- قالب الفاتورة البيضاء مع زر التأكيد والاعتماد -->
             <div class="tg-invoice" id="invoice-container" style="display:none;">
                 <div class="tg-header">💎 أرامكي للحلول الرقمية | ARAMKY 💎</div>
                 <div class="tg-sub">⚜️ فرع نواة الذهب لأنظمة الصاغة والأسواق المالية ⚜️</div>
@@ -216,6 +193,9 @@
                 <hr class="tg-divider">
                 <div style="text-align: center; font-size: 10px; color: #64748b;">نظام أرامكي - دقة وأمان لحساباتك اليومية</div>
 
+                <!-- زر تأكيد واعتماد الفاتورة لتسجيل العملية في الجرد -->
+                <button class="btn no-print" style="background: #16a34a; color: white; margin-top: 10px;" onclick="confirmAndSaveInvoice()">✅ تأكيد واعتماد الفاتورة وتسجيلها بالجرد</button>
+
                 <div class="action-btns no-print">
                     <button class="btn" style="background: #2563eb; color: white;" onclick="window.print()">🖨️ طباعة حرارية (80mm)</button>
                     <button class="btn" style="background: #10b981; color: white;" onclick="copyInvoiceText()">📋 نسخ الفاتورة</button>
@@ -223,17 +203,17 @@
             </div>
         </div>
 
-        <!-- 3️⃣ صفحة الجرد والديون الفعلية -->
+        <!-- 3️⃣ صفحة الجرد والديون -->
         <div id="page-inventory" style="display:none;">
             <div style="background: #1e293b; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid var(--gold);">
                 <h3 style="color: var(--gold); margin-top: 0;">📊 دفتر الجرد والديون اليومي</h3>
-                <p style="font-size: 11px; color: #9ca3af;">سجل كامل لكافة حركات البيع والشراء والديون المسجلة محلياً في النظام.</p>
+                <p style="font-size: 11px; color: #9ca3af;">سجل كامل لكافة حركات البيع والشراء المؤكدة.</p>
                 
                 <div id="inventory-log" style="background: #0b0f19; padding: 10px; border-radius: 8px; text-align: right; font-size: 11px; margin-bottom: 10px; max-height: 150px; overflow-y: auto; color: #cbd5e1;">
-                    لا توجد حركات مسجلة حتى الآن. ابدأ بإصدار الفواتير لتظهر هنا تلقائياً.
+                    لا توجد حركات مؤكدة حتى الآن.
                 </div>
 
-                <button class="btn" style="background: #059669; color: white;" onclick="alert('تم تجهيز وتصدير جدول الجرد بنجاح بصيغة Excel!')">📥 تصدير الجرد اليومي (Excel)</button>
+                <button class="btn" style="background: #059669; color: white;" onclick="alert('تم تجهيز وتصدير جدول الجرد بنجاح بصيغة Excel!')">📥 تصدير الجرد (Excel)</button>
             </div>
         </div>
     </div>
@@ -309,11 +289,21 @@
             document.getElementById('res-bills').innerText = `💵 صافي الحساب (ورق ودينار): 👉 ${bills.toLocaleString()} ورقة و ${Math.round(remIqd).toLocaleString()} دينار`;
 
             document.getElementById('invoice-container').style.display = 'block';
+        }
+
+        // دالة تأكيد واعتماد الفاتورة لتسجيل العملية رسمياً بالجرد
+        function confirmAndSaveInvoice() {
+            let customer = document.getElementById('customer_info').value.trim() || 'نقدي / عام';
+            let opType = document.getElementById('op_type').value;
+            let weight = document.getElementById('res-weight').innerText;
+            let totalIqd = document.getElementById('res-total-iqd').innerText;
 
             let logBox = document.getElementById('inventory-log');
             if(logBox.innerText.includes('لا توجد حركات')) logBox.innerHTML = '';
             let timeNow = new Date().toLocaleTimeString('ar-IQ');
-            logBox.innerHTML += `<div>🔹 [${timeNow}] ${opType === 'sell' ? 'بيع' : 'شراء'}: ${customer} - الوزن: ${weight}غ - الإجمالي: ${Math.round(totalIqd).toLocaleString()}د.ع</div>`;
+            
+            logBox.innerHTML += `<div style="border-bottom: 1px dashed #374151; padding: 4px 0;">✅ [${timeNow}] ${opType === 'sell' ? 'بيع' : 'شراء'}: ${customer} (${weight}) - ${totalIqd}</div>`;
+            alert('✅ تم اعتماد الفاتورة وتثبيتها بنجاح في دفتر الجرد والديون!');
         }
 
         function copyInvoiceText() {
