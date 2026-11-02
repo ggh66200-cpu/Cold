@@ -4,40 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARAMKY | أرامكي للحلول الرقمية - فرع نواة الذهب</title>
+    <link rel="manifest" href="/manifest.json">
     <style>
         :root { --bg-color: #0b0f19; --card-bg: #131b2e; --gold: #d4af37; --text-color: #f3f4f6; }
-        body { font-family: 'Cairo', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; direction: rtl; }
-        .container { max-width: 480px; margin: auto; background: var(--card-bg); padding: 20px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid rgba(212, 175, 55, 0.3); }
+        body { font-family: 'Cairo', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 12px; direction: rtl; }
+        .container { max-width: 480px; margin: auto; background: var(--card-bg); padding: 18px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid rgba(212, 175, 55, 0.3); }
         h2 { color: var(--gold); text-align: center; font-size: 18px; margin-bottom: 2px; }
-        .subtitle { text-align: center; font-size: 11px; color: #9ca3af; margin-bottom: 15px; }
+        .subtitle { text-align: center; font-size: 11px; color: #9ca3af; margin-bottom: 12px; }
         
+        /* شريط البورصة الحية */
+        .market-ticker { background: #0f172a; padding: 10px; border-radius: 8px; font-size: 11px; text-align: center; color: var(--gold); margin-bottom: 12px; border: 1px solid rgba(212,175,55,0.3); }
+        .ticker-row { display: flex; justify-content: space-around; margin-top: 4px; color: #fff; font-weight: bold; }
+
         /* التبويبات والأقسام */
-        .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 12px; }
         .tab-btn { flex: 1; padding: 8px 4px; background: #1e293b; border: 1px solid #374151; color: #9ca3af; border-radius: 6px; cursor: pointer; font-size: 11px; text-align: center; }
         .tab-btn.active { background: var(--gold); color: #000; font-weight: bold; border-color: var(--gold); }
         
-        .form-group { margin-bottom: 12px; }
-        label { display: block; font-size: 12px; margin-bottom: 4px; color: #d1d5db; }
-        input, select { width: 100%; padding: 10px; background: #0b0f19; border: 1px solid #374151; color: white; border-radius: 8px; font-size: 13px; box-sizing: border-box; }
-        input:focus { border-color: var(--gold); outline: none; }
-        .btn { background: linear-gradient(135deg, #d4af37, #aa7c11); color: #000; font-weight: bold; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 14px; margin-top: 10px; }
+        .form-group { margin-bottom: 10px; }
+        label { display: block; font-size: 11px; margin-bottom: 3px; color: #d1d5db; }
+        input, select { width: 100%; padding: 8px 10px; background: #0b0f19; border: 1px solid #374151; color: white; border-radius: 8px; font-size: 12px; box-sizing: border-box; }
+        input:focus, select:focus { border-color: var(--gold); outline: none; }
+        .btn { background: linear-gradient(135deg, #d4af37, #aa7c11); color: #000; font-weight: bold; border: none; width: 100%; padding: 11px; border-radius: 8px; cursor: pointer; font-size: 13px; margin-top: 8px; }
         
-        /* تصميم الفاتورة المطابق للتليجرام */
-        .invoice-box { background: #1a233a; padding: 15px; border-radius: 10px; margin-top: 15px; border: 1px solid var(--gold); font-size: 13px; }
-        .invoice-header { text-align: center; color: var(--gold); font-weight: bold; font-size: 14px; border-bottom: 1px dashed var(--gold); padding-bottom: 8px; margin-bottom: 10px; }
-        .invoice-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
-        .invoice-total { background: #0b0f19; padding: 10px; border-radius: 8px; text-align: center; margin-top: 10px; border: 1px solid rgba(212,175,55,0.4); }
-        .invoice-total span { color: var(--gold); font-weight: bold; font-size: 15px; }
+        /* تصميم الفاتورة المطابق تماماً للتيليجرام */
+        .tg-invoice { background: #182232; padding: 16px; border-radius: 12px; margin-top: 15px; border: 1px solid rgba(212,175,55,0.4); font-size: 13px; line-height: 1.6; }
+        .tg-header { text-align: center; color: #38bdf8; font-weight: bold; font-size: 15px; margin-bottom: 2px; }
+        .tg-sub { text-align: center; color: var(--gold); font-size: 12px; margin-bottom: 8px; }
+        .tg-divider { border: none; border-top: 1px solid #475569; margin: 8px 0; }
+        .tg-title { text-align: center; color: #fff; font-weight: bold; font-size: 14px; margin: 6px 0; }
+        .tg-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .tg-highlight { color: var(--gold); font-weight: bold; }
+        .tg-total-box { background: #0b0f19; padding: 10px; border-radius: 8px; text-align: center; margin-top: 8px; border: 1px solid var(--gold); }
+        .tg-total-val { color: var(--gold); font-size: 16px; font-weight: bold; }
         
         .action-btns { display: flex; gap: 8px; margin-top: 10px; }
         .action-btns button { flex: 1; margin-top: 0; }
-        @media print { body { background: white; color: black; } .container { box-shadow: none; border: none; width: 100%; max-width: 100%; } .btn, .no-print, .tabs { display: none; } .invoice-box { border: 1px solid #000; background: #fff; color: #000; } .invoice-total { background: #f3f4f6; border: 1px solid #000; } .invoice-total span { color: #000; } }
+
+        @media print { 
+            body { background: white; color: black; padding: 0; } 
+            .container { box-shadow: none; border: none; width: 100%; max-width: 100%; background: #fff; } 
+            .btn, .no-print, .tabs, .market-ticker, .form-group { display: none !important; } 
+            .tg-invoice { border: 1px solid #000; background: #fff; color: #000; } 
+            .tg-header, .tg-sub, .tg-highlight, .tg-total-val { color: #000 !important; } 
+            .tg-total-box { background: #fff; border: 1px solid #000; } 
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>⚜️ ARAMKY | أرامكي للحلول الرقمية ⚜️</h2>
         <div class="subtitle">فرع نواة الذهب لأنظمة الصاغة والـ POS والجرد</div>
+
+        <!-- شريط أسعار البورصة العالمية والسوق العراقي -->
+        <div class="market-ticker no-print">
+            🌍 <b>أسعار البورصة والسوق العراقي الحي:</b>
+            <div class="ticker-row">
+                <span>أونصة الذهب: <span id="val-ounce" style="color: #4ade80;">$2,740</span></span> | 
+                <span>100$: <span id="val-usd" style="color: #38bdf8;">153,250</span></span>
+            </div>
+            <div class="ticker-row" style="margin-top: 5px; font-size: 10px;">
+                <span>مثقال 21 (مستورد): <span id="val-m21" style="color: var(--gold);">575,000</span></span> | 
+                <span>مثقال 21 (عراقي): <span id="val-m21-iq" style="color: var(--gold);">525,000</span></span>
+            </div>
+        </div>
 
         <!-- أزرار التبويبات (البيع، الشراء، الجرد) -->
         <div class="tabs no-print">
@@ -46,21 +76,26 @@
             <div class="tab-btn" onclick="switchTab('inventory')">📊 الجرد والديون</div>
         </div>
 
-        <!-- قسم البيع والشراء والحاسبة -->
+        <!-- قسم الحاسبة والعمليات -->
         <div id="section-calc">
             <div class="form-group">
                 <label>🔷 اسم المحل العامر:</label>
-                <input type="text" id="shop_name" value="مجوهرات د">
+                <input type="text" id="shop_name" value="المحل العامر: D">
             </div>
 
             <div class="form-group">
-                <label>👤 اسم الزبون ورقم الهاتف (اختياري):</label>
+                <label>👤 اسم الزبون / رقم الهاتف (اختياري):</label>
                 <input type="text" id="customer_info" placeholder="مثال: أحمد العراقي - 07800000000">
             </div>
 
             <div class="form-group">
-                <label>📦 عدد القطع:</label>
-                <input type="number" id="pieces_count" value="1" min="1">
+                <label>🟡 عيار الذهب:</label>
+                <select id="gold_caliber" onchange="autoUpdatePrice()">
+                    <option value="21">عيار 21 (خليجي / مستورد)</option>
+                    <option value="21_iq">عيار 21 (صياغة محلية / عراقي)</option>
+                    <option value="18">عيار 18</option>
+                    <option value="24">عيار 24 (سبائك)</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -74,39 +109,46 @@
             </div>
 
             <div class="form-group">
-                <label>🔨 أجور الصياغة / الخصم للغرام:</label>
+                <label>🔨 أجور الصياغة / الخصم للغرام الواحد:</label>
                 <input type="number" id="wage" value="25000">
             </div>
 
             <div class="form-group">
-                <label>💵 سعر صرف الدولار المعتمد:</label>
-                <input type="number" id="usd_rate_input" value="153000" placeholder="سعر الـ 100$">
+                <label>💵 سعر صرف الـ 100$ المعتمد:</label>
+                <input type="number" id="usd_rate_input" value="153000">
             </div>
 
             <button class="btn no-print" onclick="calculateInvoice()">🧮 احسب وإصدار الفاتورة الموحدة</button>
 
-            <!-- قالب الفاتورة المطابق لتليجرام والتي تدعم الطباعة والنسخ -->
-            <div class="invoice-box" id="invoice-container" style="display:none;">
-                <div class="invoice-header" id="inv-title">🧾 فاتورة بيع ذهب للزبون</div>
-                <div class="invoice-row"><span>🔷 المحل:</span> <span id="res-shop">-</span></div>
-                <div class="invoice-row"><span>👤 الزبون:</span> <span id="res-customer">-</span></div>
-                <div class="invoice-row"><span>📦 عدد القطع:</span> <span id="res-pieces">-</span></div>
-                <div class="invoice-row"><span>🟡 سعر المثقال:</span> <span id="res-mithqal">-</span></div>
-                <div class="invoice-row"><span>⚖️ الوزن الإجمالي:</span> <span id="res-weight">-</span></div>
-                <div class="invoice-row"><span>🔨 الأجور / الخصم:</span> <span id="res-wage">-</span></div>
-                <hr style="border: 0.5px dashed #374151; margin: 8px 0;">
-                <div class="invoice-row"><span>💰 سعر الغرام الصافي:</span> <span id="res-gram-net">-</span></div>
-                <div class="invoice-row"><span>✨ سعر الغرام مع الأجور:</span> <span id="res-gram-total">-</span></div>
+            <!-- قالب الفاتورة المطابق لتليجرام بالنص -->
+            <div class="tg-invoice" id="invoice-container" style="display:none;">
+                <div class="tg-header">💎 أرامكي للحلول الرقمية | ARAMKY 💎</div>
+                <div class="tg-sub">⚜️ فرع نواة الذهب لأنظمة الصاغة والأسواق المالية ⚜️</div>
+                <hr class="tg-divider">
+                <div class="tg-title" id="inv-title">🧾 فاتورة بيع ذهب للزبون</div>
+                <hr class="tg-divider">
                 
-                <div class="invoice-total">
-                    💵 إجمالي الحساب بالدينار:<br>
-                    <span id="res-total-iqd">0 دينار</span><br>
-                    <span style="font-size: 13px; color: #d4af37; margin-top: 4px; display: block;" id="res-bills">💵 (0 ورقة و 0 دينار)</span>
-                    <span style="font-size: 11px; color: #9ca3af; margin-top: 2px; display: block;" id="res-usd-spent">💵 سعر الصرف: -</span>
+                <div class="tg-row"><span>🔷 المحل العامر:</span> <span class="tg-highlight" id="res-shop">D</span></div>
+                <div class="tg-row"><span>👤 الزبون:</span> <span id="res-customer">عام</span></div>
+                <div class="tg-row"><span>🟡 سعر المثقال المعتمد:</span> <span class="tg-highlight" id="res-mithqal">1,250,000 دينار</span></div>
+                <div class="tg-row"><span>⚖️ الوزن الإجمالي:</span> <span id="res-weight">25 غرام</span></div>
+                <div class="tg-row"><span>🔨 أجور صياغة الغرام:</span> <span id="res-wage">25,000 دينار</span></div>
+                
+                <hr class="tg-divider">
+                <div class="tg-row"><span>💰 سعر الغرام الصافي:</span> <span id="res-gram-net">250,000 دينار</span></div>
+                <div class="tg-row"><span>✨ سعر الغرام مع الأجور:</span> <span class="tg-highlight" id="res-gram-total">275,000 دينار</span></div>
+                
+                <div class="tg-total-box">
+                    <div style="font-size: 12px; color: #9ca3af; margin-bottom: 2px;">💵 إجمالي الحساب بالدينار:</div>
+                    <div class="tg-total-val" id="res-total-iqd">👉 6,875,000 دينار</div>
+                    <div style="font-size: 12px; color: var(--gold); margin-top: 4px;" id="res-bills">💵 صافي الحساب (ورق ودينار): 👉 44 ورقة و 55,000 دينار</div>
                 </div>
 
+                <hr class="tg-divider">
+                <div style="text-align: center; font-size: 10px; color: #9ca3af;">نظام أرامكي - دقة وأمان لحساباتك اليومية</div>
+
                 <div class="action-btns no-print">
-                    <button class="btn" style="background: #2563eb; color: white;" onclick="window.print()">🖨️ طباعة حرارية</button>
+                    <button class="btn" style="background: #2563eb; color: white;" onclick="window.print()">🖨️ طباعة حرارية (80mm)</button>
                     <button class="btn" style="background: #10b981; color: white;" onclick="copyInvoiceText()">📋 نسخ الفاتورة</button>
                 </div>
             </div>
@@ -116,14 +158,19 @@
         <div id="section-inventory" style="display:none;">
             <div style="background: #1e293b; padding: 15px; border-radius: 8px; text-align: center;">
                 <h3 style="color: var(--gold); margin-top: 0;">📊 دفتر الجرد والديون اليومي</h3>
-                <p style="font-size: 12px; color: #9ca3af;">هنا يتم حفظ وتصدير كافة العمليات وحركات الزبائن والقطع إلى ملفات Excel تلقائياً عبر قاعدة البيانات.</p>
-                <button class="btn" style="background: #059669; color: white;" onclick="alert('تم تجهيز تصدير ملف Excel بنجاح!')">📥 تحميل تقرير الجرد (Excel)</button>
+                <p style="font-size: 11px; color: #9ca3af;">يتم حفظ كافة الفواتير وحركات البيع والشراء مباشرة لقاعدة البيانات وتصديرها Excel.</p>
+                <button class="btn" style="background: #059669; color: white;" onclick="alert('جاري تجهيز وتنزيل ملف الاكسل للجرد اليومي...')">📥 تصدير الجرد اليومي (Excel)</button>
             </div>
         </div>
     </div>
 
     <script>
         let currentOperation = 'sell';
+
+        // تسجيل عامل الخدمة PWA لتشغيل التطبيق
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(() => console.log('PWA Ready'));
+        }
 
         function switchTab(tab) {
             currentOperation = tab;
@@ -133,7 +180,7 @@
                 document.getElementById('inv-title').innerText = '🧾 فاتورة بيع ذهب للزبون';
             } else if(tab === 'buy') {
                 event.target.classList.add('active');
-                document.getElementById('inv-title').innerText = '📥 فاتورة شراء ذهب (كسر) من الزبون';
+                document.getElementById('inv-title').innerText = '📥 فاتورة شراء ذهب (كسر)';
             } else {
                 event.target.classList.add('active');
                 document.getElementById('section-calc').style.display = 'none';
@@ -144,10 +191,18 @@
             document.getElementById('section-inventory').style.display = 'none';
         }
 
+        function autoUpdatePrice() {
+            let cal = document.getElementById('gold_caliber').value;
+            let mInput = document.getElementById('mithqal_price');
+            if(cal === '21') mInput.value = 1250000;
+            else if(cal === '21_iq') mInput.value = 1150000;
+            else if(cal === '18') mInput.value = 1070000;
+            else if(cal === '24') mInput.value = 1420000;
+        }
+
         function calculateInvoice() {
-            let shop = document.getElementById('shop_name').value || 'مجوهرات د';
-            let customer = document.getElementById('customer_info').value || 'زبون عام';
-            let pieces = parseInt(document.getElementById('pieces_count').value) || 1;
+            let shop = document.getElementById('shop_name').value || 'D';
+            let customer = document.getElementById('customer_info').value.trim() || 'نقدي / عام';
             let mithqal = parseFloat(document.getElementById('mithqal_price').value) || 0;
             let weight = parseFloat(document.getElementById('weight').value) || 0;
             let wage = parseFloat(document.getElementById('wage').value) || 0;
@@ -166,36 +221,43 @@
             let bills = Math.floor(totalIqd / sheetPrice);
             let remIqd = totalIqd % sheetPrice;
 
-            // تعبئة بيانات الفاتورة
             document.getElementById('res-shop').innerText = shop;
             document.getElementById('res-customer').innerText = customer;
-            document.getElementById('res-pieces').innerText = pieces + " قطعة";
             document.getElementById('res-mithqal').innerText = mithqal.toLocaleString() + " دينار";
             document.getElementById('res-weight').innerText = weight + " غرام";
             document.getElementById('res-wage').innerText = wage.toLocaleString() + " دينار";
             document.getElementById('res-gram-net').innerText = Math.round(gramPrice).toLocaleString() + " دينار";
             document.getElementById('res-gram-total').innerText = Math.round(gramFull).toLocaleString() + " دينار";
-            document.getElementById('res-total-iqd').innerText = Math.round(totalIqd).toLocaleString() + " دينار";
-            document.getElementById('res-bills').innerText = `💵 (${bills.toLocaleString()} ورقة و ${Math.round(remIqd).toLocaleString()} دينار)`;
-            document.getElementById('res-usd-spent').innerText = `💵 سعر صرف الـ 100$ المعتمد: ${usdRateInput.toLocaleString()} د.ع`;
+            document.getElementById('res-total-iqd').innerText = "👉 " + Math.round(totalIqd).toLocaleString() + " دينار";
+            document.getElementById('res-bills').innerText = `💵 صافي الحساب (ورق ودينار): 👉 ${bills.toLocaleString()} ورقة و ${Math.round(remIqd).toLocaleString()} دينار`;
 
             document.getElementById('invoice-container').style.display = 'block';
         }
 
         function copyInvoiceText() {
-            let text = `⚜️ ARAMKY | فاتورة ذهب ⚜️\n` +
-                       `المحل: ${document.getElementById('res-shop').innerText}\n` +
-                       `الزبون: ${document.getElementById('res-customer').innerText}\n` +
-                       `عدد القطع: ${document.getElementById('res-pieces').innerText}\n` +
-                       `الوزن: ${document.getElementById('res-weight').innerText}\n` +
-                       `إجمالي الحساب: ${document.getElementById('res-total-iqd').innerText}\n` +
-                       `(${document.getElementById('res-bills').innerText})\n` +
+            let text = `💎 أرامكي للحلول الرقمية | ARAMKY 💎\n` +
+                       `⚜️ فرع نواة الذهب لأنظمة الصاغة ⚜️\n` +
+                       `----------------------------------------\n` +
+                       `${document.getElementById('inv-title').innerText}\n` +
+                       `----------------------------------------\n` +
+                       `🔷 المحل العامر: ${document.getElementById('res-shop').innerText}\n` +
+                       `👤 الزبون: ${document.getElementById('res-customer').innerText}\n` +
+                       `🟡 سعر المثقال المعتمد: ${document.getElementById('res-mithqal').innerText}\n` +
+                       `⚖️ الوزن الإجمالي: ${document.getElementById('res-weight').innerText}\n` +
+                       `🔨 أجور الصياغة: ${document.getElementById('res-wage').innerText}\n` +
+                       `----------------------------------------\n` +
+                       `💰 سعر الغرام الصافي: ${document.getElementById('res-gram-net').innerText}\n` +
+                       `✨ سعر الغرام مع الأجور: ${document.getElementById('res-gram-total').innerText}\n\n` +
+                       `💵 إجمالي الحساب بالدينار:\n${document.getElementById('res-total-iqd').innerText}\n\n` +
+                       `${document.getElementById('res-bills').innerText}\n` +
+                       `----------------------------------------\n` +
                        `نظام أرامكي - دقة وأمان لحساباتك اليومية`;
             
             navigator.clipboard.writeText(text).then(() => {
-                alert('📋 تم نسخ تفاصيل الفاتورة بنجاح لإرسالها عبر الواتساب أو التليجرام!');
+                alert('📋 تم نسخ النص بنفس تنسيق رسالة التيليجرام تماماً!');
             });
         }
     </script>
 </body>
-</html>
+    </html>
+    
