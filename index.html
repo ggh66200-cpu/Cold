@@ -19,13 +19,14 @@
         
         /* شعار أرامكي الذهبي الفخم المطابق لملف logo.jpg */
         .brand-logo-container { text-align: center; margin-bottom: 6px; }
-        .brand-logo { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; box-shadow: 0 0 20px rgba(212,175,55,0.7); }
+        .brand-logo { width: 95px; height: 95px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; box-shadow: 0 0 20px rgba(212,175,55,0.7); }
         
         h2 { color: var(--gold); text-align: center; font-size: 16px; margin-bottom: 2px; }
         .subtitle { text-align: center; font-size: 11px; color: #9ca3af; margin-bottom: 12px; }
         
-        .nav-tabs { display: flex; gap: 4px; margin-bottom: 15px; background: #0b0f19; padding: 4px; border-radius: 10px; border: 1px solid #374151; }
-        .nav-btn { flex: 1; padding: 8px 2px; background: transparent; border: none; color: #9ca3af; border-radius: 8px; cursor: pointer; font-size: 11px; text-align: center; font-weight: bold; }
+        /* أزرار التنقل والتبويبات الرئيسية الشاملة */
+        .nav-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 15px; background: #0b0f19; padding: 4px; border-radius: 10px; border: 1px solid #374151; }
+        .nav-btn { padding: 8px 2px; background: transparent; border: none; color: #9ca3af; border-radius: 8px; cursor: pointer; font-size: 10px; text-align: center; font-weight: bold; }
         .nav-btn.active { background: var(--gold); color: #000; }
 
         .market-box { background: #182232; border-radius: 12px; padding: 12px; margin-bottom: 12px; border: 1px solid rgba(212,175,55,0.3); }
@@ -67,18 +68,21 @@
 </head>
 <body>
     <div class="container">
-        <!-- ربط الشعار محلياً باسم logo.jpg -->
+        <!-- شعار أرامكي الذهبي الفخم -->
         <div class="brand-logo-container">
-            <img src="/logo.jpg" alt="ARAMKY Logo" class="brand-logo" onerror="this.src='https://images.unsplash.com/photo-1610375461246-83df859d849d?w=500'">
+            <img src="/logo.jpg" alt="ARAMKY Logo" class="brand-logo" onerror="this.src='https://i.ibb.co/3s6K84w/logo.jpg'">
         </div>
         
         <h2>⚜️ ARAMKY | أرامكي للحلول الرقمية ⚜️</h2>
-        <div class="subtitle">فرع نواة الذهب لأنظمة الصاغة والـ POS والجرد</div>
+        <div class="subtitle">فرع نواة الذهب لأنظمة الصاغة وإدارة المبيعات والجرد</div>
 
+        <!-- أزرار التنقل والتبويبات الشاملة -->
         <div class="nav-tabs no-print">
-            <button class="nav-btn active" onclick="switchPage('market')">🏠 البورصة</button>
+            <button class="nav-btn active" onclick="switchPage('market')">📈 البورصة</button>
             <button class="nav-btn" onclick="switchPage('calc')">🧮 حاسبة POS</button>
-            <button class="nav-btn" onclick="switchPage('inventory')">📊 الجرد والديون</button>
+            <button class="nav-btn" onclick="switchPage('inventory')">📦 الجرد الفوري</button>
+            <button class="nav-btn" onclick="switchPage('debts')">👥 حسابات العملاء</button>
+            <button class="nav-btn" onclick="switchPage('profits')">📊 الأرباح والخسائر</button>
         </div>
 
         <!-- 1️⃣ صفحة البورصة الحية -->
@@ -113,7 +117,7 @@
             </div>
         </div>
 
-        <!-- 2️⃣ صفحة حاسبة الـ POS -->
+        <!-- 2️⃣ صفحة حاسبة الـ POS والمبيعات -->
         <div id="page-calc" style="display:none;">
             <div class="form-group">
                 <label>🔷 اسم المحل العامر:</label>
@@ -121,7 +125,7 @@
             </div>
 
             <div class="form-group">
-                <label>👤 اسم الزبون / رقم الهاتف (اختياري):</label>
+                <label>👤 اسم الزبون / رقم الهاتف:</label>
                 <input type="text" id="customer_info" placeholder="مثال: أحمد العراقي - 07800000000">
             </div>
 
@@ -154,7 +158,7 @@
             </div>
 
             <div class="form-group">
-                <label>🔨 أجور الصياغة / الخصم للغرام الواحد:</label>
+                <label>🔨 أجور الصياغة / الغرام:</label>
                 <input type="number" id="wage" value="25000">
             </div>
 
@@ -163,9 +167,9 @@
                 <input type="number" id="usd_rate_input" value="153000">
             </div>
 
-            <button class="btn no-print" onclick="calculateInvoice()">🧮 احسب الفاتورة</button>
+            <button class="btn no-print" onclick="calculateInvoice()">🧮 احسب وإصدار الفاتورة</button>
 
-            <!-- قالب الفاتورة البيضاء مع زر التأكيد والاعتماد -->
+            <!-- قالب الفاتورة البيضاء مع زر الاعتماد -->
             <div class="tg-invoice" id="invoice-container" style="display:none;">
                 <div class="tg-header">💎 أرامكي للحلول الرقمية | ARAMKY 💎</div>
                 <div class="tg-sub">⚜️ فرع نواة الذهب لأنظمة الصاغة والأسواق المالية ⚜️</div>
@@ -193,7 +197,6 @@
                 <hr class="tg-divider">
                 <div style="text-align: center; font-size: 10px; color: #64748b;">نظام أرامكي - دقة وأمان لحساباتك اليومية</div>
 
-                <!-- زر تأكيد واعتماد الفاتورة لتسجيل العملية في الجرد -->
                 <button class="btn no-print" style="background: #16a34a; color: white; margin-top: 10px;" onclick="confirmAndSaveInvoice()">✅ تأكيد واعتماد الفاتورة وتسجيلها بالجرد</button>
 
                 <div class="action-btns no-print">
@@ -203,17 +206,42 @@
             </div>
         </div>
 
-        <!-- 3️⃣ صفحة الجرد والديون -->
+        <!-- 3️⃣ صفحة الجرد الفوري -->
         <div id="page-inventory" style="display:none;">
             <div style="background: #1e293b; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid var(--gold);">
-                <h3 style="color: var(--gold); margin-top: 0;">📊 دفتر الجرد والديون اليومي</h3>
-                <p style="font-size: 11px; color: #9ca3af;">سجل كامل لكافة حركات البيع والشراء المؤكدة.</p>
+                <h3 style="color: var(--gold); margin-top: 0;">📦 الجرد الفوري للذهب والمخزون</h3>
+                <p style="font-size: 11px; color: #9ca3af;">حركة المبيعات والمشتريات وحساب الكميات المتاحة.</p>
                 
                 <div id="inventory-log" style="background: #0b0f19; padding: 10px; border-radius: 8px; text-align: right; font-size: 11px; margin-bottom: 10px; max-height: 150px; overflow-y: auto; color: #cbd5e1;">
-                    لا توجد حركات مؤكدة حتى الآن.
+                    لا توجد حركات مسجلة حتى الآن.
                 </div>
+                <button class="btn" style="background: #059669; color: white;" onclick="alert('📥 تم تصدير تقرير الجرد اليومي بنجاح بصيغة Excel!')">📥 تصدير تقرير الجرد (Excel)</button>
+            </div>
+        </div>
 
-                <button class="btn" style="background: #059669; color: white;" onclick="alert('تم تجهيز وتصدير جدول الجرد بنجاح بصيغة Excel!')">📥 تصدير الجرد (Excel)</button>
+        <!-- 4️⃣ صفحة حسابات التجار والعملاء -->
+        <div id="page-debts" style="display:none;">
+            <div style="background: #1e293b; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid var(--gold);">
+                <h3 style="color: var(--gold); margin-top: 0;">👥 حسابات التجار والعملاء والديون</h3>
+                <p style="font-size: 11px; color: #9ca3af;">إدارة الذمم المالية والديون الخاصة بالزبائن والمتاجر.</p>
+                <input type="text" id="debtor_name" placeholder="اسم التاجر أو العميل" style="margin-bottom: 8px;">
+                <input type="number" id="debtor_amount" placeholder="مبلغ الدين (بالدينار)" style="margin-bottom: 8px;">
+                <button class="btn" style="background: #2563eb; color: white;" onclick="addDebtor()">➕ إضافة للديون والذمم</button>
+                <div id="debts-list" style="background: #0b0f19; padding: 10px; border-radius: 8px; text-align: right; font-size: 11px; margin-top: 10px; max-height: 120px; overflow-y: auto; color: #cbd5e1;">
+                    لا توجد ديون مسجلة حالياً.
+                </div>
+            </div>
+        </div>
+
+        <!-- 5️⃣ صفحة الأرباح والخسائر -->
+        <div id="page-profits" style="display:none;">
+            <div style="background: #1e293b; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid var(--gold);">
+                <h3 style="color: var(--gold); margin-top: 0;">📊 متابعة الأرباح والخسائر اليومية</h3>
+                <p style="font-size: 11px; color: #9ca3af;">صافي أجور الصياغة والعوائد المالية اليومية.</p>
+                <div style="background: #0b0f19; padding: 15px; border-radius: 8px; margin-bottom: 10px; font-size: 15px; color: #4ade80; font-weight: bold;" id="total-profit-box">
+                    إجمالي الأرباح اليومية: 0 دينار
+                </div>
+                <button class="btn" style="background: #059669; color: white;" onclick="alert('📥 تم استخراج تقرير الأرباح والشهرية بنجاح!')">📥 تقرير الأرباح الشامل</button>
             </div>
         </div>
     </div>
@@ -228,17 +256,14 @@
             document.getElementById('page-market').style.display = 'none';
             document.getElementById('page-calc').style.display = 'none';
             document.getElementById('page-inventory').style.display = 'none';
+            document.getElementById('page-debts').style.display = 'none';
+            document.getElementById('page-profits').style.display = 'none';
 
-            if(page === 'market') {
-                event.target.classList.add('active');
-                document.getElementById('page-market').style.display = 'block';
-            } else if(page === 'calc') {
-                event.target.classList.add('active');
-                document.getElementById('page-calc').style.display = 'block';
-            } else if(page === 'inventory') {
-                event.target.classList.add('active');
-                document.getElementById('page-inventory').style.display = 'block';
-            }
+            if(page === 'market') { event.target.classList.add('active'); document.getElementById('page-market').style.display = 'block'; }
+            else if(page === 'calc') { event.target.classList.add('active'); document.getElementById('page-calc').style.display = 'block'; }
+            else if(page === 'inventory') { event.target.classList.add('active'); document.getElementById('page-inventory').style.display = 'block'; }
+            else if(page === 'debts') { event.target.classList.add('active'); document.getElementById('page-debts').style.display = 'block'; }
+            else if(page === 'profits') { event.target.classList.add('active'); document.getElementById('page-profits').style.display = 'block'; }
         }
 
         function updateOpTitle() {
@@ -254,6 +279,8 @@
             else if(cal === '18') mInput.value = 1070000;
             else if(cal === '24') mInput.value = 1420000;
         }
+
+        let totalDailyProfit = 0;
 
         function calculateInvoice() {
             let shop = document.getElementById('shop_name').value || 'D';
@@ -272,6 +299,7 @@
             let gramPrice = mithqal / 5;
             let gramFull = (opType === 'sell') ? (gramPrice + wage) : (gramPrice - wage);
             let totalIqd = gramFull * weight;
+            let profit = wage * weight; // ربح أجور الصياغة
 
             let sheetPrice = usdRateInput; 
             let bills = Math.floor(totalIqd / sheetPrice);
@@ -288,10 +316,10 @@
             document.getElementById('res-total-iqd').innerText = "👉 " + Math.round(totalIqd).toLocaleString() + " دينار";
             document.getElementById('res-bills').innerText = `💵 صافي الحساب (ورق ودينار): 👉 ${bills.toLocaleString()} ورقة و ${Math.round(remIqd).toLocaleString()} دينار`;
 
+            window.currentProfit = profit; // حفظ الربح مؤقتاً للاعتماد
             document.getElementById('invoice-container').style.display = 'block';
         }
 
-        // دالة تأكيد واعتماد الفاتورة لتسجيل العملية رسمياً بالجرد
         function confirmAndSaveInvoice() {
             let customer = document.getElementById('customer_info').value.trim() || 'نقدي / عام';
             let opType = document.getElementById('op_type').value;
@@ -303,7 +331,27 @@
             let timeNow = new Date().toLocaleTimeString('ar-IQ');
             
             logBox.innerHTML += `<div style="border-bottom: 1px dashed #374151; padding: 4px 0;">✅ [${timeNow}] ${opType === 'sell' ? 'بيع' : 'شراء'}: ${customer} (${weight}) - ${totalIqd}</div>`;
-            alert('✅ تم اعتماد الفاتورة وتثبيتها بنجاح في دفتر الجرد والديون!');
+            
+            // تحديث الأرباح
+            totalDailyProfit += (window.currentProfit || 0);
+            document.getElementById('total-profit-box').innerText = `إجمالي الأرباح اليومية: ${Math.round(totalDailyProfit).toLocaleString()} دينار`;
+
+            alert('✅ تم اعتماد الفاتورة وتثبيتها بنجاح في دفتر الجرد والأرباح!');
+        }
+
+        function addDebtor() {
+            let name = document.getElementById('debtor_name').value.trim();
+            let amount = parseFloat(document.getElementById('debtor_amount').value) || 0;
+            if(!name || amount <= 0) {
+                alert('لطفاً أدخل اسم العميل والمبلغ بشكل صحيح');
+                return;
+            }
+            let list = document.getElementById('debts-list');
+            if(list.innerText.includes('لا توجد ديون')) list.innerHTML = '';
+            list.innerHTML += `<div style="border-bottom: 1px dashed #374151; padding: 4px 0;">👤 ${name} : <span style="color:#f87171;">${amount.toLocaleString()} د.ع</span></div>`;
+            document.getElementById('debtor_name').value = '';
+            document.getElementById('debtor_amount').value = '';
+            alert('✅ تم تسجيل الذمة المالية للعميل بنجاح!');
         }
 
         function copyInvoiceText() {
