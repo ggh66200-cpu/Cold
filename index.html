@@ -25,31 +25,34 @@
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Cairo', system-ui, -apple-system, sans-serif; background-color: var(--fb-bg); color: var(--fb-text); margin: 0; padding: 8px; direction: rtl; user-select: none; }
-        .container { max-width: 480px; margin: auto; background: var(--fb-card); padding: 12px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); border: 1px solid var(--fb-border); }
+        .container { max-width: 480px; margin: auto; background: var(--fb-card); padding: 12px; border-radius: 14px; box-shadow: 0 6px 16px rgba(0,0,0,0.5); border: 1px solid var(--fb-border); }
         
-        /* هيدر بنمط فيسبوك الشخصي والرسمي */
+        /* الهيدر الحي */
         .fb-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--fb-border); padding-bottom: 8px; margin-bottom: 10px; }
         .fb-profile-area { display: flex; align-items: center; gap: 10px; }
-        .brand-logo { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; }
-        .brand-title-box h2 { color: var(--gold); font-size: 14px; margin: 0; }
+        .brand-logo { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; box-shadow: 0 0 10px rgba(212,175,55,0.4); }
+        .brand-title-box h2 { color: var(--gold); font-size: 15px; margin: 0; }
         .brand-title-box .subtitle { font-size: 10px; color: var(--fb-secondary); margin: 0; }
         
-        /* أزرار التنقل بنمط شريط فيسبوك العلوي (فلات وبسيطة مع أيقونات) */
-        .nav-tabs { display: flex; justify-content: space-around; border-bottom: 1px solid var(--fb-border); padding-bottom: 8px; margin-bottom: 12px; background: var(--fb-card); }
-        .nav-btn { background: transparent; border: none; color: var(--fb-secondary); font-size: 12px; font-weight: bold; padding: 6px 10px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .nav-btn.active { color: var(--gold); background: rgba(212,175,55,0.1); border-bottom: 3px solid var(--gold); }
+        /* شريط التنقل السفلي / العلوي السلس */
+        .nav-tabs { display: flex; justify-content: space-around; border-bottom: 1px solid var(--fb-border); padding-bottom: 6px; margin-bottom: 12px; background: var(--fb-card); }
+        .nav-btn { background: transparent; border: none; color: var(--fb-secondary); font-size: 11px; font-weight: bold; padding: 6px 8px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .nav-btn.active { color: var(--gold); background: rgba(212,175,55,0.12); border-bottom: 3px solid var(--gold); transform: translateY(-1px); }
 
-        /* كروت المنتجات بنمط منشورات فيسبوك (Card Layout) */
+        /* تأثير الانتقال السلس بين الصفحات (روح التطبيق الحقيقي) */
+        .page-section { animation: fadeIn 0.35s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* كروت المنتجات (منشورات فيسبوك تفاعلية) */
         .catalog-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
-        .product-card { background: var(--fb-bg); border: 1px solid var(--fb-border); border-radius: 10px; padding: 10px; }
+        .product-card { background: var(--fb-bg); border: 1px solid var(--fb-border); border-radius: 12px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
         .product-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-        .product-header img { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--gold); object-fit: cover; }
+        .product-header img { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--gold); object-fit: cover; }
         .product-meta .p-name { font-size: 12px; font-weight: bold; color: var(--gold); }
         .product-meta .p-time { font-size: 9px; color: var(--fb-secondary); }
-        .product-img { width: 100%; height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--fb-border); }
-        .product-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: #4ade80; }
+        .product-img { width: 100%; height: 240px; object-fit: cover; border-radius: 10px; margin-bottom: 8px; border: 1px solid var(--fb-border); }
+        .product-footer { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: bold; color: #4ade80; }
 
-        /* تداول وبورصة */
         .market-box { background: var(--fb-bg); border-radius: 10px; padding: 10px; margin-bottom: 10px; border: 1px solid var(--fb-border); }
         .market-header-main { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--fb-border); padding-bottom: 6px; margin-bottom: 6px; font-size: 11px; font-weight: bold; color: var(--gold); }
         .market-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; }
@@ -59,14 +62,14 @@
         
         .form-group { margin-bottom: 8px; }
         label { display: block; font-size: 10px; margin-bottom: 2px; color: var(--fb-secondary); }
-        input, select { width: 100%; padding: 8px; background: var(--fb-bg); border: 1px solid var(--fb-border); color: white; border-radius: 6px; font-size: 11px; }
+        input, select { width: 100%; padding: 9px; background: var(--fb-bg); border: 1px solid var(--fb-border); color: white; border-radius: 8px; font-size: 11px; }
         input:focus, select:focus { border-color: var(--gold); outline: none; }
         
-        /* أزرار بنمط فيسبوك الأزرق أو الذهبي */
-        .btn { background: var(--fb-blue); color: white; font-weight: bold; border: none; width: 100%; padding: 9px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 6px; }
+        .btn { background: var(--fb-blue); color: white; font-weight: bold; border: none; width: 100%; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 12px; margin-top: 6px; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); }
         .btn-gold { background: linear-gradient(135deg, #d4af37, #aa7c11); color: #000; }
         
-        /* الفاتورة البيضاء الحرارية */
+        /* الفاتورة الحرارية البيضاء */
         .tg-invoice { background: #ffffff; color: #000000; padding: 14px; border-radius: 10px; margin-top: 10px; border: 2px solid var(--gold); font-size: 12px; line-height: 1.5; }
         .tg-header { text-align: center; color: #0284c7; font-weight: bold; font-size: 14px; }
         .tg-sub { text-align: center; color: #b45309; font-size: 11px; margin-bottom: 6px; }
@@ -81,12 +84,12 @@
         .action-btns button { flex: 1; margin-top: 0; }
 
         .pin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; }
-        .pin-box { background: var(--fb-card); padding: 18px; border-radius: 12px; border: 1px solid var(--gold); text-align: center; width: 270px; }
+        .pin-box { background: var(--fb-card); padding: 18px; border-radius: 14px; border: 1px solid var(--gold); text-align: center; width: 270px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- الهيدر بنمط فيسبوك العصري -->
+        <!-- الهيدر الحي -->
         <div class="fb-header">
             <div class="fb-profile-area">
                 <img src="/logo.jpg" id="main-logo" alt="ARAMKY" class="brand-logo" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1610375461246-83df859d849d?w=500';">
@@ -95,17 +98,17 @@
                     <div class="subtitle" id="app-subtitle">فرع نواة الذهب الرسمي</div>
                 </div>
             </div>
-            <div id="pro-badge" style="background:var(--gold); color:#000; font-size:9px; font-weight:bold; padding:2px 6px; border-radius:6px; display:none;">مدير المحل</div>
+            <div id="pro-badge" style="background:var(--gold); color:#000; font-size:9px; font-weight:bold; padding:3px 8px; border-radius:6px; display:none;">مدير المحل</div>
         </div>
 
-        <!-- شريط التنقل العلوي بنمط فيسبوك (أيقونات ونصوص مريحة) -->
+        <!-- التبويبات العامة -->
         <div class="nav-tabs no-print" id="public-tabs">
             <button class="nav-btn active" onclick="switchTab('market')">📈 <span>البورصة</span></button>
             <button class="nav-btn" onclick="switchTab('catalog')">💎 <span>المعرض</span></button>
             <button class="nav-btn" style="color:var(--gold);" onclick="openPinModal()">🔑 <span>دخول التاجر</span></button>
         </div>
 
-        <!-- شريط التبويبات الخاصة بالصائغ (بتصميم فيسبوك) -->
+        <!-- التبويبات الخاصة بالمدير -->
         <div class="nav-tabs no-print" id="pro-tabs" style="display:none;">
             <button class="nav-btn active" onclick="switchTab('calc')">🧮 <span>POS</span></button>
             <button class="nav-btn" onclick="switchTab('addprod')">➕ <span>نشر</span></button>
@@ -115,7 +118,7 @@
         </div>
 
         <!-- 1️⃣ البورصة -->
-        <div id="tab-market">
+        <div id="tab-market" class="page-section">
             <div style="background: var(--fb-bg); padding: 8px; border-radius: 8px; text-align: center; margin-bottom: 10px; border: 1px solid var(--fb-border);">
                 <div style="font-size: 10px; color: var(--gold);">⚡ أونصة الذهب العالمية لحظياً</div>
                 <div style="font-size: 17px; font-weight: bold; color: #4ade80;" id="live-ounce">$3,958.10</div>
@@ -135,24 +138,16 @@
             </div>
         </div>
 
-        <!-- 2️⃣ معرض القطع بنمط منشورات فيسبوك -->
-        <div id="tab-catalog" style="display:none;">
+        <!-- 2️⃣ المعرض العام -->
+        <div id="tab-catalog" class="page-section" style="display:none;">
             <div style="text-align: center; font-size: 11px; color: var(--gold); margin-bottom: 6px;">✨ آخر منشورات المجوهرات والقطع المتوفرة</div>
             <div class="catalog-grid" id="public-product-list"></div>
         </div>
 
-        <!-- 3️⃣ حاسبة POS الشاملة -->
-        <div id="tab-calc" style="display:none;">
-            <div class="form-group">
-                <label>🔷 اسم المحل العامر:</label>
-                <input type="text" id="shop_name" value="صياغة نواة الذهب - الفرع الرئيسي">
-            </div>
-
-            <div class="form-group">
-                <label>👤 اسم الزبون / الهواتف:</label>
-                <input type="text" id="customer_info" placeholder="مثال: أحمد العراقي - 07800000000">
-            </div>
-
+        <!-- 3️⃣ حاسبة POS -->
+        <div id="tab-calc" class="page-section" style="display:none;">
+            <div class="form-group"><label>🔷 اسم المحل العامر:</label><input type="text" id="shop_name" value="صياغة نواة الذهب - الفرع الرئيسي"></div>
+            <div class="form-group"><label>👤 اسم الزبون / الهواتف:</label><input type="text" id="customer_info" placeholder="مثال: أحمد العراقي - 07800000000"></div>
             <div class="form-group">
                 <label>🔄 نوع العملية:</label>
                 <select id="op_type" onchange="updateOpTitle()">
@@ -160,26 +155,10 @@
                     <option value="buy">📥 شراء ذهب (كسر) من الزبون</option>
                 </select>
             </div>
-
-            <div class="form-group">
-                <label>🟡 سعر المثقال الأساسي المعتمد (دينار):</label>
-                <input type="number" id="master_mithqal" value="1250000" oninput="syncMasterSettings()">
-            </div>
-
-            <div class="form-group">
-                <label>💵 سعر صرف 100$ (الورق العراقي):</label>
-                <input type="number" id="master_usd" value="153000" oninput="syncMasterSettings()">
-            </div>
-
-            <div class="form-group">
-                <label>⚖️ الوزن الإجمالي للقطعة (غرام):</label>
-                <input type="number" id="weight" value="25" step="0.01">
-            </div>
-
-            <div class="form-group">
-                <label>🔨 أجور الصياغة / غرام:</label>
-                <input type="number" id="wage" value="25000">
-            </div>
+            <div class="form-group"><label>🟡 سعر المثقال الأساسي المعتمد (دينار):</label><input type="number" id="master_mithqal" value="1250000" oninput="syncMasterSettings()"></div>
+            <div class="form-group"><label>💵 سعر صرف 100$ (الورق العراقي):</label><input type="number" id="master_usd" value="153000" oninput="syncMasterSettings()"></div>
+            <div class="form-group"><label>⚖️ الوزن الإجمالي للقطعة (غرام):</label><input type="number" id="weight" value="25" step="0.01"></div>
+            <div class="form-group"><label>🔨 أجور الصياغة / غرام:</label><input type="number" id="wage" value="25000"></div>
 
             <button class="btn btn-gold no-print" onclick="calculateInvoice()">🧮 حساب الفاتورة الشاملة والورق</button>
 
@@ -216,20 +195,23 @@
             </div>
         </div>
 
-        <!-- 4️⃣ صفحة إضافة ونشر القطع -->
-        <div id="tab-addprod" style="display:none;">
+        <!-- 4️⃣ صفحة النشر السلس المباشر (رفع من الاستوديو) -->
+        <div id="tab-addprod" class="page-section" style="display:none;">
             <div style="background: var(--fb-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--fb-border);">
                 <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:12px;">➕ نشر منشور منتج جديد في المعرض</h4>
                 <div class="form-group"><label>📛 اسم القطعة:</label><input type="text" id="p_name" placeholder="محبس ذهب عيار 21"></div>
                 <div class="form-group"><label>⚖️ الوزن (غرام):</label><input type="number" id="p_weight" placeholder="10"></div>
                 <div class="form-group"><label>🔨 أجور الصياغة (دينار):</label><input type="number" id="p_wage" placeholder="20000"></div>
-                <div class="form-group"><label>🖼️ رابط الصورة:</label><input type="text" id="p_img" value="https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=300"></div>
-                <button class="btn btn-gold" onclick="addNewProduct()">🚀 نشر القطعة كمنشور عام</button>
+                <div class="form-group">
+                    <label>🖼️ اختر صورة القطعة من هاتفك:</label>
+                    <input type="file" id="p_img_file" accept="image/*" style="padding: 6px; font-size: 10px;">
+                </div>
+                <button class="btn btn-gold" onclick="addNewProduct()">🚀 نشر القطعة بالمعرض فوراً</button>
             </div>
         </div>
 
         <!-- 5️⃣ الجرد والديون والأرباح -->
-        <div id="tab-inventory" style="display:none;">
+        <div id="tab-inventory" class="page-section" style="display:none;">
             <div style="background: var(--fb-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--fb-border);">
                 <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:12px;">📦 سجل الجرد الفوري</h4>
                 <div id="inventory-log" style="background:#18191a; padding:6px; font-size:10px; border-radius:6px; max-height:110px; overflow-y:auto;">لا توجد عمليات.</div>
@@ -237,7 +219,7 @@
             </div>
         </div>
 
-        <div id="tab-debts" style="display:none;">
+        <div id="tab-debts" class="page-section" style="display:none;">
             <div style="background: var(--fb-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--fb-border);">
                 <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:12px;">👥 دفتر ديون التجار والعملاء</h4>
                 <input type="text" id="d_name" placeholder="اسم العميل" style="margin-bottom:4px;">
@@ -247,7 +229,7 @@
             </div>
         </div>
 
-        <div id="tab-profits" style="display:none;">
+        <div id="tab-profits" class="page-section" style="display:none;">
             <div style="background: var(--fb-bg); padding: 12px; border-radius: 8px; text-align:center; border: 1px solid var(--fb-border);">
                 <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:12px;">📊 متابعة الأرباح وصافي أجور الصياغة</h4>
                 <div style="font-size:16px; color:#4ade80; font-weight:bold;" id="profit-val">0 د.ع</div>
@@ -268,7 +250,7 @@
 
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').then(() => console.log('ARAMKY FB UI Active'));
+            navigator.serviceWorker.register('/sw.js').then(() => console.log('ARAMKY Smooth UI Active'));
         }
 
         let productsList = [
@@ -404,17 +386,31 @@
             alert('✅ تم الاعتماد والتثبيت في الجرد والأرباح!');
         }
 
+        // رفع الصور المباشر من استوديو الهاتف
         function addNewProduct() {
             let name = document.getElementById('p_name').value;
             let weight = parseFloat(document.getElementById('p_weight').value);
             let wage = parseFloat(document.getElementById('p_wage').value);
-            let img = document.getElementById('p_img').value;
+            let fileInput = document.getElementById('p_img_file');
 
             if(!name || !weight) { alert('لطفاً أدخل اسم القطعة والوزن'); return; }
-            productsList.push({ name, weight, wage: wage || 0, img });
-            renderCatalog();
-            alert('🚀 تم نشر القطعة كمنشور في المعرض بنجاح!');
-            switchTab('catalog');
+
+            if(fileInput.files && fileInput.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    productsList.push({ name, weight, wage: wage || 0, img: e.target.result });
+                    renderCatalog();
+                    alert('🚀 تم نشر القطعة كمنشور في المعرض بنجاح!');
+                    switchTab('catalog');
+                }
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                // صورة افتراضية إذا لم يتم اختيار صورة
+                productsList.push({ name, weight, wage: wage || 0, img: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=300" });
+                renderCatalog();
+                alert('🚀 تم نشر القطعة في المعرض بنجاح!');
+                switchTab('catalog');
+            }
         }
 
         function addDebt() {
