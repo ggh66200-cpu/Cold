@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ARAMKY Pro ERP | نظام ومتجر الصاغة العراقي المترابط</title>
+    <title>ARAMKY Pro | منصة الصاغة والمتاجر العراقية</title>
     
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0f172a">
@@ -42,11 +42,6 @@
         .page-section { animation: fadeIn 0.25s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        .dash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 8px; }
-        .dash-card { background: #0f172a; border: 1px solid var(--border-clr); border-radius: 8px; padding: 8px; text-align: center; }
-        .dash-card .title { font-size: 10px; color: var(--text-sec); margin-bottom: 2px; }
-        .dash-card .value { font-size: 13px; font-weight: bold; color: var(--gold); }
-
         .form-group { margin-bottom: 8px; }
         label { display: block; font-size: 10px; margin-bottom: 2px; color: var(--text-sec); }
         input, select, textarea { width: 100%; padding: 7px; background: #0f172a; border: 1px solid var(--border-clr); color: white; border-radius: 6px; font-size: 11px; }
@@ -63,33 +58,33 @@
         .pro-table th { background: #0f172a; color: var(--gold); padding: 5px; border: 1px solid var(--border-clr); }
         .pro-table td { padding: 6px 4px; border: 1px solid var(--border-clr); background: #131b2e; }
 
-        .pin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; }
-        .pin-box { background: var(--card-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--gold); text-align: center; width: 270px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; }
+        .modal-box { background: var(--card-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--gold); text-align: center; width: 280px; max-height: 90vh; overflow-y: auto; }
     </style>
 </head>
 <body>
-    <div id="toast-notification">تم التحديث بنجاح</div>
+    <div id="toast-notification">تم التنفيذ بنجاح</div>
 
     <div class="container">
         <!-- الهيدر -->
         <div class="app-header">
             <div class="profile-box">
-                <img src="/logo.jpg" id="main-logo" alt="ARAMKY" class="brand-logo" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1610375461246-83df859d849d?w=500';">
+                <img src="/logo.jpg" alt="ARAMKY" class="brand-logo" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1610375461246-83df859d849d?w=500';">
                 <div class="brand-info">
-                    <h2>منصة أرامكي Pro المترابطة</h2>
-                    <div class="sub">المتجر، المخزن المرتبط، والـ GPS</div>
+                    <h2>ARAMKY Pro ERP</h2>
+                    <div class="sub">منصة المتاجر والمخازن العراقية</div>
                 </div>
             </div>
-            <button class="btn btn-gold btn-sm" onclick="openPinModal()">🔑 دخول الصايغ</button>
+            <button class="btn btn-gold btn-sm" onclick="openModal('pinModal')">🔑 دخول الصايغ</button>
         </div>
 
-        <!-- أزرار التبديل الشاملة -->
-        <div class="sidebar-tabs no-print" id="main-tabs">
+        <!-- أزرار التنقل -->
+        <div class="sidebar-tabs">
             <button class="nav-btn active" onclick="switchTab('feed')">🛍️ المتجر</button>
             <button class="nav-btn" onclick="switchTab('goldsmiths')">📍 دليل GPS</button>
             <button class="nav-btn" onclick="switchTab('calc')">🧮 حاسبة أرامكي</button>
-            <button class="nav-btn" onclick="switchTab('inventory')">📦 المخزن المرتبط</button>
-            <button class="nav-btn" onclick="switchTab('pos')">⚡ بيع وشراء</button>
+            <button class="nav-btn" onclick="switchTab('inventory')">📦 المخزن</button>
+            <button class="nav-btn" onclick="switchTab('pos')">⚡ نقطة البيع</button>
             <button class="nav-btn" onclick="switchTab('treasury')">💰 الخزائن</button>
             <button class="nav-btn" onclick="switchTab('crm')">👥 الـ CRM</button>
             <button class="nav-btn" onclick="switchTab('returns')">🔄 المرتجعات</button>
@@ -98,26 +93,25 @@
         <!-- 1️⃣ المتجر الإلكتروني المرتبط بالمخزن والتعليقات -->
         <div id="tab-feed" class="page-section">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <h4 style="color:var(--gold); margin:0; font-size:11px;">🛍️ المعرض والقطع المعروضة (مرتبط بالمخزن)</h4>
+                <h4 style="color:var(--gold); margin:0; font-size:11px;">🛍️ معرض القطع والتاجر المستقل</h4>
                 <button class="btn btn-gold btn-sm merchant-only" style="display:none;" onclick="openItemModal(null)">+ نشر قطعة للمتجر</button>
             </div>
             <div class="form-group"><input type="text" id="feed-search" placeholder="ابحث في المتجر..." oninput="renderStoreFeed()"></div>
             <div id="store-products-container"></div>
         </div>
 
-        <!-- 2️⃣ دليل الصاغة بالـ GPS (الأقرب والأبعد ومواعيد العمل) -->
+        <!-- 2️⃣ دليل الصاغة والـ GPS -->
         <div id="tab-goldsmiths" class="page-section" style="display:none;">
-            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">📍 خريطة ودليل الصاغة (من الأقرب إلى الأبعد عبر الـ GPS)</h4>
+            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">📍 دليل الصاغة والمحلات (حسب الـ GPS)</h4>
             <div class="form-group"><input type="text" id="gps-search" placeholder="ابحث عن اسم صايغ أو منطقة..." oninput="renderGoldsmiths()"></div>
-            <div style="font-size:10px; color:#38bdf8; margin-bottom:6px;">📡 ترتيب المحلات حسب المسافة الحالية:</div>
             <div id="goldsmiths-list-container"></div>
         </div>
 
-        <!-- 3️⃣ حاسبة أرامكي الذكية للذهب والبورصة -->
+        <!-- 3️⃣ حاسبة أرامكي الذكية والبورصة -->
         <div id="tab-calc" class="page-section" style="display:none;">
-            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">🧮 حاسبة أرامكي الحرّة للذهب (المثقال والورق)</h4>
-            <div class="form-group"><label>🟡 سعر المثقال الأساسي (من البورصة د.ع):</label><input type="number" id="calc-mithqal" value="1250000" oninput="runAramkyCalc()"></div>
-            <div class="form-group"><label>💵 سعر صرف 100$ في السوق العراقي (الورق):</label><input type="number" id="calc-usd" value="153000" oninput="runAramkyCalc()"></div>
+            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">🧮 حاسبة أرامكي والبورصة العراقية</h4>
+            <div class="form-group"><label>🟡 سعر المثقال الأساسي (د.ع):</label><input type="number" id="calc-mithqal" value="1250000" oninput="runAramkyCalc()"></div>
+            <div class="form-group"><label>💵 سعر صرف 100$ (الورق):</label><input type="number" id="calc-usd" value="153000" oninput="runAramkyCalc()"></div>
             <div class="form-group"><label>⚖️ الوزن المطلوب (غرام):</label><input type="number" id="calc-weight" value="10" oninput="runAramkyCalc()"></div>
             <div class="form-group"><label>🔨 أجور الصياغة / غرام (د.ع):</label><input type="number" id="calc-wage" value="25000" oninput="runAramkyCalc()"></div>
             
@@ -128,104 +122,94 @@
             </div>
         </div>
 
-        <!-- 4️⃣ المخزن المرتبط تلقائياً بالمتجر والمبيعات -->
+        <!-- 4️⃣ المخزن العالمي المرتبط بالنشر والبيع -->
         <div id="tab-inventory" class="page-section" style="display:none;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <h4 style="color:var(--gold); margin:0; font-size:11px;">📦 المخزن العالمي المرتبط بالنشر والمبيعات</h4>
-                <button class="btn btn-gold btn-sm merchant-only" style="display:none;" onclick="openInventoryModal(null)">+ إضافة قطعة للمخزن</button>
+                <h4 style="color:var(--gold); margin:0; font-size:11px;">📦 إدارة المخزن والباروكد</h4>
+                <button class="btn btn-gold btn-sm merchant-only" style="display:none;" onclick="openInvModal(null)">+ إضافة قطعة للمخزن</button>
             </div>
-            <div class="form-group"><input type="text" id="inv-search" placeholder="ابحث برقم الباركود أو اسم القطعة..." oninput="renderInventoryStock()"></div>
+            <div class="form-group"><input type="text" id="inv-search" placeholder="ابحث برقم الباركود أو الصنف..." oninput="renderInventoryStock()"></div>
             <div class="table-container">
                 <table class="pro-table">
-                    <thead><tr><th>باركود</th><th>الصنف</th><th>العيار</th><th>الوزن</th><th>الكمية المتوفرة</th><th>إجراءات</th></tr></thead>
+                    <thead><tr><th>باركود</th><th>الصنف</th><th>العيار</th><th>الوزن</th><th>الكمية</th><th>إجراءات</th></tr></thead>
                     <tbody id="inventory-table-body"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 5️⃣ نقطة البيع والشراء (POS) للخصم التلقائي من المخزن -->
+        <!-- 5️⃣ نقطة البيع والخصم التلقائي (POS) -->
         <div id="tab-pos" class="page-section" style="display:none;">
-            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">⚡ نقطة البيع والشراء وتحديث المخزن تلقائياً (POS)</h4>
-            <div class="form-group">
-                <label>📦 اختر القطعة من المخزن لبيعها:</label>
-                <select id="pos-item-select"></select>
-            </div>
+            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">⚡ نقطة البيع (خصم تلقائي من المخزن)</h4>
+            <div class="form-group"><label>📦 اختر القطعة:</label><select id="pos-item-select"></select></div>
             <div class="form-group"><input type="text" id="pos-cust-name" placeholder="اسم الزبون الكريم"></div>
-            <div class="form-group"><input type="number" id="pos-amount" placeholder="المبلغ الإجمالي المدفوع (د.ع)"></div>
-            <button class="btn btn-green" onclick="processPosSale()">✅ إتمام البيع (خصم تلقائي من المخزن والمتجر)</button>
+            <div class="form-group"><input type="number" id="pos-amount" placeholder="المبلغ الإجمالي (د.ع)"></div>
+            <button class="btn btn-green" onclick="processPosSale()">✅ إتمام البيع وتحديث المخزن والمتجر</button>
         </div>
 
-        <!-- 6️⃣ الخزائن المالية وجلسات الجرد -->
+        <!-- 6️⃣ الخزائن المالية -->
         <div id="tab-treasury" class="page-section" style="display:none;">
-            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">💰 الخزائن المالية ورصيد المحل</h4>
-            <div class="dash-grid">
-                <div class="dash-card"><div class="title">خزنة كاش رئيسية</div><div class="value">750,000 د.ع</div></div>
-                <div class="dash-card"><div class="title">خزنة إلكترونية (زين كاش)</div><div class="value">200,000 د.ع</div></div>
+            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">💰 الخزائن المالية</h4>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:8px;">
+                <div style="background:#0b0f19; padding:8px; border-radius:8px; text-align:center;"><div style="font-size:10px; color:var(--text-sec);">خزنة كاش</div><div style="font-size:12px; font-weight:bold; color:var(--gold);">750,000 د.ع</div></div>
+                <div style="background:#0b0f19; padding:8px; border-radius:8px; text-align:center;"><div style="font-size:10px; color:var(--text-sec);">زين كاش</div><div style="font-size:12px; font-weight:bold; color:var(--gold);">200,000 د.ع</div></div>
             </div>
-            <button class="btn btn-gold" style="margin-top:4px;" onclick="showToast('📋 تم إجراء جلسة جرد المخازن والخزائن بنجاح!')">🔍 جرد المخازن والخزائن بالكامل</button>
+            <button class="btn btn-gold" onclick="showToast('📋 تم إجراء جلسة جرد المخازن بنجاح!')">🔍 جلسة جرد شاملة للمحل</button>
         </div>
 
         <!-- 7️⃣ حسابات الديون والـ CRM -->
         <div id="tab-crm" class="page-section" style="display:none;">
-            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">👥 إدارة العملاء والديون (CRM وسداد المديونية)</h4>
+            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">👥 إدارة الديون والـ CRM</h4>
             <div id="crm-list-container"></div>
         </div>
 
-        <!-- 8️⃣ شاشة المرتجعات -->
+        <!-- 8️⃣ المرتجعات -->
         <div id="tab-returns" class="page-section" style="display:none;">
-            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">🔄 معالجة المرتجعات وإرجاع الكمية للمخزن</h4>
-            <div class="form-group"><input type="text" placeholder="رقم الفاتورة أو اسم الزبون للمرتجع..."></div>
-            <button class="btn btn-red" onclick="showToast('🔄 تم معالجة المرتجع وإرجاع الكمية للمخزن والمتجر بنجاح!')">تأكيد استرداد المرتجع</button>
+            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">🔄 معالجة المرتجعات</h4>
+            <div class="form-group"><input type="text" placeholder="رقم الفاتورة أو اسم الزبون..."></div>
+            <button class="btn btn-red" onclick="showToast('🔄 تم استرداد المرتجع وإرجاع الكمية للمخزن!')">تأكيد الاسترداد</button>
         </div>
     </div>
 
-    <!-- 🛠️ النوافذ المنبثقة للتعديل والإضافة -->
-
-    <!-- نافذة إضافة / تعديل قطعة بالمتجر -->
-    <div class="pin-modal" id="itemModal">
-        <div class="pin-box">
-            <h3 style="color:var(--gold); margin-top:0; font-size:12px;">نشر قطعة في المتجر</h3>
+    <!-- نافذة نشر/تعديل قطعة المتجر -->
+    <div class="modal" id="itemModal">
+        <div class="modal-box">
+            <h3 style="color:var(--gold); margin-top:0; font-size:12px;" id="itemModalTitle">نشر قطعة في المتجر</h3>
             <input type="hidden" id="edit-item-id">
-            <div class="form-group"><input type="text" id="item-title-input" placeholder="اسم القطعة (مثال: محبس عيار 21)"></div>
-            <div class="form-group"><input type="number" id="item-price-input" placeholder="السعر الإجمالي (د.ع)"></div>
-            <div class="form-group"><input type="number" id="item-qty-input" placeholder="الكمية المعروضة"></div>
+            <div class="form-group"><input type="text" id="item-title-input" placeholder="اسم القطعة"></div>
+            <div class="form-group"><input type="number" id="item-price-input" placeholder="السعر (د.ع)"></div>
             <div class="form-group"><textarea id="item-notes-input" placeholder="ملاحظات وأجور الصياغة..."></textarea></div>
             <button class="btn btn-green" onclick="saveStoreItem()">حفظ ونشر</button>
             <button class="btn" style="background:#4b5563; margin-top:4px;" onclick="closeModal('itemModal')">إلغاء</button>
         </div>
     </div>
 
-    <!-- نافذة إضافة / تعديل قطعة بالمخزن -->
-    <div class="pin-modal" id="invModal">
-        <div class="pin-box">
+    <!-- نافذة إضافة/تعديل المخزن -->
+    <div class="modal" id="invModal">
+        <div class="modal-box">
             <h3 style="color:var(--gold); margin-top:0; font-size:12px;" id="invModalTitle">إدارة قطعة المخزن</h3>
             <input type="hidden" id="edit-inv-id">
-            <div class="form-group"><input type="text" id="inv-barcode-input" placeholder="باركود (مثال: INV-01)"></div>
+            <div class="form-group"><input type="text" id="inv-barcode-input" placeholder="باركود (INV-01)"></div>
             <div class="form-group"><input type="text" id="inv-name-input" placeholder="اسم الصنف"></div>
-            <div class="form-group"><input type="text" id="inv-caliber-input" placeholder="العيار (21 / 18 / 24)"></div>
+            <div class="form-group"><input type="text" id="inv-caliber-input" placeholder="العيار (21 / 18)"></div>
             <div class="form-group"><input type="text" id="inv-weight-input" placeholder="الوزن (غرام)"></div>
             <div class="form-group"><input type="number" id="inv-qty-input" placeholder="الكمية"></div>
-            <button class="btn btn-green" onclick="saveInventoryItem()">حفظ بالمخزن</button>
+            <button class="btn btn-green" onclick="saveInventoryItem()">حفظ في المخزن</button>
             <button class="btn" style="background:#4b5563; margin-top:4px;" onclick="closeModal('invModal')">إلغاء</button>
         </div>
     </div>
 
     <!-- نافذة رمز الدخول PIN للصايغ -->
-    <div class="pin-modal" id="pinModal">
-        <div class="pin-box">
-            <h3 style="color:var(--gold); margin-top:0; font-size:13px;">🔒 رمز دخول إدارة المتجر</h3>
-            <p style="font-size:10px; color:var(--text-sec);">أدخل رمز PIN (7777):</p>
+    <div class="modal" id="pinModal">
+        <div class="modal-box">
+            <h3 style="color:var(--gold); margin-top:0; font-size:13px;">🔒 رمز دخول الصايغ</h3>
+            <p style="font-size:10px; color:var(--text-sec);">أدخل رمز الدخول (7777):</p>
             <input type="password" id="pinInput" placeholder="••••" style="text-align:center; font-size:15px; margin-bottom:8px;">
-            <button class="btn btn-gold" onclick="verifyMerchantPin()">دخول الصايغ</button>
+            <button class="btn btn-gold" onclick="verifyMerchantPin()">دخول الإدارة</button>
             <button class="btn" style="background:#4b5563; margin-top:4px;" onclick="closeModal('pinModal')">إلغاء</button>
         </div>
     </div>
 
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').then(() => console.log('ARAMKY Pro ERP Active'));
-        }
-
         function showToast(msg) {
             let t = document.getElementById('toast-notification');
             t.innerText = msg;
@@ -235,7 +219,6 @@
 
         let isMerchant = false;
 
-        // قاعدة بيانات المخزن والمتجر المرتبطة معاً
         let inventoryItems = [
             { id: "INV-01", name: "غويشة عيار 21", caliber: "21", weight: "14.8غ", qty: 3, price: 2640960, notes: "وزن 4.8غ مع أجور صياغة" },
             { id: "INV-02", name: "خاتم عيار 18", caliber: "18", weight: "4.7غ", qty: 2, price: 1485540, notes: "ناعم وفاخر" }
@@ -246,17 +229,8 @@
             { name: "صياغة الكاظمية الكبرى", address: "بغداد - الكاظمية", distance: "4.5 كم", hours: "10:00 ص - 10:00 م", phone: "07700000000" }
         ];
 
-        let crmDebts = [
-            { id: 1, name: "أحمد حواش", phone: "078989898", amount: 157245 }
-        ];
-
-        // تعليقات المتجر لكل قطعة مع إمكانية التحكم بها
-        let storeComments = {
-            "INV-01": [
-                { id: 1, user: "علي العراقي", text: "هل متوفر توصيل للنجف؟", visible: true },
-                { id: 2, user: "محمد الساعدي", text: "اشتريت منه وحدة تجنن", visible: true }
-            ]
-        };
+        let crmDebts = [{ id: 1, name: "أحمد حواش", phone: "078989898", amount: 157245 }];
+        let storeComments = { "INV-01": [{ id: 1, user: "علي العراقي", text: "هل متوفر توصيل للنجف؟", visible: true }] };
 
         function switchTab(tab) {
             ['feed', 'goldsmiths', 'calc', 'inventory', 'pos', 'treasury', 'crm', 'returns'].forEach(t => {
@@ -270,7 +244,6 @@
             if(tab === 'crm') renderCrmList();
         }
 
-        // --- 1. عرض المتجر الإلكتروني المرتبط بالمخزن والتعليقات ---
         function renderStoreFeed() {
             let q = document.getElementById('feed-search').value.trim().toLowerCase();
             let c = document.getElementById('store-products-container');
@@ -292,14 +265,14 @@
 
                 c.innerHTML += `
                     <div style="background:#0b0f19; padding:8px; border-radius:8px; margin-bottom:6px; border:1px solid var(--border-clr);">
-                        <div style="font-size:11px; color:var(--gold); font-weight:bold;">🏪 مجوهرات أرامكي Pro <span style="float:left; color:${i.qty > 0 ? '#4ade80' : '#f87171'}">${i.qty > 0 ? 'متوفر بالمخزن (' + i.qty + ')' : 'نفدت الكمية'}</span></div>
+                        <div style="font-size:11px; color:var(--gold); font-weight:bold;">🏪 مجوهرات أرامكي Pro <span style="float:left; color:${i.qty > 0 ? '#4ade80' : '#f87171'}">${i.qty > 0 ? 'متوفر (' + i.qty + ')' : 'نفدت الكمية'}</span></div>
                         <div style="font-size:12px; font-weight:bold; margin:4px 0;">${i.name} (عيار ${i.caliber})</div>
-                        <div style="font-size:11px; color:#4ade80;">السعر: ${i.price ? i.price.toLocaleString() : '0'} د.ع | الوزن: ${i.weight}</div>
+                        <div style="font-size:11px; color:#4ade80;">السعر: ${i.price.toLocaleString()} د.ع | الوزن: ${i.weight}</div>
                         <div style="font-size:10px; color:var(--text-sec); margin-top:2px;">💬 ${i.notes}</div>
                         
                         <div style="margin-top:6px; border-top:1px solid var(--border-clr); padding-top:4px;">
                             <div style="font-size:10px; color:var(--gold); font-weight:bold;">التعليقات:</div>
-                            ${commentsHtml || '<div style="font-size:9px; color:var(--text-sec);">لا توجد تعليقات بعد</div>'}
+                            ${commentsHtml || '<div style="font-size:9px; color:var(--text-sec);">لا توجد تعليقات</div>'}
                             <div style="display:flex; gap:4px; margin-top:4px;">
                                 <input type="text" id="comm-input-${i.id}" placeholder="اكتب تعليقاً..." style="font-size:9px; padding:4px;">
                                 <button class="btn btn-green btn-sm" onclick="addComment('${i.id}')">إرسال</button>
@@ -315,9 +288,9 @@
             let text = input.value.trim();
             if(!text) return;
             if(!storeComments[itemId]) storeComments[itemId] = [];
-            storeComments[itemId].push({ id: Date.now(), user: "زبون زائر", text, visible: true });
+            storeComments[itemId].push({ id: Date.now(), user: "زبون", text, visible: true });
             input.value = '';
-            showToast('💬 تم إضافة تعليقك بنجاح!');
+            showToast('💬 تم إضافة التعليق بنجاح!');
             renderStoreFeed();
         }
 
@@ -332,7 +305,6 @@
             showToast('🗑️ تم حذف التعليق!');
         }
 
-        // --- 2. دليل الصاغة بالـ GPS ---
         function renderGoldsmiths() {
             let q = document.getElementById('gps-search').value.trim().toLowerCase();
             let c = document.getElementById('goldsmiths-list-container');
@@ -348,7 +320,6 @@
             });
         }
 
-        // --- 3. المخزن المرتبط ---
         function renderInventoryStock() {
             let q = document.getElementById('inv-search').value.trim().toLowerCase();
             let tbody = document.getElementById('inventory-table-body');
@@ -363,7 +334,7 @@
                         <td><b style="color:${i.qty > 0 ? '#4ade80' : '#f87171'}">${i.qty}</b></td>
                         <td>
                             ${isMerchant ? `
-                                <button class="btn btn-gold btn-sm" onclick="openInventoryModal('${i.id}')">✏️</button>
+                                <button class="btn btn-gold btn-sm" onclick="openInvModal('${i.id}')">✏️</button>
                                 <button class="btn btn-red btn-sm" onclick="deleteInventoryItem('${i.id}')">🗑️</button>
                             ` : '-'}
                         </td>
@@ -372,7 +343,7 @@
             });
         }
 
-        function openInventoryModal(id) {
+        function openInvModal(id) {
             document.getElementById('invModal').style.display = 'flex';
             if(id) {
                 let item = inventoryItems.find(x => x.id === id);
@@ -407,7 +378,7 @@
                 item.name = name; item.caliber = caliber; item.weight = weight; item.qty = qty;
                 showToast('✅ تم تحديث المخزن والمتجر تلقائياً!');
             } else {
-                inventoryItems.push({ id: barcode, name, caliber, weight, qty, price: 2000000, notes: "قطعة جديدة بالمخزن" });
+                inventoryItems.push({ id: barcode, name, caliber, weight, qty, price: 2000000, notes: "قطعة جديدة" });
                 showToast('🚀 تمت إضافة القطعة للمخزن ونشرها بالمتجر!');
             }
             closeModal('invModal');
@@ -416,16 +387,15 @@
 
         function deleteInventoryItem(id) {
             inventoryItems = inventoryItems.filter(x => x.id !== id);
-            showToast('🗑️ تم حذف القطعة من المخزن والمتجر!');
+            showToast('🗑️ تم حذف القطعة!');
             renderInventoryStock();
         }
 
-        // --- 4. نقطة البيع والخصم التلقائي من المخزن ---
         function populatePosSelect() {
             let sel = document.getElementById('pos-item-select');
             sel.innerHTML = '';
             inventoryItems.forEach(i => {
-                sel.innerHTML += `<option value="${i.id}">${i.name} (المتوفر: ${i.qty}) - ${i.price ? i.price.toLocaleString() : 0} د.ع</option>`;
+                sel.innerHTML += `<option value="${i.id}">${i.name} (المتوفر: ${i.qty})</option>`;
             });
         }
 
@@ -433,15 +403,14 @@
             let selId = document.getElementById('pos-item-select').value;
             let item = inventoryItems.find(x => x.id === selId);
             if(item && item.qty > 0) {
-                item.qty -= 1; // خصم تلقائي من المخزن والمتجر
-                showToast(`✅ تم بيع "${item.name}" بنجاح! وخصم قطعة من المخزن تلقائياً.`);
+                item.qty -= 1;
+                showToast(`✅ تم بيع "${item.name}" وخصم قطعة من المخزن تلقائياً!`);
                 populatePosSelect();
             } else {
                 showToast('❌ عذراً، القطعة نفدت من المخزن!');
             }
         }
 
-        // --- 5. حاسبة أرامكي ---
         function runAramkyCalc() {
             let mithqal = parseFloat(document.getElementById('calc-mithqal').value) || 1250000;
             let usd = parseFloat(document.getElementById('calc-usd').value) || 153000;
@@ -462,20 +431,20 @@
             c.innerHTML = crmDebts.map(d => `
                 <div style="background:#0b0f19; padding:8px; border-radius:8px; margin-bottom:4px; font-size:11px; display:flex; justify-content:space-between; align-items:center;">
                     <span>👤 <b>${d.name}</b> - <span style="color:#f87171;">${d.amount.toLocaleString()} د.ع</span></span>
-                    <button class="btn btn-green btn-sm" onclick="showToast('✅ تم تسوية الدين وتسجيل المبلغ بالخزينة!')">سداد</button>
+                    <button class="btn btn-green btn-sm" onclick="showToast('✅ تم تسوية الدين!')">سداد</button>
                 </div>
             `).join('');
         }
 
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function openPinModal() { document.getElementById('pinModal').style.display = 'flex'; }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         
         function verifyMerchantPin() {
             if(document.getElementById('pinInput').value === "7777") {
                 isMerchant = true;
                 document.querySelectorAll('.merchant-only').forEach(el => el.style.display = 'inline-block');
                 closeModal('pinModal');
-                showToast('🔓 تم تفعيل صلاحيات الصايغ الكاملة (إدارة، إخفاء تعليقات، تعديل المخزن)!');
+                showToast('🔓 تم تفعيل صلاحيات الصايغ الكاملة!');
                 switchTab('feed');
             } else {
                 showToast('❌ رمز PIN غير صحيح!');
