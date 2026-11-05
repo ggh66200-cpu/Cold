@@ -6,7 +6,7 @@
     <title>ARAMKY Pro Iraq | أرامكي - فرع نواة الذهب</title>
     
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#242526">
+    <meta name="theme-color" content="#1e293b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ARAMKY Pro">
@@ -15,554 +15,457 @@
 
     <style>
         :root { 
-            --fb-bg: #18191a; 
-            --fb-card: #242526; 
-            --fb-border: #393a3b; 
-            --fb-text: #e4e6eb; 
-            --fb-secondary: #b0b3b8;
+            --bg-main: #0f172a; 
+            --card-bg: #1e293b; 
+            --border-clr: #334155; 
+            --text-main: #f8fafc; 
+            --text-sec: #94a3b8;
             --gold: #d4af37; 
-            --fb-blue: #2d88ff;
+            --blue-btn: #0284c7;
+            --green-btn: #16a34a;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Cairo', system-ui, -apple-system, sans-serif; background-color: var(--fb-bg); color: var(--fb-text); margin: 0; padding: 8px; direction: rtl; user-select: none; }
-        .container { max-width: 480px; margin: auto; background: var(--fb-card); padding: 12px; border-radius: 14px; box-shadow: 0 6px 16px rgba(0,0,0,0.5); border: 1px solid var(--fb-border); }
+        body { font-family: 'Cairo', system-ui, -apple-system, sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; padding: 6px; direction: rtl; user-select: none; }
+        .container { max-width: 480px; margin: auto; background: var(--card-bg); padding: 10px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.6); border: 1px solid var(--border-clr); }
         
-        #toast-notification { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #d4af37; color: #000; padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 12px; z-index: 10000; transition: transform 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        #toast-notification { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--gold); color: #000; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 11px; z-index: 10000; transition: transform 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
         #toast-notification.show { transform: translateX(-50%) translateY(0); }
 
-        .fb-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--fb-border); padding-bottom: 8px; margin-bottom: 10px; }
-        .fb-profile-area { display: flex; align-items: center; gap: 10px; }
-        .brand-logo { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; box-shadow: 0 0 10px rgba(212,175,55,0.4); }
-        .brand-title-box h2 { color: var(--gold); font-size: 15px; margin: 0; }
-        .brand-title-box .subtitle { font-size: 10px; color: var(--fb-secondary); margin: 0; }
-        
-        .nav-tabs { display: flex; justify-content: space-around; border-bottom: 1px solid var(--fb-border); padding-bottom: 6px; margin-bottom: 12px; background: var(--fb-card); }
-        .nav-btn { background: transparent; border: none; color: var(--fb-secondary); font-size: 11px; font-weight: bold; padding: 6px 8px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .nav-btn.active { color: var(--gold); background: rgba(212,175,55,0.12); border-bottom: 3px solid var(--gold); }
+        /* الهيدر الجانبي السريع (شبيه بنظام إدارة المجوهرات) */
+        .app-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-clr); padding-bottom: 6px; margin-bottom: 8px; }
+        .profile-box { display: flex; align-items: center; gap: 8px; }
+        .brand-logo { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; }
+        .brand-info h2 { color: var(--gold); font-size: 13px; margin: 0; }
+        .brand-info .sub { font-size: 9px; color: var(--text-sec); margin: 0; }
 
-        .page-section { animation: fadeIn 0.3s ease-in-out; }
+        /* القائمة الجانبية أو الشريط العلوي الذكي للأقسام */
+        .sidebar-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 10px; background: #0b0f19; padding: 4px; border-radius: 8px; border: 1px solid var(--border-clr); }
+        .nav-btn { background: transparent; border: none; color: var(--text-sec); font-size: 10px; font-weight: bold; padding: 6px 2px; border-radius: 6px; cursor: pointer; text-align: center; transition: 0.2s; }
+        .nav-btn.active { background: var(--gold); color: #000; }
+
+        .page-section { animation: fadeIn 0.25s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        .catalog-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
-        .product-card { background: var(--fb-bg); border: 1px solid var(--fb-border); border-radius: 12px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
-        .product-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-        .product-header img { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--gold); object-fit: cover; }
-        .product-meta .p-name { font-size: 12px; font-weight: bold; color: var(--gold); }
-        .product-meta .p-time { font-size: 9px; color: var(--fb-secondary); }
-        .product-img { width: 100%; height: 220px; object-fit: cover; border-radius: 10px; margin-bottom: 6px; border: 1px solid var(--fb-border); }
-        
-        .sub-images-row { display: flex; gap: 5px; margin-bottom: 8px; overflow-x: auto; }
-        .sub-img-thumb { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; border: 1px solid var(--gold); cursor: pointer; }
+        /* كروت لوحة التحكم الرئيسية (Dashboard Cards) */
+        .dash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 8px; }
+        .dash-card { background: #0f172a; border: 1px solid var(--border-clr); border-radius: 8px; padding: 8px; text-align: center; }
+        .dash-card .title { font-size: 10px; color: var(--text-sec); margin-bottom: 2px; }
+        .dash-card .value { font-size: 13px; font-weight: bold; color: var(--gold); }
 
-        .product-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: #4ade80; margin-top: 6px; }
-        
-        .comments-section { margin-top: 8px; border-top: 1px dashed var(--fb-border); padding-top: 6px; font-size: 11px; }
-        .comment-item { color: var(--fb-secondary); margin-bottom: 3px; background: rgba(255,255,255,0.03); padding: 4px 8px; border-radius: 6px; }
-        .comment-input-box { display: flex; gap: 5px; margin-top: 6px; }
-        .comment-input-box input { flex: 1; padding: 5px 8px; font-size: 10px; }
-
-        .market-box { background: var(--fb-bg); border-radius: 10px; padding: 10px; margin-bottom: 10px; border: 1px solid var(--fb-border); }
-        .market-header-main { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--fb-border); padding-bottom: 6px; margin-bottom: 6px; font-size: 11px; font-weight: bold; color: var(--gold); }
-        .market-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; }
-        .market-table th { color: var(--fb-secondary); padding: 5px; border-bottom: 1px solid var(--fb-border); }
-        .market-table td { padding: 6px 4px; border-bottom: 1px dashed var(--fb-border); }
-        .price-up { color: #4ade80; font-weight: bold; }
-        
+        /* شاشة البيع الحر والباركود */
         .form-group { margin-bottom: 8px; }
-        label { display: block; font-size: 10px; margin-bottom: 2px; color: var(--fb-secondary); }
-        input, select { width: 100%; padding: 8px; background: var(--fb-bg); border: 1px solid var(--fb-border); color: white; border-radius: 8px; font-size: 11px; }
+        label { display: block; font-size: 10px; margin-bottom: 2px; color: var(--text-sec); }
+        input, select { width: 100%; padding: 7px; background: #0f172a; border: 1px solid var(--border-clr); color: white; border-radius: 6px; font-size: 11px; }
         input:focus, select:focus { border-color: var(--gold); outline: none; }
         
-        .btn { background: var(--fb-blue); color: white; font-weight: bold; border: none; width: 100%; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 12px; margin-top: 6px; transition: 0.2s; }
-        .btn:active { transform: scale(0.98); }
+        .btn { background: var(--blue-btn); color: white; font-weight: bold; border: none; width: 100%; padding: 9px; border-radius: 6px; cursor: pointer; font-size: 11px; margin-top: 4px; }
         .btn-gold { background: linear-gradient(135deg, #d4af37, #aa7c11); color: #000; }
-        
-        .tg-invoice { background: #ffffff; color: #000000; padding: 14px; border-radius: 10px; margin-top: 10px; border: 2px solid var(--gold); font-size: 12px; line-height: 1.5; }
-        .tg-header { text-align: center; color: #0284c7; font-weight: bold; font-size: 14px; }
-        .tg-sub { text-align: center; color: #b45309; font-size: 11px; margin-bottom: 6px; }
-        .tg-divider { border: none; border-top: 1px dashed #94a3b8; margin: 6px 0; }
-        .tg-title { text-align: center; color: #0f172a; font-weight: bold; font-size: 12px; }
-        .tg-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
-        .tg-highlight { color: #b45309; font-weight: bold; }
-        .tg-total-box { background: #f8fafc; padding: 8px; border-radius: 6px; text-align: center; margin-top: 6px; border: 1px solid #cbd5e1; }
-        .tg-total-val { color: #b45309; font-size: 14px; font-weight: bold; }
-        
-        .action-btns { display: flex; gap: 6px; margin-top: 8px; }
-        .action-btns button { flex: 1; margin-top: 0; }
+        .btn-green { background: var(--green-btn); color: white; }
+
+        /* جدول المخزن والباركود */
+        .table-container { overflow-x: auto; margin-top: 6px; }
+        .pro-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 10px; }
+        .pro-table th { background: #0f172a; color: var(--gold); padding: 5px; border: 1px solid var(--border-clr); }
+        .pro-table td { padding: 6px 4px; border: 1px solid var(--border-clr); background: #131b2e; }
+
+        /* الفاتورة الحرارية */
+        .tg-invoice { background: #ffffff; color: #000000; padding: 12px; border-radius: 8px; margin-top: 10px; border: 2px solid var(--gold); font-size: 11px; line-height: 1.4; }
+        .tg-header { text-align: center; color: #0284c7; font-weight: bold; font-size: 13px; }
+        .tg-sub { text-align: center; color: #b45309; font-size: 10px; margin-bottom: 4px; }
+        .tg-divider { border: none; border-top: 1px dashed #94a3b8; margin: 4px 0; }
+        .tg-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
 
         .pin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; }
-        .pin-box { background: var(--fb-card); padding: 18px; border-radius: 14px; border: 1px solid var(--gold); text-align: center; width: 270px; }
+        .pin-box { background: var(--card-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--gold); text-align: center; width: 260px; }
     </style>
 </head>
 <body>
     <div id="toast-notification">تم تنفيذ العملية بنجاح</div>
 
     <div class="container">
-        <!-- الهيدر -->
-        <div class="fb-header">
-            <div class="fb-profile-area">
+        <!-- الهيدر ونظام التبديل الذكي -->
+        <div class="app-header">
+            <div class="profile-box">
                 <img src="/logo.jpg" id="main-logo" alt="ARAMKY" class="brand-logo" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1610375461246-83df859d849d?w=500';">
-                <div class="brand-title-box">
-                    <h2>ARAMKY Pro Iraq</h2>
-                    <div class="subtitle" id="app-subtitle">فرع نواة الذهب - النظام العراقي المعتمد</div>
+                <div class="brand-info">
+                    <h2>مجوهرات أرامكي Pro</h2>
+                    <div class="sub" id="app-subtitle">نظام الصاغة والمخزن العراقي</div>
                 </div>
             </div>
-            <div id="pro-badge" style="background:var(--gold); color:#000; font-size:9px; font-weight:bold; padding:3px 8px; border-radius:6px; display:none;">مدير المحل</div>
+            <div id="pro-badge" style="background:var(--gold); color:#000; font-size:9px; font-weight:bold; padding:2px 6px; border-radius:4px; display:none;">مدير</div>
         </div>
 
-        <!-- التبويبات العامة -->
-        <div class="nav-tabs no-print" id="public-tabs">
-            <button class="nav-btn active" onclick="switchTab('market')">📈 <span>البورصة</span></button>
-            <button class="nav-btn" onclick="switchTab('catalog')">💎 <span>المعرض</span></button>
-            <button class="nav-btn" style="color:var(--gold);" onclick="openPinModal()">🔑 <span>دخول التاجر</span></button>
+        <!-- القائمة الرئيسية المقتبسة من النظام الاحترافي -->
+        <div class="sidebar-tabs no-print" id="main-tabs">
+            <button class="nav-btn active" onclick="switchTab('dashboard')">📊 الرئيسية</button>
+            <button class="nav-btn" onclick="switchTab('sell')">⚡ البيع الحر</button>
+            <button class="nav-btn" onclick="switchTab('inventory')">📦 المخزن</button>
+            <button class="nav-btn" onclick="switchTab('crm')">👥 الديون CRM</button>
+            <button class="nav-btn" style="color:var(--gold);" onclick="openPinModal()">🔑 الإدارة</button>
         </div>
 
-        <!-- التبويبات الخاصة بالمدير -->
-        <div class="nav-tabs no-print" id="pro-tabs" style="display:none;">
-            <button class="nav-btn active" onclick="switchTab('calc')">🧮 <span>POS</span></button>
-            <button class="nav-btn" onclick="switchTab('addprod')">➕ <span>نشر</span></button>
-            <button class="nav-btn" onclick="switchTab('inventory')">📦 <span>المخزن</span></button>
-            <button class="nav-btn" onclick="switchTab('debts')">👥 <span>الديون</span></button>
-            <button class="nav-btn" onclick="switchTab('profits')">📊 <span>الأرباح</span></button>
-        </div>
-
-        <!-- 1️⃣ البورصة العراقية -->
-        <div id="tab-market" class="page-section">
-            <div style="background: var(--fb-bg); padding: 8px; border-radius: 8px; text-align: center; margin-bottom: 10px; border: 1px solid var(--fb-border);">
-                <div style="font-size: 10px; color: var(--gold);">⚡ أونصة الذهب العالمية لحظياً</div>
-                <div style="font-size: 17px; font-weight: bold; color: #4ade80;" id="live-ounce">$3,958.10</div>
-            </div>
-
-            <div style="background: var(--fb-bg); padding: 8px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--fb-border); font-size: 11px;">
-                <label style="color: var(--gold); font-weight: bold; margin-bottom: 4px;">⚙️ وضع التسعير في السوق العراقي:</label>
-                <select id="pricing_mode" onchange="syncMasterSettings()" style="font-size: 11px;">
-                    <option value="auto">🌐 ربط تلقائي مع أسعار السوق العراقي للذهب</option>
-                    <option value="manual">✍️ إدخال يدوي للمثقال والورق</option>
-                </select>
-            </div>
-
-            <div class="market-box">
-                <div class="market-header-main">
-                    <span>🥇 أسعار العيارات والمثقال في العراق</span>
-                    <span style="color: #38bdf8; font-size: 10px;">100$ = <span id="usd-display-market">153,000</span> د.ع</span>
+        <!-- 1️⃣ لوحة التحكم الرئيسية (Dashboard) -->
+        <div id="tab-dashboard" class="page-section">
+            <!-- أسعار العيارات اللحظية في السوق العراقي -->
+            <div style="background: #0f172a; padding: 8px; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border-clr);">
+                <div style="font-size: 10px; color: var(--gold); text-align: center; margin-bottom: 4px;">⚡ أسعار الذهب اللحظية في السوق العراقي</div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; text-align: center; font-size: 9px;">
+                    <div style="background:#1e293b; padding:4px; border-radius:4px;"><span style="color:var(--text-sec)">24</span><br><b id="price-24">0</b></div>
+                    <div style="background:#1e293b; padding:4px; border-radius:4px;"><span style="color:var(--text-sec)">22</span><br><b id="price-22">0</b></div>
+                    <div style="background:#1e293b; padding:4px; border-radius:4px;"><span style="color:var(--text-sec)">21</span><br><b id="price-21">0</b></div>
+                    <div style="background:#1e293b; padding:4px; border-radius:4px;"><span style="color:var(--text-sec)">18</span><br><b id="price-18">0</b></div>
                 </div>
-                <table class="market-table">
+            </div>
+
+            <div class="dash-grid">
+                <div class="dash-card">
+                    <div class="title">إجمالي قطع المخزن</div>
+                    <div class="value" id="stat-total-items">12 قطعة</div>
+                </div>
+                <div class="dash-card">
+                    <div class="title">إجمالي وزن الذهب</div>
+                    <div class="value" id="stat-total-weight">110.4 غرام</div>
+                </div>
+                <div class="dash-card">
+                    <div class="title">مبيعات اليوم</div>
+                    <div class="value" id="stat-daily-sales">0 د.ع</div>
+                </div>
+                <div class="dash-card">
+                    <div class="title">الديون والذمم (CRM)</div>
+                    <div class="value" id="stat-total-debts">0 د.ع</div>
+                </div>
+            </div>
+
+            <div style="background: #0f172a; padding: 8px; border-radius: 8px; border: 1px solid var(--border-clr);">
+                <div style="font-size: 11px; color: var(--gold); font-weight: bold; margin-bottom: 4px;">⚠️ تنبيهات المخزن القريب على النفاد:</div>
+                <div id="stock-alerts" style="font-size: 10px; color: #f87171;">لا توجد قطع منخفضة المخزون حالياً.</div>
+            </div>
+        </div>
+
+        <!-- 2️⃣ شاشة البيع الحر والـ POS المتقدمة -->
+        <div id="tab-sell" class="page-section" style="display:none;">
+            <div class="form-group">
+                <label>🔍 بحث بالباركود أو اسم القطعة:</label>
+                <input type="text" id="barcode-search" placeholder="امسح الباركود أو اكتب اسم القطعة..." oninput="filterBarcodeItem()">
+            </div>
+
+            <div class="form-group"><label>👤 اسم الزبون:</label><input type="text" id="pos-customer" placeholder="مثال: أحمد العراقي"></div>
+            
+            <div class="form-group">
+                <label>🟡 سعر المثقال الأساسي (دينار عراقي):</label>
+                <input type="number" id="pos-mithqal" value="1250000" oninput="calculatePosCart()">
+            </div>
+
+            <div class="form-group">
+                <label>💵 سعر صرف 100$ (الورق):</label>
+                <input type="number" id="pos-usd" value="153000" oninput="calculatePosCart()">
+            </div>
+
+            <!-- جدول المنتجات المضافة للفاتورة -->
+            <div class="table-container">
+                <table class="pro-table">
                     <thead>
-                        <tr><th>النوع</th><th>دينار عراقي (د.ع)</th><th>دولار ($)</th></tr>
+                        <tr>
+                            <th>الصنف</th>
+                            <th>العيار</th>
+                            <th>الوزن</th>
+                            <th>المصنعية</th>
+                            <th>الإجمالي</th>
+                        </tr>
                     </thead>
-                    <tbody id="market-table-body"></tbody>
+                    <tbody id="pos-cart-body">
+                        <tr><td colspan="5" style="color: var(--text-sec);">لم يتم اختيار قطعة بعد..</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="background: #0f172a; padding: 8px; border-radius: 8px; margin-top: 8px; text-align: center; border: 1px solid var(--border-clr);">
+                <div style="font-size: 10px; color: var(--text-sec);">المبلغ الإجمالي المطلوب من العميل:</div>
+                <div style="font-size: 16px; font-weight: bold; color: var(--gold);" id="pos-grand-total">0 دينار عراقي</div>
+                <div style="font-size: 11px; color: #4ade80; margin-top: 2px;" id="pos-grand-bills">الحساب بالورق: 0 ورقة</div>
+            </div>
+
+            <!-- خيارات طرق الدفع (متعددة مثل الكاش والآجل) -->
+            <div style="margin-top: 8px;">
+                <label style="color: var(--gold); font-weight: bold;">💳 طريقة الدفع الحاصلة:</label>
+                <div style="display: flex; gap: 4px; margin-top: 4px;">
+                    <input type="number" id="pay-cash" placeholder="المبلغ النقد كاش" style="flex:1;">
+                    <input type="number" id="pay-debt" placeholder="المبلغ المؤجل (ذمم)" style="flex:1;">
+                </div>
+            </div>
+
+            <button class="btn btn-green" onclick="completeSaleProcess()">✅ إتمام العملية وطباعة الفاتورة</button>
+
+            <!-- قالب الفاتورة الحرارية -->
+            <div class="tg-invoice" id="invoice-preview" style="display:none;">
+                <div class="tg-header">💎 مجوهرات أرامكي Pro 💎</div>
+                <div class="tg-sub">فرع نواة الذهب - العراق</div>
+                <hr class="tg-divider">
+                <div class="tg-row"><span>رقم الفاتورة:</span> <span id="inv-num">#ARM-20261105</span></div>
+                <div class="tg-row"><span>الزبون:</span> <span id="inv-cust">عام</span></div>
+                <hr class="tg-divider">
+                <div id="inv-items-list"></div>
+                <hr class="tg-divider">
+                <div class="tg-row" style="font-weight:bold;"><span>الإجمالي النهائي:</span> <span id="inv-total-val">0 د.ع</span></div>
+                <div class="tg-row" style="color:#b45309; font-weight:bold;" id="inv-paper-val"><span>بالورق:</span> <span>0 ورقة</span></div>
+                <button class="btn" style="background:#2563eb; margin-top:6px;" onclick="window.print()">🖨️ طباعة الفاتورة 80mm</button>
+            </div>
+        </div>
+
+        <!-- 3️⃣ إدارة المخزن والباركود (Inventory) -->
+        <div id="tab-inventory" class="page-section" style="display:none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <h4 style="color:var(--gold); margin:0; font-size:12px;">📦 إدارة المخزن والباركود</h4>
+                <button class="btn btn-gold" style="width:auto; padding:4px 10px; font-size:10px; margin-top:0;" onclick="switchTab('addprod')">+ إضافة قطعة</button>
+            </div>
+            
+            <div class="table-container">
+                <table class="pro-table">
+                    <thead>
+                        <tr>
+                            <th>الباركود</th>
+                            <th>الصنف</th>
+                            <th>العيار</th>
+                            <th>الوزن</th>
+                            <th>السعر</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body">
+                        <!-- يُعبأ تلقائياً -->
+                    </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 2️⃣ المعرض العام -->
-        <div id="tab-catalog" class="page-section" style="display:none;">
-            <div style="text-align: center; font-size: 11px; color: var(--gold); margin-bottom: 6px;">✨ معروضات المجوهرات والقطع المتوفرة بالمحل</div>
-            <div class="catalog-grid" id="public-product-list"></div>
+        <!-- 4️⃣ دفتر الديون والـ CRM -->
+        <div id="tab-crm" class="page-section" style="display:none;">
+            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:12px;">👥 حسابات العملاء والبيع الآجل (CRM)</h4>
+            <div class="form-group"><input type="text" id="debt-name" placeholder="اسم التاجر أو العميل"></div>
+            <div class="form-group"><input type="number" id="debt-val" placeholder="مبلغ الدين (دينار)"></div>
+            <button class="btn btn-gold" onclick="addNewDebtRecord()">➕ تسجيل ذمة مالية جديدة</button>
+            
+            <div id="debts-container" style="margin-top: 8px; font-size: 11px;">
+                <!-- سجلات الديون -->
+            </div>
         </div>
 
-        <!-- 3️⃣ حاسبة POS بالطريقة العراقية -->
-        <div id="tab-calc" class="page-section" style="display:none;">
-            <div class="form-group"><label>🔷 اسم المحل العامر:</label><input type="text" id="shop_name" value="صياغة نواة الذهب - الفرع الرئيسي"></div>
-            <div class="form-group"><label>👤 اسم الزبون / الهواتف:</label><input type="text" id="customer_info" placeholder="مثال: الحاج أبو علي - 07800000000"></div>
+        <!-- 5️⃣ صفحة إضافة منتج جديد مع الباركود -->
+        <div id="tab-addprod" class="page-section" style="display:none;">
+            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:12px;">➕ إضافة قطعة جديدة للمخزن والباركود</h4>
+            <div class="form-group"><label>📛 اسم الصنف:</label><input type="text" id="new-p-name" placeholder="مثال: غويشة عيار 21"></div>
             <div class="form-group">
-                <label>🔄 نوع العملية:</label>
-                <select id="op_type" onchange="updateOpTitle()">
-                    <option value="sell">🛍️ بيع ذهب للزبون</option>
-                    <option value="buy">📥 شراء ذهب (كسر) من الزبون</option>
+                <label>🟡 العيار:</label>
+                <select id="new-p-caliber">
+                    <option value="21" selected>عيار 21 (قياسي)</option>
+                    <option value="18">عيار 18</option>
+                    <option value="24">عيار 24 (سبائك)</option>
                 </select>
             </div>
-            <div class="form-group"><label>🟡 سعر المثقال الأساسي (دينار عراقي):</label><input type="number" id="master_mithqal" value="1250000" oninput="syncMasterSettings()"></div>
-            <div class="form-group"><label>💵 سعر صرف 100$ في السوق العراقي (الورق):</label><input type="number" id="master_usd" value="153000" oninput="syncMasterSettings()"></div>
-            <div class="form-group"><label>⚖️ الوزن الإجمالي للقطعة (غرام):</label><input type="number" id="weight" value="25" step="0.01"></div>
-            <div class="form-group"><label>🔨 أجور الصياغة / غرام (دينار):</label><input type="number" id="wage" value="25000"></div>
-
-            <button class="btn btn-gold no-print" onclick="calculateInvoice()">🧮 حساب الفاتورة وحساب الورق العراقي</button>
-
-            <div class="tg-invoice" id="invoice-container" style="display:none;">
-                <div class="tg-header">💎 أرامكي للحلول الرقمية | ARAMKY 💎</div>
-                <div class="tg-sub">⚜️ فرع نواة الذهب لأنظمة الصاغة والأسواق المالية ⚜️</div>
-                <hr class="tg-divider">
-                <div class="tg-title" id="inv-title">🧾 فاتورة بيع ذهب للزبون</div>
-                <hr class="tg-divider">
-                
-                <div class="tg-row"><span>🔷 المحل العامر:</span> <span class="tg-highlight" id="res-shop">D</span></div>
-                <div class="tg-row"><span>👤 الزبون:</span> <span id="res-customer">عام</span></div>
-                <div class="tg-row"><span>🟡 سعر المثقال:</span> <span class="tg-highlight" id="res-mithqal">1,250,000 دينار</span></div>
-                <div class="tg-row"><span>⚖️ الوزن الإجمالي:</span> <span id="res-weight">25 غرام</span></div>
-                <div class="tg-row"><span>🔨 أجور الغرام:</span> <span id="res-wage">25,000 دينار</span></div>
-                <div class="tg-row"><span>💵 سعر صرف 100$:</span> <span id="res-usd-rate" style="font-weight: bold;">153,000 دينار</span></div>
-                
-                <hr class="tg-divider">
-                <div class="tg-row"><span>💰 سعر الغرام الصافي:</span> <span id="res-gram-net">250,000 دينار</span></div>
-                <div class="tg-row"><span>✨ سعر الغرام مع الأجور:</span> <span class="tg-highlight" id="res-gram-total">275,000 دينار</span></div>
-                
-                <div class="tg-total-box">
-                    <div style="font-size: 10px; color: #475569;">💵 إجمالي الحساب بالدينار:</div>
-                    <div class="tg-total-val" id="res-total-iqd">👉 6,875,000 دينار</div>
-                    <div style="font-size: 11px; color: #b45309; margin-top: 3px; font-weight: bold;" id="res-bills">💵 الحساب بالورق العراقي: 👉 44 ورقة و 55,000 دينار</div>
-                </div>
-
-                <hr class="tg-divider">
-                <button class="btn" style="background: #16a34a; color: white;" onclick="confirmInvoice()">✅ تأكيد واعتماد الفاتورة بالجرد</button>
-                <div class="action-btns no-print">
-                    <button class="btn" style="background: #2563eb;" onclick="window.print()">🖨️ طباعة 80mm</button>
-                    <button class="btn" style="background: #10b981;" onclick="copyInvoiceText()">📋 نسخ تيليجرام</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4️⃣ صفحة النشر المطور -->
-        <div id="tab-addprod" class="page-section" style="display:none;">
-            <div style="background: var(--fb-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--fb-border);">
-                <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:12px;">➕ نشر منتج جديد بالمعرض والمخزن</h4>
-                <div class="form-group"><label>📛 اسم القطعة:</label><input type="text" id="p_name" placeholder="محبس ذهب عيار 21"></div>
-                <div class="form-group">
-                    <label>🟡 اختيار عيار الأساس:</label>
-                    <select id="p_caliber">
-                        <option value="24">مثقال / عيار 24</option>
-                        <option value="21" selected>عيار 21 (قياسي عراقي)</option>
-                        <option value="18">عيار 18</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>⚖️ الوزن للقطعة الواحدة (غرام):</label><input type="number" id="p_weight" placeholder="10" step="0.01"></div>
-                <div class="form-group"><label>🔨 أجور الصياغة المخصصة (دينار):</label><input type="number" id="p_wage" placeholder="20000"></div>
-                <div class="form-group"><label>📦 العدد الكلي المتاح في المخزن:</label><input type="number" id="p_total_qty" placeholder="5" value="1"></div>
-                <div class="form-group"><label>🖼️ صور القطعة (اختر عدة صور من هاتفك):</label><input type="file" id="p_img_files" accept="image/*" multiple style="padding: 6px; font-size: 10px;"></div>
-                <button class="btn btn-gold" onclick="addNewProduct()">🚀 نشر القطعة بالمعرض وتحديث المخزن</button>
-            </div>
-        </div>
-
-        <!-- 5️⃣ المخزن والديون والأرباح -->
-        <div id="tab-inventory" class="page-section" style="display:none;">
-            <div style="background: var(--fb-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--fb-border);">
-                <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:12px;">📦 إدارة المخزن والقطع المتبقية</h4>
-                <div id="warehouse-status" style="background:#18191a; padding:8px; font-size:10px; border-radius:6px; margin-bottom:8px;">جاري تحميل جرد المخزن...</div>
-                <div id="inventory-log" style="background:#18191a; padding:6px; font-size:10px; border-radius:6px; max-height:90px; overflow-y:auto;">لا توجد عمليات بيع مسجلة بعد.</div>
-                <button class="btn btn-gold" style="margin-top:6px;" onclick="showToast('📥 تم تصدير تقرير المخزن بصيغة Excel!')">📥 تصدير المخزن Excel</button>
-            </div>
-        </div>
-
-        <div id="tab-debts" class="page-section" style="display:none;">
-            <div style="background: var(--fb-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--fb-border);">
-                <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:12px;">👥 دفتر ديون التجار والعملاء</h4>
-                <input type="text" id="d_name" placeholder="اسم العميل" style="margin-bottom:4px;">
-                <input type="number" id="d_amount" placeholder="المبلغ (دينار)" style="margin-bottom:6px;">
-                <button class="btn btn-gold" onclick="addDebt()">➕ تسجيل ذمة مالية</button>
-                <div id="debts-list" style="background:#18191a; padding:6px; font-size:10px; margin-top:6px; border-radius:6px;">لا توجد ديون.</div>
-            </div>
-        </div>
-
-        <div id="tab-profits" class="page-section" style="display:none;">
-            <div style="background: var(--fb-bg); padding: 12px; border-radius: 8px; text-align:center; border: 1px solid var(--fb-border);">
-                <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:12px;">📊 متابعة الأرباح وصافي أجور الصياغة</h4>
-                <div style="font-size:16px; color:#4ade80; font-weight:bold;" id="profit-val">0 د.ع</div>
-            </div>
+            <div class="form-group"><label>⚖️ الوزن الإجمالي (غرام):</label><input type="number" id="new-p-weight" placeholder="12.5" step="0.01"></div>
+            <div class="form-group"><label>🔨 المصنعية / غرام (دينار):</label><input type="number" id="new-p-wage" placeholder="25000"></div>
+            <div class="form-group"><label>📦 الكمية المتاحة:</label><input type="number" id="new-p-qty" value="1"></div>
+            <button class="btn btn-green" onclick="saveNewWarehouseItem()">💾 حفظ وتوليد الباركود</button>
         </div>
     </div>
 
-    <!-- نافذة رمز PIN -->
+    <!-- نافذة رمز PIN للإدارة -->
     <div class="pin-modal" id="pinModal">
         <div class="pin-box">
-            <h3 style="color:var(--gold); margin-top:0; font-size:14px;">🔒 دخول مدير المحل</h3>
-            <p style="font-size:10px; color:var(--fb-secondary);">أدخل رمز PIN المعتمد (7777):</p>
+            <h3 style="color:var(--gold); margin-top:0; font-size:13px;">🔒 صلاحيات مدير المحل</h3>
+            <p style="font-size:10px; color:var(--text-sec);">أدخل رمز PIN (7777):</p>
             <input type="password" id="pinInput" placeholder="••••" style="text-align:center; font-size:16px; margin-bottom:8px;">
-            <button class="btn btn-gold" onclick="verifyPin()">دخول</button>
+            <button class="btn btn-gold" onclick="verifyPin()">دخول الإدارة</button>
             <button class="btn" style="background:#4b5563; margin-top:4px;" onclick="closePinModal()">إلغاء</button>
         </div>
     </div>
 
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').then(() => console.log('ARAMKY Iraq Engine Active'));
+            navigator.serviceWorker.register('/sw.js').then(() => console.log('ARAMKY Pro Iraq Active'));
         }
 
-        function showToast(message) {
-            let toast = document.getElementById('toast-notification');
-            toast.innerText = message;
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        function showToast(msg) {
+            let t = document.getElementById('toast-notification');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        let productsList = [
-            { id: 1, name: "محبس ملكي عيار 21", caliber: "21", weight: 12.5, wage: 20000, totalQty: 5, remQty: 4, images: ["https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=300"], comments: ["عاشت ايدك، متوفر منه وزن اصغر؟", "بكم آخر شي؟"] },
-            { id: 2, name: "قلادة خليجي فاخرة", caliber: "21", weight: 35.0, wage: 25000, totalQty: 2, remQty: 2, images: ["https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=300"], comments: [] }
+        // قاعدة بيانات المخزن الأولية (شبيهة بالنظام الاحترافي)
+        let warehouseStock = [
+            { id: "INV-20261101", name: "غويشة عيار 21", caliber: "21", weight: 14.8, wage: 20000, qty: 3, status: "متوفر" },
+            { id: "INV-20261102", name: "خاتم عيار 18", caliber: "18", weight: 4.7, wage: 30000, qty: 1, status: "قارب على النفاد" },
+            { id: "INV-20261103", name: "دبلة ذهب صافي", caliber: "21", weight: 6.2, wage: 15000, qty: 5, status: "متوفر" }
         ];
 
-        function renderCatalog() {
-            let container = document.getElementById('public-product-list');
-            container.innerHTML = '';
-            let mithqal = parseFloat(document.getElementById('master_mithqal').value) || 1250000;
-            let usdRate = parseFloat(document.getElementById('master_usd').value) || 153000;
-            let gramPrice = mithqal / 5;
+        let debtsList = [
+            { name: "محمد علي", amount: 1250000 },
+            { name: "أحمد حواش", amount: 3500000 }
+        ];
 
-            productsList.forEach((p, idx) => {
-                let multiplier = (p.caliber === '24') ? (24/21) : (p.caliber === '18' ? (18/21) : 1);
-                let baseGoldPrice = gramPrice * multiplier;
-                let totalIqd = (baseGoldPrice + p.wage) * p.weight;
-
-                let mainImg = p.images[0] || "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=300";
-                
-                let subImgsHtml = '';
-                if(p.images.length > 1) {
-                    subImgsHtml = '<div class="sub-images-row">';
-                    p.images.forEach(imgUrl => {
-                        subImgsHtml += `<img src="${imgUrl}" class="sub-img-thumb" onclick="changeMainImage(${idx}, '${imgUrl}')">`;
-                    });
-                    subImgsHtml += '</div>';
-                }
-
-                let commentsHtml = '';
-                p.comments.forEach(c => {
-                    commentsHtml += `<div class="comment-item">💬 ${c}</div>`;
-                });
-
-                container.innerHTML += `
-                    <div class="product-card" id="prod-card-${idx}">
-                        <div class="product-header">
-                            <img src="/logo.jpg" onerror="this.src='https://images.unsplash.com/photo-1610375461246-83df859d849d?w=500'">
-                            <div class="product-meta">
-                                <div class="p-name">صياغة نواة الذهب (أرامكي)</div>
-                                <div class="p-time">متبقي بالمخزن: <span style="color:#4ade80; font-weight:bold;">${p.remQty}</span> من ${p.totalQty} قطعة</div>
-                            </div>
-                        </div>
-                        <div style="font-size:12px; font-weight:bold; color:var(--gold); margin-bottom:4px;">${p.name} (عيار ${p.caliber} - ${p.weight} غرام)</div>
-                        <img src="${mainImg}" class="product-img" id="main-img-${idx}" alt="${p.name}">
-                        ${subImgsHtml}
-                        <div class="product-footer">
-                            <span>السعر الإجمالي: ${Math.round(totalIqd).toLocaleString()} د.ع</span>
-                            <button class="btn btn-gold" style="width:auto; padding:5px 12px; font-size:11px; margin-top:0;" onclick="orderProduct(${idx})">طلب القطعة</button>
-                        </div>
-                        <div class="comments-section">
-                            <div style="font-weight:bold; color:var(--fb-secondary); margin-bottom:4px;">التعليقات:</div>
-                            <div id="comments-box-${idx}">${commentsHtml || '<div style="color:#777;">لا توجد تعليقات بعد..</div>'}</div>
-                            <div class="comment-input-box">
-                                <input type="text" id="comment-input-${idx}" placeholder="اكتب تعليقاً أو استفساراً...">
-                                <button class="btn" style="width:auto; padding:4px 8px; margin-top:0; font-size:10px;" onclick="addComment(${idx})">إرسال</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            renderWarehouse();
-        }
-
-        function changeMainImage(prodIdx, imgUrl) {
-            document.getElementById(`main-img-${prodIdx}`).src = imgUrl;
-        }
-
-        function orderProduct(idx) {
-            if(productsList[idx].remQty > 0) {
-                productsList[idx].remQty -= 1;
-                renderCatalog();
-                showToast('💬 تم إرسال طلب القطعة بنجاح وتحديث المخزن!');
-            } else {
-                showToast('⚠️ عذراً، نفدت هذه القطعة من المخزن بالكامل!');
-            }
-        }
-
-        function addComment(idx) {
-            let input = document.getElementById(`comment-input-${idx}`);
-            let text = input.value.trim();
-            if(text) {
-                productsList[idx].comments.push(text);
-                input.value = '';
-                renderCatalog();
-                showToast('💬 تمت إضافة تعليقك بنجاح!');
-            }
-        }
-
-        function renderWarehouse() {
-            let box = document.getElementById('warehouse-status');
-            if(!box) return;
-            let html = '';
-            productsList.forEach(p => {
-                html += `<div>📦 <b>${p.name}</b>: متبقي <span style="color:#4ade80;">${p.remQty}</span> / إجمالي ${p.totalQty} (وزن: ${p.weight}غ)</div>`;
-            });
-            box.innerHTML = html;
-        }
-
-        function syncMasterSettings() {
-            let mode = document.getElementById('pricing_mode').value;
-            let mithqalInput = document.getElementById('master_mithqal');
-            let usdInput = document.getElementById('master_usd');
-
-            if(mode === 'auto') {
-                mithqalInput.value = 1250000;
-                usdInput.value = 153000;
-            }
-
-            let mithqal = parseFloat(mithqalInput.value) || 1250000;
-            let usd = parseFloat(usdInput.value) || 153000;
-            document.getElementById('usd-display-market').innerText = usd.toLocaleString();
-            
-            let g21 = Math.round(mithqal / 5);
-            let g24 = Math.round(g21 * (24/21));
-            let g22 = Math.round(g21 * (22/21));
-            let g18 = Math.round(g21 * (18/21));
-
-            document.getElementById('market-table-body').innerHTML = `
-                <tr><td style="font-weight: bold; color: var(--gold);">مثقال 21</td><td class="price-up">${parseInt(mithqal).toLocaleString()}</td><td>${(mithqal / (usd*10)*100).toFixed(2)}$</td></tr>
-                <tr><td style="font-weight: bold;">عيار 24</td><td class="price-up">${g24.toLocaleString()}</td><td>${(g24*5 / (usd*10)*100).toFixed(2)}$</td></tr>
-                <tr><td style="font-weight: bold;">عيار 22</td><td class="price-up">${g22.toLocaleString()}</td><td>${(g22*5 / (usd*10)*100).toFixed(2)}$</td></tr>
-                <tr><td style="font-weight: bold;">عيار 21</td><td class="price-up">${g21.toLocaleString()}</td><td>${(g21*5 / (usd*10)*100).toFixed(2)}$</td></tr>
-                <tr><td style="font-weight: bold;">عيار 18</td><td class="price-up">${g18.toLocaleString()}</td><td>${(g18*5 / (usd*10)*100).toFixed(2)}$</td></tr>
-            `;
-            renderCatalog();
-        }
-
-        window.onload = function() { syncMasterSettings(); };
+        let selectedPosItem = null;
 
         function switchTab(tab) {
-            ['market', 'catalog', 'calc', 'addprod', 'inventory', 'debts', 'profits'].forEach(t => {
+            ['dashboard', 'sell', 'inventory', 'crm', 'addprod'].forEach(t => {
                 let el = document.getElementById('tab-' + t);
                 if(el) el.style.display = (t === tab) ? 'block' : 'none';
             });
+            if(tab === 'dashboard') updateDashboardStats();
+            if(tab === 'inventory') renderInventoryTable();
+            if(tab === 'crm') renderDebtsCRM();
+        }
+
+        function updateDashboardStats() {
+            let totalWeight = warehouseStock.reduce((acc, item) => acc + (item.weight * item.qty), 0);
+            let totalItems = warehouseStock.reduce((acc, item) => acc + item.qty, 0);
+            let totalDebts = debtsList.reduce((acc, item) => acc + item.amount, 0);
+
+            document.getElementById('stat-total-items').innerText = totalItems + " قطعة";
+            document.getElementById('stat-total-weight').innerText = totalWeight.toFixed(1) + " غرام";
+            document.getElementById('stat-total-debts').innerText = totalDebts.toLocaleString() + " د.ع";
+
+            // أسعار الذهب
+            let mithqal = 1250000;
+            let g21 = Math.round(mithqal / 5);
+            document.getElementById('price-21').innerText = g21.toLocaleString();
+            document.getElementById('price-24').innerText = Math.round(g21 * (24/21)).toLocaleString();
+            document.getElementById('price-22').innerText = Math.round(g21 * (22/21)).toLocaleString();
+            document.getElementById('price-18').innerText = Math.round(g21 * (18/21)).toLocaleString();
+
+            // تنبيهات النفاد
+            let alertsBox = document.getElementById('stock-alerts');
+            let lowStock = warehouseStock.filter(i => i.qty <= 1);
+            if(lowStock.length > 0) {
+                alertsBox.innerHTML = lowStock.map(i => `⚠️ القطعة <b>${i.name}</b> قاربت على النفاد (${i.qty} متبقي)!`).join('<br>');
+            } else {
+                alertsBox.innerHTML = 'الخزينة والمخزون في وضع ممتاز وآمن.';
+            }
+        }
+
+        function renderInventoryTable() {
+            let tbody = document.getElementById('inventory-table-body');
+            tbody.innerHTML = '';
+            warehouseStock.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-family:monospace; color:var(--gold);">${item.id}</td>
+                        <td><b>${item.name}</b></td>
+                        <td>${item.caliber}</td>
+                        <td>${item.weight}غ</td>
+                        <td>${item.qty}</td>
+                        <td><span style="color:${item.qty <= 1 ? '#f87171':'#4ade80'}">${item.status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterBarcodeItem() {
+            let query = document.getElementById('barcode-search').value.trim().toLowerCase();
+            let found = warehouseStock.find(i => i.id.toLowerCase().includes(query) || i.name.toLowerCase().includes(query));
+            let cartBody = document.getElementById('pos-cart-body');
+            
+            if(found) {
+                selectedPosItem = found;
+                let mithqal = parseFloat(document.getElementById('pos-mithqal').value) || 1250000;
+                let gramPrice = mithqal / 5;
+                let multiplier = (found.caliber === '24') ? (24/21) : (found.caliber === '18' ? (18/21) : 1);
+                let itemTotal = ( (gramPrice * multiplier) + found.wage ) * found.weight;
+
+                cartBody.innerHTML = `
+                    <tr>
+                        <td><b>${found.name}</b></td>
+                        <td>${found.caliber}</td>
+                        <td>${found.weight}غ</td>
+                        <td>${found.wage.toLocaleString()}</td>
+                        <td style="color:var(--gold); font-weight:bold;">${Math.round(itemTotal).toLocaleString()} د.ع</td>
+                    </tr>
+                `;
+                calculatePosCart();
+            }
+        }
+
+        function calculatePosCart() {
+            if(!selectedPosItem) return;
+            let mithqal = parseFloat(document.getElementById('pos-mithqal').value) || 1250000;
+            let usdRate = parseFloat(document.getElementById('pos-usd').value) || 153000;
+            let gramPrice = mithqal / 5;
+            let multiplier = (selectedPosItem.caliber === '24') ? (24/21) : (selectedPosItem.caliber === '18' ? (18/21) : 1);
+            let itemTotal = ( (gramPrice * multiplier) + selectedPosItem.wage ) * selectedPosItem.weight;
+
+            document.getElementById('pos-grand-total').innerText = Math.round(itemTotal).toLocaleString() + " دينار عراقي";
+            let bills = Math.floor(itemTotal / usdRate);
+            let rem = Math.round(itemTotal % usdRate);
+            document.getElementById('pos-grand-bills').innerText = `الحساب بالورق العراقي: ${bills} ورقة و ${rem.toLocaleString()} د.ع`;
+        }
+
+        function completeSaleProcess() {
+            if(!selectedPosItem) { showToast('⚠️ اختر قطعة أولاً للبيع!'); return; }
+            let customer = document.getElementById('pos-customer').value || 'عام';
+            
+            document.getElementById('inv-cust').innerText = customer;
+            document.getElementById('inv-items-list').innerHTML = `
+                <div class="tg-row"><span>${selectedPosItem.name} (${selectedPosItem.weight}غ)</span> <span>موافق</span></div>
+            `;
+            document.getElementById('inv-total-val').innerText = document.getElementById('pos-grand-total').innerText;
+            document.getElementById('inv-paper-val').innerText = document.getElementById('pos-grand-bills').innerText;
+            document.getElementById('invoice-preview').style.display = 'block';
+
+            // خصم من المخزن
+            if(selectedPosItem.qty > 0) selectedPosItem.qty -= 1;
+            showToast('✅ تمت عملية البيع وتحديث المخزن بنجاح!');
+        }
+
+        function saveNewWarehouseItem() {
+            let name = document.getElementById('new-p-name').value;
+            let caliber = document.getElementById('new-p-caliber').value;
+            let weight = parseFloat(document.getElementById('new-p-weight').value);
+            let wage = parseFloat(document.getElementById('new-p-wage').value) || 0;
+            let qty = parseInt(document.getElementById('new-p-qty').value) || 1;
+
+            if(!name || !weight) { showToast('⚠️ أدخل اسم الصنف والوزن بشكل صحيح'); return; }
+
+            let newId = "INV-202611" + Math.floor(10 + Math.random() * 90);
+            warehouseStock.push({ id: newId, name, caliber, weight, wage, qty, status: qty <= 1 ? "قارب على النفاد" : "متوفر" });
+            showToast('🚀 تمت إضافة القطعة وتوليد الباركود بنجاح!');
+            switchTab('inventory');
+        }
+
+        function renderDebtsCRM() {
+            let container = document.getElementById('debts-container');
+            container.innerHTML = '';
+            debtsList.forEach(d => {
+                container.innerHTML += `
+                    <div style="background:#0f172a; padding:6px 8px; border-radius:6px; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+                        <span>👤 <b>${d.name}</b></span>
+                        <span style="color:#f87171; font-weight:bold;">${d.amount.toLocaleString()} د.ع</span>
+                    </div>
+                `;
+            });
+        }
+
+        function addNewDebtRecord() {
+            let name = document.getElementById('debt-name').value;
+            let amount = parseFloat(document.getElementById('debt-val').value);
+            if(!name || !amount) return;
+            debtsList.push({ name, amount });
+            document.getElementById('debt-name').value = '';
+            document.getElementById('debt-val').value = '';
+            renderDebtsCRM();
+            showToast('✅ تم تسجيل الذمة المالية في نظام الـ CRM!');
         }
 
         function openPinModal() { document.getElementById('pinModal').style.display = 'flex'; }
         function closePinModal() { document.getElementById('pinModal').style.display = 'none'; }
-
         function verifyPin() {
             if(document.getElementById('pinInput').value === "7777") {
-                document.getElementById('public-tabs').style.display = 'none';
-                document.getElementById('pro-tabs').style.display = 'flex';
                 document.getElementById('pro-badge').style.display = 'inline-block';
-                document.getElementById('app-subtitle').innerText = "لوحة تحكم المدير الاحترافية";
                 closePinModal();
-                switchTab('calc');
-                showToast('🔓 تم تفعيل وضع التاجر بنجاح!');
+                showToast('🔓 تمت صذوقية الصلاحيات كمدير للمحل!');
+                switchTab('addprod');
             } else {
-                showToast('❌ الرمز غير صحيح!');
+                showToast('❌ رمز PIN غير صحيح!');
             }
-        }
-
-        function updateOpTitle() {
-            let op = document.getElementById('op_type').value;
-            document.getElementById('inv-title').innerText = (op === 'sell') ? '🧾 فاتورة بيع ذهب للزبون' : '📥 فاتورة شراء ذهب (كسر)';
-        }
-
-        let totalProfitCounter = 0;
-
-        function calculateInvoice() {
-            let shop = document.getElementById('shop_name').value;
-            let customer = document.getElementById('customer_info').value.trim() || 'نقدي / عام';
-            let opType = document.getElementById('op_type').value;
-            let mithqal = parseFloat(document.getElementById('master_mithqal').value) || 0;
-            let usdRate = parseFloat(document.getElementById('master_usd').value) || 153000;
-            let weight = parseFloat(document.getElementById('weight').value) || 0;
-            let wage = parseFloat(document.getElementById('wage').value) || 0;
-
-            let gramPrice = mithqal / 5;
-            let gramFull = (opType === 'sell') ? (gramPrice + wage) : (gramPrice - wage);
-            let totalIqd = gramFull * weight;
-            let currentProfit = wage * weight;
-
-            let bills = Math.floor(totalIqd / usdRate);
-            let remIqd = totalIqd % usdRate;
-
-            document.getElementById('res-shop').innerText = shop;
-            document.getElementById('res-customer').innerText = customer;
-            document.getElementById('res-mithqal').innerText = mithqal.toLocaleString() + " دينار";
-            document.getElementById('res-weight').innerText = weight + " غرام";
-            document.getElementById('res-wage').innerText = wage.toLocaleString() + " دينار";
-            document.getElementById('res-usd-rate').innerText = usdRate.toLocaleString() + " دينار";
-            document.getElementById('res-gram-net').innerText = Math.round(gramPrice).toLocaleString() + " دينار";
-            document.getElementById('res-gram-total').innerText = Math.round(gramFull).toLocaleString() + " دينار";
-            document.getElementById('res-total-iqd').innerText = "👉 " + Math.round(totalIqd).toLocaleString() + " دينار";
-            document.getElementById('res-bills').innerText = `💵 الحساب بالورق العراقي: 👉 ${bills.toLocaleString()} ورقة و ${Math.round(remIqd).toLocaleString()} دينار`;
-
-            window.lastProfit = currentProfit;
-            document.getElementById('invoice-container').style.display = 'block';
-        }
-
-        function confirmInvoice() {
-            let customer = document.getElementById('res-customer').innerText;
-            let weight = document.getElementById('res-weight').innerText;
-            let totalIqd = document.getElementById('res-total-iqd').innerText;
-            
-            let log = document.getElementById('inventory-log');
-            if(log.innerText.includes('لا توجد')) log.innerHTML = '';
-            log.innerHTML += `<div>✅ [${new Date().toLocaleTimeString('ar-IQ')}] ${customer} (${weight}) - ${totalIqd}</div>`;
-            
-            totalProfitCounter += (window.lastProfit || 0);
-            document.getElementById('profit-val').innerText = Math.round(totalProfitCounter).toLocaleString() + " د.ع";
-            showToast('✅ تم الاعتماد والتثبيت في الجرد والأرباح!');
-        }
-
-        function addNewProduct() {
-            let name = document.getElementById('p_name').value;
-            let caliber = document.getElementById('p_caliber').value;
-            let weight = parseFloat(document.getElementById('p_weight').value);
-            let wage = parseFloat(document.getElementById('p_wage').value);
-            let totalQty = parseInt(document.getElementById('p_total_qty').value) || 1;
-            let fileInput = document.getElementById('p_img_files');
-
-            if(!name || !weight) { showToast('لطفاً أدخل اسم القطعة والوزن'); return; }
-
-            let imagesArr = [];
-            if(fileInput.files && fileInput.files.length > 0) {
-                let filesLoaded = 0;
-                for(let i=0; i<fileInput.files.length; i++) {
-                    let reader = new FileReader();
-                    reader.onload = function(e) {
-                        imagesArr.push(e.target.result);
-                        filesLoaded++;
-                        if(filesLoaded === fileInput.files.length) {
-                            saveNewProductObj(name, caliber, weight, wage, totalQty, imagesArr);
-                        }
-                    }
-                    reader.readAsDataURL(fileInput.files[i]);
-                }
-            } else {
-                imagesArr.push("https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=300");
-                saveNewProductObj(name, caliber, weight, wage, totalQty, imagesArr);
-            }
-        }
-
-        function saveNewProductObj(name, caliber, weight, wage, totalQty, imagesArr) {
-            productsList.push({
-                id: productsList.length + 1,
-                name, caliber, weight, wage: wage || 0,
-                totalQty, remQty: totalQty,
-                images: imagesArr,
-                comments: []
-            });
-            renderCatalog();
-            showToast('🚀 تم نشر المنتج في المعرض وتحديث المخزن بنجاح!');
-            switchTab('catalog');
-        }
-
-        function addDebt() {
-            let name = document.getElementById('d_name').value;
-            let amount = document.getElementById('d_amount').value;
-            if(!name || !amount) return;
-            let list = document.getElementById('debts-list');
-            if(list.innerText.includes('لا توجد')) list.innerHTML = '';
-            list.innerHTML += `<div>👤 ${name}: <span style="color:#f87171;">${parseFloat(amount).toLocaleString()} د.ع</span></div>`;
-            document.getElementById('d_name').value = ''; document.getElementById('d_amount').value = '';
-            showToast('✅ تمت إضافة الذمة المالية بنجاح!');
-        }
-
-        function copyInvoiceText() {
-            let text = `💎 أرامكي للحلول الرقمية | ARAMKY 💎\n` +
-                       `----------------------------------------\n` +
-                       `${document.getElementById('inv-title').innerText}\n` +
-                       `----------------------------------------\n` +
-                       `🔷 المحل: ${document.getElementById('res-shop').innerText}\n` +
-                       `👤 الزبون: ${document.getElementById('res-customer').innerText}\n` +
-                       `🟡 المثقال: ${document.getElementById('res-mithqal').innerText}\n` +
-                       `⚖️ الوزن: ${document.getElementById('res-weight').innerText}\n` +
-                       `🔨 الأجور: ${document.getElementById('res-wage').innerText}\n` +
-                       `💵 سعر صرف 100$: ${document.getElementById('res-usd-rate').innerText}\n` +
-                       `----------------------------------------\n` +
-                       `💰 سعر الغرام الصافي: ${document.getElementById('res-gram-net').innerText}\n` +
-                       `✨ سعر الغرام مع الأجور: ${document.getElementById('res-gram-total').innerText}\n\n` +
-                       `💵 إجمالي الحساب بالدينار:\n${document.getElementById('res-total-iqd').innerText}\n\n` +
-                       `${document.getElementById('res-bills').innerText}\n` +
-                       `----------------------------------------\n` +
-                       `نظام أرامكي - دقة وأمان لحساباتك اليومية`;
-            navigator.clipboard.writeText(text).then(() => showToast('📋 تم النسخ بتنسيق تيليجرام!'));
         }
     </script>
 </body>
