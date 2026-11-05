@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ARAMKY Pro | أرامكي - فرع نواة الذهب</title>
+    <title>ARAMKY Pro Iraq | أرامكي - فرع نواة الذهب</title>
     
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#242526">
@@ -27,7 +27,6 @@
         body { font-family: 'Cairo', system-ui, -apple-system, sans-serif; background-color: var(--fb-bg); color: var(--fb-text); margin: 0; padding: 8px; direction: rtl; user-select: none; }
         .container { max-width: 480px; margin: auto; background: var(--fb-card); padding: 12px; border-radius: 14px; box-shadow: 0 6px 16px rgba(0,0,0,0.5); border: 1px solid var(--fb-border); }
         
-        /* إشعار عائم ناعم بدل الـ Alert المزعج */
         #toast-notification { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #d4af37; color: #000; padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 12px; z-index: 10000; transition: transform 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
         #toast-notification.show { transform: translateX(-50%) translateY(0); }
 
@@ -52,13 +51,11 @@
         .product-meta .p-time { font-size: 9px; color: var(--fb-secondary); }
         .product-img { width: 100%; height: 220px; object-fit: cover; border-radius: 10px; margin-bottom: 6px; border: 1px solid var(--fb-border); }
         
-        /* معرض الصور المتعددة المصغر */
         .sub-images-row { display: flex; gap: 5px; margin-bottom: 8px; overflow-x: auto; }
         .sub-img-thumb { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; border: 1px solid var(--gold); cursor: pointer; }
 
         .product-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: #4ade80; margin-top: 6px; }
         
-        /* قسم التعليقات داخل المنشور */
         .comments-section { margin-top: 8px; border-top: 1px dashed var(--fb-border); padding-top: 6px; font-size: 11px; }
         .comment-item { color: var(--fb-secondary); margin-bottom: 3px; background: rgba(255,255,255,0.03); padding: 4px 8px; border-radius: 6px; }
         .comment-input-box { display: flex; gap: 5px; margin-top: 6px; }
@@ -106,8 +103,8 @@
             <div class="fb-profile-area">
                 <img src="/logo.jpg" id="main-logo" alt="ARAMKY" class="brand-logo" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1610375461246-83df859d849d?w=500';">
                 <div class="brand-title-box">
-                    <h2>ARAMKY Pro</h2>
-                    <div class="subtitle" id="app-subtitle">فرع نواة الذهب الرسمي</div>
+                    <h2>ARAMKY Pro Iraq</h2>
+                    <div class="subtitle" id="app-subtitle">فرع نواة الذهب - النظام العراقي المعتمد</div>
                 </div>
             </div>
             <div id="pro-badge" style="background:var(--gold); color:#000; font-size:9px; font-weight:bold; padding:3px 8px; border-radius:6px; display:none;">مدير المحل</div>
@@ -129,46 +126,45 @@
             <button class="nav-btn" onclick="switchTab('profits')">📊 <span>الأرباح</span></button>
         </div>
 
-        <!-- 1️⃣ البورصة -->
+        <!-- 1️⃣ البورصة العراقية -->
         <div id="tab-market" class="page-section">
             <div style="background: var(--fb-bg); padding: 8px; border-radius: 8px; text-align: center; margin-bottom: 10px; border: 1px solid var(--fb-border);">
                 <div style="font-size: 10px; color: var(--gold);">⚡ أونصة الذهب العالمية لحظياً</div>
                 <div style="font-size: 17px; font-weight: bold; color: #4ade80;" id="live-ounce">$3,958.10</div>
             </div>
 
-            <!-- خيار ربط الأسعار تلقائياً أو يدوياً -->
             <div style="background: var(--fb-bg); padding: 8px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--fb-border); font-size: 11px;">
-                <label style="color: var(--gold); font-weight: bold; margin-bottom: 4px;">⚙️ وضع تسعير السوق:</label>
+                <label style="color: var(--gold); font-weight: bold; margin-bottom: 4px;">⚙️ وضع التسعير في السوق العراقي:</label>
                 <select id="pricing_mode" onchange="syncMasterSettings()" style="font-size: 11px;">
-                    <option value="auto">🌐 ربط تلقائي مع أسعار البورصة الحقيقية بالعراق</option>
-                    <option value="manual">✍️ إدخال يدوي بالكامل</option>
+                    <option value="auto">🌐 ربط تلقائي مع أسعار السوق العراقي للذهب</option>
+                    <option value="manual">✍️ إدخال يدوي للمثقال والورق</option>
                 </select>
             </div>
 
             <div class="market-box">
                 <div class="market-header-main">
-                    <span>🥇 أسعار العيارات في السوق العراقي</span>
-                    <span style="color: #38bdf8; font-size: 10px;">100$ = <span id="usd-display-market">153,000</span></span>
+                    <span>🥇 أسعار العيارات والمثقال في العراق</span>
+                    <span style="color: #38bdf8; font-size: 10px;">100$ = <span id="usd-display-market">153,000</span> د.ع</span>
                 </div>
                 <table class="market-table">
                     <thead>
-                        <tr><th>النوع</th><th>دينار عراقي</th><th>دولار</th></tr>
+                        <tr><th>النوع</th><th>دينار عراقي (د.ع)</th><th>دولار ($)</th></tr>
                     </thead>
                     <tbody id="market-table-body"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 2️⃣ المعرض العام (منشورات فيسبوك متطورة مع صور متعددة وتعليقات) -->
+        <!-- 2️⃣ المعرض العام -->
         <div id="tab-catalog" class="page-section" style="display:none;">
-            <div style="text-align: center; font-size: 11px; color: var(--gold); margin-bottom: 6px;">✨ معروضات المجوهرات والقطع المتوفرة</div>
+            <div style="text-align: center; font-size: 11px; color: var(--gold); margin-bottom: 6px;">✨ معروضات المجوهرات والقطع المتوفرة بالمحل</div>
             <div class="catalog-grid" id="public-product-list"></div>
         </div>
 
-        <!-- 3️⃣ حاسبة POS -->
+        <!-- 3️⃣ حاسبة POS بالطريقة العراقية -->
         <div id="tab-calc" class="page-section" style="display:none;">
             <div class="form-group"><label>🔷 اسم المحل العامر:</label><input type="text" id="shop_name" value="صياغة نواة الذهب - الفرع الرئيسي"></div>
-            <div class="form-group"><label>👤 اسم الزبون / الهواتف:</label><input type="text" id="customer_info" placeholder="مثال: أحمد العراقي - 07800000000"></div>
+            <div class="form-group"><label>👤 اسم الزبون / الهواتف:</label><input type="text" id="customer_info" placeholder="مثال: الحاج أبو علي - 07800000000"></div>
             <div class="form-group">
                 <label>🔄 نوع العملية:</label>
                 <select id="op_type" onchange="updateOpTitle()">
@@ -176,12 +172,12 @@
                     <option value="buy">📥 شراء ذهب (كسر) من الزبون</option>
                 </select>
             </div>
-            <div class="form-group"><label>🟡 سعر المثقال الأساسي المعتمد (دينار):</label><input type="number" id="master_mithqal" value="1250000" oninput="syncMasterSettings()"></div>
-            <div class="form-group"><label>💵 سعر صرف 100$ الحقيقي بالأسواق العراقية:</label><input type="number" id="master_usd" value="153000" oninput="syncMasterSettings()"></div>
+            <div class="form-group"><label>🟡 سعر المثقال الأساسي (دينار عراقي):</label><input type="number" id="master_mithqal" value="1250000" oninput="syncMasterSettings()"></div>
+            <div class="form-group"><label>💵 سعر صرف 100$ في السوق العراقي (الورق):</label><input type="number" id="master_usd" value="153000" oninput="syncMasterSettings()"></div>
             <div class="form-group"><label>⚖️ الوزن الإجمالي للقطعة (غرام):</label><input type="number" id="weight" value="25" step="0.01"></div>
-            <div class="form-group"><label>🔨 أجور الصياغة / غرام:</label><input type="number" id="wage" value="25000"></div>
+            <div class="form-group"><label>🔨 أجور الصياغة / غرام (دينار):</label><input type="number" id="wage" value="25000"></div>
 
-            <button class="btn btn-gold no-print" onclick="calculateInvoice()">🧮 حساب الفاتورة الشاملة والورق</button>
+            <button class="btn btn-gold no-print" onclick="calculateInvoice()">🧮 حساب الفاتورة وحساب الورق العراقي</button>
 
             <div class="tg-invoice" id="invoice-container" style="display:none;">
                 <div class="tg-header">💎 أرامكي للحلول الرقمية | ARAMKY 💎</div>
@@ -204,7 +200,7 @@
                 <div class="tg-total-box">
                     <div style="font-size: 10px; color: #475569;">💵 إجمالي الحساب بالدينار:</div>
                     <div class="tg-total-val" id="res-total-iqd">👉 6,875,000 دينار</div>
-                    <div style="font-size: 11px; color: #b45309; margin-top: 3px; font-weight: bold;" id="res-bills">💵 الحساب بالورق: 👉 44 ورقة و 55,000 دينار</div>
+                    <div style="font-size: 11px; color: #b45309; margin-top: 3px; font-weight: bold;" id="res-bills">💵 الحساب بالورق العراقي: 👉 44 ورقة و 55,000 دينار</div>
                 </div>
 
                 <hr class="tg-divider">
@@ -216,7 +212,7 @@
             </div>
         </div>
 
-        <!-- 4️⃣ صفحة النشر المتطورة (صور متعددة، عدد القطع، واختيار العيار) -->
+        <!-- 4️⃣ صفحة النشر المطور -->
         <div id="tab-addprod" class="page-section" style="display:none;">
             <div style="background: var(--fb-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--fb-border);">
                 <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:12px;">➕ نشر منتج جديد بالمعرض والمخزن</h4>
@@ -225,7 +221,7 @@
                     <label>🟡 اختيار عيار الأساس:</label>
                     <select id="p_caliber">
                         <option value="24">مثقال / عيار 24</option>
-                        <option value="21" selected>عيار 21 (قياسي)</option>
+                        <option value="21" selected>عيار 21 (قياسي عراقي)</option>
                         <option value="18">عيار 18</option>
                     </select>
                 </div>
@@ -237,7 +233,7 @@
             </div>
         </div>
 
-        <!-- 5️⃣ المخزن المطور والديون والأرباح -->
+        <!-- 5️⃣ المخزن والديون والأرباح -->
         <div id="tab-inventory" class="page-section" style="display:none;">
             <div style="background: var(--fb-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--fb-border);">
                 <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:12px;">📦 إدارة المخزن والقطع المتبقية</h4>
@@ -278,10 +274,9 @@
 
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').then(() => console.log('ARAMKY Pro Engine Active'));
+            navigator.serviceWorker.register('/sw.js').then(() => console.log('ARAMKY Iraq Engine Active'));
         }
 
-        // دالة عرض الإشعارات الناعمة بدل الـ Alert
         function showToast(message) {
             let toast = document.getElementById('toast-notification');
             toast.innerText = message;
@@ -289,9 +284,8 @@
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        // قاعدة بيانات المنتجات مع صور متعددة ومخزن
         let productsList = [
-            { id: 1, name: "محبس ملكي عيار 21", caliber: "21", weight: 12.5, wage: 20000, totalQty: 5, remQty: 4, images: ["https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=300"], comments: ["فدوه شوك قديمه بس حلوة", "بكم آخر شي؟"] },
+            { id: 1, name: "محبس ملكي عيار 21", caliber: "21", weight: 12.5, wage: 20000, totalQty: 5, remQty: 4, images: ["https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=300"], comments: ["عاشت ايدك، متوفر منه وزن اصغر؟", "بكم آخر شي؟"] },
             { id: 2, name: "قلادة خليجي فاخرة", caliber: "21", weight: 35.0, wage: 25000, totalQty: 2, remQty: 2, images: ["https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=300"], comments: [] }
         ];
 
@@ -303,7 +297,6 @@
             let gramPrice = mithqal / 5;
 
             productsList.forEach((p, idx) => {
-                // حساب السعر بناءً على العيار المثبت وأجور الصياغة المضروبة بالوزن
                 let multiplier = (p.caliber === '24') ? (24/21) : (p.caliber === '18' ? (18/21) : 1);
                 let baseGoldPrice = gramPrice * multiplier;
                 let totalIqd = (baseGoldPrice + p.wage) * p.weight;
@@ -342,7 +335,7 @@
                         </div>
                         <div class="comments-section">
                             <div style="font-weight:bold; color:var(--fb-secondary); margin-bottom:4px;">التعليقات:</div>
-                            <div id="comments-box-${idx}">${commentsHtml || '<div style="color:#777;">لا توجد تعليقات بعد.. كن أول المتكلمين</div>'}</div>
+                            <div id="comments-box-${idx}">${commentsHtml || '<div style="color:#777;">لا توجد تعليقات بعد..</div>'}</div>
                             <div class="comment-input-box">
                                 <input type="text" id="comment-input-${idx}" placeholder="اكتب تعليقاً أو استفساراً...">
                                 <button class="btn" style="width:auto; padding:4px 8px; margin-top:0; font-size:10px;" onclick="addComment(${idx})">إرسال</button>
@@ -384,7 +377,7 @@
             if(!box) return;
             let html = '';
             productsList.forEach(p => {
-                html += `<div>📦 <b>${p.name}</b>: متقي <span style="color:#4ade80;">${p.remQty}</span> / إجمالي ${p.totalQty} (وزن: ${p.weight}غ)</div>`;
+                html += `<div>📦 <b>${p.name}</b>: متبقي <span style="color:#4ade80;">${p.remQty}</span> / إجمالي ${p.totalQty} (وزن: ${p.weight}غ)</div>`;
             });
             box.innerHTML = html;
         }
@@ -395,7 +388,6 @@
             let usdInput = document.getElementById('master_usd');
 
             if(mode === 'auto') {
-                // محاكاة جلب الأسعار الحية الحقيقية من السوق العراقي والبورصة
                 mithqalInput.value = 1250000;
                 usdInput.value = 153000;
             }
@@ -478,7 +470,7 @@
             document.getElementById('res-gram-net').innerText = Math.round(gramPrice).toLocaleString() + " دينار";
             document.getElementById('res-gram-total').innerText = Math.round(gramFull).toLocaleString() + " دينار";
             document.getElementById('res-total-iqd').innerText = "👉 " + Math.round(totalIqd).toLocaleString() + " دينار";
-            document.getElementById('res-bills').innerText = `💵 الحساب بالورق: 👉 ${bills.toLocaleString()} ورقة و ${Math.round(remIqd).toLocaleString()} دينار`;
+            document.getElementById('res-bills').innerText = `💵 الحساب بالورق العراقي: 👉 ${bills.toLocaleString()} ورقة و ${Math.round(remIqd).toLocaleString()} دينار`;
 
             window.lastProfit = currentProfit;
             document.getElementById('invoice-container').style.display = 'block';
@@ -498,7 +490,6 @@
             showToast('✅ تم الاعتماد والتثبيت في الجرد والأرباح!');
         }
 
-        // نشر منتج جديد مع صور متعددة ومخزن
         function addNewProduct() {
             let name = document.getElementById('p_name').value;
             let caliber = document.getElementById('p_caliber').value;
