@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ARAMKY Pro | منصة الصاغة والمتاجر العراقية</title>
+    <title>ARAMKY Pro | إدارة المخازن، المعارض، الجرد والديون</title>
     <style>
         :root {
             --bg-main: #0f172a;
@@ -12,359 +12,363 @@
             --text-main: #f8fafc;
             --text-sec: #94a3b8;
             --gold: #d4af37;
-            --blue-btn: #0284c7;
-            --green-btn: #16a34a;
-            --red-btn: #dc2626;
+            --green: #16a34a;
+            --red: #dc2626;
+            --blue: #0284c7;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Cairo', system-ui, sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; padding: 6px; direction: rtl; }
-        .container { max-width: 480px; margin: auto; background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-clr); box-shadow: 0 8px 20px rgba(0,0,0,0.6); }
+        body { font-family: 'Cairo', system-ui, sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; padding: 10px; direction: rtl; }
+        .container { max-width: 480px; margin: auto; background: var(--card-bg); padding: 12px; border-radius: 14px; border: 1px solid var(--border-clr); box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
         
-        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--gold); color: #000; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 11px; z-index: 10000; transition: transform 0.3s; }
-        #toast.show { transform: translateX(-50%) translateY(0); }
+        .header { text-align: center; border-bottom: 1px solid var(--border-clr); padding-bottom: 8px; margin-bottom: 12px; }
+        .header h2 { color: var(--gold); font-size: 16px; margin: 0; }
+        .header p { color: var(--text-sec); font-size: 10px; margin: 2px 0 0 0; }
 
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-clr); padding-bottom: 6px; margin-bottom: 8px; }
-        .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 8px; background: #0b0f19; padding: 4px; border-radius: 8px; }
-        .tab-btn { background: transparent; border: none; color: var(--text-sec); font-size: 9px; font-weight: bold; padding: 6px 2px; border-radius: 6px; cursor: pointer; text-align: center; }
+        /* شريط التنقل بين الأقسام */
+        .nav-tabs { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; margin-bottom: 12px; background: #0b0f19; padding: 4px; border-radius: 8px; }
+        .tab-btn { background: transparent; border: none; color: var(--text-sec); font-size: 8.5px; font-weight: bold; padding: 5px 1px; border-radius: 6px; cursor: pointer; text-align: center; }
         .tab-btn.active { background: var(--gold); color: #000; }
 
         .section { display: none; }
-        .section.active { display: block; animation: fadeIn 0.2s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .section.active { display: block; }
 
+        /* شريط البورصة والدولار */
+        .ticker-bar { background: #0b0f19; padding: 10px; border-radius: 10px; border: 1px solid var(--gold); margin-bottom: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; text-align: center; }
+        .ticker-item .title { font-size: 10px; color: var(--text-sec); }
+        .ticker-item .val { font-size: 13px; font-weight: bold; color: var(--gold); margin-top: 2px; }
+
+        /* كارت معرض الصايغ */
+        .merchant-profile { background: #0b0f19; border: 1px solid var(--border-clr); border-radius: 10px; padding: 10px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .merchant-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--gold); color: #000; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+        .merchant-info h3 { margin: 0; font-size: 12px; color: var(--text-main); }
+        .merchant-info p { margin: 2px 0 0 0; font-size: 9px; color: var(--text-sec); }
+
+        /* النماذج والإدخال */
         .form-group { margin-bottom: 8px; }
         label { display: block; font-size: 10px; margin-bottom: 2px; color: var(--text-sec); }
         input, select, textarea { width: 100%; padding: 7px; background: #0f172a; border: 1px solid var(--border-clr); color: white; border-radius: 6px; font-size: 11px; }
-        input:focus, select:focus, textarea:focus { border-color: var(--gold); outline: none; }
+        input:focus { border-color: var(--gold); outline: none; }
 
-        .btn { background: var(--blue-btn); color: white; font-weight: bold; border: none; width: 100%; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 11px; margin-top: 4px; }
-        .btn-gold { background: linear-gradient(135deg, #d4af37, #aa7c11); color: #000; }
-        .btn-green { background: var(--green-btn); color: white; }
-        .btn-red { background: var(--red-btn); color: white; }
-        .btn-sm { width: auto; padding: 3px 8px; font-size: 9px; display: inline-block; }
+        /* أزرار */
+        .btn { background: var(--gold); color: #000; font-weight: bold; border: none; width: 100%; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 11px; margin-top: 6px; }
+        .btn-green { background: var(--green); color: white; }
+        .btn-red { background: var(--red); color: white; }
+        .btn-blue { background: var(--blue); color: white; }
+        .btn-sm { width: auto; padding: 3px 8px; font-size: 9px; display: inline-block; margin-top: 0; }
 
-        .card { background: #0b0f19; padding: 8px; border-radius: 8px; margin-bottom: 6px; border: 1px solid var(--border-clr); }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 999; justify-content: center; align-items: center; }
-        .modal-content { background: var(--card-bg); padding: 16px; border-radius: 10px; width: 300px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--gold); }
+        /* معرض عرض القطع */
+        .gallery-grid { display: flex; flex-direction: column; gap: 10px; }
+        .product-card { background: #0b0f19; border: 1px solid var(--border-clr); border-radius: 10px; padding: 10px; }
+        .product-img { width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 6px; background: #131b2e; }
+        .product-title { font-size: 12px; font-weight: bold; color: var(--gold); margin-bottom: 4px; }
+        .product-details { display: flex; justify-content: space-between; background: #131b2e; padding: 6px 8px; border-radius: 6px; font-size: 10px; margin-bottom: 6px; }
+        .product-notes { font-size: 10px; color: var(--text-sec); margin-bottom: 6px; }
+
+        /* قسم التعليقات */
+        .comments-box { background: #131b2e; padding: 6px; border-radius: 6px; margin-top: 6px; border: 1px solid var(--border-clr); }
+        .comment-item { background: #0f172a; padding: 4px 6px; border-radius: 4px; margin-bottom: 4px; font-size: 9.5px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* تنسيق الفاتورة عند الطباعة */
+        @media print {
+            body { background: white; color: black; }
+            .container { border: none; box-shadow: none; width: 100%; max-width: 100%; }
+            .nav-tabs, .ticker-bar, .merchant-profile, .btn, form { display: none !important; }
+            #invoice-print-area { display: block !important; border: 2px solid #000; padding: 15px; background: #fff; }
+        }
+        #invoice-print-area { display: none; }
     </style>
 </head>
 <body>
-    <div id="toast">تم التنفيذ بنجاح</div>
 
     <div class="container">
-        <!-- الهيدر العلوي -->
+        <!-- الهيدر -->
         <div class="header">
-            <div>
-                <h2 style="color: var(--gold); font-size: 13px; margin: 0;">ARAMKY Pro ERP</h2>
-                <div style="font-size: 9px; color: var(--text-sec);">منصة صاغة الذهب والمتاجر الحرة</div>
-            </div>
-            <button class="btn btn-gold btn-sm" onclick="openModal('pinModal')">🔑 دخول التاجر</button>
+            <h2>ARAMKY Pro</h2>
+            <p>منصة إدارة المخازن، المعارض، الخريطة والديون</p>
         </div>
 
-        <!-- شريط التنقل الرئيسي -->
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('store', this)">🛍️ المتجر</button>
-            <button class="tab-btn" onclick="switchTab('mithqal', this)">⚖️ المثاقيل</button>
+        <!-- شريط البورصة والدولار -->
+        <div class="ticker-bar">
+            <div class="ticker-item">
+                <div class="title">🌐 أونصة الذهب العالمية</div>
+                <div class="val" id="gold-ounce">$2,650.00</div>
+            </div>
+            <div class="ticker-item">
+                <div class="title">💵 صرف 100$ (الورق)</div>
+                <div class="val" id="usd-rate">153,000 د.ع</div>
+            </div>
+        </div>
+
+        <!-- أزرار التنقل بين الأقسام -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('store', this)">🛍️ المعرض</button>
             <button class="tab-btn" onclick="switchTab('inventory', this)">📦 المخزن</button>
-            <button class="tab-btn" onclick="switchTab('pos', this)">⚡ نقطة البيع</button>
-            <button class="tab-btn" onclick="switchTab('treasury', this)">💰 الخزائن</button>
-            <button class="tab-btn" onclick="switchTab('crm', this)">👥 الديون</button>
-            <button class="tab-btn" onclick="switchTab('inventory-audit', this)">📋 الجرد</button>
-            <button class="tab-btn" onclick="switchTab('goldsmiths', this)">📍 دليل GPS</button>
+            <button class="tab-btn" onclick="switchTab('calc', this)">🧮 الحاسبة</button>
+            <button class="tab-btn" onclick="switchTab('audit', this)">📊 الجرد</button>
+            <button class="tab-btn" onclick="switchTab('debts', this)">👥 الديون</button>
+            <button class="tab-btn" onclick="switchTab('gps', this)">📍 GPS الصاغة</button>
         </div>
 
-        <!-- 1️⃣ قسم المتجر والتعليقات والشات الخاص -->
+        <!-- 1️⃣ قسم المعرض العام والتعليقات -->
         <div id="section-store" class="section active">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <h4 style="color:var(--gold); margin:0; font-size:11px;">عرض القطع في المتجر العراقي</h4>
-                <button class="btn btn-gold btn-sm merchant-only" style="display:none;" onclick="openItemModal(null)">+ نشر قطعة للمتجر</button>
+            <div class="merchant-profile">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div class="merchant-avatar">💎</div>
+                    <div class="merchant-info">
+                        <h3 id="merchant-name">مجوهرات أرامكي</h3>
+                        <p id="merchant-loc">📍 بغداد - المنصور | معرض رقم #102</p>
+                    </div>
+                </div>
+                <button class="btn btn-gold btn-sm" onclick="toggleMerchantView()"><span id="merchant-status-badge">وضع الصايغ: مفعل</span></button>
             </div>
-            <div class="form-group"><input type="text" id="store-search" placeholder="ابحث في المتجر..." oninput="renderStore()"></div>
-            <div id="store-feed-container"></div>
+            <h4 style="font-size:11px; color:var(--gold); margin:0 0 8px 0;">🛍️ قطع الذهب المعروضة للزبائن:</h4>
+            <div class="gallery-grid" id="public-gallery-container"></div>
         </div>
 
-        <!-- 2️⃣ قسم خانات المثاقيل الـ 10 والبورصة -->
-        <div id="section-mithqal" class="section">
-            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">إدارة 10 خانات للمثاقيل والبورصة</h4>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:8px;">
-                <div class="form-group" style="margin:0;"><label>💵 سعر صرف 100$ (الورق):</label><input type="number" id="market-usd" value="153000" oninput="saveMarketData()"></div>
-                <div class="form-group" style="margin:0;"><label>🟡 أونصة الذهب العالمية ($):</label><input type="number" id="market-ounce" value="2650" oninput="saveMarketData()"></div>
-            </div>
-            <div id="mithqalat-inputs-container"></div>
-            <button class="btn btn-green" style="margin-top:6px;" onclick="showToast('✅ تم تحديث الأسعار على كافة القطع في المخزن والمتجر تلقائياً!')">🔄 تحديث تسعير كل القطع بالمتجر</button>
-        </div>
-
-        <!-- 3️⃣ إدارة المخزن والقطع والباركود -->
+        <!-- 2️⃣ قسم إدارة المخزن -->
         <div id="section-inventory" class="section">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <h4 style="color:var(--gold); margin:0; font-size:11px;">إدارة المخزن والقطع</h4>
-                <button class="btn btn-gold btn-sm merchant-only" style="display:none;" onclick="openInvModal(null)">+ إضافة قطعة للمخزن</button>
+            <h4 style="font-size:11px; color:var(--gold); margin:0 0 8px 0;">📦 إضافة أو تعديل قطعة في المخزن والمعرض:</h4>
+            <div style="background:#0b0f19; padding:10px; border-radius:8px; border:1px solid var(--border-clr); margin-bottom:12px;">
+                <input type="hidden" id="edit-index" value="-1">
+                <div class="form-group"><input type="text" id="item-title" placeholder="اسم القطعة (مثال: غويشة عيار 21)"></div>
+                <div class="form-group"><input type="text" id="item-weight" placeholder="الوزن (مثال: 14.80 غرام)"></div>
+                <div class="form-group"><input type="text" id="item-wage" placeholder="أجور الصياغة (مثال: 25,000 د.ع / غرام)"></div>
+                <div class="form-group"><input type="text" id="item-image" placeholder="رابط الصورة (اختياري)"></div>
+                <div class="form-group"><input type="text" id="item-notes" placeholder="ملاحظات تفصيلية"></div>
+                
+                <div class="form-group">
+                    <label>حالة النشر:</label>
+                    <select id="item-published">
+                        <option value="yes">نشر في المعرض العام</option>
+                        <option value="no">إبقاء في المخزن فقط (غير منشور)</option>
+                    </select>
+                </div>
+                <button class="btn btn-green" onclick="saveProduct()">💾 حفظ القطعة في المخزن</button>
             </div>
-            <div class="form-group"><input type="text" id="inv-search" placeholder="ابحث في المخزن..." oninput="renderInventory()"></div>
-            <div id="inventory-list-container"></div>
+
+            <h4 style="font-size:11px; color:var(--gold); margin:0 0 6px 0;">📋 قائمة مخزني الحالي:</h4>
+            <div class="gallery-grid" id="inventory-list-container"></div>
         </div>
 
-        <!-- 4️⃣ نقطة البيع والخصم التلقائي والخزائن -->
-        <div id="section-pos" class="section">
-            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">نقطة البيع (POS) والخصم التلقائي</h4>
-            <div class="form-group"><label>اختر القطعة من المخزن:</label><select id="pos-item-select"></select></div>
-            <div class="form-group"><input type="text" id="pos-cust-name" placeholder="اسم الزبون الكريم"></div>
-            <div class="form-group"><label>طريقة الدفع:</label>
-                <select id="pos-payment-method">
-                    <option value="cash-iqd">كاش دينار عراقي</option>
-                    <option value="paper-usd">دولار / ورق</option>
-                    <option value="mastercard">ماستر كارد</option>
-                </select>
+        <!-- 3️⃣ حاسبة أرامكي وطباعة الفاتورة -->
+        <div id="section-calc" class="section">
+            <h4 style="font-size:11px; color:var(--gold); margin:0 0 8px 0;">🧮 حاسبة أرامكي للبيع والشراء:</h4>
+            <div style="background:#0b0f19; padding:10px; border-radius:8px; border:1px solid var(--border-clr);">
+                <div class="form-group">
+                    <label>نوع العملية:</label>
+                    <select id="calc-type" onchange="runAramkyCalc()">
+                        <option value="sale">بيع للزبون (إيراد داخل)</option>
+                        <option value="buy">شراء/كسر من الزبون (مصروف خارج)</option>
+                    </select>
+                </div>
+                <div class="form-group"><input type="number" id="calc-mithqal-price" value="1250000" placeholder="سعر المثقال الحالي (د.ع)" oninput="runAramkyCalc()"></div>
+                <div class="form-group"><input type="number" id="calc-total-weight" value="10" placeholder="الوزن الإجمالي (غرام)" oninput="runAramkyCalc()"></div>
+                <div class="form-group"><input type="number" id="calc-wage-price" value="25000" placeholder="أجور الصياغة للغرام الواحد (د.ع)" oninput="runAramkyCalc()"></div>
+                
+                <div style="background:#131b2e; padding:10px; border-radius:6px; text-align:center; margin-top:8px; border:1px solid var(--border-clr);">
+                    <div style="font-size:10px; color:var(--text-sec);">المبلغ الإجمالي النهائي:</div>
+                    <div style="font-size:15px; font-weight:bold; color:var(--gold); margin-top:2px;" id="calc-result-amount">0 دينار عراقي</div>
+                </div>
+
+                <div class="form-group" style="margin-top:8px;"><input type="text" id="customer-name" placeholder="اسم الزبون الكريم"></div>
+                
+                <div style="background:#131b2e; padding:8px; border-radius:6px; margin-bottom:8px; border:1px solid var(--border-clr);">
+                    <label style="color:var(--gold); margin-bottom:4px;">طرق الدفع / الاستلام:</label>
+                    <div style="font-size:10px; display:flex; flex-direction:column; gap:4px;">
+                        <div><input type="checkbox" id="pay-cash" checked> كاش دينار عراقي</div>
+                        <div><input type="checkbox" id="pay-usd"> دولار (ورق)</div>
+                        <div><input type="checkbox" id="pay-master"> ماستر كارد / إلكتروني</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-green" onclick="executeAndLogTransaction()">✅ تسجيل العملية في الجرد وطباعة الفاتورة</button>
             </div>
-            <div class="form-group"><input type="number" id="pos-price" placeholder="المبلغ الإجمالي (د.ع)"></div>
-            <button class="btn btn-green" onclick="processSale()">✅ إتمام البيع، خصم المخزن، وتغذية الخزينة</button>
         </div>
 
-        <!-- 5️⃣ الخزائن المالية وأرصدتها -->
-        <div id="section-treasury" class="section">
-            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">أرصدة الخزائن المالية</h4>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:8px;">
-                <div class="card" style="text-align:center;"><div style="font-size:10px; color:var(--text-sec);">خزنة الكاش (دينار)</div><div style="font-size:13px; font-weight:bold; color:var(--gold);" id="treasury-iqd">1,500,000 د.ع</div></div>
-                <div class="card" style="text-align:center;"><div style="font-size:10px; color:var(--text-sec);">خزنة الورق (دولار)</div><div style="font-size:13px; font-weight:bold; color:var(--gold);" id="treasury-usd">2,400 $</div></div>
+        <!-- 4️⃣ قسم جرد المبيعات والمشتريات -->
+        <div id="section-audit" class="section">
+            <h4 style="font-size:11px; color:var(--gold); margin:0 0 8px 0;">📊 جرد العمليات (المبالغ الداخلة والخارجة):</h4>
+            <div style="display:flex; gap:4px; margin-bottom:8px;">
+                <input type="text" id="audit-search" placeholder="ابحث في العمليات..." oninput="renderAuditLog()">
             </div>
-            <div class="card" style="text-align:center;"><div style="font-size:10px; color:var(--text-sec);">خزنة الماستر كارد</div><div style="font-size:13px; font-weight:bold; color:var(--gold);" id="treasury-master">500,000 د.ع</div></div>
+            <div id="audit-log-container" class="gallery-grid"></div>
         </div>
 
-        <!-- 6️⃣ دفتر الديون الشامل (CRM) والبحث -->
-        <div id="section-crm" class="section">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <h4 style="color:var(--gold); margin:0; font-size:11px;">دفتر الديون والذمم (CRM)</h4>
-                <button class="btn btn-gold btn-sm merchant-only" style="display:none;" onclick="openCrmModal()">+ سجل ذمة جديدة</button>
+        <!-- 5️⃣ قسم دفتر الديون (CRM) -->
+        <div id="section-debts" class="section">
+            <h4 style="font-size:11px; color:var(--gold); margin:0 0 8px 0;">👥 دفتر الديون والذمم:</h4>
+            <div style="background:#0b0f19; padding:8px; border-radius:8px; border:1px solid var(--border-clr); margin-bottom:8px;">
+                <input type="hidden" id="edit-debt-index" value="-1">
+                <div class="form-group"><input type="text" id="debt-name" placeholder="اسم الزبون"></div>
+                <div class="form-group"><input type="number" id="debt-amount" placeholder="مبلغ الدين (د.ع)"></div>
+                <div class="form-group">
+                    <label>نوع الذمة:</label>
+                    <select id="debt-type">
+                        <option value="on">له ذمة (مطلوب لنا)</option>
+                        <option value="out">عليه ذمة (مطلوب منا)</option>
+                    </select>
+                </div>
+                <button class="btn btn-blue" onclick="saveDebt()">💾 حفظ في دفتر الديون</button>
             </div>
-            <div style="display:flex; gap:4px; margin-bottom:6px;">
-                <input type="text" id="crm-search" placeholder="ابحث عن اسم الزبون..." oninput="renderCrm()">
-                <select id="crm-filter" style="width:100px;" onchange="renderCrm()">
-                    <option value="all">الجميع</option>
-                    <option value="sale">للبيع</option>
-                    <option value="buy">للشراء</option>
-                </select>
-            </div>
-            <div id="crm-list-container"></div>
+            <div style="margin-bottom:8px;"><input type="text" id="debt-search" placeholder="ابحث عن زبون في الديون..." oninput="renderDebtsList()"></div>
+            <div id="debts-list-container" class="gallery-grid"></div>
         </div>
 
-        <!-- 7️⃣ جلسات الجرد المرن -->
-        <div id="section-inventory-audit" class="section">
-            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">جلسات الجرد المرن للمحل</h4>
-            <div class="form-group"><label>اختر نوع الجرد:</label>
-                <select id="audit-type">
-                    <option value="daily">جرد يومي</option>
-                    <option value="weekly">جرد أسبوعي</option>
-                    <option value="monthly">جرد شهري</option>
-                </select>
-            </div>
-            <button class="btn btn-gold" onclick="runAuditSession()">🔍 بدء جلسة الجرد الشامل للمخزن</button>
-            <div id="audit-result-box" style="margin-top:8px;"></div>
-        </div>
-
-        <!-- 8️⃣ دليل الصاغة والـ GPS -->
-        <div id="section-goldsmiths" class="section">
-            <h4 style="color:var(--gold); margin:0 0 6px 0; font-size:11px;">📍 دليل الصاغة والمحلات (GPS)</h4>
-            <div class="form-group"><input type="text" id="gps-search" placeholder="ابحث عن اسم صايغ أو منطقة..." oninput="renderGoldsmiths()"></div>
-            <div id="goldsmiths-container"></div>
+        <!-- 6️⃣ قسم GPS وخريطة الصاغة الأقرب والأبعد -->
+        <div id="section-gps" class="section">
+            <h4 style="font-size:11px; color:var(--gold); margin:0 0 8px 0;">📍 خريطة ودليل محلات الصاغة (GPS):</h4>
+            <button class="btn btn-blue" style="margin-bottom:8px;" onclick="getUserLocationAndSort()">🎯 تحديد موقعي الحالي وحساب المسافات</button>
+            <div id="gps-status" style="font-size:10px; color:var(--text-sec); margin-bottom:6px; text-align:center;">اضغط على الزر أعلاه لترتيب الصاغة من الأقرب إلى الأبعد حسب موقعك الحالي.</div>
+            <div id="goldsmiths-map-list" class="gallery-grid"></div>
         </div>
     </div>
 
-    <!-- نافذة نشر/تعديل قطعة المتجر -->
-    <div class="modal" id="itemModal">
-        <div class="modal-content">
-            <h3 style="color:var(--gold); margin-top:0; font-size:12px;">نشر قطعة في المتجر</h3>
-            <input type="hidden" id="edit-store-id">
-            <div class="form-group"><input type="text" id="store-title-input" placeholder="اسم القطعة"></div>
-            <div class="form-group"><label>اختر نوع المثقال المعتمد:</label><select id="store-mithqal-select"></select></div>
-            <div class="form-group"><input type="text" id="store-weight-input" placeholder="الوزن الصافي (مثال: 14.8غ)"></div>
-            <div class="form-group"><input type="number" id="store-wage-input" placeholder="أجور الصياغة للغرام الواحد"></div>
-            <div class="form-group">
-                <label>طريقة العرض للزبائن:</label>
-                <select id="store-display-mode">
-                    <option value="total">عرض السعر الإجمالي مباشرة</option>
-                    <option value="weight-wage">اكتفِ بعرض الوزن وأجور الصياغة فقط</option>
-                </select>
-            </div>
-            <div class="form-group"><textarea id="store-notes-input" placeholder="ملاحظات تفصيلية..."></textarea></div>
-            <button class="btn btn-green" onclick="saveStoreItem()">حفظ ونشر في المتجر</button>
-            <button class="btn" style="background:#4b5563; margin-top:4px;" onclick="closeModal('itemModal')">إلغاء</button>
+    <!-- نافذة الفاتورة المخصصة للطباعة -->
+    <div id="invoice-print-area">
+        <div style="text-align:center; border-bottom:2px dashed #000; padding-bottom:10px; margin-bottom:10px;">
+            <h2 style="margin:0; font-size:18px;">مجوهرات أرامكي Pro</h2>
+            <p style="margin:2px 0; font-size:11px;">بغداد - المنصور | هاتف: 07800000000</p>
         </div>
-    </div>
-
-    <!-- نافذة إضافة/تعديل المخزن -->
-    <div class="modal" id="invModal">
-        <div class="modal-content">
-            <h3 style="color:var(--gold); margin-top:0; font-size:12px;">إدارة قطعة المخزن والباركود</h3>
-            <input type="hidden" id="edit-inv-id">
-            <div class="form-group"><input type="text" id="inv-barcode" placeholder="رقم الباركود (INV-01)"></div>
-            <div class="form-group"><input type="text" id="inv-name" placeholder="اسم الصنف (مثال: غويشة عيار 21)"></div>
-            <div class="form-group"><input type="text" id="inv-weight" placeholder="الوزن بالجرام (مثال: 10)"></div>
-            <div class="form-group"><input type="number" id="inv-qty" placeholder="الكمية المتوفرة"></div>
-            <button class="btn btn-green" onclick="saveInventoryItem()">حفظ في المخزن</button>
-            <button class="btn" style="background:#4b5563; margin-top:4px;" onclick="closeModal('invModal')">إلغاء</button>
+        <div style="font-size:12px; margin-bottom:8px;">
+            <div><b>اسم الزبون:</b> <span id="inv-cust">---</span></div>
+            <div><b>نوع المعاملة:</b> <span id="inv-type">---</span></div>
+            <div><b>طريقة الدفع:</b> <span id="inv-pays">---</span></div>
+            <div><b>التاريخ:</b> <span id="inv-date">---</span></div>
         </div>
-    </div>
-
-    <!-- نافذة ذمة CRM جديدة -->
-    <div class="modal" id="crmModal">
-        <div class="modal-content">
-            <h3 style="color:var(--gold); margin-top:0; font-size:12px;">تسجيل عملية بيع/شراء في دفتر الديون</h3>
-            <div class="form-group"><input type="text" id="crm-name" placeholder="اسم الزبون الكريم"></div>
-            <div class="form-group"><label>نوع العملية:</label><select id="crm-type"><option value="sale">عملية بيع (له)</option><option value="buy">عملية شراء (عليه/كسر)</option></select></div>
-            <div class="form-group"><input type="number" id="crm-amount" placeholder="المبلغ (د.ع)"></div>
-            <button class="btn btn-green" onclick="saveCrmDebt()">حفظ في دفتر الديون</button>
-            <button class="btn" style="background:#4b5563; margin-top:4px;" onclick="closeModal('crmModal')">إلغاء</button>
-        </div>
-    </div>
-
-    <!-- نافذة شات التواصل الخاص -->
-    <div class="modal" id="chatModal">
-        <div class="modal-content">
-            <h3 style="color:var(--gold); margin-top:0; font-size:12px;" id="chat-title">المراسلة الخاصة (شات)</h3>
-            <div id="chat-messages-box" style="background:#0b0f19; height:150px; overflow-y:auto; padding:6px; border-radius:6px; font-size:10px; margin-bottom:6px; border:1px solid var(--border-clr);"></div>
-            <div style="display:flex; gap:4px;">
-                <input type="text" id="chat-input-text" placeholder="اكتب رسالتك..." style="font-size:10px; padding:4px;">
-                <button class="btn btn-green btn-sm" onclick="sendChatMessage()">إرسال</button>
-            </div>
-            <button class="btn" style="background:#4b5563; margin-top:6px;" onclick="closeModal('chatModal')">إغلاق</button>
-        </div>
-    </div>
-
-    <!-- نافذة رمز الدخول PIN للتاجر -->
-    <div class="modal" id="pinModal">
-        <div class="modal-content" style="text-align:center;">
-            <h3 style="color:var(--gold); margin-top:0; font-size:12px;">دخول لوحة التحكم والتاجر</h3>
-            <p style="font-size:10px; color:var(--text-sec);">أدخل رمز الدخول (7777):</p>
-            <input type="password" id="pinInput" placeholder="••••" style="text-align:center; font-size:15px; margin-bottom:8px;">
-            <button class="btn btn-gold" onclick="verifyMerchantPin()">دخول كامل الصلاحيات</button>
-            <button class="btn" style="background:#4b5563; margin-top:4px;" onclick="closeModal('pinModal')">إلغاء</button>
+        <table style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:10px;" border="1">
+            <tr style="background:#eee;">
+                <th style="padding:4px;">البيان</th>
+                <th style="padding:4px;">الوزن</th>
+                <th style="padding:4px;">أجور الصياغة</th>
+                <th style="padding:4px;">الإجمالي</th>
+            </tr>
+            <tr>
+                <td style="padding:4px; text-align:center;" id="inv-desc">مشغولات ذهبية</td>
+                <td style="padding:4px; text-align:center;" id="inv-w">0</td>
+                <td style="padding:4px; text-align:center;" id="inv-wg">0</td>
+                <td style="padding:4px; text-align:center; font-weight:bold;" id="inv-total">0</td>
+            </tr>
+        </table>
+        <div style="text-align:center; font-size:11px; margin-top:20px;">
+            <p>شكراً لتعاملكم مع مجوهرات أرامكي | البضاعة المعروضة لا تُرد ولا تُستبدل إلا بعلم المحل</p>
         </div>
     </div>
 
     <script>
-        function showToast(msg) {
-            let t = document.getElementById('toast');
-            t.innerText = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2500);
+        let isMerchantView = true;
+
+        // قواعد البيانات المحلية
+        let products = [
+            { 
+                id: 1, 
+                title: "غويشة عيار 21 خليجي", 
+                weight: "14.80 غرام", 
+                wage: "25,000 د.ع / غرام", 
+                image: "", 
+                notes: "صياغة دقيقة ومتوفرة بالمحل", 
+                published: "yes",
+                comments: [
+                    { id: 101, user: "أبو أحمد", text: "هل يوجد توصيل للمنصور؟", visible: true },
+                    { id: 102, user: "سارة", text: "كم خصم السعر النهائي؟", visible: false }
+                ]
+            },
+            { 
+                id: 2, 
+                title: "خاتم عيار 18 كاستنج", 
+                weight: "4.75 غرام", 
+                wage: "30,000 د.ع / غرام", 
+                image: "", 
+                notes: "ديزاين حديث وتصميم ناعم", 
+                published: "yes",
+                comments: [] 
+            }
+        ];
+
+        let transactionsLog = [
+            { id: 1, date: "2026-11-06", customer: "محمد علي", type: "sale", amount: 1850000, methods: "كاش دينار", flow: "داخل" }
+        ];
+
+        let debtsList = [
+            { id: 1, name: "عمر خالد", amount: 250000, type: "on" }
+        ];
+
+        // قائمة محلات الصاغة ومواقعها الإحداثية (خطوط الطول والعرض)
+        let goldsmithsList = [
+            { name: "مجوهرات أرامكي (المركز الرئيسي)", loc: "بغداد - المنصور", lat: 33.3152, lng: 44.3486, dist: null },
+            { name: "صياغة الكاظمية الكبرى", loc: "بغداد - الكاظمية", lat: 33.3797, lng: 44.3425, dist: null },
+            { name: "صياغة الكرادة الذهبية", loc: "بغداد - الكرادة", lat: 33.3007, lng: 44.4208, dist: null },
+            { name: "مجوهرات النجف الملكية", loc: "النجف الأشرف - السوق الكبير", lat: 32.0004, lng: 44.3168, dist: null }
+        ];
+
+        function toggleMerchantView() {
+            isMerchantView = !isMerchantView;
+            document.getElementById('merchant-status-badge').innerText = isMerchantView ? "وضع الصايغ: مفعل" : "وضع الزبون: مفعل";
+            renderPublicGallery();
         }
 
-        let isMerchant = false;
-
-        // 10 خانات للمثاقيل قابلة للتخصيص
-        let mithqalatData = [
-            { id: 1, name: "مثقال عيار 24", price: 1500000 },
-            { id: 2, name: "مثقال عيار 22", price: 1375000 },
-            { id: 3, name: "مثقال عيار 21", price: 1250000 },
-            { id: 4, name: "مثقال عيار 18", price: 1070000 },
-            { id: 5, name: "مثقال عيار 9", price: 535000 },
-            { id: 6, name: "مثقال مخصص 1", price: 1200000 },
-            { id: 7, name: "مثقال مخصص 2", price: 1150000 },
-            { id: 8, name: "مثقال مخصص 3", price: 1100000 },
-            { id: 9, name: "مثقال سبيكة", price: 1520000 },
-            { id: 10, name: "مثقال تركي", price: 1300000 }
-        ];
-
-        let inventoryItems = [
-            { id: "INV-01", name: "غويشة عيار 21", weight: 14.8, qty: 3 },
-            { id: "INV-02", name: "خاتم عيار 18", weight: 4.7, qty: 2 }
-        ];
-
-        let storeProducts = [
-            { id: 1, title: "غويشة عيار 21 ملكي", mithqalId: 3, weight: 14.8, wage: 25000, displayMode: "total", notes: "بدون تفاصيل إضافية" }
-        ];
-
-        let crmDebts = [
-            { id: 1, name: "أحمد حواش", type: "sale", amount: 157245 }
-        ];
-
-        let storeComments = { 1: [{ id: 1, user: "علي", text: "هل متوفر توصيل؟", visible: true }] };
-        let chatMessages = { 1: [{ sender: "صايغ أرامكي", text: "أهلاً بك، نعم يتوفر توصيل لكافة المحافظات." }] };
-        let activeChatProductId = null;
-
-        let goldsmithsData = [
-            { name: "مجوهرات الفرقان", address: "بغداد - المنصور", distance: "1.2 كم (الأقرب)", hours: "09:00 ص - 09:00 م", phone: "07800000000" },
-            { name: "صياغة الكاظمية الكبرى", address: "بغداد - الكاظمية", distance: "4.5 كم", hours: "10:00 ص - 10:00 م", phone: "07700000000" }
-        ];
-
-        let treasury = { iqd: 1500000, usd: 2400, master: 500000 };
-
-        function switchTab(tab, el) {
+        function switchTab(tabId, btnEl) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('section-' + tab).classList.add('active');
-            if(el) el.classList.add('active');
+            document.getElementById('section-' + tabId).classList.add('active');
+            btnEl.classList.add('active');
 
-            if(tab === 'store') renderStore();
-            if(tab === 'mithqal') renderMithqalatInputs();
-            if(tab === 'inventory') renderInventory();
-            if(tab === 'pos') populatePosSelect();
-            if(tab === 'crm') renderCrm();
-            if(tab === 'treasury') renderTreasury();
-            if(tab === 'goldsmiths') renderGoldsmiths();
+            if(tabId === 'store') renderPublicGallery();
+            if(tabId === 'inventory') renderInventoryList();
+            if(tabId === 'audit') renderAuditLog();
+            if(tabId === 'debts') renderDebtsList();
+            if(tabId === 'gps') renderGoldsmithsList();
         }
 
-        // بناء خانات المثاقيل الـ 10
-        function renderMithqalatInputs() {
-            let c = document.getElementById('mithqalat-inputs-container');
-            c.innerHTML = mithqalatData.map(m => `
-                <div style="display:flex; gap:6px; margin-bottom:4px; align-items:center;">
-                    <input type="text" value="${m.name}" onchange="updateMithqalName(${m.id}, this.value)" style="flex:1;">
-                    <input type="number" value="${m.price}" onchange="updateMithqalPrice(${m.id}, this.value)" style="flex:1;">
-                </div>
-            `).join('');
-        }
+        // عرض المعرض العام والتعليقات
+        function renderPublicGallery() {
+            const container = document.getElementById('public-gallery-container');
+            container.innerHTML = '';
+            const publishedItems = products.filter(p => p.published === 'yes');
 
-        function updateMithqalName(id, val) { let m = mithqalatData.find(x => x.id === id); if(m) m.name = val; }
-        function updateMithqalPrice(id, val) { let m = mithqalatData.find(x => x.id === id); if(m) m.price = parseFloat(val) || 0; }
-        function saveMarketData() { showToast('💾 تم حفظ أسعار البورصة'); }
+            if(publishedItems.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:var(--text-sec); font-size:11px; padding:10px;">لا توجد قطع منشورة في المعرض حالياً.</div>';
+                return;
+            }
 
-        // حساب السعر التلقائي للقطعة بناءً على المثقال والوزن والأجور
-        function calculateProductPrice(p) {
-            let mithqalObj = mithqalatData.find(x => x.id == p.mithqalId) || mithqalatData[2];
-            let gramPrice = mithqalObj.price / 5;
-            let total = (gramPrice + p.wage) * p.weight;
-            return Math.round(total);
-        }
+            publishedItems.forEach((item, pIndex) => {
+                let imgTag = item.image ? `<img src="${item.image}" class="product-img" onerror="this.src='https://images.unsplash.com/photo-1610375461246-83df859d849d?w=500';">` : `<div class="product-img" style="display:flex;align-items:center;justify-content:center;color:var(--text-sec);font-size:10px;">لا توجد صورة</div>`;
+                
+                // عرض التعليقات
+                let commentsHtml = '';
+                item.comments.forEach((comm, cIndex) => {
+                    if(comm.visible || isMerchantView) {
+                        let statusText = comm.visible ? '<span style="color:#4ade80;">(ظاهر للزبائن)</span>' : '<span style="color:#f87171;">(مخفي عن الزبائن)</span>';
+                        commentsHtml += `
+                            <div class="comment-item">
+                                <div><b>${comm.user}:</b> ${comm.text} ${isMerchantView ? statusText : ''}</div>
+                                ${isMerchantView ? `
+                                    <div style="display:flex; gap:2px;">
+                                        <button class="btn btn-blue btn-sm" style="padding:1px 4px; font-size:8px;" onclick="toggleCommentVisibility(${item.id}, ${comm.id})">${comm.visible ? 'إخفاء' : 'إظهار'}</button>
+                                        <button class="btn btn-red btn-sm" style="padding:1px 4px; font-size:8px;" onclick="deleteComment(${item.id}, ${comm.id})">حذف</button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    }
+                });
 
-        // 🛍️ عرض المتجر
-        function renderStore() {
-            let q = document.getElementById('store-search').value.toLowerCase();
-            let c = document.getElementById('store-feed-container');
-            c.innerHTML = '';
-
-            storeProducts.filter(p => p.title.toLowerCase().includes(q)).forEach(p => {
-                let calculatedPrice = calculateProductPrice(p);
-                let comments = storeComments[p.id] || [];
-                let commentsHtml = comments.filter(comm => comm.visible || isMerchant).map(comm => `
-                    <div style="background:#131b2e; padding:4px; border-radius:4px; margin-top:2px; font-size:9px; display:flex; justify-content:space-between;">
-                        <span>👤 <b>${comm.user}:</b> ${comm.text} ${!comm.visible ? '<span style="color:#f87171;">(مخفي)</span>' : ''}</span>
-                        ${isMerchant ? `<div><button class="btn btn-sm" style="padding:1px 3px;" onclick="toggleComment(${p.id}, ${comm.id})">${comm.visible ? 'إخفاء' : 'إظهار'}</button> <button class="btn btn-red btn-sm" style="padding:1px 3px;" onclick="deleteComment(${p.id}, ${comm.id})">حذف</button></div>` : ''}
-                    </div>
-                `).join('');
-
-                let priceDisplayHtml = p.displayMode === 'total' 
-                    ? `<div style="color:#4ade80; font-size:11px;">السعر الإجمالي: ${calculatedPrice.toLocaleString()} د.ع</div>`
-                    : `<div style="color:#38bdf8; font-size:11px;">الوزن: ${p.weight}غ | أجور الصياغة: ${p.wage.toLocaleString()} د.ع</div>`;
-
-                c.innerHTML += `
-                    <div class="card">
-                        <div style="font-weight:bold; color:var(--gold); font-size:12px;">🏪 مجوهرات أرامكي Pro</div>
-                        <div style="font-size:12px; font-weight:bold; margin:2px 0;">${p.title}</div>
-                        ${priceDisplayHtml}
-                        <div style="font-size:10px; color:var(--text-sec);">ملاحظات: ${p.notes}</div>
-                        
-                        <div style="margin-top:6px; display:flex; gap:4px;">
-                            <button class="btn btn-green btn-sm" onclick="openChatModal(${p.id})">💬 مراسلة خاصة (شات)</button>
-                            ${isMerchant ? `<button class="btn btn-gold btn-sm" onclick="openItemModal(${p.id})">تعديل</button> <button class="btn btn-red btn-sm" onclick="deleteStoreItem(${p.id})">حذف</button>` : ''}
+                container.innerHTML += `
+                    <div class="product-card">
+                        ${imgTag}
+                        <div class="product-title">${item.title}</div>
+                        <div class="product-details">
+                            <span>⚖️ <b>الوزن:</b> ${item.weight}</span>
+                            <span>🔨 <b>الأجور:</b> ${item.wage}</span>
                         </div>
+                        <div class="product-notes">📝 ${item.notes}</div>
 
-                        <div style="margin-top:6px; border-top:1px solid var(--border-clr); padding-top:4px;">
-                            <div style="font-size:10px; color:var(--gold);">التعليقات:</div>
-                            ${commentsHtml || '<div style="font-size:9px; color:var(--text-sec);">لا توجد تعليقات</div>'}
-                            <div style="display:flex; gap:4px; margin-top:4px;">
-                                <input type="text" id="comm-txt-${p.id}" placeholder="اكتب تعليقاً..." style="font-size:9px; padding:4px;">
-                                <button class="btn btn-green btn-sm" onclick="addComment(${p.id})">إرسال</button>
+                        <!-- قسم التعليقات تحت كل قطعة -->
+                        <div class="comments-box">
+                            <div style="font-size:10px; color:var(--gold); margin-bottom:4px; font-weight:bold;">💬 التعليقات الاستفسارات:</div>
+                            ${commentsHtml || '<div style="font-size:9px; color:var(--text-sec);">لا توجد تعليقات بعد.</div>'}
+                            <div style="display:flex; gap:4px; margin-top:6px;">
+                                <input type="text" id="comm-input-${item.id}" placeholder="اكتب تعليقاً أو استفساراً..." style="font-size:9.5px; padding:4px;">
+                                <button class="btn btn-green btn-sm" onclick="addComment(${item.id})">إرسال</button>
                             </div>
                         </div>
                     </div>
@@ -372,310 +376,305 @@
             });
         }
 
-        // إضافة وتعديل قطع المتجر
-        function openItemModal(id) {
-            document.getElementById('itemModal').style.display = 'flex';
-            let sel = document.getElementById('store-mithqal-select');
-            sel.innerHTML = mithqalatData.map(m => `<option value="${m.id}">${m.name} (${m.price.toLocaleString()} د.ع)</option>`).join('');
-
-            if(id) {
-                let p = storeProducts.find(x => x.id === id);
-                document.getElementById('edit-store-id').value = p.id;
-                document.getElementById('store-title-input').value = p.title;
-                document.getElementById('store-mithqal-select').value = p.mithqalId;
-                document.getElementById('store-weight-input').value = p.weight;
-                document.getElementById('store-wage-input').value = p.wage;
-                document.getElementById('store-display-mode').value = p.displayMode;
-                document.getElementById('store-notes-input').value = p.notes;
-            } else {
-                document.getElementById('edit-store-id').value = '';
-                document.getElementById('store-title-input').value = '';
-                document.getElementById('store-weight-input').value = '';
-                document.getElementById('store-wage-input').value = '';
-                document.getElementById('store-notes-input').value = '';
-            }
-        }
-
-        function saveStoreItem() {
-            let id = document.getElementById('edit-store-id').value;
-            let title = document.getElementById('store-title-input').value;
-            let mithqalId = parseInt(document.getElementById('store-mithqal-select').value);
-            let weight = parseFloat(document.getElementById('store-weight-input').value) || 0;
-            let wage = parseFloat(document.getElementById('store-wage-input').value) || 0;
-            let displayMode = document.getElementById('store-display-mode').value;
-            let notes = document.getElementById('store-notes-input').value;
-
-            if(!title || !weight) { showToast('⚠️ أدخل العنوان والوزن'); return; }
-
-            if(id) {
-                let p = storeProducts.find(x => x.id == id);
-                p.title = title; p.mithqalId = mithqalId; p.weight = weight; p.wage = wage; p.displayMode = displayMode; p.notes = notes;
-                showToast('✅ تم التعديل ونشر التحديث بنجاح!');
-            } else {
-                storeProducts.push({ id: Date.now(), title, mithqalId, weight, wage, displayMode, notes });
-                showToast('🚀 تمت إضافة القطعة ونشرها في المتجر!');
-            }
-            closeModal('itemModal');
-            renderStore();
-        }
-
-        function deleteStoreItem(id) {
-            storeProducts = storeProducts.filter(x => x.id !== id);
-            showToast('🗑️ تم الحذف من المتجر');
-            renderStore();
-        }
-
-        // التعليقات والشات الخاص
+        // إمكانية إضافة تعليق
         function addComment(productId) {
-            let input = document.getElementById(`comm-txt-${productId}`);
-            let text = input.value.trim();
-            if(!text) return;
-            if(!storeComments[productId]) storeComments[productId] = [];
-            storeComments[productId].push({ id: Date.now(), user: "زبون", text, visible: true });
-            input.value = '';
-            showToast('💬 تم إرسال التعليق!');
-            renderStore();
-        }
-
-        function toggleComment(prodId, commId) {
-            let c = storeComments[prodId].find(x => x.id === commId);
-            if(c) { c.visible = !c.visible; renderStore(); showToast('🔄 تم تغيير حالة التعليق'); }
-        }
-
-        function deleteComment(prodId, commId) {
-            storeComments[prodId] = storeComments[prodId].filter(x => x.id !== commId);
-            renderStore();
-            showToast('🗑️ تم حذف التعليق');
-        }
-
-        function openChatModal(prodId) {
-            activeChatProductId = prodId;
-            document.getElementById('chatModal').style.display = 'flex';
-            renderChatMessages();
-        }
-
-        function renderChatMessages() {
-            let box = document.getElementById('chat-messages-box');
-            let msgs = chatMessages[activeChatProductId] || [];
-            box.innerHTML = msgs.map(m => `<div style="margin-bottom:3px;"><b>${m.sender}:</b> ${m.text}</div>`).join('') || '<div style="color:var(--text-sec);">لا توجد رسائل سابقة. ابدأ المحادثة الآن.</div>';
-            box.scrollTop = box.scrollHeight;
-        }
-
-        function sendChatMessage() {
-            let txtInput = document.getElementById('chat-input-text');
+            let txtInput = document.getElementById(`comm-input-${productId}`);
             let text = txtInput.value.trim();
             if(!text) return;
-            if(!chatMessages[activeChatProductId]) chatMessages[activeChatProductId] = [];
-            let senderName = isMerchant ? "الصايغ (أرامكي)" : "الزبون";
-            chatMessages[activeChatProductId].push({ sender: senderName, text });
-            txtInput.value = '';
-            renderChatMessages();
-            showToast('📩 تم إرسال الرسالة للخاص!');
+
+            let prod = products.find(p => p.id === productId);
+            if(prod) {
+                prod.comments.push({ id: Date.now(), user: isMerchantView ? "الصايغ" : "زبون", text: text, visible: true });
+                txtInput.value = '';
+                renderPublicGallery();
+            }
         }
 
-        // 📦 إدارة المخزن والخصم التلقائي
-        function renderInventory() {
-            let q = document.getElementById('inv-search').value.toLowerCase();
-            let c = document.getElementById('inventory-list-container');
-            c.innerHTML = '';
-            inventoryItems.filter(i => i.name.toLowerCase().includes(q) || i.id.toLowerCase().includes(q)).forEach(i => {
-                c.innerHTML += `
-                    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <div style="font-weight:bold; font-size:11px;">${i.id} - ${i.name} (${i.weight}غ)</div>
-                            <div style="color:var(--text-sec); font-size:10px;">الكمية المتوفرة: <b style="color:${i.qty > 0 ? '#4ade80' : '#f87171'}">${i.qty}</b></div>
+        // التحكم بإظهار أو إخفاء التعليق بواسطة الصايغ
+        function toggleCommentVisibility(productId, commentId) {
+            let prod = products.find(p => p.id === productId);
+            if(prod) {
+                let comm = prod.comments.find(c => c.id === commentId);
+                if(comm) {
+                    comm.visible = !comm.visible;
+                    renderPublicGallery();
+                }
+            }
+        }
+
+        // حذف تعليق
+        function deleteComment(productId, commentId) {
+            let prod = products.find(p => p.id === productId);
+            if(prod) {
+                prod.comments = prod.comments.filter(c => c.id !== commentId);
+                renderPublicGallery();
+            }
+        }
+
+        // 📍 حساب المسافة بالـ GPS وترتيب الصاغة من الأقرب إلى الأبعد
+        function getUserLocationAndSort() {
+            let statusDiv = document.getElementById('gps-status');
+            if ("geolocation" in navigator) {
+                statusDiv.innerText = "⏳ جاري تحديد موقعك الجغرافي بالـ GPS...";
+                navigator.geolocation.getCurrentPosition(position => {
+                    let userLat = position.coords.latitude;
+                    let userLng = position.coords.longitude;
+
+                    // حساب المسافة لكل صايغ بدقة (معادلة Haversine)
+                    goldsmithsList.forEach(g => {
+                        g.dist = calculateDistanceKm(userLat, userLng, g.lat, g.lng);
+                    });
+
+                    // إعادة الترتيب تصاعدياً من الأقرب للأبعد
+                    goldsmithsList.sort((a, b) => a.dist - b.dist);
+
+                    statusDiv.innerHTML = `✅ تم التحديد بنجاح! تم ترتيب الصاغة من الأقرب للأبعد حسب موقعك.`;
+                    renderGoldsmithsList();
+                }, error => {
+                    statusDiv.innerText = "⚠️ لم نتمكن من الوصول للموقع الحقيقي. سيتم عرض المسافات الافتراضية.";
+                    renderGoldsmithsList();
+                });
+            } else {
+                statusDiv.innerText = "⚠️ متصفحك لا يدعم الـ GPS.";
+            }
+        }
+
+        // حساب المسافة بالكيلومتر بين نقطتين إحداثيتين
+        function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+            let R = 6371; // نصف قطر الأرض بالكيلومتر
+            let dLat = (lat2 - lat1) * Math.PI / 180;
+            let dLon = (lon2 - lon1) * Math.PI / 180;
+            let a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+            let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return parseFloat((R * c).toFixed(1)); // المسافة بالكيلومتر
+        }
+
+        function renderGoldsmithsList() {
+            const container = document.getElementById('goldsmiths-map-list');
+            container.innerHTML = '';
+
+            goldsmithsList.forEach(g => {
+                let distText = g.dist !== null ? `<b style="color:#4ade80;">يبعد عتك ${g.dist} كم</b>` : `<span style="color:var(--text-sec);">اضغط زر تحديد الموقع</span>`;
+                container.innerHTML += `
+                    <div class="product-card">
+                        <div style="font-size:12px; font-weight:bold; color:var(--gold);">💎 ${g.name}</div>
+                        <div style="font-size:10px; color:var(--text-sec); margin:3px 0;">📍 العنوان: ${g.loc}</div>
+                        <div style="font-size:11px; margin-bottom:6px;">📏 المسافة: ${distText}</div>
+                        <a href="https://maps.google.com/?q=${g.lat},${g.lng}" target="_blank" style="text-decoration:none;">
+                            <button class="btn btn-green btn-sm" style="width:100%;">🗺️ فتح الموقع على Google Maps</button>
+                        </a>
+                    </div>
+                `;
+            });
+        }
+
+        // المخزن والجرد والديون والحاسبة
+        function renderInventoryList() {
+            const container = document.getElementById('inventory-list-container');
+            container.innerHTML = '';
+            products.forEach((item, index) => {
+                let statusBadge = item.published === 'yes' ? '<span style="color:#4ade80;">[منشور]</span>' : '<span style="color:#f87171;">[مخزن]</span>';
+                container.innerHTML += `
+                    <div class="product-card">
+                        <div class="product-title">${item.title} ${statusBadge}</div>
+                        <div class="product-details">
+                            <span>⚖️ <b>الوزن:</b> ${item.weight}</span>
+                            <span>🔨 <b>الأجور:</b> ${item.wage}</span>
                         </div>
-                        ${isMerchant ? `<div><button class="btn btn-gold btn-sm" onclick="openInvModal('${i.id}')">تعديل</button> <button class="btn btn-red btn-sm" onclick="deleteInventoryItem('${i.id}')">حذف</button></div>` : ''}
-                    </div>
-                `;
-            });
-        }
-
-        function openInvModal(id) {
-            document.getElementById('invModal').style.display = 'flex';
-            if(id) {
-                let item = inventoryItems.find(x => x.id === id);
-                document.getElementById('edit-inv-id').value = item.id;
-                document.getElementById('inv-barcode').value = item.id;
-                document.getElementById('inv-name').value = item.name;
-                document.getElementById('inv-weight').value = item.weight;
-                document.getElementById('inv-qty').value = item.qty;
-            } else {
-                document.getElementById('edit-inv-id').value = '';
-                document.getElementById('inv-barcode').value = "INV-0" + (inventoryItems.length + 1);
-                document.getElementById('inv-name').value = '';
-                document.getElementById('inv-weight').value = '';
-                document.getElementById('inv-qty').value = 1;
-            }
-        }
-
-        function saveInventoryItem() {
-            let editId = document.getElementById('edit-inv-id').value;
-            let barcode = document.getElementById('inv-barcode').value;
-            let name = document.getElementById('inv-name').value;
-            let weight = parseFloat(document.getElementById('inv-weight').value) || 0;
-            let qty = parseInt(document.getElementById('inv-qty').value) || 0;
-
-            if(!name) { showToast('⚠️ أدخل اسم الصنف'); return; }
-
-            if(editId) {
-                let item = inventoryItems.find(x => x.id === editId);
-                item.name = name; item.weight = weight; item.qty = qty;
-                showToast('✅ تم تحديث المخزن');
-            } else {
-                inventoryItems.push({ id: barcode, name, weight, qty });
-                showToast('🚀 تمت إضافة القطعة للمخزن');
-            }
-            closeModal('invModal');
-            renderInventory();
-        }
-
-        function deleteInventoryItem(id) {
-            inventoryItems = inventoryItems.filter(x => x.id !== id);
-            showToast('🗑️ تم حذف القطعة');
-            renderInventory();
-        }
-
-        function populatePosSelect() {
-            let sel = document.getElementById('pos-item-select');
-            sel.innerHTML = inventoryItems.map(i => `<option value="${i.id}">${i.name} (المتوفر: ${i.qty})</option>`).join('');
-        }
-
-        // ⚡ نقطة البيع وخصم المخزن وتغذية الخزينة
-        function processSale() {
-            let itemId = document.getElementById('pos-item-select').value;
-            let custName = document.getElementById('pos-cust-name').value || "زبون نقدي";
-            let payMethod = document.getElementById('pos-payment-method').value;
-            let amount = parseFloat(document.getElementById('pos-price').value) || 0;
-
-            let item = inventoryItems.find(x => x.id === itemId);
-            if(!item || item.qty <= 0) { showToast('❌ القطعة غير متوفرة أو نفدت من المخزن!'); return; }
-
-            item.qty -= 1; // خصم تلقائي من المخزن
-
-            // تغذية الخزائن بناءً على طريقة الدفع
-            let usdRate = parseFloat(document.getElementById('market-usd').value) || 153000;
-            if(payMethod === 'cash-iqd') {
-                treasury.iqd += amount;
-            } else if(payMethod === 'paper-usd') {
-                let usdVal = Math.round((amount / usdRate) * 100);
-                treasury.usd += usdVal;
-            } else if(payMethod === 'mastercard') {
-                treasury.master += amount;
-            }
-
-            // تسجيل بـ CRM الديون
-            crmDebts.push({ id: Date.now(), name: custName, type: 'sale', amount });
-
-            showToast(`✅ تم البيع وخصم القطعة وتغذية الخزينة بنجاح!`);
-            renderInventory();
-            renderTreasury();
-        }
-
-        function renderTreasury() {
-            let usdRate = parseFloat(document.getElementById('market-usd').value) || 153000;
-            document.getElementById('treasury-iqd').innerText = treasury.iqd.toLocaleString() + " د.ع";
-            document.getElementById('treasury-usd').innerText = treasury.usd.toLocaleString() + " $";
-            document.getElementById('treasury-master').innerText = treasury.master.toLocaleString() + " د.ع";
-        }
-
-        // 👥 دفتر الديون والـ CRM الشامل والبحث
-        function renderCrm() {
-            let q = document.getElementById('crm-search').value.toLowerCase();
-            let filterType = document.getElementById('crm-filter').value;
-            let c = document.getElementById('crm-list-container');
-            c.innerHTML = '';
-
-            crmDebts.filter(d => {
-                let matchName = d.name.toLowerCase().includes(q);
-                let matchType = (filterType === 'all' || d.type === filterType);
-                return matchName && matchType;
-            }).forEach(d => {
-                let badgeColor = d.type === 'sale' ? '#4ade80' : '#f87171';
-                let typeText = d.type === 'sale' ? 'بيع (له)' : 'شراء (عليه/كسر)';
-                c.innerHTML += `
-                    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <div style="font-weight:bold; font-size:11px;">👤 ${d.name} <span style="color:${badgeColor}; font-size:9px;">[${typeText}]</span></div>
-                            <div style="color:var(--gold); font-size:11px;">المبلغ: ${d.amount.toLocaleString()} د.ع</div>
+                        <div class="product-notes">📝 ${item.notes}</div>
+                        <div style="display:flex; gap:6px; margin-top:6px;">
+                            <button class="btn btn-blue btn-sm" onclick="editProduct(${index})">✏️ تعديل</button>
+                            <button class="btn btn-red btn-sm" onclick="deleteProduct(${index})">🗑️ حذف</button>
                         </div>
-                        ${isMerchant ? `<div><button class="btn btn-green btn-sm" onclick="showToast('✅ تسوية الذمة بنجاح')">سداد</button> <button class="btn btn-red btn-sm" onclick="deleteCrm(${d.id})">حذف</button></div>` : ''}
                     </div>
                 `;
             });
         }
 
-        function openCrmModal() { document.getElementById('crmModal').style.display = 'flex'; }
-        function saveCrmDebt() {
-            let name = document.getElementById('crm-name').value;
-            let type = document.getElementById('crm-type').value;
-            let amount = parseFloat(document.getElementById('crm-amount').value) || 0;
-            if(!name || !amount) { showToast('⚠️ أدخل الاسم والمبلغ'); return; }
-            crmDebts.push({ id: Date.now(), name, type, amount });
-            closeModal('crmModal');
-            renderCrm();
-            showToast('✅ تم تسجيل الذمة بنجاح');
+        function saveProduct() {
+            let editIdx = parseInt(document.getElementById('edit-index').value);
+            let title = document.getElementById('item-title').value.trim();
+            let weight = document.getElementById('item-weight').value.trim();
+            let wage = document.getElementById('item-wage').value.trim();
+            let image = document.getElementById('item-image').value.trim();
+            let notes = document.getElementById('item-notes').value.trim();
+            let published = document.getElementById('item-published').value;
+
+            if(!title || !weight) { alert('أدخل اسم القطعة والوزن'); return; }
+            let newItem = { id: Date.now(), title, weight, wage: wage || 'حسب الاتفاق', image, notes, published, comments: [] };
+
+            if(editIdx === -1) products.push(newItem);
+            else { products[editIdx] = { ...products[editIdx], title, weight, wage, image, notes, published }; document.getElementById('edit-index').value = -1; }
+
+            document.getElementById('item-title').value = '';
+            document.getElementById('item-weight').value = '';
+            document.getElementById('item-wage').value = '';
+            document.getElementById('item-image').value = '';
+            document.getElementById('item-notes').value = '';
+            renderInventoryList();
+            alert('✅ تم الحفظ بنجاح!');
         }
 
-        function deleteCrm(id) {
-            crmDebts = crmDebts.filter(x => x.id !== id);
-            renderCrm();
-            showToast('🗑️ تم حذف السجل');
+        function editProduct(index) {
+            let item = products[index];
+            document.getElementById('edit-index').value = index;
+            document.getElementById('item-title').value = item.title;
+            document.getElementById('item-weight').value = item.weight;
+            document.getElementById('item-wage').value = item.wage;
+            document.getElementById('item-image').value = item.image;
+            document.getElementById('item-notes').value = item.notes;
+            document.getElementById('item-published').value = item.published;
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        // 📋 جلسة الجرد المرن
-        function runAuditSession() {
-            let type = document.getElementById('audit-type').value;
-            let totalItems = inventoryItems.reduce((acc, curr) => acc + curr.qty, 0);
-            let totalWeight = inventoryItems.reduce((acc, curr) => acc + (curr.weight * curr.qty), 0);
-            let box = document.getElementById('audit-result-box');
-            box.innerHTML = `
-                <div class="card" style="border-color:var(--gold);">
-                    <div style="color:var(--gold); font-weight:bold;">📋 نتيجة جلسة الجرد (${type === 'daily' ? 'يومي' : type === 'weekly' ? 'أسبوعي' : 'شهري'})</div>
-                    <div style="font-size:11px; margin-top:4px;">إجمالي عدد القطع المتوفرة: <b>${totalItems} قطعة</b></div>
-                    <div style="font-size:11px;">إجمالي الوزن الصافي بالمخزن: <b>${totalWeight.toFixed(2)} غرام</b></div>
-                    <div style="font-size:10px; color:#4ade80; margin-top:2px;">✅ المخزن متطابق تماماً ولا توجد فروقات أو عجز.</div>
-                </div>
-            `;
-            showToast('🔍 تمت جلسة الجرد بنجاح!');
+        function deleteProduct(index) {
+            if(confirm('هل أنت متأكد من الحذف؟')) { products.splice(index, 1); renderInventoryList(); }
         }
 
-        // 📍 دليل الصاغة والـ GPS
-        function renderGoldsmiths() {
-            let q = document.getElementById('gps-search').value.toLowerCase();
-            let c = document.getElementById('goldsmiths-container');
-            c.innerHTML = '';
-            goldsmithsData.filter(g => g.name.toLowerCase().includes(q) || g.address.toLowerCase().includes(q)).forEach(g => {
-                c.innerHTML += `
-                    <div class="card" style="font-size:11px;">
-                        <div style="font-weight:bold; color:var(--gold);">${g.name} <span style="float:left; color:#38bdf8;">📍 ${g.distance}</span></div>
-                        <div style="color:var(--text-sec); margin-top:2px;">العنوان: ${g.address} | الدوام: ${g.hours}</div>
-                        <button class="btn btn-green btn-sm" style="margin-top:4px;" onclick="showToast('📞 الاتصال بالصايغ: ${g.phone}')">اتصال مباشر</button>
+        function runAramkyCalc() {
+            let type = document.getElementById('calc-type').value;
+            let mPrice = parseFloat(document.getElementById('calc-mithqal-price').value) || 0;
+            let tWeight = parseFloat(document.getElementById('calc-total-weight').value) || 0;
+            let wPrice = parseFloat(document.getElementById('calc-wage-price').value) || 0;
+            let gPrice = mPrice / 5;
+            let total = (type === 'sale') ? (gPrice + wPrice) * tWeight : gPrice * tWeight;
+            document.getElementById('calc-result-amount').innerText = Math.round(total).toLocaleString() + " دينار عراقي";
+            return Math.round(total);
+        }
+
+        function executeAndLogTransaction() {
+            let custName = document.getElementById('customer-name').value.trim() || "زبون نقدي";
+            let type = document.getElementById('calc-type').value;
+            let totalAmount = runAramkyCalc();
+
+            let payMethodsArr = [];
+            if(document.getElementById('pay-cash').checked) payMethodsArr.push("كاش دينار");
+            if(document.getElementById('pay-usd').checked) payMethodsArr.push("دولار/ورق");
+            if(document.getElementById('pay-master').checked) payMethodsArr.push("ماستر كارد");
+            let methodsStr = payMethodsArr.join(' + ') || "كاش دينار";
+
+            let flowType = (type === 'sale') ? "داخل (إيراد)" : "خارج (مصروف)";
+
+            transactionsLog.unshift({
+                id: Date.now(),
+                date: new Date().toLocaleDateString('ar-IQ'),
+                customer: custName,
+                type: type === 'sale' ? 'بيع ذهب' : 'شراء كسر',
+                amount: totalAmount,
+                methods: methodsStr,
+                flow: flowType
+            });
+
+            document.getElementById('inv-cust').innerText = custName;
+            document.getElementById('inv-type').innerText = (type === 'sale') ? 'عملية بيع ذهب' : 'شراء ذهب (كسر)';
+            document.getElementById('inv-pays').innerText = methodsStr;
+            document.getElementById('inv-date').innerText = new Date().toLocaleDateString('ar-IQ');
+            document.getElementById('inv-w').innerText = document.getElementById('calc-total-weight').value + " غرام";
+            document.getElementById('inv-wg').innerText = document.getElementById('calc-wage-price').value + " د.ع";
+            document.getElementById('inv-total').innerText = totalAmount.toLocaleString() + " د.ع";
+
+            window.print();
+        }
+
+        function renderAuditLog() {
+            const container = document.getElementById('audit-log-container');
+            const searchQ = document.getElementById('audit-search').value.toLowerCase();
+            container.innerHTML = '';
+
+            let filtered = transactionsLog.filter(t => t.customer.toLowerCase().includes(searchQ) || t.type.toLowerCase().includes(searchQ));
+            if(filtered.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:var(--text-sec); font-size:11px;">لا توجد عمليات مطابقة في الجرد.</div>';
+                return;
+            }
+
+            filtered.forEach((t, index) => {
+                let badgeColor = t.flow.includes('داخل') ? '#4ade80' : '#f87171';
+                container.innerHTML += `
+                    <div class="product-card">
+                        <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold; color:var(--gold);">
+                            <span>👤 ${t.customer} (${t.type})</span>
+                            <span style="color:${badgeColor};">[${t.flow}]</span>
+                        </div>
+                        <div style="font-size:12px; margin:4px 0; font-weight:bold;">المبلغ: ${t.amount.toLocaleString()} د.ع</div>
+                        <div style="font-size:10px; color:var(--text-sec);">طريقة الدفع: ${t.methods} | التاريخ: ${t.date}</div>
+                        <div style="margin-top:4px;"><button class="btn btn-red btn-sm" onclick="deleteTransaction(${index})">🗑️ حذف من الجرد</button></div>
                     </div>
                 `;
             });
         }
 
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-
-        function verifyMerchantPin() {
-            if(document.getElementById('pinInput').value === "7777") {
-                isMerchant = true;
-                document.querySelectorAll('.merchant-only').forEach(el => el.style.display = 'inline-block');
-                closeModal('pinModal');
-                showToast('🔓 تم تفعيل صلاحيات التاجر والصايغ الكاملة!');
-                renderStore();
-                renderInventory();
-                renderCrm();
-            } else {
-                showToast('❌ رمز PIN غير صحيح!');
+        function deleteTransaction(index) {
+            if(confirm('هل أنت متأكد من حذف هذه العملية من الجرد؟')) {
+                transactionsLog.splice(index, 1);
+                renderAuditLog();
             }
         }
 
-        window.onload = function() {
-            renderMithqalatInputs();
-            renderStore();
+        function renderDebtsList() {
+            const container = document.getElementById('debts-list-container');
+            const searchQ = document.getElementById('debt-search').value.toLowerCase();
+            container.innerHTML = '';
+
+            let filtered = debtsList.filter(d => d.name.toLowerCase().includes(searchQ));
+            if(filtered.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:var(--text-sec); font-size:11px;">لا توجد ذمم مطابقة للبحث.</div>';
+                return;
+            }
+
+            filtered.forEach((d, index) => {
+                let typeBadge = d.type === 'on' ? '<span style="color:#4ade80;">[له ذمة / مطلوب لنا]</span>' : '<span style="color:#f87171;">[عليه ذمة / مطلوب منا]</span>';
+                container.innerHTML += `
+                    <div class="product-card">
+                        <div style="font-size:12px; font-weight:bold; color:var(--gold);">👤 ${d.name} ${typeBadge}</div>
+                        <div style="font-size:11px; margin:4px 0;">المبلغ: <b>${d.amount.toLocaleString()} د.ع</b></div>
+                        <div style="display:flex; gap:6px; margin-top:6px;">
+                            <button class="btn btn-blue btn-sm" onclick="editDebt(${index})">✏️ تعديل</button>
+                            <button class="btn btn-red btn-sm" onclick="deleteDebt(${index})">🗑️ حذف</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function saveDebt() {
+            let editIdx = parseInt(document.getElementById('edit-debt-index').value);
+            let name = document.getElementById('debt-name').value.trim();
+            let amount = parseFloat(document.getElementById('debt-amount').value) || 0;
+            let type = document.getElementById('debt-type').value;
+
+            if(!name || !amount) { alert('أدخل اسم الزبون والمبلغ'); return; }
+
+            let newDebt = { name, amount, type };
+            if(editIdx === -1) debtsList.push(newDebt);
+            else { debtsList[editIdx] = newDebt; document.getElementById('edit-debt-index').value = -1; }
+
+            document.getElementById('debt-name').value = '';
+            document.getElementById('debt-amount').value = '';
+            renderDebtsList();
+            alert('✅ تم الحفظ في دفتر الديون!');
+        }
+
+        function editDebt(index) {
+            let d = debtsList[index];
+            document.getElementById('edit-debt-index').value = index;
+            document.getElementById('debt-name').value = d.name;
+            document.getElementById('debt-amount').value = d.amount;
+            document.getElementById('debt-type').value = d.type;
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function deleteDebt(index) {
+            if(confirm('هل أنت متأكد من حذف هذه الذمة؟')) {
+                debtsList.splice(index, 1);
+                renderDebtsList();
+            }
+        }
+
+        window.onload = () => {
+            renderPublicGallery();
+            renderGoldsmithsList();
         };
     </script>
 </body>
