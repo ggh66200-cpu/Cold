@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARAMKY Gold OS v16.0 | أرامكي - فرع نواة الذهب</title>
+    <title>ARAMKY Gold OS v17.0 | أرامكي - فرع نواة الذهب</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -21,7 +21,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FAFC; user-select: none; }
-        .glass { background: rgba(22, 31, 50, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(212, 175, 55, 0.25); }
+        .glass { background: rgba(22, 31, 50, 0.88); backdrop-filter: blur(18px); border: 1px solid rgba(212, 175, 55, 0.25); }
         .gold-gradient { background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%); }
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #070A12; }
@@ -31,15 +31,15 @@
 <body class="min-h-screen flex flex-col justify-between">
 
     <!-- التنبيهات الفخمة -->
-    <div id="toast-container" class="fixed top-5 left-5 z-[120] flex flex-col gap-3 max-w-md pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-5 left-5 z-[130] flex flex-col gap-3 max-w-md pointer-events-none"></div>
 
     <!-- الهيدر بتصميم التطبيق الفخم -->
     <header class="glass sticky top-0 z-50 border-b border-gold/30 px-5 py-3 flex flex-wrap justify-between items-center gap-3 shadow-2xl">
         <div class="flex items-center space-x-3 space-x-reverse">
             <div class="w-11 h-11 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-2xl shadow-lg">💎</div>
             <div>
-                <h1 class="font-black text-lg text-gold flex items-center gap-2">ARAMKY <span class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">نواة الذهب v16.0</span></h1>
-                <p class="text-xs text-slate-400">نظام الصاغة المعتمد (شراء وبيع متطور + واجهة تطبيق فاخرة)</p>
+                <h1 class="font-black text-lg text-gold flex items-center gap-2">ARAMKY <span class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">نواة الذهب v17.0</span></h1>
+                <p class="text-xs text-slate-400">نظام الصاغة المتكامل (معاينة الكسر + أرقام الهواتف المعزولة + واجهة تطبيق فاخرة)</p>
             </div>
         </div>
 
@@ -53,7 +53,7 @@
             <button onclick="openPriceModal()" class="bg-cardbg border border-slate-700 hover:border-gold text-slate-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition shadow-lg">
                 <i class="fa-solid fa-coins"></i> <span>الأسعار والمثاقيل (5)</span>
             </button>
-            <button onclick="resetSystemData()" class="bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 text-xs px-3 py-2 rounded-xl transition" title="تصفير البيانات"><i class="fa-solid fa-trash-can"></i></button>
+            <button onclick="openConfirmModal('تصفير كافة بيانات وحركات النظام نهائياً؟', executeSystemReset)" class="bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 text-xs px-3 py-2 rounded-xl transition" title="تصفير البيانات"><i class="fa-solid fa-trash-can"></i></button>
         </div>
     </header>
 
@@ -83,14 +83,11 @@
             <button onclick="switchTab('pos')" id="btn-tab-pos" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 transition text-slate-300 hover:bg-slate-800/80 hover:text-gold">
                 <i class="fa-solid fa-cash-register w-5"></i> <div>نقطة البيع (الكاسير)</div>
             </button>
-            <button onclick="switchTab('buy')" id="btn-tab-buy" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 transition text-slate-300 hover:bg-slate-800/80 hover:text-gold">
-                <i class="fa-solid fa-hand-holding-dollar w-5"></i> <div>شراء ذهب من الزبون</div>
+            <button onclick="switchTab('scrap')" id="btn-tab-scrap" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 transition text-slate-300 hover:bg-slate-800/80 hover:text-gold">
+                <i class="fa-solid fa-scale-balanced w-5"></i> <div>شراء ذهب كسر</div>
             </button>
             <button onclick="switchTab('inventory')" id="btn-tab-inventory" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 transition text-slate-300 hover:bg-slate-800/80 hover:text-gold">
                 <i class="fa-solid fa-boxes-stacked w-5"></i> <div>المخزن والكميات</div>
-            </button>
-            <button onclick="switchTab('scrap')" id="btn-tab-scrap" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 transition text-slate-300 hover:bg-slate-800/80 hover:text-gold">
-                <i class="fa-solid fa-scale-balanced w-5"></i> <div>شراء ذهب كسر</div>
             </button>
             <button onclick="switchTab('debts')" id="btn-tab-debts" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 transition text-slate-300 hover:bg-slate-800/80 hover:text-gold">
                 <i class="fa-solid fa-file-invoice-dollar w-5"></i> <div>كارتات العملاء والديون</div>
@@ -140,20 +137,20 @@
                     <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-3">
                         <h3 class="font-bold text-gold text-lg"><i class="fa-solid fa-cash-register"></i> نقطة البيع (الكاسير)</h3>
                         <div class="flex flex-wrap items-center gap-2 text-xs">
-                            <div class="bg-darkbg px-3 py-1.5 rounded-xl border border-slate-700 flex items-center gap-1.5">
+                            <button onclick="openCustomSelectModal('currency-mode', 'اختر نمط الصرف والحساب', [{val:'iraqi', label:'عراقي (ورق ودينار)'}, {val:'global', label:'عالمي (دينار / دولار)'}], () => { updateCartPreview(); renderCart(); updateScrapPreview(); })" class="bg-darkbg px-3 py-1.5 rounded-xl border border-slate-700 hover:border-gold flex items-center gap-1.5 transition">
                                 <span class="text-slate-400">النمط:</span>
-                                <select id="currency-mode" onchange="updateCartPreview(); renderCart();" class="bg-transparent text-emerald-400 font-bold outline-none">
-                                    <option value="iraqi" class="bg-darkbg">عراقي (ورق ودينار)</option>
-                                    <option value="global" class="bg-darkbg">عالمي (دينار / دولار)</option>
-                                </select>
-                            </div>
-                            <div class="bg-darkbg px-3 py-1.5 rounded-xl border border-slate-700 flex items-center gap-1.5">
+                                <span id="label-currency-mode" class="text-emerald-400 font-bold">عراقي (ورق ودينار)</span>
+                                <i class="fa-solid fa-chevron-down text-[10px] text-slate-500"></i>
+                            </button>
+                            <input type="hidden" id="currency-mode" value="iraqi">
+
+                            <button onclick="openCustomSelectModal('invoice-style', 'اختر نوع الفاتورة للطباعة', [{val:'full', label:'رسمية مفصلة (أرامكي)'}, {val:'compact', label:'فاتورة مختصرة'}])" class="bg-darkbg px-3 py-1.5 rounded-xl border border-slate-700 hover:border-gold flex items-center gap-1.5 transition">
                                 <span class="text-slate-400">الفاتورة:</span>
-                                <select id="invoice-style" class="bg-transparent text-gold font-bold outline-none">
-                                    <option value="full" class="bg-darkbg">رسمية مفصلة</option>
-                                    <option value="compact" class="bg-darkbg">فاتورة مختصرة</option>
-                                </select>
-                            </div>
+                                <span id="label-invoice-style" class="text-gold font-bold">رسمية مفصلة (أرامكي)</span>
+                                <i class="fa-solid fa-chevron-down text-[10px] text-slate-500"></i>
+                            </button>
+                            <input type="hidden" id="invoice-style" value="full">
+
                             <button onclick="openLuxuryItemModal()" class="gold-gradient text-darkbg font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-lg">
                                 <i class="fa-solid fa-layer-group"></i> اختيار قطعة فاخرة
                             </button>
@@ -164,7 +161,11 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div class="md:col-span-2">
                                 <label class="text-xs text-slate-400 mb-1 block">معاينة فورية للقطعة من المخزن:</label>
-                                <select id="quick-pos-select" onchange="updateCartPreview()" class="w-full bg-cardbg border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 outline-none"></select>
+                                <button onclick="openInventoryPickerForQuickPreview()" class="w-full bg-cardbg border border-slate-700 hover:border-gold rounded-xl p-2.5 text-xs text-slate-200 flex justify-between items-center transition">
+                                    <span id="label-quick-pos-select">-- اضغط لاختيار قطعة ومعاينة سعرها الفوري --</span>
+                                    <i class="fa-solid fa-magnifying-glass text-gold"></i>
+                                </button>
+                                <input type="hidden" id="quick-pos-select" value="">
                             </div>
                             <div class="flex items-end">
                                 <button onclick="addQuickSelectedToCart()" class="w-full bg-gold/20 border border-gold text-gold font-bold py-2.5 rounded-xl text-xs hover:bg-gold/30 transition shadow">
@@ -203,8 +204,10 @@
                     </div>
 
                     <div class="border-t border-slate-800 pt-4 space-y-3">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <input type="text" id="pos-customer" placeholder="اسم الزبون ورقم الهاتف (مطلوب للآجل)" class="bg-darkbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
+                        <!-- خانة الاسم معزولة عن خانة رقم الهاتف -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <input type="text" id="pos-customer" placeholder="اسم الزبون الكامل (مطلوب للآجل)" class="bg-darkbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
+                            <input type="tel" id="pos-phone" placeholder="رقم هاتف الزبون (07XXXXXXXXX)" class="bg-darkbg border border-slate-700 rounded-xl p-3 text-sm text-emerald-400 font-mono outline-none">
                             <input type="text" id="pos-notes" placeholder="ملاحظات الفاتورة..." class="bg-darkbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
                         </div>
 
@@ -244,92 +247,86 @@
                 </div>
             </div>
 
-            <!-- 3. قسم شراء الذهب من الزبون (وفق مواصفات البيع تماماً) -->
-            <div id="view-buy" class="hidden space-y-6">
-                <div class="cardbg p-6 rounded-3xl border border-emerald-500/40 shadow-xl space-y-4">
-                    <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-3">
-                        <h3 class="font-bold text-emerald-400 text-lg"><i class="fa-solid fa-hand-holding-dollar"></i> شراء ذهب من الزبون (نظام مشتريات متطور)</h3>
-                        <div class="flex items-center gap-2 text-xs">
-                            <button onclick="openBuyItemModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-lg transition">
-                                <i class="fa-solid fa-plus-circle"></i> إضافة قطعة للمشتريات
-                            </button>
-                        </div>
+            <!-- 3. شراء ذهب كسر (مع المعاينة الفورية بالدينار والدولار قبل الطباعة ورقم هاتف معزول) -->
+            <div id="view-scrap" class="hidden space-y-6">
+                <div class="cardbg p-6 rounded-3xl border border-emerald-500/35 shadow-xl space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                        <h3 class="font-bold text-gold text-lg"><i class="fa-solid fa-scale-balanced"></i> شراء ذهب كسر (حساب فوري ومعاينة قبل الفاتورة)</h3>
                     </div>
 
-                    <!-- معاينة سعر الشراء للقطعة المختارة -->
-                    <div class="bg-darkbg p-4 rounded-2xl border border-emerald-500/30 space-y-3">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div class="md:col-span-2">
-                                <label class="text-xs text-slate-400 mb-1 block">اختر قطعة لشراءها من الزبون:</label>
-                                <select id="quick-buy-select" onchange="updateBuyPreview()" class="w-full bg-cardbg border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 outline-none"></select>
-                            </div>
-                            <div class="flex items-end">
-                                <button onclick="addQuickSelectedToBuyCart()" class="w-full bg-emerald-600/20 border border-emerald-500 text-emerald-400 font-bold py-2.5 rounded-xl text-xs hover:bg-emerald-600/30 transition shadow">
-                                    <i class="fa-solid fa-plus"></i> إضافة لقائمة الشراء
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 border-t border-slate-800 text-xs">
-                            <div class="bg-cardbg p-2.5 rounded-xl border border-slate-800">
-                                <span class="text-slate-400 block text-[10px]">غرام الشراء الأساسي:</span>
-                                <span id="prev-buy-gram" class="text-slate-200 font-bold">0 د.ع</span>
-                            </div>
-                            <div class="bg-cardbg p-2.5 rounded-xl border border-slate-800">
-                                <span class="text-slate-400 block text-[10px]">الوزن بالغرام:</span>
-                                <span id="prev-buy-weight" class="text-amber-400 font-bold">0 غرام</span>
-                            </div>
-                            <div class="bg-cardbg p-2.5 rounded-xl border border-emerald-500/30">
-                                <span class="text-slate-400 block text-[10px]">إجمالي الدفع للقطعة:</span>
-                                <span id="prev-buy-total" class="text-emerald-400 font-black">0 د.ع</span>
-                            </div>
-                            <div class="bg-cardbg p-2.5 rounded-xl border border-gold/30">
-                                <span class="text-slate-400 block text-[10px]">المقابل (ورق / دولار):</span>
-                                <span id="prev-buy-alt" class="text-gold font-black">0</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- قائمة سلة الشراء -->
-                    <div id="buy-cart-items-container" class="space-y-2 max-h-60 overflow-y-auto">
-                        <p class="text-center text-slate-500 text-xs p-3">قائمة مشتريات الزبون فارغة.</p>
-                    </div>
-
-                    <div class="border-t border-slate-800 pt-4 space-y-3">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <input type="text" id="buy-customer" placeholder="اسم الزبون البائع ورقم الهاتف" class="bg-darkbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
-                            <input type="text" id="buy-notes" placeholder="ملاحظات الشراء..." class="bg-darkbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
-                        </div>
-
-                        <div class="flex justify-between items-center bg-emerald-950/30 p-4 rounded-2xl border border-emerald-500/40">
-                            <div>
-                                <span class="block text-xs text-slate-300">إجمالي المبلغ المدفوع للزبون:</span>
-                                <span id="buy-total-alt" class="text-xs text-emerald-400 font-bold">0 ورقة</span>
-                            </div>
-                            <span id="buy-total-price" class="text-2xl font-black text-emerald-400">0 د.ع</span>
-                        </div>
-
-                        <button onclick="completeBuyFromCustomer()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition">
-                            <i class="fa-solid fa-circle-check"></i> <span>إتمام الشراء وإدخال الذهب للمخزن ودفع المبلغ</span>
+                    <!-- بيانات البائع: الاسم معزول عن الهاتف -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input type="text" id="scrap-customer" placeholder="اسم الزبون البائع" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
+                        <input type="tel" id="scrap-phone" placeholder="رقم هاتف البائع (معزول)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm text-emerald-400 font-mono outline-none">
+                        <button onclick="openCustomSelectModal('scrap-karat', 'اختر عيار الذهب الكسر', [{val:'24', label:'عيار 24'}, {val:'22', label:'عيار 22'}, {val:'21', label:'عيار 21'}, {val:'18', label:'عيار 18'}, {val:'9', label:'عيار 9'}], () => { autoFillScrapMithqal(); updateScrapPreview(); })" class="bg-darkbg border border-slate-700 hover:border-gold rounded-2xl p-3 text-sm flex justify-between items-center outline-none">
+                            <span id="label-scrap-karat" class="text-gold font-bold">عيار 21</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
                         </button>
+                        <input type="hidden" id="scrap-karat" value="21">
                     </div>
+
+                    <!-- بيانات الوزن وسعر المثقال والخصم -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="text-xs text-slate-400 block mb-1">سعر المثقال المعتمد:</label>
+                            <input type="number" id="scrap-mithqal-price" oninput="updateScrapPreview()" placeholder="سعر المثقال" class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm text-gold font-bold outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 block mb-1">الوزن الإجمالي (غرام):</label>
+                            <input type="number" step="0.001" id="scrap-weight" oninput="updateScrapPreview()" placeholder="الوزن بالغرام" class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 block mb-1">نسبة الخصم / المهالك (%):</label>
+                            <input type="number" value="1" id="scrap-deduct" oninput="updateScrapPreview()" placeholder="الخصم %" class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
+                        </div>
+                    </div>
+
+                    <input type="text" id="scrap-notes" placeholder="ملاحظات وتفاصيل القطع المشتراة..." class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
+
+                    <!-- لوحة المعاينة الفخمة للسعر بالدينار والدولار قبل الطباعة -->
+                    <div class="bg-darkbg p-4 rounded-2xl border border-gold/40 space-y-3 shadow-inner">
+                        <div class="text-xs font-bold text-gold flex items-center gap-1.5">
+                            <i class="fa-solid fa-eye"></i> معاينة السعر الصافي قبل الطباعة والدفع:
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                            <div class="bg-cardbg p-3 rounded-xl border border-slate-800">
+                                <span class="text-slate-400 block text-[10px]">سعر الغرام (مثقال÷5):</span>
+                                <span id="scrap-prev-gram" class="text-slate-200 font-bold text-sm">0 د.ع</span>
+                            </div>
+                            <div class="bg-cardbg p-3 rounded-xl border border-slate-800">
+                                <span class="text-slate-400 block text-[10px]">الوزن الصافي بعد الخصم:</span>
+                                <span id="scrap-prev-net-weight" class="text-amber-400 font-bold text-sm">0 غرام</span>
+                            </div>
+                            <div class="bg-cardbg p-3 rounded-xl border border-gold/40">
+                                <span class="text-slate-400 block text-[10px]">الإجمالي بالدينار العراقي:</span>
+                                <span id="scrap-prev-iqd" class="text-gold font-black text-base">0 د.ع</span>
+                            </div>
+                            <div class="bg-cardbg p-3 rounded-xl border border-emerald-500/40">
+                                <span class="text-slate-400 block text-[10px]">المقابل بالدولار / الورق:</span>
+                                <span id="scrap-prev-usd" class="text-emerald-400 font-black text-base">$0 (0 ورقة)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="buyScrapGold()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition">
+                        <i class="fa-solid fa-print"></i> <span>إتمام شراء الكسر وطباعة الفاتورة الرسمية</span>
+                    </button>
                 </div>
             </div>
 
-            <!-- 4. المخزن والكميات (للمثاقيل الخمسة) -->
+            <!-- 4. المخزن والكميات -->
             <div id="view-inventory" class="hidden space-y-6">
                 <div class="cardbg p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
                     <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-boxes-stacked"></i> إضافة بضاعة للمخزن</h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input type="text" id="inv-name" placeholder="اسم الصنف (مثال: محبس ذهب)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
-                        <select id="inv-karat" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
-                            <option value="24">عيار 24</option>
-                            <option value="22">عيار 22</option>
-                            <option value="21">عيار 21</option>
-                            <option value="18">عيار 18</option>
-                            <option value="9">عيار 9</option>
-                        </select>
+                        <button onclick="openCustomSelectModal('inv-karat', 'اختر عيار الذهب', [{val:'24', label:'عيار 24'}, {val:'22', label:'عيار 22'}, {val:'21', label:'عيار 21'}, {val:'18', label:'عيار 18'}, {val:'9', label:'عيار 9'}])" class="bg-darkbg border border-slate-700 hover:border-gold rounded-2xl p-3 text-sm flex justify-between items-center outline-none">
+                            <span id="label-inv-karat" class="text-gold font-bold">عيار 21</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
+                        </button>
+                        <input type="hidden" id="inv-karat" value="21">
+
                         <input type="number" step="0.001" id="inv-weight" placeholder="وزن القطعة (غرام)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
                         <input type="number" id="inv-qty" value="1" placeholder="الكمية المتوفرة" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
                         <input type="number" id="inv-making" placeholder="أجور صياغة الغرام الواحد (د.ع)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
@@ -363,53 +360,31 @@
                 </div>
             </div>
 
-            <!-- 5. شراء ذهب كسر -->
-            <div id="view-scrap" class="hidden space-y-6">
-                <div class="cardbg p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
-                    <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-scale-balanced"></i> شراء ذهب كسر</h3>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" id="scrap-customer" placeholder="اسم البائع" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
-                        <select id="scrap-karat" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
-                            <option value="24">عيار 24</option>
-                            <option value="22">عيار 22</option>
-                            <option value="21" selected>عيار 21</option>
-                            <option value="18">عيار 18</option>
-                            <option value="9">عيار 9</option>
-                        </select>
-                        <input type="number" id="scrap-mithqal-price" placeholder="سعر المثقال المعتمد" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
-                        <input type="number" step="0.001" id="scrap-weight" placeholder="الوزن الإجمالي (غرام)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
-                        <input type="number" value="1" id="scrap-deduct" placeholder="نسبة الخصم / المهالك (%)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
-                        <input type="text" id="scrap-notes" placeholder="ملاحظات..." class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
-                    </div>
-
-                    <button onclick="buyScrapGold()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-2xl shadow-lg">إتمام شراء الكسر 💵</button>
-                </div>
-            </div>
-
-            <!-- 6. كارتات العملاء والديون -->
+            <!-- 5. كارتات العملاء والديون (مع خانة هاتف معزولة) -->
             <div id="view-debts" class="hidden space-y-6">
                 <div class="cardbg p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
                     <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-file-invoice-dollar"></i> كارتات العملاء والديون</h3>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 bg-darkbg p-4 rounded-2xl border border-slate-800">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-darkbg p-4 rounded-2xl border border-slate-800">
                         <input type="text" id="debt-customer" placeholder="اسم الزبون أو التاجر" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
-                        <select id="debt-type" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
-                            <option value="زيادة دين (+)">زيادة دين على الزبون (+)</option>
-                            <option value="نقصان دين (-)">تسديد / نقصان دين (-)</option>
-                            <option value="إضافة ذهب (غرام)">إضافة ذهب للذمة (غرام)</option>
-                            <option value="نقصان ذهب (غرام)">نقصان ذهب من الذمة (غرام)</option>
-                        </select>
-                        <input type="number" id="debt-amount" placeholder="المبلغ أو الوزن" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
-                        <input type="text" id="debt-notes" placeholder="ملاحظات..." class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm md:col-span-2 outline-none">
-                        <button onclick="addDebtMovement()" class="gold-gradient text-darkbg font-bold py-3 rounded-xl shadow">تحديث كارت العميل</button>
+                        <input type="tel" id="debt-phone" placeholder="رقم هاتف العميل (معزول)" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm text-emerald-400 font-mono outline-none">
+                        
+                        <button onclick="openCustomSelectModal('debt-type', 'اختر نوع الحركة المالية', [{val:'زيادة دين (+)', label:'زيادة دين على الزبون (+)'}, {val:'نقصان دين (-)', label:'تسديد / نقصان دين (-)'}, {val:'إضافة ذهب (غرام)', label:'إضافة ذهب للذمة (غرام)'}, {val:'نقصان ذهب (غرام)', label:'نقصان ذهب من الذمة (غرام)'}])" class="bg-cardbg border border-slate-700 hover:border-gold rounded-xl p-3 text-sm flex justify-between items-center outline-none">
+                            <span id="label-debt-type" class="text-gold font-bold">زيادة دين على الزبون (+)</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
+                        </button>
+                        <input type="hidden" id="debt-type" value="زيادة دين (+)">
+
+                        <input type="number" id="debt-amount" placeholder="المبلغ بالدينار أو الوزن بالغرام" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
+                        <input type="text" id="debt-notes" placeholder="ملاحظات العملية..." class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm md:col-span-2 outline-none">
+                        <button onclick="addDebtMovement()" class="gold-gradient text-darkbg font-bold py-3 rounded-xl shadow md:col-span-2">تحديث كارت العميل</button>
                     </div>
 
                     <div id="customer-cards-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2"></div>
                 </div>
             </div>
 
-            <!-- 7. الأرشيف والجرد -->
+            <!-- 6. الأرشيف والجرد -->
             <div id="view-logs" class="hidden space-y-6">
                 <div class="cardbg p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
                     <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-2">
@@ -425,11 +400,11 @@
                             <span id="stat-sales-count" class="text-sm font-bold text-gold">0</span>
                         </div>
                         <div class="bg-darkbg p-3 rounded-2xl border border-emerald-500/30">
-                            <span class="text-[10px] text-slate-400 block">عمليات الشراء:</span>
-                            <span id="stat-buy-count" class="text-sm font-bold text-emerald-400">0</span>
+                            <span class="text-[10px] text-slate-400 block">شراء الكسر:</span>
+                            <span id="stat-scrap-count" class="text-sm font-bold text-emerald-400">0</span>
                         </div>
                         <div class="bg-darkbg p-3 rounded-2xl border border-rose-500/30">
-                            <span class="text-[10px] text-slate-400 block">عمليات الإرجاع:</span>
+                            <span class="text-[10px] text-slate-400 block">المرتجعات:</span>
                             <span id="stat-return-count" class="text-sm font-bold text-rose-400">0</span>
                         </div>
                         <div class="bg-darkbg p-3 rounded-2xl border border-blue-500/30">
@@ -441,9 +416,8 @@
                     <div class="flex flex-wrap gap-2 border-b border-slate-800 pb-3 text-xs">
                         <button onclick="switchLogCategory('all')" id="log-cat-all" class="cat-btn bg-gold text-darkbg px-3.5 py-1.5 rounded-xl font-bold shadow">الكل</button>
                         <button onclick="switchLogCategory('عملية بيع')" id="log-cat-sales" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">المبيعات</button>
-                        <button onclick="switchLogCategory('شراء من الزبون')" id="log-cat-buy" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">المشتريات</button>
-                        <button onclick="switchLogCategory('إرجاع فاتورة')" id="log-cat-return" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">المرتجعات</button>
                         <button onclick="switchLogCategory('شراء كسر')" id="log-cat-scrap" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">الكسر</button>
+                        <button onclick="switchLogCategory('إرجاع فاتورة')" id="log-cat-return" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">المرتجعات</button>
                         <button onclick="switchLogCategory('حركة ديون')" id="log-cat-debts" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">الديون</button>
                         <button onclick="switchLogCategory('صرف مصروف')" id="log-cat-exp" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">المصاريف</button>
                         <button onclick="switchLogCategory('prices')" id="log-cat-prices" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">سجل الأسعار</button>
@@ -464,7 +438,7 @@
                         </div>
 
                         <div class="bg-darkbg p-3 rounded-2xl border border-slate-800">
-                            <input type="text" id="search-input" oninput="filterLogs()" placeholder="ابحث برمز العملية (مثل INV-1234) أو اسم الزبون..." class="w-full bg-transparent text-xs text-slate-200 outline-none">
+                            <input type="text" id="search-input" oninput="filterLogs()" placeholder="ابحث بالرمز، الاسم، أو رقم الهاتف..." class="w-full bg-transparent text-xs text-slate-200 outline-none">
                         </div>
 
                         <div class="overflow-x-auto">
@@ -474,7 +448,7 @@
                                         <th class="p-3">التاريخ والوقت</th>
                                         <th class="p-3">رمز العملية</th>
                                         <th class="p-3">النوع</th>
-                                        <th class="p-3">التفاصيل والزبون</th>
+                                        <th class="p-3">التفاصيل والزبون والهاتف</th>
                                         <th class="p-3">المبلغ / الوزن</th>
                                     </tr>
                                 </thead>
@@ -502,6 +476,29 @@
 
         </section>
     </main>
+
+    <!-- قائمة اختيار فخمة مخصصة (بدلاً من قوائم المتصفح البيضاء) -->
+    <div id="custom-select-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[110] flex items-center justify-center hidden p-4">
+        <div class="cardbg p-6 rounded-3xl border border-gold/40 w-full max-w-sm space-y-4 shadow-2xl">
+            <h3 id="custom-select-title" class="text-base font-bold text-gold border-b border-slate-800 pb-2">اختر من القائمة</h3>
+            <div id="custom-select-options" class="space-y-2 max-h-64 overflow-y-auto"></div>
+            <button onclick="closeCustomSelectModal()" class="w-full bg-slate-800 text-slate-300 py-2.5 rounded-xl text-xs font-bold">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- نافذة تأكيد فخمة مخصصة (بدلاً من confirm المتصفح) -->
+    <div id="custom-confirm-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[115] flex items-center justify-center hidden p-4">
+        <div class="cardbg p-6 rounded-3xl border border-rose-500/40 w-full max-w-sm space-y-4 shadow-2xl text-center">
+            <div class="w-12 h-12 rounded-full bg-rose-500/15 text-rose-400 flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-100" id="custom-confirm-text">هل أنت متأكد من هذا الإجراء؟</h3>
+            <div class="flex gap-3 pt-2">
+                <button id="custom-confirm-yes" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl text-xs shadow">تأكيد التنفيذ</button>
+                <button onclick="closeConfirmModal()" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl text-xs font-bold">إلغاء</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal فخم لإرجاع الفاتورة -->
     <div id="return-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
@@ -531,47 +528,33 @@
         </div>
     </div>
 
-    <!-- Modal اختيار قطعة للشراء من الزبون -->
-    <div id="buy-item-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
-        <div class="cardbg p-6 rounded-3xl border border-emerald-500/40 w-full max-w-xl space-y-4 shadow-2xl relative max-h-[85vh] flex flex-col">
-            <h3 class="text-lg font-bold text-emerald-400 border-b border-slate-800 pb-2 flex items-center gap-2">
-                <i class="fa-solid fa-hand-holding-dollar"></i> إضافة قطعة للمشتريات من الزبون
-            </h3>
-            <div class="space-y-3 text-xs">
-                <input type="text" id="buy-custom-name" placeholder="اسم القطعة (مثال: سوار ذهب عيار 21)" class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-xs outline-none">
-                <div class="grid grid-cols-2 gap-2">
-                    <select id="buy-custom-karat" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-xs outline-none">
-                        <option value="24">عيار 24</option>
-                        <option value="22">عيار 22</option>
-                        <option value="21" selected>عيار 21</option>
-                        <option value="18">عيار 18</option>
-                        <option value="9">عيار 9</option>
-                    </select>
-                    <input type="number" step="0.001" id="buy-custom-weight" placeholder="الوزن بالغرام" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-xs outline-none">
-                </div>
-                <input type="number" id="buy-custom-discount" placeholder="نسبة خصم/مهالك الشراء (%) مثلاً 1" value="1" class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-xs outline-none">
-                <button onclick="addCustomBuyItemToCart()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl shadow">إضافة لقائمة مشتريات الزبون</button>
-            </div>
-            <button onclick="closeBuyItemModal()" class="w-full bg-slate-800 text-slate-300 py-2.5 rounded-xl text-xs font-bold">إغلاق</button>
-        </div>
-    </div>
-
     <!-- Modal كارت العميل -->
     <div id="customer-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
         <div class="cardbg p-6 rounded-3xl border border-gold/40 w-full max-w-lg space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <h3 id="modal-cust-name" class="text-lg font-bold text-gold border-b border-slate-800 pb-2">تفاصيل حساب العميل</h3>
+            <div class="border-b border-slate-800 pb-2 flex justify-between items-center">
+                <h3 id="modal-cust-name" class="text-lg font-bold text-gold">تفاصيل حساب العميل</h3>
+                <span id="modal-cust-phone" class="text-xs font-mono text-emerald-400 bg-darkbg px-2.5 py-1 rounded-lg border border-slate-700">--</span>
+            </div>
             <div class="grid grid-cols-2 gap-2 text-xs bg-darkbg p-3 rounded-2xl border border-slate-800">
                 <div>إجمالي الدين: <span id="modal-cust-debt" class="text-gold font-bold">0 د.ع</span></div>
                 <div>إجمالي الذهب: <span id="modal-cust-gold" class="text-emerald-400 font-bold">0 غرام</span></div>
             </div>
-            <div class="flex gap-2">
-                <button onclick="custQuickAction('plus')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl text-xs font-bold">+ زيادة</button>
-                <button onclick="custQuickAction('minus')" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white py-2 rounded-xl text-xs font-bold">- تسديد</button>
-                <button onclick="custResetAccount()" class="bg-red-500/20 text-red-400 px-3 py-2 rounded-xl text-xs font-bold border border-red-500/30">تصفير</button>
-                <button onclick="custDeleteAccount()" class="bg-red-700 text-white px-3 py-2 rounded-xl text-xs font-bold">حذف</button>
+
+            <div class="bg-darkbg p-4 rounded-2xl border border-slate-800 space-y-3">
+                <label class="text-xs text-slate-300 block font-bold">إدخال مبلغ الحركة (زيادة أو تسديد):</label>
+                <input type="number" id="cust-custom-amount" placeholder="أدخل المبلغ بالدينار..." class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 text-sm text-gold font-bold outline-none">
+                <div class="flex gap-2">
+                    <button onclick="custActionSubmit('plus')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-bold shadow">+ إضافة للذمة</button>
+                    <button onclick="custActionSubmit('minus')" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl text-xs font-bold shadow">- تسديد من الذمة</button>
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="openConfirmModal('تصفير أرصدة هذا العميل بالكامل؟', executeCustReset)" class="bg-red-500/20 text-red-400 px-4 py-2.5 rounded-xl text-xs font-bold border border-red-500/30">تصفير الحساب</button>
+                <button onclick="openConfirmModal('حذف كارت هذا العميل نهائياً؟', executeCustDelete)" class="bg-red-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold">حذف الكارت</button>
             </div>
             <div class="space-y-2 text-xs" id="modal-cust-details"></div>
-            <button onclick="closeCustomerModal()" class="w-full bg-slate-800 text-slate-300 py-2.5 rounded-xl text-xs font-bold">إغلاق</button>
+            <button onclick="closeCustomerModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-xl text-xs font-bold">إغلاق الكارت</button>
         </div>
     </div>
 
@@ -677,10 +660,10 @@
                 <div class="flex justify-between"><span>الوزن الإجمالي:</span> <span id="inv-print-weight" class="font-bold">0 غرام ⚖️</span></div>
                 
                 <div id="inv-detailed-rows" class="space-y-2">
-                    <div class="flex justify-between"><span>أجور صياغة الغرام:</span> <span id="inv-print-making" class="font-bold">0 دينار 🛠️</span></div>
+                    <div class="flex justify-between"><span id="inv-making-label">أجور صياغة الغرام:</span> <span id="inv-print-making" class="font-bold">0 دينار 🛠️</span></div>
                     <hr class="border-dashed">
                     <div class="flex justify-between"><span>سعر الغرام الصافي:</span> <span id="inv-print-g-net" class="font-bold">0 دينار 💰</span></div>
-                    <div class="flex justify-between"><span>سعر الغرام مع الأجور:</span> <span id="inv-print-g-total" class="font-bold">0 دينار ✨</span></div>
+                    <div class="flex justify-between"><span id="inv-gtotal-label">سعر الغرام الإجمالي:</span> <span id="inv-print-g-total" class="font-bold">0 دينار ✨</span></div>
                 </div>
 
                 <hr class="border-dashed">
@@ -689,14 +672,17 @@
                     <span id="inv-print-total" class="text-gold-dark">0 دينار 🟨</span>
                 </div>
                 <div class="flex justify-between text-sm font-black text-emerald-700 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
-                    <span id="inv-alt-label">صافي الحساب:</span>
+                    <span>صافي الحساب (ورق / دولار):</span>
                     <span id="inv-print-paper">0 💵</span>
                 </div>
                 <div class="text-[11px] text-slate-600 pt-1 flex justify-between">
                     <span>الزبون: <strong id="inv-print-customer" class="text-slate-900">--</strong></span>
-                    <span>التاريخ: <strong id="inv-print-date" class="text-slate-900">--</strong></span>
+                    <span>الهاتف: <strong id="inv-print-phone" class="font-mono text-slate-900">--</strong></span>
                 </div>
-                <div class="text-[11px] text-slate-500">الملاحظات: <span id="inv-print-notes">--</span></div>
+                <div class="text-[11px] text-slate-500 flex justify-between">
+                    <span>ملاحظات: <span id="inv-print-notes">--</span></span>
+                    <span>التاريخ: <strong id="inv-print-date" class="text-slate-800">--</strong></span>
+                </div>
             </div>
 
             <div class="text-center text-[10px] text-slate-400 border-t pt-2">
@@ -710,55 +696,28 @@
         </div>
     </div>
 
-    <!-- نافذة منبثقة فخمة لكارت العميل (بدلاً من prompt) -->
-    <div id="customer-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
-        <div class="cardbg p-6 rounded-3xl border border-gold/40 w-full max-w-lg space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <h3 id="modal-cust-name" class="text-lg font-bold text-gold border-b border-slate-800 pb-2">تفاصيل حساب العميل</h3>
-            <div class="grid grid-cols-2 gap-2 text-xs bg-darkbg p-3 rounded-2xl border border-slate-800">
-                <div>إجمالي الدين: <span id="modal-cust-debt" class="text-gold font-bold">0 د.ع</span></div>
-                <div>إجمالي الذهب: <span id="modal-cust-gold" class="text-emerald-400 font-bold">0 غرام</span></div>
-            </div>
-
-            <!-- خانة إدخال تفاعلية فخمة بدلاً من رسالة النظام المنبثقة -->
-            <div class="bg-darkbg p-4 rounded-2xl border border-slate-800 space-y-3">
-                <label class="text-xs text-slate-300 block font-bold">إدخال مبلغ الحركة (زيادة أو تسديد):</label>
-                <input type="number" id="cust-custom-amount" placeholder="أدخل المبلغ بالدينار..." class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 text-sm text-gold font-bold outline-none">
-                <div class="flex gap-2">
-                    <button onclick="custActionSubmit('plus')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-bold shadow">+ إضافة للذمة</button>
-                    <button onclick="custActionSubmit('minus')" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl text-xs font-bold shadow">- تسديد من الذمة</button>
-                </div>
-            </div>
-
-            <div class="flex gap-2 pt-2">
-                <button onclick="custResetAccount()" class="bg-red-500/20 text-red-400 px-4 py-2.5 rounded-xl text-xs font-bold border border-red-500/30">تصفير الحساب</button>
-                <button onclick="custDeleteAccount()" class="bg-red-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold">حذف الكارت</button>
-            </div>
-            <div class="space-y-2 text-xs" id="modal-cust-details"></div>
-            <button onclick="closeCustomerModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-xl text-xs font-bold">إغلاق الكارت</button>
-        </div>
-    </div>
-
     <script>
-        // النظام الأساسي v16 مع أسعار المثاقيل الخمسة (24, 22, 21, 18, 9)
         let appState = {
             prices: { usd: 153000, m24: 628571, m22: 576190, m21: 550000, m18: 471428, m9: 235714 },
             cash: 0, usdCash: 0, zainCash: 0, makingProfit: 0,
-            inventory: [], cart: [], buyCart: [], logs: [], debts: [], priceLogs: [], invoices: []
+            inventory: [], cart: [], logs: [], debts: [], priceLogs: [], invoices: []
         };
 
         let currentCategoryFilter = 'all';
         let currentDayFilter = 'الكل';
         let selectedCustIdx = null;
+        let pendingConfirmAction = null;
 
         window.onload = function() {
-            const saved = localStorage.getItem('aramky_gold_os_v16');
+            const saved = localStorage.getItem('aramky_gold_os_v17');
             if (saved) { try { appState = JSON.parse(saved); if(!appState.invoices) appState.invoices = []; } catch(e) {} }
             updatePricesDerived();
+            autoFillScrapMithqal();
             updateUI();
         };
 
         function saveState() {
-            localStorage.setItem('aramky_gold_os_v16', JSON.stringify(appState));
+            localStorage.setItem('aramky_gold_os_v17', JSON.stringify(appState));
             updateUI();
         }
 
@@ -777,6 +736,15 @@
             if(karat == '18') return appState.prices.g18;
             if(karat == '9') return appState.prices.g9;
             return appState.prices.g21;
+        }
+
+        function getMithqalPrice(karat) {
+            if(karat == '24') return appState.prices.m24;
+            if(karat == '22') return appState.prices.m22;
+            if(karat == '21') return appState.prices.m21;
+            if(karat == '18') return appState.prices.m18;
+            if(karat == '9') return appState.prices.m9;
+            return appState.prices.m21;
         }
 
         function showToast(message, type = 'success') {
@@ -802,6 +770,64 @@
                 return `${Math.round(amount).toLocaleString()} دينار`;
             }
         }
+
+        function formatBothUsdAndPaper(amount) {
+            let onePaper = appState.prices.usd > 0 ? appState.prices.usd : 153000;
+            let usdTotal = (amount / (onePaper / 100)).toFixed(2);
+            let papers = Math.floor(amount / onePaper);
+            let remainder = Math.round(amount % onePaper);
+            let paperStr = papers > 0 ? `${papers} ورقة و ${remainder.toLocaleString()} د.ع` : `${Math.round(amount).toLocaleString()} د.ع`;
+            return `$${usdTotal} (${paperStr})`;
+        }
+
+        // نافذة اختيار فخمة بدلاً من القوائم التقليدية
+        function openCustomSelectModal(targetInputId, title, optionsArr, callback = null) {
+            document.getElementById('custom-select-title').innerText = title;
+            let container = document.getElementById('custom-select-options');
+            container.innerHTML = '';
+
+            optionsArr.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = "w-full text-right p-3.5 rounded-2xl bg-darkbg hover:bg-gold/20 border border-slate-800 hover:border-gold text-xs font-bold text-slate-200 flex justify-between items-center transition";
+                btn.innerHTML = `<span>${opt.label}</span> <i class="fa-solid fa-circle-dot text-gold text-[10px]"></i>`;
+                btn.onclick = () => {
+                    document.getElementById(targetInputId).value = opt.val;
+                    let labelEl = document.getElementById('label-' + targetInputId);
+                    if(labelEl) labelEl.innerText = opt.label;
+                    closeCustomSelectModal();
+                    if(callback) callback(opt.val);
+                };
+                container.appendChild(btn);
+            });
+
+            document.getElementById('custom-select-modal').classList.remove('hidden');
+        }
+        function closeCustomSelectModal() { document.getElementById('custom-select-modal').classList.add('hidden'); }
+
+        function openInventoryPickerForQuickPreview() {
+            let opts = appState.inventory.map((item, idx) => item.qty > 0 ? {
+                val: idx,
+                label: `${item.name} — عيار ${item.karat} (${item.weight} غرام) [متوفر: ${item.qty}]`
+            } : null).filter(Boolean);
+
+            if(opts.length === 0) {
+                showToast('المخزن فارغ حالياً!', 'error');
+                return;
+            }
+            openCustomSelectModal('quick-pos-select', 'اختر قطعة لمعاينة سعرها الفوري', opts, () => updateCartPreview());
+        }
+
+        // نافذة تأكيد فخمة بدلاً من confirm
+        function openConfirmModal(message, actionFn) {
+            document.getElementById('custom-confirm-text').innerText = message;
+            pendingConfirmAction = actionFn;
+            document.getElementById('custom-confirm-yes').onclick = () => {
+                closeConfirmModal();
+                if(pendingConfirmAction) pendingConfirmAction();
+            };
+            document.getElementById('custom-confirm-modal').classList.remove('hidden');
+        }
+        function closeConfirmModal() { document.getElementById('custom-confirm-modal').classList.add('hidden'); }
 
         function logTransaction(type, details, amountOrWeight, notes = "", customCode = null) {
             const now = new Date();
@@ -837,13 +863,9 @@
             document.getElementById('dash-making-profit').innerText = Math.round(appState.makingProfit).toLocaleString() + ' د.ع';
 
             let tbody = document.getElementById('inventory-table-body');
-            let quickSelect = document.getElementById('quick-pos-select');
-            let quickBuySelect = document.getElementById('quick-buy-select');
             tbody.innerHTML = '';
-            quickSelect.innerHTML = '<option value="">-- اختر قطعة لبيعها --</option>';
-            quickBuySelect.innerHTML = '<option value="">-- اختر قطعة متوفرة لشراءها --</option>';
 
-            appState.inventory.forEach((item, idx) => {
+            appState.inventory.forEach((item) => {
                 let imgStatus = item.hasImage ? `<span class="text-emerald-400 font-bold">صورة 🖼️</span>` : `<span class="text-slate-500">بدون</span>`;
                 tbody.innerHTML += `
                     <tr class="border-b border-slate-800">
@@ -854,21 +876,16 @@
                         <td class="p-3 font-bold text-gold">${item.qty} قطعة</td>
                         <td class="p-3">${item.makingPerGram.toLocaleString()} د.ع/غرام</td>
                     </tr>`;
-                if(item.qty > 0) {
-                    quickSelect.innerHTML += `<option value="${idx}">${item.name} — عيار ${item.karat} (${item.weight} غرام) [متوفر: ${item.qty}]</option>`;
-                    quickBuySelect.innerHTML += `<option value="${idx}">${item.name} — عيار ${item.karat} (${item.weight} غرام)</option>`;
-                }
             });
 
             updateCartPreview();
-            updateBuyPreview();
+            updateScrapPreview();
             renderCustomerCards();
             filterLogs();
             renderPriceLogs();
             updateStats();
         }
 
-        // معاينة البيع
         function updateCartPreview() {
             let idx = document.getElementById('quick-pos-select').value;
             if(idx === "" || !appState.inventory[idx]) {
@@ -946,127 +963,6 @@
             renderCart();
         }
 
-        // معاينة شراء الذهب من الزبون
-        function updateBuyPreview() {
-            let idx = document.getElementById('quick-buy-select').value;
-            if(idx === "" || !appState.inventory[idx]) {
-                document.getElementById('prev-buy-gram').innerText = '0 د.ع';
-                document.getElementById('prev-buy-weight').innerText = '0 غرام';
-                document.getElementById('prev-buy-total').innerText = '0 د.ع';
-                document.getElementById('prev-buy-alt').innerText = '0';
-                return;
-            }
-            let item = appState.inventory[idx];
-            let gramPrice = getGramPrice(item.karat);
-            // الشراء من الزبون بخصم بسيط (مثلاً خصم 1% مهالك كسر/صياغة)
-            let netWeight = item.weight * 0.99; 
-            let totalPay = Math.round(netWeight * gramPrice);
-
-            document.getElementById('prev-buy-gram').innerText = Math.round(gramPrice).toLocaleString() + ' د.ع';
-            document.getElementById('prev-buy-weight').innerText = `${item.weight} غرام`;
-            document.getElementById('prev-buy-total').innerText = totalPay.toLocaleString() + ' د.ع';
-            document.getElementById('prev-buy-alt').innerText = formatAltCurrency(totalPay);
-        }
-
-        function addQuickSelectedToBuyCart() {
-            let idx = document.getElementById('quick-buy-select').value;
-            if(idx === "") { showToast('اختر قطعة أولاً لشراءها!', 'error'); return; }
-            let item = appState.inventory[idx];
-            let gramPrice = getGramPrice(item.karat);
-            let netWeight = item.weight * 0.99;
-            let buyTotal = Math.round(netWeight * gramPrice);
-
-            appState.buyCart.push({ ...item, buyTotal });
-            renderBuyCart();
-            showToast(`تمت إضافة (${item.name}) لقائمة المشتريات من الزبون!`);
-        }
-
-        function addCustomBuyItemToCart() {
-            let name = document.getElementById('buy-custom-name').value.trim() || 'ذهب مشتري من زبون';
-            let karat = document.getElementById('buy-custom-karat').value;
-            let weight = parseFloat(document.getElementById('buy-custom-weight').value);
-            let deduct = parseFloat(document.getElementById('buy-custom-discount').value) || 1;
-
-            if(isNaN(weight) || weight <= 0) { showToast('أدخل وزناً صحيحاً بالغرام!', 'error'); return; }
-
-            let gramPrice = getGramPrice(karat);
-            let netWeight = weight * (1 - (deduct / 100));
-            let buyTotal = Math.round(netWeight * gramPrice);
-
-            appState.buyCart.push({ name, karat, weight, buyTotal });
-            renderBuyCart();
-            closeBuyItemModal();
-            showToast('تمت إضافة قطعة الشراء بنجاح!');
-        }
-
-        function renderBuyCart() {
-            let container = document.getElementById('buy-cart-items-container');
-            container.innerHTML = '';
-            let total = 0;
-
-            if(appState.buyCart.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-500 text-xs p-3">قائمة مشتريات الزبون فارغة.</p>`;
-                document.getElementById('buy-total-price').innerText = '0 د.ع';
-                document.getElementById('buy-total-alt').innerText = formatAltCurrency(0);
-                return;
-            }
-
-            appState.buyCart.forEach((item, idx) => {
-                total += item.buyTotal;
-                container.innerHTML += `
-                    <div class="cardbg p-3.5 rounded-2xl border border-emerald-500/30 flex justify-between items-center text-xs shadow-lg">
-                        <div class="space-y-1">
-                            <div class="font-bold text-emerald-400 text-sm">${item.name}</div>
-                            <div class="text-slate-300">الوزن: ${item.weight} غرام | عيار ${item.karat}</div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="font-black text-emerald-400 text-sm">${item.buyTotal.toLocaleString()} د.ع</span>
-                            <button onclick="removeBuyCartItem(${idx})" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </div>`;
-            });
-
-            document.getElementById('buy-total-price').innerText = total.toLocaleString() + ' د.ع';
-            document.getElementById('buy-total-alt').innerText = formatAltCurrency(total);
-        }
-
-        function removeBuyCartItem(idx) {
-            appState.buyCart.splice(idx, 1);
-            renderBuyCart();
-        }
-
-        // إتمام الشراء من الزبون ودفع الكاش وإدخال الذهب للمخزن
-        function completeBuyFromCustomer() {
-            if(appState.buyCart.length === 0) { showToast('قائمة مشتريات الزبون فارغة!', 'error'); return; }
-            let customer = document.getElementById('buy-customer').value.trim() || 'زبون بائع للذهب';
-            let notes = document.getElementById('buy-notes').value;
-            let totalPay = appState.buyCart.reduce((sum, item) => sum + item.buyTotal, 0);
-
-            if(appState.cash < totalPay) {
-                showToast('رصيد الكاش في الخزينة لا يكفي لدفع قيمة الذهب للزبون!', 'error');
-                return;
-            }
-
-            appState.cash -= totalPay;
-            let buyCode = 'BUY-' + Math.floor(1000 + Math.random() * 9000);
-            let itemsSummary = [];
-
-            appState.buyCart.forEach(bItem => {
-                itemsSummary.push(`${bItem.name} (${bItem.weight}غ عيار ${bItem.karat})`);
-                // إدخال الذهب المشتري للمخزن تلقائياً
-                appState.inventory.push({
-                    name: bItem.name, karat: bItem.karat, weight: bItem.weight, qty: 1, makingPerGram: 5000, notes: `مشتريات من الزبون: ${customer}`, hasImage: false
-                });
-            });
-
-            logTransaction('شراء من الزبون', `شراء ذهب من (${customer}): ${itemsSummary.join(', ')}`, `-${totalPay.toLocaleString()} د.ع`, notes, buyCode);
-
-            appState.buyCart = [];
-            renderBuyCart();
-            saveState();
-            showToast(`تم شراء الذهب من الزبون بنجاح ودفع المبلغ [رمز العملية: ${buyCode}]!`);
-        }
-
         function payFullAction(type) {
             let grandTotal = appState.cart.reduce((sum, item) => sum + item.itemTotal, 0);
             if(grandTotal === 0) { showToast('السلة فارغة!', 'error'); return; }
@@ -1092,6 +988,7 @@
             if (appState.cart.length === 0) { showToast('السلة فارغة!', 'error'); return; }
 
             let customer = document.getElementById('pos-customer').value.trim();
+            let phone = document.getElementById('pos-phone').value.trim() || 'غير مسجل';
             if(saleMode === 'debt' && !customer) {
                 showToast('يجب كتابة اسم الزبون لتسجيل الفاتورة على حسابه بالديون!', 'error');
                 return;
@@ -1124,37 +1021,40 @@
                 appState.zainCash += payCard;
                 appState.makingProfit += totalMaking;
 
-                logTransaction('عملية بيع', `بيع نقدي لـ (${customer}): ${itemsSummary.join(', ')}`, `${grandTotal.toLocaleString()} د.ع`, notes, invCode);
+                logTransaction('عملية بيع', `بيع نقدي لـ (${customer} | هاتف: ${phone}): ${itemsSummary.join(', ')}`, `${grandTotal.toLocaleString()} د.ع`, notes, invCode);
                 document.getElementById('inv-sale-type-badge').innerText = 'بيع نقدي منتهي (كاش) ✅';
                 document.getElementById('inv-sale-type-badge').className = 'text-emerald-700 font-bold';
             } else {
                 appState.makingProfit += totalMaking;
                 let custObj = appState.debts.find(d => d.customer === customer);
                 if(!custObj) {
-                    appState.debts.push({ customer, code: 'CUST-' + Math.floor(1000 + Math.random()*9000), debtAmount: 0, goldAmount: 0, movements: [] });
+                    appState.debts.push({ customer, phone, code: 'CUST-' + Math.floor(1000 + Math.random()*9000), debtAmount: 0, goldAmount: 0, movements: [] });
                     custObj = appState.debts[appState.debts.length - 1];
+                } else if(phone !== 'غير مسجل') {
+                    custObj.phone = phone;
                 }
                 custObj.debtAmount += grandTotal;
                 custObj.movements.unshift({
                     time: new Date().toLocaleDateString('ar-IQ'), type: 'شراء بالآجل (+)', amount: grandTotal, notes: `فاتورة ${invCode}: ${itemsSummary.join(', ')}`
                 });
 
-                logTransaction('عملية بيع', `بيع آجل (ديون) على (${customer}): ${itemsSummary.join(', ')}`, `${grandTotal.toLocaleString()} د.ع`, notes, invCode);
+                logTransaction('عملية بيع', `بيع آجل على (${customer} | هاتف: ${phone}): ${itemsSummary.join(', ')}`, `${grandTotal.toLocaleString()} د.ع`, notes, invCode);
                 document.getElementById('inv-sale-type-badge').innerText = 'تسجيل آجل (على حساب الزبون) 📋';
                 document.getElementById('inv-sale-type-badge').className = 'text-amber-700 font-bold';
             }
 
             appState.invoices.push({
-                code: invCode, customer, saleMode, grandTotal, totalMaking, payIqd, payUsd, payCard, items: cartSnapshot, returned: false
+                code: invCode, customer, phone, saleMode, grandTotal, totalMaking, payIqd, payUsd, payCard, items: cartSnapshot, returned: false
             });
 
             let style = document.getElementById('invoice-style').value;
             document.getElementById('inv-detailed-rows').style.display = (style === 'compact') ? 'none' : 'block';
+            document.getElementById('inv-making-label').innerText = 'أجور صياغة الغرام:';
+            document.getElementById('inv-gtotal-label').innerText = 'سعر الغرام مع الأجور:';
 
             document.getElementById('inv-code-display').innerText = `رمز الفاتورة: ${invCode}`;
             document.getElementById('inv-karat-badge').innerText = `عيار ${mainKarat} (المثقال العراقي) 👑`;
-            let activeMithqal = mainKarat == '24' ? appState.prices.m24 : (mainKarat == '22' ? appState.prices.m22 : (mainKarat == '21' ? appState.prices.m21 : (mainKarat == '18' ? appState.prices.m18 : appState.prices.m9)));
-            document.getElementById('inv-print-m21').innerText = `${Math.round(activeMithqal).toLocaleString()} دينار 🟡`;
+            document.getElementById('inv-print-m21').innerText = `${Math.round(getMithqalPrice(mainKarat)).toLocaleString()} دينار 🟡`;
             document.getElementById('inv-print-weight').innerText = `${totalWeight} غرام ⚖️`;
             document.getElementById('inv-print-making').innerText = `${Math.round(totalWeight > 0 ? (totalMaking / totalWeight) : 0).toLocaleString()} دينار 🛠️`;
             
@@ -1165,6 +1065,7 @@
             document.getElementById('inv-print-total').innerText = `${grandTotal.toLocaleString()} دينار 🟨`;
             document.getElementById('inv-print-paper').innerText = `${formatAltCurrency(grandTotal)} 💵`;
             document.getElementById('inv-print-customer').innerText = customer;
+            document.getElementById('inv-print-phone').innerText = phone;
             document.getElementById('inv-print-date').innerText = new Date().toLocaleDateString('ar-IQ');
             document.getElementById('inv-print-notes').innerText = notes || '--';
 
@@ -1176,6 +1077,74 @@
             saveState();
             document.getElementById('invoice-modal').classList.remove('hidden');
             showToast(saleMode === 'cash' ? `تم البيع النقدي بنجاح [${invCode}]` : `تم تسجيل الفاتورة على حساب الزبون [${invCode}]`);
+        }
+
+        // معاينة شراء ذهب كسر بالدينار والدولار قبل الطباعة
+        function autoFillScrapMithqal() {
+            let karat = document.getElementById('scrap-karat').value;
+            document.getElementById('scrap-mithqal-price').value = Math.round(getMithqalPrice(karat));
+        }
+
+        function updateScrapPreview() {
+            let mithqalPrice = parseFloat(document.getElementById('scrap-mithqal-price').value) || 0;
+            let weight = parseFloat(document.getElementById('scrap-weight').value) || 0;
+            let deduct = parseFloat(document.getElementById('scrap-deduct').value) || 0;
+
+            let gramPrice = mithqalPrice / 5;
+            let netWeight = weight * (1 - (deduct / 100));
+            let totalPay = Math.round(netWeight * gramPrice);
+
+            document.getElementById('scrap-prev-gram').innerText = Math.round(gramPrice).toLocaleString() + ' د.ع';
+            document.getElementById('scrap-prev-net-weight').innerText = netWeight.toFixed(3) + ' غرام';
+            document.getElementById('scrap-prev-iqd').innerText = totalPay.toLocaleString() + ' د.ع';
+            document.getElementById('scrap-prev-usd').innerText = formatBothUsdAndPaper(totalPay);
+        }
+
+        function buyScrapGold() {
+            let customer = document.getElementById('scrap-customer').value.trim() || "بائع ذهب كسر";
+            let phone = document.getElementById('scrap-phone').value.trim() || "غير مسجل";
+            let karat = document.getElementById('scrap-karat').value;
+            let mithqalPrice = parseFloat(document.getElementById('scrap-mithqal-price').value);
+            let weight = parseFloat(document.getElementById('scrap-weight').value);
+            let deduct = parseFloat(document.getElementById('scrap-deduct').value) || 0;
+            let notes = document.getElementById('scrap-notes').value;
+
+            if (isNaN(mithqalPrice) || isNaN(weight) || weight <= 0) { showToast('أدخل سعر المثقال والوزن بدقة!', 'error'); return; }
+
+            let gramPrice = mithqalPrice / 5;
+            let netWeight = weight * (1 - (deduct / 100));
+            let totalPay = Math.round(netWeight * gramPrice);
+
+            if (appState.cash < totalPay) { showToast('رصيد الكاش في الخزينة لا يكفي لشراء الكسر!', 'error'); return; }
+
+            appState.cash -= totalPay;
+            let scrapCode = 'SCR-' + Math.floor(1000 + Math.random() * 9000);
+            logTransaction('شراء كسر', `شراء كسر عيار ${karat} من (${customer} | هاتف: ${phone}) وزن صافي: ${netWeight.toFixed(3)} غرام`, `-${totalPay.toLocaleString()} د.ع`, notes, scrapCode);
+
+            // عرض وطباعة فاتورة شراء الكسر الرسمية
+            document.getElementById('inv-detailed-rows').style.display = 'block';
+            document.getElementById('inv-making-label').innerText = 'نسبة الخصم / المهالك:';
+            document.getElementById('inv-gtotal-label').innerText = 'الوزن الصافي بعد الخصم:';
+
+            document.getElementById('inv-code-display').innerText = `وصل شراء كسر: ${scrapCode}`;
+            document.getElementById('inv-sale-type-badge').innerText = 'شراء ذهب كسر (مقبوض للمحل) ⚖️';
+            document.getElementById('inv-sale-type-badge').className = 'text-amber-700 font-bold';
+            document.getElementById('inv-karat-badge').innerText = `ذهب كسر عيار ${karat} 👑`;
+            document.getElementById('inv-print-m21').innerText = `${Math.round(mithqalPrice).toLocaleString()} دينار 🟡`;
+            document.getElementById('inv-print-weight').innerText = `${weight} غرام ⚖️`;
+            document.getElementById('inv-print-making').innerText = `${deduct}% مهالك 📉`;
+            document.getElementById('inv-print-g-net').innerText = `${Math.round(gramPrice).toLocaleString()} دينار 💰`;
+            document.getElementById('inv-print-g-total').innerText = `${netWeight.toFixed(3)} غرام صافي ✨`;
+            document.getElementById('inv-print-total').innerText = `${totalPay.toLocaleString()} دينار 🟨`;
+            document.getElementById('inv-print-paper').innerText = `${formatBothUsdAndPaper(totalPay)} 💵`;
+            document.getElementById('inv-print-customer').innerText = customer;
+            document.getElementById('inv-print-phone').innerText = phone;
+            document.getElementById('inv-print-date').innerText = new Date().toLocaleDateString('ar-IQ');
+            document.getElementById('inv-print-notes').innerText = notes || '--';
+
+            saveState();
+            document.getElementById('invoice-modal').classList.remove('hidden');
+            showToast(`تم شراء الكسر وطباعة الوصل [${scrapCode}]!`);
         }
 
         function openReturnModal() { document.getElementById('return-modal').classList.remove('hidden'); }
@@ -1211,40 +1180,36 @@
 
             inv.returned = true;
             let retCode = 'RET-' + Math.floor(1000 + Math.random() * 9000);
-            logTransaction('إرجاع فاتورة', `إرجاع الفاتورة (${inv.code}) للزبون: ${inv.customer}`, `-${inv.grandTotal.toLocaleString()} د.ع`, reason, retCode);
+            logTransaction('إرجاع فاتورة', `إرجاع الفاتورة (${inv.code}) للزبون: ${inv.customer} | هاتف: ${inv.phone}`, `-${inv.grandTotal.toLocaleString()} د.ع`, reason, retCode);
 
             document.getElementById('return-inv-code').value = '';
             document.getElementById('return-reason').value = '';
             saveState();
             closeReturnModal();
-            showToast(`تم إرجاع الفاتورة واسترداد القطع بررمز [${retCode}]!`);
+            showToast(`تم إرجاع الفاتورة واسترداد القطع برمز [${retCode}]!`);
         }
 
-        function buyScrapGold() {
-            let customer = document.getElementById('scrap-customer').value || "بائع كسر";
-            let karat = document.getElementById('scrap-karat').value;
-            let mithqalPrice = parseFloat(document.getElementById('scrap-mithqal-price').value);
-            let weight = parseFloat(document.getElementById('scrap-weight').value);
-            let deduct = parseFloat(document.getElementById('scrap-deduct').value) || 1;
-            let notes = document.getElementById('scrap-notes').value;
+        function addNewInventoryItem() {
+            let name = document.getElementById('inv-name').value;
+            let karat = document.getElementById('inv-karat').value;
+            let weight = parseFloat(document.getElementById('inv-weight').value);
+            let qty = parseInt(document.getElementById('inv-qty').value) || 1;
+            let makingPerGram = parseFloat(document.getElementById('inv-making').value) || 0;
+            let notes = document.getElementById('inv-notes').value;
+            let fileInput = document.getElementById('inv-image');
 
-            if (isNaN(mithqalPrice) || isNaN(weight)) { showToast('أدخل سعر المثقال والوزن بدقة!', 'error'); return; }
+            if (!name || isNaN(weight)) { showToast('أدخل اسم القطعة ووزنها بالغرام!', 'error'); return; }
 
-            let gramPrice = mithqalPrice / 5;
-            let netWeight = weight * (1 - (deduct / 100));
-            let totalPay = Math.round(netWeight * gramPrice);
-
-            if (appState.cash < totalPay) { showToast('رصيد الكاش غير كافي لشراء الكسر!', 'error'); return; }
-
-            appState.cash -= totalPay;
-            let code = logTransaction('شراء كسر', `شراء كسر عيار ${karat} من (${customer}) وزن: ${weight} غرام`, `-${totalPay.toLocaleString()} د.ع`, notes);
+            let hasImage = (fileInput.files && fileInput.files[0]) ? true : false;
+            appState.inventory.push({ name, karat, weight, qty, makingPerGram, notes, hasImage });
+            logTransaction('إضافة مخزن', `إدخال (${name}) عدد ${qty}`, `${weight} غرام`, notes);
             saveState();
-            showToast(`تم شراء الكسر بنجاح [${code}]!`);
+            showToast('تمت إضافة البضاعة للمخزن بنجاح!');
         }
 
-        // كارتات العملاء وإدارة الحسابات
         function addDebtMovement() {
             let customer = document.getElementById('debt-customer').value.trim();
+            let phone = document.getElementById('debt-phone').value.trim() || 'غير مسجل';
             let type = document.getElementById('debt-type').value;
             let amount = parseFloat(document.getElementById('debt-amount').value);
             let notes = document.getElementById('debt-notes').value;
@@ -1253,8 +1218,10 @@
 
             let cust = appState.debts.find(d => d.customer === customer);
             if (!cust) {
-                cust = { customer, code: 'CUST-' + Math.floor(1000 + Math.random()*9000), debtAmount: 0, goldAmount: 0, movements: [] };
+                cust = { customer, phone, code: 'CUST-' + Math.floor(1000 + Math.random()*9000), debtAmount: 0, goldAmount: 0, movements: [] };
                 appState.debts.push(cust);
+            } else if(phone !== 'غير مسجل') {
+                cust.phone = phone;
             }
 
             if(type.includes('زيادة دين')) cust.debtAmount += amount;
@@ -1263,7 +1230,7 @@
             else if(type.includes('نقصان ذهب')) cust.goldAmount -= amount;
 
             cust.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type, amount, notes });
-            logTransaction('حركة ديون', `ذمة ${customer}: ${type} (${amount.toLocaleString()})`, type, notes);
+            logTransaction('حركة ديون', `ذمة ${customer} (هاتف: ${cust.phone}): ${type} (${amount.toLocaleString()})`, type, notes);
             saveState();
             showToast('تم تحديث كارت العميل بنجاح!');
         }
@@ -1283,7 +1250,8 @@
                             <h5 class="font-bold text-gold text-sm">${cust.customer}</h5>
                             <span class="text-[10px] font-mono bg-darkbg px-2 py-0.5 rounded text-slate-400">${cust.code}</span>
                         </div>
-                        <div class="text-xs space-y-1 text-slate-300">
+                        <div class="text-[11px] font-mono text-emerald-400"><i class="fa-solid fa-phone text-[9px] ml-1"></i> ${cust.phone || 'بدون هاتف'}</div>
+                        <div class="text-xs space-y-1 text-slate-300 border-t border-slate-800 pt-2">
                             <div class="flex justify-between"><span>صافي الدين:</span> <span class="font-bold text-emerald-400">${Math.round(cust.debtAmount||0).toLocaleString()} د.ع</span></div>
                             <div class="flex justify-between"><span>رصيد الذهب:</span> <span class="font-bold text-gold">${(cust.goldAmount||0)} غرام</span></div>
                         </div>
@@ -1294,7 +1262,8 @@
         function openCustomerModal(idx) {
             selectedCustIdx = idx;
             let cust = appState.debts[idx];
-            document.getElementById('modal-cust-name').innerText = `كارت العميل: ${cust.customer} (${cust.code})`;
+            document.getElementById('modal-cust-name').innerText = `${cust.customer} (${cust.code})`;
+            document.getElementById('modal-cust-phone').innerText = cust.phone || 'بدون هاتف';
             document.getElementById('modal-cust-debt').innerText = `${Math.round(cust.debtAmount||0).toLocaleString()} د.ع`;
             document.getElementById('modal-cust-gold').innerText = `${(cust.goldAmount||0)} غرام`;
             document.getElementById('cust-custom-amount').value = '';
@@ -1319,7 +1288,6 @@
 
         function closeCustomerModal() { document.getElementById('customer-modal').classList.add('hidden'); }
 
-        // استخدام الـ Modal التفاعلي بدلاً من رسالة الـ prompt
         function custActionSubmit(action) {
             if(selectedCustIdx === null) return;
             let val = parseFloat(document.getElementById('cust-custom-amount').value);
@@ -1338,26 +1306,22 @@
             showToast('تم تحديث حساب العميل بنجاح!');
         }
 
-        function custResetAccount() {
+        function executeCustReset() {
             if(selectedCustIdx === null) return;
-            if(confirm('تصفير أرصدة هذا العميل بالكامل؟')) {
-                appState.debts[selectedCustIdx].debtAmount = 0;
-                appState.debts[selectedCustIdx].goldAmount = 0;
-                appState.debts[selectedCustIdx].movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: 'تصفير', amount: 0, notes: 'تصفير الحساب' });
-                saveState();
-                openCustomerModal(selectedCustIdx);
-                showToast('تم تصفير حساب العميل!');
-            }
+            appState.debts[selectedCustIdx].debtAmount = 0;
+            appState.debts[selectedCustIdx].goldAmount = 0;
+            appState.debts[selectedCustIdx].movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: 'تصفير', amount: 0, notes: 'تصفير الحساب' });
+            saveState();
+            openCustomerModal(selectedCustIdx);
+            showToast('تم تصفير حساب العميل!');
         }
 
-        function custDeleteAccount() {
+        function executeCustDelete() {
             if(selectedCustIdx === null) return;
-            if(confirm('حذف كارت هذا العميل نهائياً؟')) {
-                appState.debts.splice(selectedCustIdx, 1);
-                saveState();
-                closeCustomerModal();
-                showToast('تم حذف كارت العميل!');
-            }
+            appState.debts.splice(selectedCustIdx, 1);
+            saveState();
+            closeCustomerModal();
+            showToast('تم حذف كارت العميل!');
         }
 
         function addExpense() {
@@ -1393,6 +1357,7 @@
             appState.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || appState.prices.m9;
 
             updatePricesDerived();
+            autoFillScrapMithqal();
 
             let now = new Date();
             appState.priceLogs.unshift({
@@ -1403,17 +1368,17 @@
 
             saveState();
             closePriceModal();
-            showToast('تم تحديث أسعار المثاقيل الخمسة والدولار وحفظها بنجاح!');
+            showToast('تم تحديث أسعار المثاقيل الخمسة والدولار وحفظها!');
         }
 
         function updateStats() {
             let salesLogs = appState.logs.filter(l => l.type === 'عملية بيع');
-            let buyLogs = appState.logs.filter(l => l.type === 'شراء من الزبون');
+            let scrapLogs = appState.logs.filter(l => l.type === 'شراء كسر');
             let returnLogs = appState.logs.filter(l => l.type === 'إرجاع فاتورة');
             let expLogs = appState.logs.filter(l => l.type === 'صرف مصروف');
 
             document.getElementById('stat-sales-count').innerText = `${salesLogs.length} عملية`;
-            document.getElementById('stat-buy-count').innerText = `${buyLogs.length} عملية`;
+            document.getElementById('stat-scrap-count').innerText = `${scrapLogs.length} حركة`;
             document.getElementById('stat-return-count').innerText = `${returnLogs.length} مرتجع`;
             
             let expSum = expLogs.reduce((s,l) => s + Math.abs(parseFloat(l.amount.replace(/[^0-9.-]+/g,""))||0), 0);
@@ -1431,7 +1396,7 @@
             } else {
                 document.getElementById('logs-main-table-view').classList.remove('hidden');
                 document.getElementById('logs-prices-table-view').classList.add('hidden');
-                const map = { 'all': 'log-cat-all', 'عملية بيع': 'log-cat-sales', 'شراء من الزبون': 'log-cat-buy', 'إرجاع فاتورة': 'log-cat-return', 'شراء كسر': 'log-cat-scrap', 'حركة ديون': 'log-cat-debts', 'صرف مصروف': 'log-cat-exp' };
+                const map = { 'all': 'log-cat-all', 'عملية بيع': 'log-cat-sales', 'شراء كسر': 'log-cat-scrap', 'إرجاع فاتورة': 'log-cat-return', 'حركة ديون': 'log-cat-debts', 'صرف مصروف': 'log-cat-exp' };
                 if(map[cat]) document.getElementById(map[cat]).className = "cat-btn bg-gold text-darkbg px-3.5 py-1.5 rounded-xl font-bold shadow";
                 filterLogs();
             }
@@ -1479,7 +1444,7 @@
             }
 
             filtered.forEach(log => {
-                let codeColor = log.type === 'إرجاع فاتورة' ? 'text-rose-400' : (log.type === 'شراء من الزبون' ? 'text-emerald-400' : 'text-gold');
+                let codeColor = log.type === 'إرجاع فاتورة' ? 'text-rose-400' : (log.type === 'شراء كسر' ? 'text-emerald-400' : 'text-gold');
                 logsBody.innerHTML += `
                     <tr class="border-b border-slate-800 hover:bg-slate-800/30">
                         <td class="p-3 text-slate-400">${log.time}</td>
@@ -1517,8 +1482,6 @@
             }
         }
         function closeInvoiceModal() { document.getElementById('invoice-modal').classList.add('hidden'); }
-        function openBuyItemModal() { document.getElementById('buy-item-modal').classList.remove('hidden'); }
-        function closeBuyItemModal() { document.getElementById('buy-item-modal').classList.add('hidden'); }
         function openLuxuryItemModal() { renderLuxuryItemList(); document.getElementById('luxury-item-modal').classList.remove('hidden'); }
         function closeLuxuryItemModal() { document.getElementById('luxury-item-modal').classList.add('hidden'); }
 
@@ -1581,6 +1544,8 @@
             logTransaction('حاسبة سريعة', `حساب سريع لوزن ${lastCalcWeight} غرام (مثقال ${lastCalcMithqal.toLocaleString()})`, `${lastCalcResult.toLocaleString()} د.ع`, 'طباعة من الحاسبة', invCode);
 
             document.getElementById('inv-detailed-rows').style.display = 'block';
+            document.getElementById('inv-making-label').innerText = 'أجور صياغة الغرام:';
+            document.getElementById('inv-gtotal-label').innerText = 'سعر الغرام مع الأجور:';
             document.getElementById('inv-sale-type-badge').innerText = 'تسعيرة حاسبة آرامكي 🧮';
             document.getElementById('inv-code-display').innerText = `رمز العملية: ${invCode}`;
             document.getElementById('inv-karat-badge').innerText = `عيار 21 (المثقال العراقي) 👑`;
@@ -1592,6 +1557,7 @@
             document.getElementById('inv-print-total').innerText = `${lastCalcResult.toLocaleString()} دينار 🟨`;
             document.getElementById('inv-print-paper').innerText = `${formatAltCurrency(lastCalcResult)} 💵`;
             document.getElementById('inv-print-customer').innerText = 'زبون حاسبة آرامكي';
+            document.getElementById('inv-print-phone').innerText = '--';
             document.getElementById('inv-print-date').innerText = new Date().toLocaleDateString('ar-IQ');
             document.getElementById('inv-print-notes').innerText = 'تسعيرة صادرة من حاسبة آرامكي';
 
@@ -1600,11 +1566,9 @@
             showToast(`تمت طباعة الفاتورة [${invCode}]!`);
         }
 
-        function resetSystemData() {
-            if (confirm('تصفير كل بيانات وحركات النظام؟')) {
-                localStorage.removeItem('aramky_gold_os_v16');
-                location.reload();
-            }
+        function executeSystemReset() {
+            localStorage.removeItem('aramky_gold_os_v17');
+            location.reload();
         }
     </script>
 </body>
