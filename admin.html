@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARAMKY Master Admin | الإدارة العليا</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FAFC; }
+.gold-gradient { background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%); }
+.glass { background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(212, 175, 55, 0.3); }
+</style>
+</head>
+<body class="min-h-screen p-6 flex flex-col items-center">
+  <div class="max-w-5xl w-full space-y-6">
+    <div class="glass p-6 rounded-3xl flex justify-between items-center shadow-2xl">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-2xl">👑</div>
+        <div>
+          <h1 class="text-xl font-black text-gold">لوحة السيطرة والتحكم العليا - أرامكي</h1>
+          <p class="text-xs text-slate-400">إدارة الاشتراكات، تفعيل الصاغة، ومتابعة إثباتات تحويل الأموال والماستر</p>
+        </div>
+      </div>
+      <a href="index.html" class="bg-slate-800 text-slate-300 text-xs px-4 py-2.5 rounded-xl font-bold">الذهاب للنظام العام</a>
+    </div>
+
+    <!-- قسم إضافة وتفعيل صايغ جديد -->
+    <div class="glass p-6 rounded-3xl space-y-4">
+      <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-2"><i class="fa-solid fa-user-plus"></i> تفعيل صايغ جديد أو تجديد اشتراكه</h3>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+        <input type="text" id="adm-name" placeholder="اسم المعرض / الصايغ" class="bg-darkbg border border-slate-700 rounded-xl p-3 outline-none text-slate-100">
+        <input type="text" id="adm-code" placeholder="الكود (مثال: GOLD-02)" class="bg-darkbg border border-slate-700 rounded-xl p-3 font-mono text-gold uppercase outline-none">
+        <input type="tel" id="adm-phone" placeholder="رقم الهاتف / واتساب" class="bg-darkbg border border-slate-700 rounded-xl p-3 font-mono text-emerald-400 outline-none">
+        <select id="adm-days" class="bg-darkbg border border-slate-700 rounded-xl p-3 text-slate-200 outline-none">
+          <option value="30">شهر واحد (30 يوم)</option>
+          <option value="90">3 أشهر (90 يوم)</option>
+          <option value="365">سنة كاملة (365 يوم)</option>
+        </select>
+      </div>
+      <button onclick="createSubscriber()" class="w-full gold-gradient text-slate-950 font-black py-3.5 rounded-xl text-xs shadow-xl">إنشاء الحساب وتفعيل النظام فوراً 🚀</button>
+    </div>
+
+    <!-- جدول المشتركين وإثباتات الدفع والتحويل -->
+    <div class="glass p-6 rounded-3xl space-y-4">
+      <h3 class="font-bold text-slate-200 text-sm">المشتركين الحاليين وحالة الاشتراكات والماستر:</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-right text-xs">
+          <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
+            <tr>
+              <th class="p-3">المعرض</th>
+              <th class="p-3">الكود</th>
+              <th class="p-3">الهاتف</th>
+              <th class="p-3">تاريخ الانتهاء</th>
+              <th class="p-3">الحالة</th>
+              <th class="p-3">إثبات التحويل المالي</th>
+              <th class="p-3 text-center">التحكم</th>
+            </tr>
+          </thead>
+          <tbody id="admin-table-body" class="divide-y divide-slate-800"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let subs = JSON.parse(localStorage.getItem('aramky_subscribers_master')) || [
+      { code: "ARAMKY-01", name: "صاغة أرامكي الرئيسي", phone: "07700000000", expiresAt: "2027-12-31", active: true, transferProof: "جاهز ومعتمد" }
+    ];
+    function saveSubs() { localStorage.setItem('aramky_subscribers_master', JSON.stringify(subs)); renderSubs(); }
+
+    function renderSubs() {
+      let tb = document.getElementById('admin-table-body'); tb.innerHTML = '';
+      let today = new Date().toISOString().split('T')[0];
+      subs.forEach((s, i) => {
+        let exp = s.expiresAt < today || !s.active;
+        tb.innerHTML += `<tr class="border-b border-slate-800">
+          <td class="p-3 font-bold text-slate-100">${s.name}</td>
+          <td class="p-3 font-mono text-gold font-bold">${s.code}</td>
+          <td class="p-3 font-mono text-emerald-400">${s.phone}</td>
+          <td class="p-3">${s.expiresAt}</td>
+          <td class="p-3"><span class="px-2.5 py-1 rounded-full font-bold text-[10px] ${exp?'bg-rose-500/20 text-rose-400':'bg-emerald-500/20 text-emerald-400'}">${exp?'متوقف':'نشط ✅'}</span></td>
+          <td class="p-3 font-mono text-xs text-blue-300">${s.transferProof || 'لم يُرفق إيصال'}</td>
+          <td class="p-3 flex justify-center gap-1.5">
+            <button onclick="renew(${i}, 30)" class="bg-emerald-600/30 text-emerald-300 px-2 py-1 rounded text-[10px]">+30 يوم</button>
+            <button onclick="toggleSub(${i})" class="bg-amber-600/30 text-amber-300 px-2 py-1 rounded text-[10px]">${s.active?'إيقاف':'تفعيل'}</button>
+          </td>
+        </tr>`;
+      });
+    }
+
+    function createSubscriber() {
+      let name = document.getElementById('adm-name').value.trim();
+      let code = document.getElementById('adm-code').value.trim().toUpperCase();
+      let phone = document.getElementById('adm-phone').value.trim();
+      let days = parseInt(document.getElementById('adm-days').value);
+      if(!name || !code) return alert('أدخل الاسم والكود!');
+      let d = new Date(); d.setDate(d.getDate() + days);
+      subs.push({ code, name, phone, expiresAt: d.toISOString().split('T')[0], active: true, transferProof: "تم الدفع والتحويل" });
+      saveSubs(); alert('تم إنشاء الحساب بنجاح!');
+    }
+    function renew(i, days) {
+      let d = new Date(); d.setDate(d.getDate() + days);
+      subs[i].expiresAt = d.toISOString().split('T')[0]; subs[i].active = true; saveSubs();
+    }
+    function toggleSub(i) { subs[i].active = !subs[i].active; saveSubs(); }
+    renderSubs();
+  </script>
+</body>
+</html>
