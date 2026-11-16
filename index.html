@@ -7,9 +7,6 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>ARAMKY Gold OS v22.0 | أرامكي - فرع نواة الذهب</title>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" href="./icon.png">
-<link rel="apple-touch-icon" href="./icon.png">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script>
@@ -23,16 +20,18 @@ tailwind.config = {
 </script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FAFC; user-select: none; }
+body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FAFC; user-select: none; -webkit-tap-highlight-color: transparent; }
 .glass { background: rgba(22, 31, 50, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.35); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
 .gold-gradient { background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%); }
+.system-card { background: linear-gradient(145deg, #111827, #1f2937); border: 1px solid rgba(212, 175, 55, 0.25); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6); }
+.modal-overlay { background: rgba(7, 10, 18, 0.88); backdrop-filter: blur(12px); }
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: #070A12; }
 ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
 @media print {
   body * { visibility: hidden; }
   #invoice-modal, #invoice-modal * { visibility: visible; }
-  #invoice-modal { position: absolute; left: 0; top: 0; width: 100%; background: white !important; }
+  #invoice-modal { position: absolute; left: 0; top: 0; width: 100%; background: white !important; color: black !important; }
   .no-print { display: none !important; }
 }
 </style>
@@ -41,7 +40,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
 <!-- شاشة قفل الاشتراك -->
 <div id="subscription-lock-screen" class="fixed inset-0 bg-darkbg z-[300] flex items-center justify-center p-5 hidden">
-  <div class="cardbg p-8 rounded-3xl border-2 border-rose-500/60 max-w-md w-full text-center space-y-5 shadow-2xl">
+  <div class="system-card p-8 rounded-3xl border-2 border-rose-500/60 max-w-md w-full text-center space-y-5 shadow-2xl">
     <div class="w-20 h-20 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto text-4xl"><i class="fa-solid fa-lock"></i></div>
     <h2 class="text-2xl font-black text-rose-400">الاشتراك الشهري متوقف!</h2>
     <p class="text-sm text-slate-300">انتهت فترة اشتراكك في نظام <strong>ARAMKY Gold OS</strong> أو تم إيقاف الحساب من قبل الإدارة.</p>
@@ -52,8 +51,10 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
 <!-- شاشة تسجيل دخول الصايغ -->
 <div id="tenant-login-screen" class="fixed inset-0 bg-darkbg/95 backdrop-blur-xl z-[250] flex items-center justify-center p-5 hidden">
-  <div class="cardbg p-8 rounded-3xl border border-gold/40 max-w-md w-full space-y-5 shadow-2xl text-center">
-    <div class="w-16 h-16 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl mx-auto shadow-lg">💎</div>
+  <div class="system-card p-8 rounded-3xl border border-gold/40 max-w-md w-full space-y-5 shadow-2xl text-center">
+    <div id="app-logo-container" class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl mx-auto shadow-xl overflow-hidden border-2 border-gold">
+      <img id="login-screen-logo-img" src="" onerror="this.style.display='none';this.parentElement.innerHTML='💎'" class="w-full h-full object-cover">
+    </div>
     <div>
       <h2 class="text-xl font-black text-gold">ARAMKY Gold OS v22.0</h2>
       <p class="text-xs text-slate-400 mt-1">أدخل كود الاشتراك الخاص بمعرضك للدخول إلى مساحتك المعزولة</p>
@@ -68,7 +69,9 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <!-- الهيدر الفاخر -->
 <header class="glass sticky top-0 z-50 border-b border-gold/30 px-5 py-3 flex flex-wrap justify-between items-center gap-3 shadow-2xl">
   <div class="flex items-center space-x-3 space-x-reverse">
-    <div class="w-11 h-11 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-2xl shadow-lg">💎</div>
+    <div id="header-logo-box" class="w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-xl shadow-lg overflow-hidden border border-gold">
+      <img id="header-logo-img" src="" onerror="this.style.display='none';this.parentElement.innerHTML='💎'" class="w-full h-full object-cover">
+    </div>
     <div>
       <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">v22.0</span></h1>
       <p class="text-xs text-slate-400 flex items-center gap-2"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">ID: ARAMKY-01</span></p>
@@ -115,12 +118,12 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <!-- 1. الرئيسية -->
     <div id="view-dashboard" class="space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="cardbg p-5 rounded-3xl border border-slate-700/60 shadow-xl"><p class="text-xs text-slate-400">صندوق الكاش (دينار)</p><h3 id="dash-cash" class="text-xl font-black text-gold mt-1">0 د.ع</h3></div>
-        <div class="cardbg p-5 rounded-3xl border border-slate-700/60 shadow-xl"><p class="text-xs text-slate-400">صندوق الدولار ($)</p><h3 id="dash-usd" class="text-xl font-black text-emerald-400 mt-1">$0</h3></div>
-        <div class="cardbg p-5 rounded-3xl border border-slate-700/60 shadow-xl"><p class="text-xs text-slate-400">زين كاش والماستر</p><h3 id="dash-zain" class="text-xl font-black text-blue-400 mt-1">0 د.ع</h3></div>
-        <div class="cardbg p-5 rounded-3xl border border-gold/40 shadow-xl bg-gold/5"><p class="text-xs text-gold font-bold">صافي أرباح الصياغة</p><h3 id="dash-making-profit" class="text-xl font-black text-emerald-400 mt-1">0 د.ع</h3></div>
+        <div class="system-card p-5 rounded-3xl border border-slate-700/60 shadow-xl"><p class="text-xs text-slate-400">صندوق الكاش (دينار)</p><h3 id="dash-cash" class="text-xl font-black text-gold mt-1">0 د.ع</h3></div>
+        <div class="system-card p-5 rounded-3xl border border-slate-700/60 shadow-xl"><p class="text-xs text-slate-400">صندوق الدولار ($)</p><h3 id="dash-usd" class="text-xl font-black text-emerald-400 mt-1">$0</h3></div>
+        <div class="system-card p-5 rounded-3xl border border-slate-700/60 shadow-xl"><p class="text-xs text-slate-400">زين كاش والماستر</p><h3 id="dash-zain" class="text-xl font-black text-blue-400 mt-1">0 د.ع</h3></div>
+        <div class="system-card p-5 rounded-3xl border border-gold/40 shadow-xl bg-gold/5"><p class="text-xs text-gold font-bold">صافي أرباح الصياغة</p><h3 id="dash-making-profit" class="text-xl font-black text-emerald-400 mt-1">0 د.ع</h3></div>
       </div>
-      <div class="cardbg p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-3">
+      <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-3">
         <h3 class="font-bold text-gold"><i class="fa-solid fa-money-bill-transfer"></i> تسجيل مصروف يومي</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <input type="text" id="exp-reason" placeholder="سبب المصروف" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
@@ -132,32 +135,32 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     </div>
     <!-- 2. نقطة البيع (الكاسير) -->
     <div id="view-pos" class="hidden space-y-6">
-      <div class="cardbg p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
+      <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
         <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-3">
           <h3 class="font-bold text-gold text-lg"><i class="fa-solid fa-cash-register"></i> نقطة البيع (الكاسير)</h3>
           <div class="flex flex-wrap items-center gap-2 text-xs">
-            <select id="currency-mode" onchange="updateCartPreview(); renderCart();" class="bg-darkbg px-3 py-2 rounded-xl border border-slate-700 text-emerald-400 font-bold outline-none">
-              <option value="iraqi">عراقي (ورق ودينار)</option>
-              <option value="global">عالمي (دينار / دولار)</option>
-            </select>
-            <button onclick="openLuxuryItemModal()" class="gold-gradient text-darkbg font-bold px-4 py-2 rounded-xl text-xs shadow-lg"><i class="fa-solid fa-layer-group"></i> اختيار قطعة من المخزن</button>
+            <!-- زر اختيار نظام العملة بتصميم النظام الفخم -->
+            <button onclick="openSystemCurrencyModal()" id="currency-mode-btn" class="bg-darkbg px-4 py-2.5 rounded-2xl border border-gold/40 text-emerald-400 font-bold flex items-center gap-2 shadow">
+              <i class="fa-solid fa-coins text-gold"></i> <span id="currency-mode-text">عراقي (ورق ودينار)</span>
+            </button>
+            <button onclick="openLuxuryItemModal()" class="gold-gradient text-darkbg font-bold px-4 py-2.5 rounded-2xl text-xs shadow-lg"><i class="fa-solid fa-layer-group"></i> اختيار قطعة من المخزن</button>
           </div>
         </div>
 
         <div class="bg-darkbg p-4 rounded-2xl border border-gold/30 space-y-3">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div class="md:col-span-2">
-              <select id="quick-pos-select" onchange="updateCartPreview()" class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 text-xs text-slate-200 outline-none">
+              <select id="quick-pos-select" onchange="updateCartPreview()" class="w-full bg-cardbg border border-slate-700 rounded-2xl p-3 text-xs text-slate-200 outline-none">
                 <option value="">-- اختر قطعة لمعاينة سعرها الفوري --</option>
               </select>
             </div>
-            <button onclick="addQuickSelectedToCart()" class="w-full bg-gold/20 border border-gold text-gold font-bold py-2.5 rounded-xl text-xs hover:bg-gold/30"><i class="fa-solid fa-plus"></i> إضافة للسلة</button>
+            <button onclick="addQuickSelectedToCart()" class="w-full bg-gold/20 border border-gold text-gold font-bold py-2.5 rounded-2xl text-xs hover:bg-gold/30"><i class="fa-solid fa-plus"></i> إضافة للسلة</button>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 border-t border-slate-800 text-xs">
-            <div class="bg-cardbg p-2.5 rounded-xl"><span class="text-slate-400 block text-[10px]">غرام الصافي:</span><span id="prev-gram-net" class="font-bold">0 د.ع</span></div>
-            <div class="bg-cardbg p-2.5 rounded-xl"><span class="text-slate-400 block text-[10px]">أجور الصياغة:</span><span id="prev-making-total" class="text-amber-400 font-bold">0 د.ع</span></div>
-            <div class="bg-cardbg p-2.5 rounded-xl"><span class="text-slate-400 block text-[10px]">السعر بالدينار:</span><span id="prev-piece-iqd" class="text-gold font-black">0 د.ع</span></div>
-            <div class="bg-cardbg p-2.5 rounded-xl"><span class="text-slate-400 block text-[10px]">المقابل:</span><span id="prev-piece-alt" class="text-emerald-400 font-black">0</span></div>
+            <div class="bg-cardbg p-3 rounded-2xl"><span class="text-slate-400 block text-[10px]">غرام الصافي:</span><span id="prev-gram-net" class="font-bold">0 د.ع</span></div>
+            <div class="bg-cardbg p-3 rounded-2xl"><span class="text-slate-400 block text-[10px]">أجور الصياغة:</span><span id="prev-making-total" class="text-amber-400 font-bold">0 د.ع</span></div>
+            <div class="bg-cardbg p-3 rounded-2xl"><span class="text-slate-400 block text-[10px]">السعر بالدينار:</span><span id="prev-piece-iqd" class="text-gold font-black">0 د.ع</span></div>
+            <div class="bg-cardbg p-3 rounded-2xl"><span class="text-slate-400 block text-[10px]">المقابل:</span><span id="prev-piece-alt" class="text-emerald-400 font-black">0</span></div>
           </div>
         </div>
 
@@ -165,24 +168,24 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
         <div class="border-t border-slate-800 pt-4 space-y-3">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <input type="text" id="pos-customer" placeholder="اسم الزبون (مطلوب للآجل)" class="bg-darkbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
-            <input type="tel" id="pos-phone" placeholder="رقم الهاتف (07XXXXXXXXX)" class="bg-darkbg border border-slate-700 rounded-xl p-3 text-sm text-emerald-400 font-mono outline-none">
-            <input type="text" id="pos-notes" placeholder="ملاحظات الفاتورة..." class="bg-darkbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
+            <input type="text" id="pos-customer" placeholder="اسم الزبون (مطلوب للآجل)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
+            <input type="tel" id="pos-phone" placeholder="رقم الهاتف (07XXXXXXXXX)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm text-emerald-400 font-mono outline-none">
+            <input type="text" id="pos-notes" placeholder="ملاحظات الفاتورة..." class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
           </div>
 
           <div class="bg-darkbg p-4 rounded-2xl border border-slate-800 space-y-3">
             <div class="flex flex-wrap justify-between items-center gap-2">
               <h4 class="text-xs font-bold text-gold">طرق الدفع (الورقة: <span id="current-usd-rate" class="text-emerald-400">0</span> د.ع):</h4>
               <div class="flex gap-1.5">
-                <button onclick="payFullAction('usd')" class="bg-emerald-600/30 border border-emerald-500 text-emerald-300 text-[10px] px-2.5 py-1 rounded-lg font-bold">دفع كامل ($)</button>
-                <button onclick="payFullAction('iqd')" class="bg-gold/30 border border-gold text-gold text-[10px] px-2.5 py-1 rounded-lg font-bold">دفع كامل كاش</button>
-                <button onclick="payFullAction('card')" class="bg-blue-600/30 border border-blue-500 text-blue-300 text-[10px] px-2.5 py-1 rounded-lg font-bold">ماستر / زين كاش</button>
+                <button onclick="payFullAction('usd')" class="bg-emerald-600/30 border border-emerald-500 text-emerald-300 text-[10px] px-2.5 py-1.5 rounded-xl font-bold">دفع كامل ($)</button>
+                <button onclick="payFullAction('iqd')" class="bg-gold/30 border border-gold text-gold text-[10px] px-2.5 py-1.5 rounded-xl font-bold">دفع كامل كاش</button>
+                <button onclick="payFullAction('card')" class="bg-blue-600/30 border border-blue-500 text-blue-300 text-[10px] px-2.5 py-1.5 rounded-xl font-bold">ماستر / زين كاش</button>
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-              <div><label class="text-slate-400">كاش دينار:</label><input type="number" id="pay-iqd" placeholder="0" class="w-full bg-cardbg border border-slate-700 p-2 rounded-lg text-gold font-bold outline-none"></div>
-              <div><label class="text-slate-400">دولار ($):</label><input type="number" id="pay-usd" placeholder="0" class="w-full bg-cardbg border border-slate-700 p-2 rounded-lg text-emerald-400 font-bold outline-none"></div>
-              <div><label class="text-slate-400">ماستر / زين كاش:</label><input type="number" id="pay-card" placeholder="0" class="w-full bg-cardbg border border-slate-700 p-2 rounded-lg text-blue-400 font-bold outline-none"></div>
+              <div><label class="text-slate-400">كاش دينار:</label><input type="number" id="pay-iqd" placeholder="0" class="w-full bg-cardbg border border-slate-700 p-3 rounded-xl text-gold font-bold outline-none"></div>
+              <div><label class="text-slate-400">دولار ($):</label><input type="number" id="pay-usd" placeholder="0" class="w-full bg-cardbg border border-slate-700 p-3 rounded-xl text-emerald-400 font-bold outline-none"></div>
+              <div><label class="text-slate-400">ماستر / زين كاش:</label><input type="number" id="pay-card" placeholder="0" class="w-full bg-cardbg border border-slate-700 p-3 rounded-xl text-blue-400 font-bold outline-none"></div>
             </div>
           </div>
 
@@ -193,7 +196,75 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <button onclick="completeSale('cash')" class="gold-gradient text-darkbg font-black py-4 rounded-2xl shadow-xl"><i class="fa-solid fa-money-bill-wave"></i> إتمام البيع النقدي وطباعة</button>
-            <button onclick="completeSale('debt')" class="bg-cardbg border-2 border-amber-500/70 text-amber-400 font-black py-4 rounded-2xl shadow-xl"><i class="fa-solid fa-user-plus"></i> تسجيل آجل (ديون)</button>
+            <button onclick="completeSale('debt')" class="system-card border-2 border-amber-500/70 text-amber-400 font-black py-4 rounded-2xl shadow-xl"><i class="fa-solid fa-user-plus"></i> تسجيل آجل (ديون)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+<!-- 2. نقطة البيع (الكاسير) -->
+    <div id="view-pos" class="hidden space-y-6">
+      <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
+        <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-3">
+          <h3 class="font-bold text-gold text-lg"><i class="fa-solid fa-cash-register"></i> نقطة البيع (الكاسير)</h3>
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <!-- زر اختيار نظام العملة بتصميم النظام الفخم -->
+            <button onclick="openSystemCurrencyModal()" id="currency-mode-btn" class="bg-darkbg px-4 py-2.5 rounded-2xl border border-gold/40 text-emerald-400 font-bold flex items-center gap-2 shadow">
+              <i class="fa-solid fa-coins text-gold"></i> <span id="currency-mode-text">عراقي (ورق ودينار)</span>
+            </button>
+            <button onclick="openLuxuryItemModal()" class="gold-gradient text-darkbg font-bold px-4 py-2.5 rounded-2xl text-xs shadow-lg"><i class="fa-solid fa-layer-group"></i> اختيار قطعة من المخزن</button>
+          </div>
+        </div>
+
+        <div class="bg-darkbg p-4 rounded-2xl border border-gold/30 space-y-3">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="md:col-span-2">
+              <select id="quick-pos-select" onchange="updateCartPreview()" class="w-full bg-cardbg border border-slate-700 rounded-2xl p-3 text-xs text-slate-200 outline-none">
+                <option value="">-- اختر قطعة لمعاينة سعرها الفوري --</option>
+              </select>
+            </div>
+            <button onclick="addQuickSelectedToCart()" class="w-full bg-gold/20 border border-gold text-gold font-bold py-2.5 rounded-2xl text-xs hover:bg-gold/30"><i class="fa-solid fa-plus"></i> إضافة للسلة</button>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 border-t border-slate-800 text-xs">
+            <div class="bg-cardbg p-3 rounded-2xl"><span class="text-slate-400 block text-[10px]">غرام الصافي:</span><span id="prev-gram-net" class="font-bold">0 د.ع</span></div>
+            <div class="bg-cardbg p-3 rounded-2xl"><span class="text-slate-400 block text-[10px]">أجور الصياغة:</span><span id="prev-making-total" class="text-amber-400 font-bold">0 د.ع</span></div>
+            <div class="bg-cardbg p-3 rounded-2xl"><span class="text-slate-400 block text-[10px]">السعر بالدينار:</span><span id="prev-piece-iqd" class="text-gold font-black">0 د.ع</span></div>
+            <div class="bg-cardbg p-3 rounded-2xl"><span class="text-slate-400 block text-[10px]">المقابل:</span><span id="prev-piece-alt" class="text-emerald-400 font-black">0</span></div>
+          </div>
+        </div>
+
+        <div id="cart-items-container" class="space-y-2 max-h-60 overflow-y-auto"><p class="text-center text-slate-500 text-xs p-3">السلة فارغة.</p></div>
+
+        <div class="border-t border-slate-800 pt-4 space-y-3">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <input type="text" id="pos-customer" placeholder="اسم الزبون (مطلوب للآجل)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
+            <input type="tel" id="pos-phone" placeholder="رقم الهاتف (07XXXXXXXXX)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm text-emerald-400 font-mono outline-none">
+            <input type="text" id="pos-notes" placeholder="ملاحظات الفاتورة..." class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
+          </div>
+
+          <div class="bg-darkbg p-4 rounded-2xl border border-slate-800 space-y-3">
+            <div class="flex flex-wrap justify-between items-center gap-2">
+              <h4 class="text-xs font-bold text-gold">طرق الدفع (الورقة: <span id="current-usd-rate" class="text-emerald-400">0</span> د.ع):</h4>
+              <div class="flex gap-1.5">
+                <button onclick="payFullAction('usd')" class="bg-emerald-600/30 border border-emerald-500 text-emerald-300 text-[10px] px-2.5 py-1.5 rounded-xl font-bold">دفع كامل ($)</button>
+                <button onclick="payFullAction('iqd')" class="bg-gold/30 border border-gold text-gold text-[10px] px-2.5 py-1.5 rounded-xl font-bold">دفع كامل كاش</button>
+                <button onclick="payFullAction('card')" class="bg-blue-600/30 border border-blue-500 text-blue-300 text-[10px] px-2.5 py-1.5 rounded-xl font-bold">ماستر / زين كاش</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+              <div><label class="text-slate-400">كاش دينار:</label><input type="number" id="pay-iqd" placeholder="0" class="w-full bg-cardbg border border-slate-700 p-3 rounded-xl text-gold font-bold outline-none"></div>
+              <div><label class="text-slate-400">دولار ($):</label><input type="number" id="pay-usd" placeholder="0" class="w-full bg-cardbg border border-slate-700 p-3 rounded-xl text-emerald-400 font-bold outline-none"></div>
+              <div><label class="text-slate-400">ماستر / زين كاش:</label><input type="number" id="pay-card" placeholder="0" class="w-full bg-cardbg border border-slate-700 p-3 rounded-xl text-blue-400 font-bold outline-none"></div>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center bg-gold/10 p-4 rounded-2xl border border-gold/30">
+            <div><span class="block text-xs text-slate-300">إجمالي الفاتورة:</span><span id="cart-total-alt" class="text-xs text-emerald-400 font-bold">0 ورقة</span></div>
+            <span id="cart-total-price" class="text-2xl font-black text-gold">0 د.ع</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <button onclick="completeSale('cash')" class="gold-gradient text-darkbg font-black py-4 rounded-2xl shadow-xl"><i class="fa-solid fa-money-bill-wave"></i> إتمام البيع النقدي وطباعة</button>
+            <button onclick="completeSale('debt')" class="system-card border-2 border-amber-500/70 text-amber-400 font-black py-4 rounded-2xl shadow-xl"><i class="fa-solid fa-user-plus"></i> تسجيل آجل (ديون)</button>
           </div>
         </div>
       </div>
@@ -201,7 +272,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
     <!-- 3. شراء ذهب كسر -->
     <div id="view-scrap" class="hidden space-y-6">
-      <div class="cardbg p-6 rounded-3xl border border-emerald-500/35 shadow-xl space-y-4">
+      <div class="system-card p-6 rounded-3xl border border-emerald-500/35 shadow-xl space-y-4">
         <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-scale-balanced"></i> شراء ذهب كسر</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <input type="text" id="scrap-customer" placeholder="اسم البائع" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
@@ -226,9 +297,9 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
     </div>
 
-    <!-- 4. المخزن (خانة الكمية نظيفة تماماً بدون أي رقم افتراضي) -->
+    <!-- 4. المخزن -->
     <div id="view-inventory" class="hidden space-y-6">
-      <div class="cardbg p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
+      <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
         <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-boxes-stacked"></i> إضافة بضاعة للمخزن والمعرض</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input type="text" id="inv-name" placeholder="اسم الصنف (مثال: محبس ذهب فاخر)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
@@ -251,7 +322,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <button onclick="addNewInventoryItem()" class="w-full gold-gradient text-darkbg font-bold py-3.5 rounded-2xl shadow-lg">حفظ وإضافة للمخزن والمعرض 📦</button>
       </div>
 
-      <div class="cardbg p-6 rounded-3xl border border-slate-700/60 shadow-xl">
+      <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl">
         <h4 class="font-bold text-slate-200 mb-3 text-sm">المخزون الحالي (تعديل / حذف مع توثيق الجرد):</h4>
         <div class="overflow-x-auto">
           <table class="w-full text-right text-xs">
@@ -264,15 +335,17 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
     </div>
 
-    <!-- 5. إعدادات المعرض -->
+    <!-- 5. إعدادات المعرض والشعار -->
     <div id="view-store-settings" class="hidden space-y-6">
-      <div class="cardbg p-6 rounded-3xl border border-gold/40 shadow-xl space-y-4">
+      <div class="system-card p-6 rounded-3xl border border-gold/40 shadow-xl space-y-4">
         <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-store"></i> إعدادات المعرض والهوية البصرية للصايغ</h3>
         <div class="flex flex-col md:flex-row items-center gap-4 bg-darkbg p-4 rounded-2xl border border-slate-800">
-          <img id="store-logo-preview" src="./icon.png" onerror="this.src='https://via.placeholder.com/100/070A12/D4AF37?text=LOGO'" class="w-20 h-20 rounded-2xl object-cover border-2 border-gold shadow-lg">
+          <div class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl overflow-hidden border-2 border-gold shadow-lg">
+            <img id="store-logo-preview" src="" onerror="this.style.display='none';this.parentElement.innerHTML='💎'" class="w-full h-full object-cover">
+          </div>
           <div class="flex-1 space-y-1">
-            <label class="text-xs font-bold text-gold block">صورة شعار المعرض أو واجهة المحل:</label>
-            <input type="file" id="store-logo-input" accept="image/*" onchange="handleStoreLogoUpload(event)" class="text-xs text-slate-300 mt-1">
+            <label class="text-xs font-bold text-gold block">صورة شعار المعرض أو واجهة المحل (تحميل فوري آمن):</label>
+            <input type="file" id="store-logo-input" accept="image/*" onchange="handleStoreLogoUpload(event)" class="text-xs text-slate-300 mt-1 file:bg-gold file:text-darkbg file:border-0 file:rounded-xl file:px-3 file:py-1.5 file:font-bold">
           </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -285,7 +358,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           </div>
           <div class="md:col-span-2"><label class="text-xs text-slate-400 block mb-1">نبذة:</label><textarea id="store-bio" rows="2" class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none"></textarea></div>
         </div>
-        <button onclick="saveStoreSettings()" class="w-full gold-gradient text-darkbg font-bold py-3.5 rounded-2xl shadow-lg">حفظ إعدادات المعرض والصورة 🌐</button>
+        <button onclick="saveStoreSettings()" class="w-full gold-gradient text-darkbg font-bold py-3.5 rounded-2xl shadow-lg">حفظ إعدادات المعرض والشعار 🌐</button>
         <div class="bg-darkbg p-4 rounded-2xl border border-slate-800 space-y-2">
           <label class="text-xs text-slate-400 block">رابط المعرض الخاص بك (أرسله لزبائنك):</label>
           <div class="flex gap-2">
@@ -298,7 +371,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
     <!-- 6. كارتات العملاء -->
     <div id="view-debts" class="hidden space-y-6">
-      <div class="cardbg p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
+      <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
         <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-file-invoice-dollar"></i> كارتات العملاء والديون</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-darkbg p-4 rounded-2xl border border-slate-800">
           <input type="text" id="debt-customer" placeholder="اسم الزبون" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
@@ -317,12 +390,12 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
     </div>
 
-    <!-- 7. التقارير والأرباح وتصدير الإكسل -->
+    <!-- 7. التقارير وجرد إكسل -->
     <div id="view-logs" class="hidden space-y-6">
-      <div class="cardbg p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-5">
+      <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-5">
         <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-2">
           <h3 class="font-bold text-gold text-lg"><i class="fa-solid fa-chart-pie"></i> التقارير المالية وجرد التعديلات وتصدير Excel</h3>
-          <button onclick="exportLogsToExcel()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg"><i class="fa-solid fa-file-excel"></i> <span>تصدير إلى Excel</span></button>
+          <button onclick="exportLogsToExcel()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg hover:bg-emerald-500"><i class="fa-solid fa-file-excel text-sm"></i> <span>تصدير ملف Excel رسمي</span></button>
         </div>
 
         <div class="bg-darkbg p-4 rounded-2xl border border-gold/30 space-y-3">
@@ -369,23 +442,17 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
     </div>
 
-    <!-- 8. صفحة الدعم الفني وإرسال إثبات تحويل الماستر / زين كاش -->
+    <!-- 8. الدعم الفني -->
     <div id="view-support" class="hidden space-y-6">
-      <div class="cardbg p-6 rounded-3xl border-2 border-blue-500/40 shadow-xl space-y-5">
+      <div class="system-card p-6 rounded-3xl border-2 border-blue-500/40 shadow-xl space-y-5">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
           <h3 class="font-bold text-blue-400 text-lg"><i class="fa-solid fa-headset"></i> مركز الدعم الفني وتجديد الاشتراك (الماستر / زين كاش)</h3>
           <span class="text-xs bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full font-mono" id="sup-tenant-badge">--</span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-darkbg p-4 rounded-2xl border border-gold/30 text-xs">
-          <div>
-            <span class="text-slate-400 block">رقم بطاقة الماستر / سوبر كي للإدارة:</span>
-            <strong class="text-gold font-mono text-base select-all">5391 0000 0000 0000</strong>
-          </div>
-          <div>
-            <span class="text-slate-400 block">رقم محفظة زين كاش للإدارة:</span>
-            <strong class="text-emerald-400 font-mono text-base select-all">07700000000</strong>
-          </div>
+          <div><span class="text-slate-400 block">رقم بطاقة الماستر / سوبر كي للإدارة:</span><strong class="text-gold font-mono text-base select-all">5391 0000 0000 0000</strong></div>
+          <div><span class="text-slate-400 block">رقم محفظة زين كاش للإدارة:</span><strong class="text-emerald-400 font-mono text-base select-all">07700000000</strong></div>
         </div>
 
         <div class="bg-darkbg p-5 rounded-2xl border border-slate-800 space-y-4">
@@ -427,9 +494,37 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </section>
 </main>
 
-<!-- Modal تصفير النظام الذكي (يشرح نفسه ويخيّر الصايغ بوضوح) -->
-<div id="reset-system-modal" class="fixed inset-0 bg-black/95 z-[260] flex items-center justify-center hidden p-4">
-  <div class="cardbg p-6 rounded-3xl border-2 border-rose-500/70 w-full max-w-lg space-y-4 shadow-2xl">
+<!-- ================= النوافذ المنبثقة التفاعلية بنظام System UI الفخم ================= -->
+
+<!-- نافذة اختيار العملة بنظام System UI (بدلاً من قوائم المتصفح) -->
+<div id="system-currency-modal" class="fixed inset-0 modal-overlay z-[250] flex items-center justify-center hidden p-4">
+  <div class="system-card p-6 rounded-3xl border border-gold/50 w-full max-w-sm space-y-4 shadow-2xl text-center">
+    <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl mx-auto shadow-lg"><i class="fa-solid fa-coins"></i></div>
+    <h3 class="text-lg font-bold text-gold">اختر طريقة حساب العملة</h3>
+    <div class="space-y-2.5">
+      <button onclick="setSystemCurrencyMode('iraqi')" class="w-full bg-darkbg border border-slate-700 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-slate-200 flex items-center justify-between transition"><span class="flex items-center gap-2"><i class="fa-solid fa-money-bill-wave text-gold"></i> عراقي (ورق ودينار)</span><i class="fa-solid fa-chevron-left text-slate-500"></i></button>
+      <button onclick="setSystemCurrencyMode('global')" class="w-full bg-darkbg border border-slate-700 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-slate-200 flex items-center justify-between transition"><span class="flex items-center gap-2"><i class="fa-solid fa-globe text-emerald-400"></i> عالمي (دينار / دولار)</span><i class="fa-solid fa-chevron-left text-slate-500"></i></button>
+    </div>
+    <button onclick="closeSystemCurrencyModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-2xl text-xs font-bold">إلغاء</button>
+  </div>
+</div>
+
+<!-- نافذة نوع الفاتورة بنظام System UI (رسمية مفصلة أو مختصرة) -->
+<div id="system-invoice-type-modal" class="fixed inset-0 modal-overlay z-[250] flex items-center justify-center hidden p-4">
+  <div class="system-card p-6 rounded-3xl border border-gold/50 w-full max-w-sm space-y-4 shadow-2xl text-center">
+    <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl mx-auto shadow-lg"><i class="fa-solid fa-file-invoice"></i></div>
+    <h3 class="text-lg font-bold text-gold">اختر نموذج الفاتورة للطباعة</h3>
+    <div class="space-y-2.5">
+      <button onclick="selectInvoiceTemplate('detailed')" class="w-full bg-darkbg border border-slate-700 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-slate-200 flex items-center justify-between transition"><span class="flex items-center gap-2"><i class="fa-solid fa-receipt text-gold"></i> رسمية مفصلة (أرامكي)</span><i class="fa-solid fa-chevron-left text-slate-500"></i></button>
+      <button onclick="selectInvoiceTemplate('compact')" class="w-full bg-darkbg border border-slate-700 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-slate-200 flex items-center justify-between transition"><span class="flex items-center gap-2"><i class="fa-solid fa-file-lines text-blue-400"></i> فاتورة مختصرة</span><i class="fa-solid fa-chevron-left text-slate-500"></i></button>
+    </div>
+    <button onclick="closeSystemInvoiceTypeModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-2xl text-xs font-bold">إلغاء</button>
+  </div>
+</div>
+
+<!-- Modal تصفير النظام الذكي (0) -->
+<div id="reset-system-modal" class="fixed inset-0 modal-overlay z-[260] flex items-center justify-center hidden p-4">
+  <div class="system-card p-6 rounded-3xl border-2 border-rose-500/70 w-full max-w-lg space-y-4 shadow-2xl">
     <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
       <div class="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-2xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
       <div>
@@ -437,28 +532,25 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <p class="text-xs text-slate-400">اقرأ شرح الخيارين واختر ما يناسب عملك بدقة:</p>
       </div>
     </div>
-
     <div class="space-y-3 text-xs">
       <div class="bg-darkbg p-4 rounded-2xl border border-amber-500/40 space-y-2">
         <div class="font-bold text-amber-400 text-sm">1. تصفير الخزينة والأرباح اليومية فقط (جرد يومي):</div>
-        <p class="text-slate-300 leading-relaxed">يقوم بتصفير (صندوق الكاش، الدولار، الماستر، وأرباح الصياغة) لتبدأ يوماً جديداً، <strong>مع الإبقاء على</strong> بضاعة المخزن، ديون العملاء، وإعدادات معرضك كما هي.</p>
+        <p class="text-slate-300 leading-relaxed">يقوم بتصفير صناديق الكاش، الدولار، الماستر، وأرباح الصياغة لتبدأ يوماً جديداً، <strong>مع الإبقاء على</strong> بضاعة المخزن، ديون العملاء، وإعدادات معرضك.</p>
         <button onclick="executeSystemReset('cash_only')" class="w-full bg-amber-600/30 border border-amber-500 text-amber-300 font-bold py-2.5 rounded-xl hover:bg-amber-600/40">تنفيذ تصفير الخزينة فقط 🔄</button>
       </div>
-
       <div class="bg-darkbg p-4 rounded-2xl border border-rose-500/50 space-y-2">
         <div class="font-bold text-rose-400 text-sm">2. تصفير النظام بالكامل (ضبط المصنع الشامل):</div>
-        <p class="text-slate-300 leading-relaxed">يقوم بمسح <strong>كل شيء نهائياً</strong> (الخزينة، المخزن، الفواتير، الديون، وسجل الحركات) وإرجاع النظام كأنه جديد تماماً (مع بقاء اشتراكك مفعّلاً).</p>
+        <p class="text-slate-300 leading-relaxed">يقوم بمسح <strong>كل شيء نهائياً</strong> وإرجاع النظام كأنه جديد تماماً (مع بقاء اشتراكك مفعّلاً).</p>
         <button onclick="executeSystemReset('full_factory')" class="w-full bg-rose-600 text-white font-black py-2.5 rounded-xl hover:bg-rose-500">تأكيد تصفير النظام بالكامل 🗑️</button>
       </div>
     </div>
-
     <button onclick="closeResetSystemModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-xl text-xs font-bold">إلغاء والعودة</button>
   </div>
 </div>
 
 <!-- Modal تعديل قطعة المخزن -->
-<div id="edit-inventory-modal" class="fixed inset-0 bg-black/90 z-[220] flex items-center justify-center hidden p-4">
-  <div class="cardbg p-6 rounded-3xl border-2 border-gold/50 w-full max-w-md space-y-4 shadow-2xl">
+<div id="edit-inventory-modal" class="fixed inset-0 modal-overlay z-[220] flex items-center justify-center hidden p-4">
+  <div class="system-card p-6 rounded-3xl border-2 border-gold/50 w-full max-w-md space-y-4 shadow-2xl">
     <h3 class="text-lg font-bold text-gold border-b border-slate-800 pb-2"><i class="fa-solid fa-pen-to-square"></i> تعديل قطعة الذهب</h3>
     <input type="hidden" id="edit-inv-index">
     <div class="space-y-3 text-xs">
@@ -467,11 +559,11 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <select id="edit-inv-karat" class="bg-darkbg border border-slate-700 rounded-xl p-3 text-gold font-bold outline-none">
           <option value="24">عيار 24</option><option value="22">عيار 22</option><option value="21">عيار 21</option><option value="18">عيار 18</option><option value="9">عيار 9</option>
         </select>
-        <input type="number" step="0.001" id="edit-inv-weight" placeholder="الوزن" class="bg-darkbg border border-slate-700 rounded-xl p-3 outline-none">
+        <input type="number" step="0.001" id="edit-inv-weight" placeholder="الوزن" class="w-full bg-darkbg border border-slate-700 rounded-xl p-3 outline-none">
       </div>
       <div class="grid grid-cols-2 gap-3">
-        <input type="number" id="edit-inv-qty" placeholder="الكمية" class="bg-darkbg border border-slate-700 rounded-xl p-3 outline-none">
-        <input type="number" id="edit-inv-making" placeholder="أجور الصياغة" class="bg-darkbg border border-slate-700 rounded-xl p-3 text-amber-400 font-bold outline-none">
+        <input type="number" id="edit-inv-qty" placeholder="الكمية" class="w-full bg-darkbg border border-slate-700 rounded-xl p-3 outline-none">
+        <input type="number" id="edit-inv-making" placeholder="أجور الصياغة" class="w-full bg-darkbg border border-slate-700 rounded-xl p-3 text-amber-400 font-bold outline-none">
       </div>
       <div class="flex items-center justify-between bg-darkbg p-3 rounded-xl border border-slate-800">
         <span>نشر في المعرض العام:</span><input type="checkbox" id="edit-inv-publish" class="w-5 h-5 accent-gold">
@@ -486,8 +578,8 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 </div>
 
 <!-- Modal حذف قطعة المخزن -->
-<div id="delete-inventory-modal" class="fixed inset-0 bg-black/90 z-[220] flex items-center justify-center hidden p-4">
-  <div class="cardbg p-6 rounded-3xl border-2 border-rose-500/60 w-full max-w-sm space-y-4 text-center shadow-2xl">
+<div id="delete-inventory-modal" class="fixed inset-0 modal-overlay z-[220] flex items-center justify-center hidden p-4">
+  <div class="system-card p-6 rounded-3xl border-2 border-rose-500/60 w-full max-w-sm space-y-4 text-center shadow-2xl">
     <h3 class="text-base font-bold text-rose-400">تأكيد حذف قطعة من المخزن</h3>
     <p id="delete-inv-summary" class="text-xs text-slate-300">--</p>
     <input type="hidden" id="delete-inv-index">
@@ -499,17 +591,19 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
-<!-- معرض الزبائن -->
+<!-- معرض الزبائن العام -->
 <div id="storefront-modal" class="fixed inset-0 bg-darkbg z-[180] flex flex-col hidden overflow-y-auto p-5">
   <div class="max-w-6xl mx-auto w-full space-y-6">
     <div class="flex flex-wrap justify-between items-center border-b border-gold/30 pb-4 gap-3">
       <div class="flex items-center gap-3">
-        <img id="store-view-logo" src="./icon.png" onerror="this.src='https://via.placeholder.com/100/070A12/D4AF37?text=💎'" class="w-14 h-14 rounded-2xl object-cover border-2 border-gold">
+        <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl overflow-hidden border-2 border-gold">
+          <img id="store-view-logo" src="" onerror="this.style.display='none';this.parentElement.innerHTML='💎'" class="w-full h-full object-cover">
+        </div>
         <div><h2 id="store-view-title" class="text-xl font-black text-gold">معرض الذهب</h2><p id="store-view-subtitle" class="text-xs text-slate-400">--</p></div>
       </div>
       <button onclick="closeStorefrontView()" class="bg-slate-800 text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold">إغلاق المعرض</button>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-cardbg p-4 rounded-3xl border border-gold/20 text-xs">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 system-card p-4 rounded-3xl border border-gold/20 text-xs">
       <div><span class="text-slate-400 block">العنوان:</span><strong id="store-view-address">--</strong></div>
       <div><span class="text-slate-400 block">أوقات الدوام:</span><strong id="store-view-hours" class="text-emerald-400">--</strong></div>
       <div><span class="text-slate-400 block">الهاتف:</span><strong id="store-view-phone" class="text-gold font-mono">--</strong></div>
@@ -518,9 +612,9 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
-<!-- Modal اختيار قطعة للبيع (تصميم فاخر للقطع والألبومات) -->
-<div id="luxury-item-modal" class="fixed inset-0 bg-black/85 z-[150] flex items-center justify-center hidden p-4">
-  <div class="cardbg p-6 rounded-3xl border border-gold/40 w-full max-w-2xl space-y-4 max-h-[85vh] flex flex-col shadow-2xl">
+<!-- نافذة اختيار القطع الفخمة في نقطة البيع -->
+<div id="luxury-item-modal" class="fixed inset-0 modal-overlay z-[150] flex items-center justify-center hidden p-4">
+  <div class="system-card p-6 rounded-3xl border border-gold/40 w-full max-w-2xl space-y-4 max-h-[85vh] flex flex-col shadow-2xl">
     <h3 class="text-lg font-bold text-gold border-b border-slate-800 pb-2"><i class="fa-solid fa-layer-group"></i> اختيار قطعة من المخزن المعروض</h3>
     <input type="text" id="modal-item-search" oninput="renderLuxuryItemList()" placeholder="ابحث باسم القطعة..." class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-xs outline-none">
     <div id="modal-items-list" class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-3"></div>
@@ -529,8 +623,8 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 </div>
 
 <!-- Modal الأسعار -->
-<div id="price-modal" class="fixed inset-0 bg-black/80 z-[150] flex items-center justify-center hidden p-4">
-  <div class="cardbg p-6 rounded-3xl border border-gold/40 w-full max-w-md space-y-4">
+<div id="price-modal" class="fixed inset-0 modal-overlay z-[150] flex items-center justify-center hidden p-4">
+  <div class="system-card p-6 rounded-3xl border border-gold/40 w-full max-w-md space-y-4">
     <h3 class="text-lg font-bold text-gold">أسعار المثاقيل الخمسة والدولار</h3>
     <div class="space-y-3 text-xs">
       <div><label class="text-slate-400">سعر الورقة (100$):</label><input type="number" id="modal-p-usd" class="w-full bg-darkbg border border-slate-700 rounded-xl p-3 text-emerald-400 font-bold outline-none"></div>
@@ -551,15 +645,15 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
-<!-- Modal حاسبة آرامكي -->
-<div id="calc-modal" class="fixed inset-0 bg-black/80 z-[150] flex items-center justify-center hidden p-4">
-  <div class="cardbg p-6 rounded-3xl border border-gold/40 w-full max-w-sm space-y-4">
+<!-- حاسبة آرامكي -->
+<div id="calc-modal" class="fixed inset-0 modal-overlay z-[150] flex items-center justify-center hidden p-4">
+  <div class="system-card p-6 rounded-3xl border border-gold/40 w-full max-w-sm space-y-4">
     <h3 class="text-md font-bold text-gold">حاسبة آرامكي (مثقال ÷ 5)</h3>
     <div class="space-y-2.5 text-xs">
       <input type="number" id="c-mithqal" oninput="calcAramkyQuick()" placeholder="سعر المثقال" class="w-full bg-darkbg border border-slate-700 rounded-xl p-2.5 text-gold font-bold outline-none">
       <div class="grid grid-cols-2 gap-2">
-        <input type="number" step="0.001" id="c-weight" oninput="calcAramkyQuick()" placeholder="الوزن (غرام)" class="bg-darkbg border border-slate-700 rounded-xl p-2.5 outline-none">
-        <input type="number" id="c-making" oninput="calcAramkyQuick()" placeholder="أجور الصياغة" class="bg-darkbg border border-slate-700 rounded-xl p-2.5 outline-none">
+        <input type="number" step="0.001" id="c-weight" oninput="calcAramkyQuick()" placeholder="الوزن (غرام)" class="w-full bg-darkbg border border-slate-700 rounded-xl p-2.5 outline-none">
+        <input type="number" id="c-making" oninput="calcAramkyQuick()" placeholder="أجور الصياغة" class="w-full bg-darkbg border border-slate-700 rounded-xl p-2.5 outline-none">
       </div>
       <div class="bg-darkbg p-3 rounded-xl text-center border border-gold/30">
         <div class="text-gold font-black text-xl" id="c-result">0 د.ع</div>
@@ -572,8 +666,8 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 </div>
 
 <!-- Modal إرجاع فاتورة -->
-<div id="return-modal" class="fixed inset-0 bg-black/85 z-[150] flex items-center justify-center hidden p-4">
-  <div class="cardbg p-6 rounded-3xl border border-rose-500/45 w-full max-w-md space-y-4">
+<div id="return-modal" class="fixed inset-0 modal-overlay z-[150] flex items-center justify-center hidden p-4">
+  <div class="system-card p-6 rounded-3xl border border-rose-500/45 w-full max-w-md space-y-4">
     <h3 class="text-lg font-bold text-rose-400">إرجاع فاتورة بالرمز</h3>
     <input type="text" id="return-inv-code" placeholder="رمز الفاتورة (مثل INV-4521)..." class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3.5 text-sm font-mono text-gold uppercase outline-none">
     <input type="text" id="return-reason" placeholder="سبب الإرجاع..." class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-xs outline-none">
@@ -584,32 +678,27 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
-<!-- Modal الفاتورة الاحترافية المفصلة -->
-<div id="invoice-modal" class="fixed inset-0 bg-black/95 z-[150] flex items-center justify-center hidden p-4">
+<!-- نافذة عرض الفاتورة (حسب النموذج المختار) -->
+<div id="invoice-modal" class="fixed inset-0 modal-overlay z-[150] flex items-center justify-center hidden p-4">
   <div class="bg-white text-darkbg p-6 rounded-3xl w-full max-w-md space-y-4 shadow-2xl border-4 border-gold">
     <div class="text-center border-b-2 border-gold/40 pb-3">
       <h2 class="font-black text-xl text-slate-900" id="inv-main-title">💎 آرامكي للحلول الرقمية 💎</h2>
       <p class="text-xs text-slate-600 font-bold" id="inv-store-subtitle">فرع نواة الذهب ⚜️</p>
       <div class="inline-block bg-slate-900 text-gold font-mono text-xs font-bold px-3 py-1 rounded-full mt-1" id="inv-code-display"></div>
     </div>
-    <div class="space-y-2 text-xs text-slate-800">
-      <div class="flex justify-between font-bold"><span>نوع المعاملة:</span><span id="inv-sale-type-badge" class="text-emerald-700">بيع نقدي</span></div>
-      <div class="flex justify-between"><span>الوزن الإجمالي:</span><span id="inv-print-weight" class="font-bold">0 غرام</span></div>
-      <div class="flex justify-between text-sm font-black pt-1 border-t"><span>الإجمالي بالدينار:</span><span id="inv-print-total" class="text-gold-dark">0 دينار</span></div>
-      <div class="flex justify-between text-sm font-black text-emerald-700 bg-emerald-50 p-2 rounded-xl"><span>المقابل بالورقة:</span><span id="inv-print-paper">0</span></div>
-      <div class="text-[11px] text-slate-600 flex justify-between"><span>الزبون: <strong id="inv-print-customer">--</strong></span><span>الهاتف: <strong id="inv-print-phone">--</strong></span></div>
-      <div class="text-[11px] text-slate-500 flex justify-between"><span>ملاحظات: <span id="inv-print-notes">--</span></span><span>التاريخ: <strong id="inv-print-date">--</strong></span></div>
+    <div class="space-y-2 text-xs text-slate-800" id="invoice-body-content">
+      <!-- يتم تعبئتها ديناميكياً حسب مفصلة أو مختصرة -->
     </div>
     <div class="flex gap-2 pt-2 no-print">
       <button onclick="window.print()" class="flex-1 bg-slate-900 text-white py-2.5 rounded-xl text-xs font-bold">🖨️ طباعة الفاتورة</button>
-      <button onclick="closeInvoiceModal()" class="px-4 py-2.5 bg-slate-200 text-slate-800 rounded-xl text-xs font-bold">إغلاق</button>
+      <button onclick="closeInvoiceModal()" class="px-4 py-2.5 bg-slate-200 text-slate-800 rounded-xl text-xs font-bold">إلغاء</button>
     </div>
   </div>
 </div>
 
-<!-- Modal تفاصيل وعمليات العميل الفخمة -->
-<div id="customer-modal" class="fixed inset-0 bg-black/85 z-[150] flex items-center justify-center hidden p-4">
-  <div class="cardbg p-6 rounded-3xl border border-gold/40 w-full max-w-lg space-y-4 max-h-[90vh] overflow-y-auto">
+<!-- Modal تفاصيل العميل -->
+<div id="customer-modal" class="fixed inset-0 modal-overlay z-[150] flex items-center justify-center hidden p-4">
+  <div class="system-card p-6 rounded-3xl border border-gold/40 w-full max-w-lg space-y-4 max-h-[90vh] overflow-y-auto">
     <div class="border-b border-slate-800 pb-2 flex justify-between items-center">
       <h3 id="modal-cust-name" class="text-lg font-bold text-gold">كارت العميل</h3>
       <span id="modal-cust-phone" class="text-xs font-mono text-emerald-400">--</span>
@@ -642,7 +731,7 @@ let appState = {
   store: { name: "صاغة أرامكي - فرع نواة الذهب", logo: "", phone: "07700000000", address: "بغداد - الشورجة", openTime: "09:00 ص", closeTime: "10:00 م", bio: "أفضل تشكيلة ذهب" },
   prices: { usd: 153000, m24: 628571, m22: 576190, m21: 550000, m18: 471428, m9: 235714 },
   cash: 0, usdCash: 0, zainCash: 0, makingProfit: 0,
-  inventory: [], cart: [], logs: [], debts: [], invoices: [], supportTickets: []
+  inventory: [], cart: [], logs: [], debts: [], invoices: [], supportTickets: [], currencyMode: 'iraqi', invoiceTemplate: 'detailed'
 };
 let currentCategoryFilter = 'all', currentDayFilter = 'الكل', selectedCustIdx = null, tempReceiptBase64 = "";
 
@@ -670,7 +759,7 @@ window.onload = function() {
   verifyAndBootTenant(currentTenantCode);
 };
 
-// زر الصفر الذكي (0) لفتح نافذة تصفير النظام الذكية وشرح الخيارات
+// زر الصفر الذكي (0)
 function handleGlobalZeroKey(e) {
   if (e.key === '0' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
     e.preventDefault();
@@ -704,7 +793,26 @@ function verifyAndBootTenant(code) {
   document.getElementById('sup-tenant-badge').innerText = `كودك: ${currentTenantCode}`;
   document.getElementById('header-sub-status').innerText = `نشط حتى ${sub.expiresAt}`;
   document.getElementById('header-store-name').innerText = appState.store.name;
+  
+  applyStoreLogoToUI();
   updatePricesDerived(); autoFillScrapMithqal(); loadStoreSettingsToUI(); updateUI();
+}
+
+function applyStoreLogoToUI() {
+  let logo = appState.store.logo;
+  let loginImg = document.getElementById('login-screen-logo-img');
+  let headerImg = document.getElementById('header-logo-img');
+  let storePreview = document.getElementById('store-logo-preview');
+
+  if (logo) {
+    if(loginImg) { loginImg.src = logo; loginImg.style.display = 'block'; }
+    if(headerImg) { headerImg.src = logo; headerImg.style.display = 'block'; }
+    if(storePreview) { storePreview.src = logo; storePreview.style.display = 'block'; }
+  } else {
+    if(loginImg) loginImg.style.display = 'none';
+    if(headerImg) headerImg.style.display = 'none';
+    if(storePreview) storePreview.style.display = 'none';
+  }
 }
 
 function openSupportFromLock() {
@@ -736,6 +844,25 @@ function executeSystemReset(type) {
   }
 }
 
+// نوافذ System UI التفاعلية الفخمة
+function openSystemCurrencyModal() { document.getElementById('system-currency-modal').classList.remove('hidden'); }
+function closeSystemCurrencyModal() { document.getElementById('system-currency-modal').classList.add('hidden'); }
+function setSystemCurrencyMode(mode) {
+  appState.currencyMode = mode;
+  document.getElementById('currency-mode-text').innerText = (mode === 'iraqi') ? 'عراقي (ورق ودينار)' : 'عالمي (دينار / دولار)';
+  closeSystemCurrencyModal();
+  updateCartPreview(); renderCart();
+  showToast('تم تحديث نظام العملة بنجاح');
+}
+
+function openSystemInvoiceTypeModal() { document.getElementById('system-invoice-type-modal').classList.remove('hidden'); }
+function closeSystemInvoiceTypeModal() { document.getElementById('system-invoice-type-modal').classList.add('hidden'); }
+function selectInvoiceTemplate(tmpl) {
+  appState.invoiceTemplate = tmpl;
+  closeSystemInvoiceTypeModal();
+  showToast(tmpl === 'detailed' ? 'تم اختيار الفاتورة الرسمية المفصلة' : 'تم اختيار الفاتورة المختصرة');
+}
+
 function previewSupportReceipt(e) {
   let file = e.target.files[0]; if (!file) return;
   let r = new FileReader();
@@ -755,11 +882,7 @@ function submitSupportTransfer() {
   let ticket = {
     id: 'SUP-' + Math.floor(1000 + Math.random() * 9000),
     time: new Date().toLocaleDateString('ar-IQ') + ' ' + new Date().toLocaleTimeString('ar-IQ', {hour:'2-digit',minute:'2-digit'}),
-    tenant: currentTenantCode,
-    storeName: appState.store.name,
-    method, ref, msg,
-    receipt: tempReceiptBase64,
-    status: 'بانتظار مراجعة الإدارة'
+    tenant: currentTenantCode, storeName: appState.store.name, method, ref, msg, receipt: tempReceiptBase64, status: 'بانتظار مراجعة الإدارة'
   };
   appState.supportTickets.unshift(ticket);
   let masterTickets = JSON.parse(localStorage.getItem('aramky_global_support_tickets')) || [];
@@ -815,16 +938,8 @@ function saveEditedInventoryItem() {
 
   if (!newName || isNaN(newWeight) || newWeight <= 0 || isNaN(newQty) || newQty < 0) return showToast('بيانات غير صحيحة!', 'error');
 
-  let diffs = [];
-  if (oldItem.name !== newName) diffs.push(`الاسم [${oldItem.name} ⬅️ ${newName}]`);
-  if (oldItem.karat !== newKarat) diffs.push(`العيار [${oldItem.karat} ⬅️ ${newKarat}]`);
-  if (oldItem.weight !== newWeight) diffs.push(`الوزن [${oldItem.weight}غ ⬅️ ${newWeight}غ]`);
-  if (oldItem.qty !== newQty) diffs.push(`الكمية [${oldItem.qty} ⬅️ ${newQty}]`);
-  if (oldItem.makingPerGram !== newMaking) diffs.push(`الصياغة [${oldItem.makingPerGram} ⬅️ ${newMaking}]`);
-  if (diffs.length === 0 && oldItem.publish === newPublish) return showToast('لم يتم تغيير أي بيانات!', 'error');
-
   let editCode = 'EDT-' + Math.floor(1000 + Math.random() * 9000);
-  logTransaction('تعديل مخزن', `تعديل (${oldItem.name}): ${diffs.join(' | ')}`, `${newWeight}غ (${newQty} قطعة)`, reason, editCode);
+  logTransaction('تعديل مخزن', `تعديل (${oldItem.name}) ⬅️ (${newName})`, `${newWeight}غ (${newQty} قطعة)`, reason, editCode);
   appState.inventory[idx] = { ...oldItem, name: newName, karat: newKarat, weight: newWeight, qty: newQty, makingPerGram: newMaking, publish: newPublish };
   saveState(); closeEditInventoryModal();
   showToast(`تم التعديل والتوثيق بالجرد [${editCode}]!`);
@@ -833,7 +948,7 @@ function saveEditedInventoryItem() {
 function openDeleteInventoryModal(idx) {
   let item = appState.inventory[idx]; if (!item) return;
   document.getElementById('delete-inv-index').value = idx;
-  document.getElementById('delete-inv-summary').innerText = `حذف (${item.name}) عيار ${item.karat} — وزن ${item.weight}غ (الكمية: ${item.qty})؟`;
+  document.getElementById('delete-inv-summary').innerText = `حذف (${item.name}) عيار ${item.karat} — وزن ${item.weight}غ؟`;
   document.getElementById('delete-inv-reason').value = '';
   document.getElementById('delete-inventory-modal').classList.remove('hidden');
 }
@@ -844,7 +959,7 @@ function confirmDeleteInventoryItem() {
   let item = appState.inventory[idx]; if (!item) return;
   let reason = document.getElementById('delete-inv-reason').value.trim() || 'حذف من المخزن';
   let delCode = 'DEL-' + Math.floor(1000 + Math.random() * 9000);
-  logTransaction('حذف مخزن', `حذف (${item.name}) عيار ${item.karat} — صياغة: ${item.makingPerGram}`, `${item.weight}غ (${item.qty} قطعة)`, reason, delCode);
+  logTransaction('حذف مخزن', `حذف (${item.name}) عيار ${item.karat}`, `${item.weight}غ`, reason, delCode);
   appState.inventory.splice(idx, 1);
   saveState(); closeDeleteInventoryModal();
   showToast(`تم الحذف والتوثيق بالجرد [${delCode}]!`);
@@ -853,9 +968,15 @@ function confirmDeleteInventoryItem() {
 function handleStoreLogoUpload(e) {
   let file = e.target.files[0]; if (!file) return;
   let r = new FileReader();
-  r.onload = (ev) => { appState.store.logo = ev.target.result; document.getElementById('store-logo-preview').src = ev.target.result; saveState(); showToast('تم تحديث الشعار!'); };
+  r.onload = (ev) => {
+    appState.store.logo = ev.target.result;
+    applyStoreLogoToUI();
+    saveState();
+    showToast('تم حفظ وتحميل شعار المعرض بنجاح!');
+  };
   r.readAsDataURL(file);
 }
+
 function loadStoreSettingsToUI() {
   document.getElementById('store-name').value = appState.store.name;
   document.getElementById('store-phone').value = appState.store.phone;
@@ -863,7 +984,7 @@ function loadStoreSettingsToUI() {
   document.getElementById('store-open-time').value = appState.store.openTime;
   document.getElementById('store-close-time').value = appState.store.closeTime;
   document.getElementById('store-bio').value = appState.store.bio;
-  if (appState.store.logo) document.getElementById('store-logo-preview').src = appState.store.logo;
+  applyStoreLogoToUI();
   document.getElementById('store-share-link').value = window.location.origin + window.location.pathname + '?store=' + currentTenantCode;
 }
 function saveStoreSettings() {
@@ -874,7 +995,8 @@ function saveStoreSettings() {
   appState.store.closeTime = document.getElementById('store-close-time').value || "";
   appState.store.bio = document.getElementById('store-bio').value || "";
   document.getElementById('header-store-name').innerText = appState.store.name;
-  saveState(); showToast('تم حفظ الإعدادات!');
+  applyStoreLogoToUI();
+  saveState(); showToast('تم حفظ إعدادات المعرض!');
 }
 function copyStoreLink() { let el = document.getElementById('store-share-link'); el.select(); navigator.clipboard.writeText(el.value); showToast('تم نسخ الرابط!'); }
 
@@ -884,24 +1006,30 @@ function openStorefrontView() {
   document.getElementById('store-view-address').innerText = appState.store.address || '--';
   document.getElementById('store-view-hours').innerText = `${appState.store.openTime} إلى ${appState.store.closeTime}`;
   document.getElementById('store-view-phone').innerText = appState.store.phone || '--';
-  if (appState.store.logo) document.getElementById('store-view-logo').src = appState.store.logo;
+  
+  let storeLogoView = document.getElementById('store-view-logo');
+  if (appState.store.logo) { storeLogoView.src = appState.store.logo; storeLogoView.style.display = 'block'; }
+  else { storeLogoView.style.display = 'none'; }
+
   let container = document.getElementById('storefront-grid'); container.innerHTML = '';
   let items = appState.inventory.filter(i => i.qty > 0 && i.publish);
   if (!items.length) container.innerHTML = `<p class="col-span-full text-center text-slate-500 py-10">لا توجد قطع منشورة حالياً.</p>`;
   items.forEach(item => {
     let total = Math.round((item.weight * getGramPrice(item.karat)) + (item.makingPerGram * item.weight));
     let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" class="w-full h-44 rounded-2xl object-cover">` : `<div class="w-full h-44 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500"><i class="fa-solid fa-image text-3xl"></i></div>`;
-    container.innerHTML += `<div class="cardbg p-4 rounded-3xl border border-gold/30 space-y-2">${img}<h4 class="font-bold text-gold">${item.name} (عيار ${item.karat})</h4><p class="text-xs text-slate-300">الوزن: ${item.weight}غ | متبقي: ${item.qty}</p><div class="bg-darkbg p-3 rounded-xl font-black text-emerald-400 text-sm">${total.toLocaleString()} د.ع</div></div>`;
+    container.innerHTML += `<div class="system-card p-4 rounded-3xl border border-gold/30 space-y-2">${img}<h4 class="font-bold text-gold">${item.name} (عيار ${item.karat})</h4><p class="text-xs text-slate-300">الوزن: ${item.weight}غ | متبقي: ${item.qty}</p><div class="bg-darkbg p-3 rounded-xl font-black text-emerald-400 text-sm">${total.toLocaleString()} د.ع</div></div>`;
   });
   document.getElementById('storefront-modal').classList.remove('hidden');
 }
 function closeStorefrontView() { document.getElementById('storefront-modal').classList.add('hidden'); }
 
 function renderPublicCustomerStorefront() {
-  let logo = appState.store.logo || "./icon.png";
+  let logo = appState.store.logo || "";
+  let logoHtml = logo ? `<img src="${logo}" class="w-16 h-16 rounded-2xl object-cover border-2 border-gold">` : `<div class="w-16 h-16 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl">💎</div>`;
+  
   document.body.innerHTML = `<div class="min-h-screen bg-darkbg text-slate-100 p-5 flex flex-col items-center"><div class="max-w-5xl w-full space-y-6">
-    <div class="cardbg p-6 rounded-3xl border border-gold/40 flex flex-col md:flex-row justify-between items-center gap-4">
-      <div class="flex items-center gap-4"><img src="${logo}" onerror="this.src='https://via.placeholder.com/100/070A12/D4AF37?text=💎'" class="w-16 h-16 rounded-2xl object-cover border-2 border-gold"><div><h1 class="text-2xl font-black text-gold">${appState.store.name}</h1><p class="text-xs text-slate-300">${appState.store.bio}</p></div></div>
+    <div class="system-card p-6 rounded-3xl border border-gold/40 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-4">${logoHtml}<div><h1 class="text-2xl font-black text-gold">${appState.store.name}</h1><p class="text-xs text-slate-300">${appState.store.bio}</p></div></div>
       <div class="bg-darkbg p-4 rounded-2xl text-xs space-y-1"><div>📍 ${appState.store.address}</div><div>⏰ ${appState.store.openTime} - ${appState.store.closeTime}</div><div>📞 <span class="text-gold font-mono">${appState.store.phone}</span></div></div>
     </div>
     <div id="pub-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div></div></div>`;
@@ -909,7 +1037,7 @@ function renderPublicCustomerStorefront() {
   appState.inventory.filter(i => i.qty > 0 && i.publish).forEach(item => {
     let total = Math.round((item.weight * getGramPrice(item.karat)) + (item.makingPerGram * item.weight));
     let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" class="w-full h-48 rounded-2xl object-cover">` : `<div class="w-full h-48 bg-slate-800 rounded-2xl flex items-center justify-center">💎</div>`;
-    g.innerHTML += `<div class="cardbg p-4 rounded-3xl border border-gold/30 space-y-2">${img}<h4 class="font-bold text-gold">${item.name}</h4><p class="text-xs">عيار ${item.karat} | ${item.weight}غ</p><div class="bg-darkbg p-3 rounded-xl font-black text-gold">${total.toLocaleString()} د.ع</div></div>`;
+    g.innerHTML += `<div class="system-card p-4 rounded-3xl border border-gold/30 space-y-2">${img}<h4 class="font-bold text-gold">${item.name}</h4><p class="text-xs">عيار ${item.karat} | ${item.weight}غ</p><div class="bg-darkbg p-3 rounded-xl font-black text-gold">${total.toLocaleString()} د.ع</div></div>`;
   });
 }
 
@@ -955,13 +1083,22 @@ function filterLogs() {
   document.getElementById('period-exp-total').innerText = `${Math.round(ex).toLocaleString()} د.ع`;
 }
 
+// تصدير ملف إكسل رسمي ومفصل حسب طلب الصايغ
 function exportLogsToExcel() {
-  let list = getFilteredLogsList(); if (!list.length) return showToast('لا توجد بيانات!', 'error');
-  let csv = "\uFEFFالتاريخ,الرمز,النوع,التفاصيل,المبلغ/الوزن,الربح,الملاحظات\n";
-  list.forEach(l => { csv += `"${l.time}","${l.code}","${l.type}","${l.details.replace(/"/g,'""')}","${l.amount}","${l.profit||0}","${(l.notes||'').replace(/"/g,'""')}"\n`; });
-  let a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-  a.download = `ARAMKY_${currentTenantCode}_${new Date().toISOString().split('T')[0]}.csv`; a.click();
-  showToast('تم تصدير ملف الإكسل!');
+  let list = getFilteredLogsList(); if (!list.length) return showToast('لا توجد بيانات للتصدير!', 'error');
+  let csv = "\uFEFFمعرض أرامكي للحلول الرقمية - فرع نواة الذهب\n";
+  csv += `تاريخ التصدير: ${new Date().toLocaleDateString('ar-IQ')}\n\n`;
+  csv += "التاريخ والوقت,رمز الحركة,نوع العملية,التفاصيل الكاملة,المبلغ أو الوزن,صافي أرباح الصياغة,ملاحظات إضافية\n";
+  
+  list.forEach(l => {
+    csv += `"${l.time}","${l.code}","${l.type}","${l.details.replace(/"/g,'""')}","${l.amount}","${l.profit||0}","${(l.notes||'').replace(/"/g,'""')}"\n`;
+  });
+
+  let a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+  a.download = `ARAMKY_Official_Report_${currentTenantCode}_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  showToast('تم تصدير ملف الإكسل الرسمي بنجاح!');
 }
 
 function updatePricesDerived() {
@@ -978,17 +1115,20 @@ function showToast(msg, type = 'success') {
   t.innerText = msg; document.getElementById('toast-container').appendChild(t);
   setTimeout(() => t.remove(), 3000);
 }
+
 function formatAltCurrency(amt) {
-  let mode = document.getElementById('currency-mode')?.value || 'iraqi';
+  let mode = appState.currencyMode || 'iraqi';
   let usd = appState.prices.usd || 153000;
   if (mode === 'global') return `$${(amt / (usd / 100)).toFixed(2)}`;
   let p = Math.floor(amt / usd), r = Math.round(amt % usd);
   return p > 0 ? `${p} ورقة و ${r.toLocaleString()} د.ع` : `${Math.round(amt).toLocaleString()} د.ع`;
 }
+
 function logTransaction(type, details, amount, notes = "", code = null, profit = 0) {
   let now = new Date();
   appState.logs.unshift({ time: now.toLocaleDateString('ar-IQ') + ' ' + now.toLocaleTimeString('ar-IQ', {hour:'2-digit',minute:'2-digit'}), date: now.toISOString().split('T')[0], code: code || ('OP-' + Math.floor(1000+Math.random()*9000)), type, details, amount, notes, profit, rawDate: now.getTime() });
 }
+
 function switchTab(id) {
   document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
   document.getElementById('view-' + id).classList.remove('hidden');
@@ -1011,7 +1151,7 @@ function updateUI() {
   let sel = document.getElementById('quick-pos-select'); sel.innerHTML = '<option value="">-- اختر قطعة للمعاينة --</option>';
   let tbody = document.getElementById('inventory-table-body'); tbody.innerHTML = '';
   appState.inventory.forEach((item, idx) => {
-    if (item.qty > 0) sel.innerHTML += `<option value="${idx}">${item.name} - عيار ${item.karat} (${item.weight}غ)</option>`;
+    if (item.qty > 0) sel.innerHTML += `<option value="${idx}">${item.name} - عيار ${item.karat} (${item.weight}غ) [متوفر: ${item.qty}]</option>`;
     let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" class="w-10 h-10 rounded-lg object-cover">` : '💎';
     tbody.innerHTML += `<tr class="border-b border-slate-800">
       <td class="p-3">${img}</td><td class="p-3 font-bold">${item.name}</td><td class="p-3">${item.karat}</td><td class="p-3">${item.weight}غ</td><td class="p-3 text-amber-400">${item.makingPerGram.toLocaleString()}</td><td class="p-3 font-bold text-gold">${item.qty}</td><td class="p-3">${item.publish?'منشور':'مخفي'}</td>
@@ -1032,27 +1172,31 @@ function updateCartPreview() {
   document.getElementById('prev-piece-iqd').innerText = tot.toLocaleString() + ' د.ع';
   document.getElementById('prev-piece-alt').innerText = formatAltCurrency(tot);
 }
+
 function addQuickSelectedToCart() { let idx = document.getElementById('quick-pos-select').value; if (idx !== "") addItemToCartFromIndex(parseInt(idx)); }
 function addItemToCartFromIndex(idx) {
   let item = appState.inventory[idx], mt = item.makingPerGram * item.weight, tot = Math.round((item.weight * getGramPrice(item.karat)) + mt);
   appState.cart.push({ ...item, invIdx: idx, itemMakingTotal: mt, itemTotal: tot }); renderCart(); showToast(`أضيفت (${item.name})`);
 }
+
 function renderCart() {
   let c = document.getElementById('cart-items-container'); c.innerHTML = '';
   let tot = appState.cart.reduce((s, i) => s + i.itemTotal, 0);
   if (!appState.cart.length) c.innerHTML = '<p class="text-center text-slate-500 text-xs p-3">السلة فارغة.</p>';
   appState.cart.forEach((item, idx) => {
-    c.innerHTML += `<div class="cardbg p-3 rounded-2xl border border-gold/30 flex justify-between items-center text-xs"><div><strong class="text-gold">${item.name}</strong> (${item.weight}غ - عيار ${item.karat})</div><div class="flex items-center gap-2"><span class="text-emerald-400 font-bold">${item.itemTotal.toLocaleString()} د.ع</span><button onclick="appState.cart.splice(${idx},1);renderCart();" class="text-rose-400"><i class="fa-solid fa-trash"></i></button></div></div>`;
+    c.innerHTML += `<div class="bg-darkbg p-3 rounded-2xl border border-gold/30 flex justify-between items-center text-xs"><div><strong class="text-gold">${item.name}</strong> (${item.weight}غ - عيار ${item.karat})</div><div class="flex items-center gap-2"><span class="text-emerald-400 font-bold">${item.itemTotal.toLocaleString()} د.ع</span><button onclick="appState.cart.splice(${idx},1);renderCart();" class="text-rose-400"><i class="fa-solid fa-trash"></i></button></div></div>`;
   });
   document.getElementById('cart-total-price').innerText = tot.toLocaleString() + ' د.ع';
   document.getElementById('cart-total-alt').innerText = formatAltCurrency(tot);
 }
+
 function payFullAction(t) {
   let tot = appState.cart.reduce((s, i) => s + i.itemTotal, 0); if (!tot) return;
   document.getElementById('pay-iqd').value = t==='iqd'?tot:0;
   document.getElementById('pay-usd').value = t==='usd'?(tot/(appState.prices.usd/100)).toFixed(2):0;
   document.getElementById('pay-card').value = t==='card'?tot:0;
 }
+
 function completeSale(mode) {
   if (!appState.cart.length) return showToast('السلة فارغة!', 'error');
   let cust = document.getElementById('pos-customer').value.trim() || (mode==='debt'?'':'زبون نقدي');
@@ -1061,7 +1205,9 @@ function completeSale(mode) {
   let iqd = parseFloat(document.getElementById('pay-iqd').value)||0, usd = parseFloat(document.getElementById('pay-usd').value)||0, card = parseFloat(document.getElementById('pay-card').value)||0;
   let tot = appState.cart.reduce((s,i)=>s+i.itemTotal,0), mk = appState.cart.reduce((s,i)=>s+i.itemMakingTotal,0), wt = appState.cart.reduce((s,i)=>s+i.weight,0);
   let code = 'INV-' + Math.floor(1000 + Math.random()*9000), snap = JSON.parse(JSON.stringify(appState.cart));
+  
   appState.cart.forEach(ci => { if (appState.inventory[ci.invIdx]) { appState.inventory[ci.invIdx].qty -= 1; if (appState.inventory[ci.invIdx].qty <= 0) appState.inventory[ci.invIdx].publish = false; } });
+  
   if (mode === 'cash') {
     if (!iqd && !usd && !card) iqd = tot;
     appState.cash += iqd; appState.usdCash += usd; appState.zainCash += card; appState.makingProfit += mk;
@@ -1073,17 +1219,46 @@ function completeSale(mode) {
     d.debtAmount += tot; d.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: 'آجل (+)', amount: tot });
     logTransaction('عملية بيع', `آجل (${cust}): ${snap.map(x=>x.name).join(', ')}`, `${tot.toLocaleString()} د.ع`, notes, code, mk);
   }
+  
   appState.invoices.push({ code, customer: cust, phone, saleMode: mode, grandTotal: tot, totalMaking: mk, payIqd: iqd, payUsd: usd, payCard: card, items: snap, returned: false });
-  document.getElementById('inv-main-title').innerText = `💎 ${appState.store.name} 💎`;
-  document.getElementById('inv-code-display').innerText = code;
-  document.getElementById('inv-print-weight').innerText = `${wt} غرام`;
-  document.getElementById('inv-print-total').innerText = `${tot.toLocaleString()} د.ع`;
-  document.getElementById('inv-print-paper').innerText = formatAltCurrency(tot);
-  document.getElementById('inv-print-customer').innerText = cust;
-  document.getElementById('inv-print-phone').innerText = phone;
-  document.getElementById('inv-print-date').innerText = new Date().toLocaleDateString('ar-IQ');
+  
+  // بناء محتوى الفاتورة بناءً على الاختيار (مفصلة أو مختصرة)
+  renderInvoicePrintContent(code, cust, phone, notes, tot, mk, wt, snap);
+  
   appState.cart = []; renderCart(); saveState();
   document.getElementById('invoice-modal').classList.remove('hidden');
+}
+
+function renderInvoicePrintContent(code, cust, phone, notes, tot, mk, wt, items) {
+  document.getElementById('inv-main-title').innerText = `💎 ${appState.store.name} 💎`;
+  document.getElementById('inv-store-subtitle').innerText = appState.store.bio || 'فرع نواة الذهب ⚜️';
+  document.getElementById('inv-code-display').innerText = code;
+  
+  let body = document.getElementById('invoice-body-content');
+  let tmpl = appState.invoiceTemplate || 'detailed';
+  
+  if (tmpl === 'detailed') {
+    let itemsHtml = items.map(i => `<div class="flex justify-between border-b py-1"><span>${i.name} (${i.weight}غ - عيار ${i.karat})</span><span class="font-bold">${i.itemTotal.toLocaleString()} د.ع</span></div>`).join('');
+    body.innerHTML = `
+      <div class="flex justify-between font-bold border-b pb-1"><span>نوع المعاملة:</span><span class="text-emerald-700">بيع رسمي معتمد</span></div>
+      <div class="py-1 space-y-1 max-h-32 overflow-y-auto">${itemsHtml}</div>
+      <div class="flex justify-between pt-2 border-t"><span>الوزن الإجمالي:</span><span class="font-bold">${wt} غرام</span></div>
+      <div class="flex justify-between"><span>أجور الصياغة:</span><span class="text-amber-600 font-bold">${mk.toLocaleString()} د.ع</span></div>
+      <div class="flex justify-between text-sm font-black pt-1 border-t"><span>الإجمالي النهائي:</span><span class="text-gold-dark">${tot.toLocaleString()} دينار</span></div>
+      <div class="flex justify-between text-sm font-black text-emerald-700 bg-emerald-50 p-2 rounded-xl"><span>المقابل بالورقة:</span><span>${formatAltCurrency(tot)}</span></div>
+      <div class="text-[11px] text-slate-600 flex justify-between pt-1 border-t"><span>الزبون: <strong>${cust}</strong></span><span>الهاتف: <strong>${phone}</strong></span></div>
+      <div class="text-[11px] text-slate-500 flex justify-between"><span>ملاحظات: <span>${notes||'--'}</span></span><span>التاريخ: <strong>${new Date().toLocaleDateString('ar-IQ')}</strong></span></div>
+    `;
+  } else {
+    // فاتورة مختصرة
+    body.innerHTML = `
+      <div class="text-center font-bold text-sm py-2">فاتورة مبيعات مختصرة</div>
+      <div class="flex justify-between text-base font-black pt-2 border-t"><span>المبلغ الإجمالي:</span><span class="text-gold">${tot.toLocaleString()} دينار</span></div>
+      <div class="flex justify-between text-sm text-emerald-700 font-bold bg-emerald-50 p-2 rounded-xl"><span>المقابل:</span><span>${formatAltCurrency(tot)}</span></div>
+      <div class="text-xs text-slate-600 pt-2">الزبون: <strong>${cust}</strong> | الهاتف: <strong>${phone}</strong></div>
+      <div class="text-[10px] text-slate-400">التاريخ: ${new Date().toLocaleDateString('ar-IQ')} (${code})</div>
+    `;
+  }
 }
 
 function autoFillScrapMithqal() { document.getElementById('scrap-mithqal-price').value = Math.round(getMithqalPrice(document.getElementById('scrap-karat').value)); }
@@ -1148,12 +1323,14 @@ function addDebtMovement() {
   d.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: t, amount: a });
   logTransaction('حركة ديون', `${c}: ${t} (${a})`, t); saveState(); showToast('تم التحديث!');
 }
+
 function renderCustomerCards() {
   let g = document.getElementById('customer-cards-grid'); g.innerHTML = '';
   appState.debts.forEach((c, i) => {
-    g.innerHTML += `<div onclick="openCustomerModal(${i})" class="cardbg p-4 rounded-3xl border border-gold/30 cursor-pointer shadow-lg space-y-2"><h5 class="font-bold text-gold text-base">${c.customer}</h5><div class="text-xs text-slate-300">الدين: <span class="text-emerald-400 font-bold">${Math.round(c.debtAmount).toLocaleString()}</span> | الذهب: <span class="text-gold font-bold">${c.goldAmount}غ</span></div></div>`;
+    g.innerHTML += `<div onclick="openCustomerModal(${i})" class="system-card p-4 rounded-3xl border border-gold/30 cursor-pointer shadow-lg space-y-2"><h5 class="font-bold text-gold text-base">${c.customer}</h5><div class="text-xs text-slate-300">الدين: <span class="text-emerald-400 font-bold">${Math.round(c.debtAmount).toLocaleString()}</span> | الذهب: <span class="text-gold font-bold">${c.goldAmount}غ</span></div></div>`;
   });
 }
+
 function openCustomerModal(i) {
   selectedCustIdx = i; let c = appState.debts[i];
   document.getElementById('modal-cust-name').innerText = c.customer;
@@ -1175,6 +1352,7 @@ function custActionSubmit(act) {
   appState.debts[selectedCustIdx].debtAmount += (act==='plus'?v:-v); saveState(); openCustomerModal(selectedCustIdx);
   document.getElementById('cust-custom-amount').value = '';
 }
+
 function addExpense() {
   let r = document.getElementById('exp-reason').value, a = parseFloat(document.getElementById('exp-amount').value);
   if (!r || isNaN(a)) return; appState.cash -= a; logTransaction('صرف مصروف', r, `-${a.toLocaleString()} د.ع`); saveState(); showToast('تم التسجيل!');
@@ -1201,19 +1379,21 @@ function toggleCalcModal() { document.getElementById('calc-modal').classList.tog
 function closeInvoiceModal() { document.getElementById('invoice-modal').classList.add('hidden'); }
 function openLuxuryItemModal() { renderLuxuryItemList(); document.getElementById('luxury-item-modal').classList.remove('hidden'); }
 function closeLuxuryItemModal() { document.getElementById('luxury-item-modal').classList.add('hidden'); }
+
 function renderLuxuryItemList() {
   let c = document.getElementById('modal-items-list'), q = (document.getElementById('modal-item-search').value||'').toLowerCase(); c.innerHTML = '';
   appState.inventory.forEach((item, idx) => {
     if (item.qty > 0 && item.name.toLowerCase().includes(q)) {
       let tot = Math.round((item.weight * getGramPrice(item.karat)) + (item.makingPerGram * item.weight));
       let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" class="w-14 h-14 rounded-xl object-cover border border-gold">` : `<div class="w-14 h-14 bg-slate-800 rounded-xl flex items-center justify-center text-gold">💎</div>`;
-      c.innerHTML += `<div class="cardbg p-3.5 rounded-2xl border border-gold/30 flex justify-between items-center gap-3">
+      c.innerHTML += `<div class="system-card p-3.5 rounded-2xl border border-gold/30 flex justify-between items-center gap-3">
         <div class="flex items-center gap-3">${img}<div><strong class="text-gold text-sm">${item.name}</strong><p class="text-xs text-slate-300">عيار ${item.karat} | ${item.weight}غ | متبقي: ${item.qty}</p><span class="text-emerald-400 font-bold text-xs">${tot.toLocaleString()} د.ع</span></div></div>
-        <button onclick="addItemToCartFromIndex(${idx}); closeLuxuryItemModal();" class="gold-gradient text-darkbg font-bold px-4 py-2.5 rounded-xl text-xs shadow-lg">إضافة للسلة</button>
+        <button onclick="addItemToCartFromIndex(${idx}); closeLuxuryItemModal(); openSystemInvoiceTypeModal();" class="gold-gradient text-darkbg font-bold px-4 py-2.5 rounded-xl text-xs shadow-lg">إضافة وطباعة</button>
       </div>`;
     }
   });
 }
+
 let lastCalc = 0;
 function calcAramkyQuick() {
   let m = parseFloat(document.getElementById('c-mithqal').value)||0, w = parseFloat(document.getElementById('c-weight').value)||0, mk = parseFloat(document.getElementById('c-making').value)||0;
@@ -1223,8 +1403,7 @@ function calcAramkyQuick() {
 }
 function printAramkyCalculatorResult() {
   if (!lastCalc) return; toggleCalcModal();
-  document.getElementById('inv-print-total').innerText = lastCalc.toLocaleString() + ' د.ع';
-  document.getElementById('inv-print-paper').innerText = formatAltCurrency(lastCalc);
+  renderInvoicePrintContent('CALC-' + Math.floor(1000+Math.random()*9000), 'حاسبة سريعة', '--', 'حاسبة آرامكي', lastCalc, 0, 0, []);
   document.getElementById('invoice-modal').classList.remove('hidden');
 }
 </script>
