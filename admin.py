@@ -1,165 +1,41 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ARAMKY Master Admin | لوحة الإدارة السرية</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FAFC; }
-.gold-gradient { background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%); }
-.glass { background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(212, 175, 55, 0.35); }
-</style>
-</head>
-<body class="min-h-screen p-5 flex flex-col items-center">
+import telebot
+from telebot import types
 
-  <!-- قفل الحماية السري للإدارة فقط -->
-  <div id="admin-lock" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-5">
-    <div class="glass p-8 rounded-3xl max-w-sm w-full text-center space-y-4 shadow-2xl">
-      <div class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center mx-auto overflow-hidden border-2 border-gold shadow-lg">
-        <img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
-      </div>
-      <h2 class="text-xl font-black text-amber-400">لوحة الإدارة السرية (ARAMKY)</h2>
-      <p class="text-xs text-slate-400">هذه الصفحة مخصصة للمالك فقط</p>
-      <input type="password" id="admin-pass" placeholder="أدخل الرمز السري (2026)" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3.5 text-center text-amber-400 font-bold outline-none">
-      <button onclick="unlockAdmin()" class="w-full gold-gradient text-slate-950 font-black py-3.5 rounded-xl">دخول الإدارة 🔓</button>
-      <button onclick="window.location.href='index.html'" class="w-full bg-slate-800 text-slate-300 py-2.5 rounded-xl text-xs">العودة للنظام الرئيسي ⬅️</button>
-    </div>
-  </div>
+ADMIN_ID = 0  # ضع معرف المدير هنا إذا لزم الأمر
+MASTER_CARD = "5391 0000 0000 0000"
+MONTHLY_PRICE = "25,000 دينار"
+COMPANY_HEADER = "⚜️ <b>ARAMKY | SMART GOLD SYSTEM</b> ⚜️\n"
 
-  <div id="admin-panel" class="hidden max-w-6xl w-full space-y-6">
-    <div class="glass p-6 rounded-3xl flex flex-wrap justify-between items-center gap-4 shadow-2xl">
-      <div class="flex items-center gap-3">
-        <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center overflow-hidden border-2 border-gold shadow">
-          <img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
-        </div>
-        <div>
-          <h1 class="text-lg font-black text-amber-400">إدارة الاشتراكات والصاغة — أرامكي</h1>
-          <p class="text-xs text-slate-400">أضف الصاغة، انسخ رابط التفعيل السريع، وراجع وصلات تحويل الماستر وزين كاش</p>
-        </div>
-      </div>
-      <div class="flex gap-2">
-        <button onclick="window.location.href='index.html'" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs px-4 py-2.5 rounded-xl font-bold"><i class="fa-solid fa-house"></i> النظام الرئيسي</button>
-        <button onclick="copyAdminSecretLink()" class="bg-slate-800 border border-amber-500/40 text-amber-300 text-xs px-4 py-2.5 rounded-xl font-bold"><i class="fa-solid fa-link"></i> نسخ رابط الأدمن</button>
-      </div>
-    </div>
+def admin_panel_start(message, bot):
+    try:
+        bot.send_message(
+            message.chat.id,
+            "🛠️ <b>أهلاً بك في لوحة تحكم الإدارة البرمجية:</b>\n\nالمنظومة تعمل بشكل سليم.",
+            parse_mode="HTML"
+        )
+    except Exception as e:
+        print(f"Admin panel error: {e}")
 
-    <!-- إضافة مشترك جديد -->
-    <div class="glass p-6 rounded-3xl space-y-4">
-      <h3 class="font-bold text-amber-400 text-base border-b border-slate-800 pb-2"><i class="fa-solid fa-user-plus"></i> تفعيل صايغ جديد أو تجديد اشتراكه</h3>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
-        <input type="text" id="adm-name" placeholder="اسم المعرض / الصايغ" class="bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none">
-        <input type="text" id="adm-code" placeholder="كود الدخول (مثال: GOLD-02)" class="bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-amber-400 uppercase outline-none">
-        <input type="tel" id="adm-phone" placeholder="رقم هاتف الصايغ" class="bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-emerald-400 outline-none">
-        <select id="adm-days" class="bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none">
-          <option value="30">شهر واحد (30 يوم)</option>
-          <option value="90">3 أشهر (90 يوم)</option>
-          <option value="365">سنة كاملة (365 يوم)</option>
-        </select>
-      </div>
-      <button onclick="createSub()" class="w-full gold-gradient text-slate-950 font-black py-3.5 rounded-xl text-xs shadow-lg">إنشاء الحساب وتجهيز رابط التفعيل 🚀</button>
-    </div>
-
-    <!-- جدول الصاغة -->
-    <div class="glass p-6 rounded-3xl space-y-3">
-      <h3 class="font-bold text-slate-200 text-sm">قائمة الصاغة المشتركين:</h3>
-      <div class="overflow-x-auto">
-        <table class="w-full text-right text-xs">
-          <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
-            <tr><th class="p-3">المعرض</th><th class="p-3">الكود</th><th class="p-3">الهاتف</th><th class="p-3">تاريخ الانتهاء</th><th class="p-3">الحالة</th><th class="p-3 text-center">الإجراءات ورابط التفعيل</th></tr>
-          </thead>
-          <tbody id="subs-tbody" class="divide-y divide-slate-800"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- وصلات تحويل الماستر وزين كاش الواردة من الصاغة -->
-    <div class="glass p-6 rounded-3xl space-y-3">
-      <h3 class="font-bold text-blue-400 text-sm"><i class="fa-solid fa-receipt"></i> إثباتات تحويل الماستر وزين كاش المرسلة من الصاغة:</h3>
-      <div id="admin-receipts-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-    </div>
-  </div>
-
-<script>
-let subs = JSON.parse(localStorage.getItem('aramky_subscribers_master')) || [
-  { code: "ARAMKY-01", name: "صاغة أرامكي - الفرع الرئيسي", phone: "07700000000", expiresAt: "2027-12-31", active: true }
-];
-function saveSubs() { localStorage.setItem('aramky_subscribers_master', JSON.stringify(subs)); renderSubs(); }
-
-function unlockAdmin() {
-  if (document.getElementById('admin-pass').value === '2026') {
-    document.getElementById('admin-lock').classList.add('hidden');
-    document.getElementById('admin-panel').classList.remove('hidden');
-    renderSubs(); renderReceipts();
-  } else { alert('الرمز السري غير صحيح!'); }
-}
-
-function copyAdminSecretLink() {
-  navigator.clipboard.writeText(window.location.href);
-  alert('تم نسخ رابط لوحة الإدارة السرية الخاص بك!');
-}
-
-function createSub() {
-  let name = document.getElementById('adm-name').value.trim();
-  let code = document.getElementById('adm-code').value.trim().toUpperCase();
-  let phone = document.getElementById('adm-phone').value.trim();
-  let days = parseInt(document.getElementById('adm-days').value) || 30;
-  if (!name || !code) return alert('أدخل اسم المعرض والكود!');
-  if (subs.some(s => s.code === code)) return alert('هذا الكود موجود مسبقاً!');
-  let d = new Date(); d.setDate(d.getDate() + days);
-  subs.push({ code, name, phone, expiresAt: d.toISOString().split('T')[0], active: true });
-  saveSubs();
-}
-
-function renderSubs() {
-  let tb = document.getElementById('subs-tbody'); tb.innerHTML = '';
-  let today = new Date().toISOString().split('T')[0];
-  subs.forEach((s, i) => {
-    let exp = !s.active || s.expiresAt < today;
-    tb.innerHTML += `<tr class="border-b border-slate-800">
-      <td class="p-3 font-bold">${s.name}</td>
-      <td class="p-3 font-mono text-amber-400 font-bold">${s.code}</td>
-      <td class="p-3 font-mono text-emerald-400">${s.phone||'--'}</td>
-      <td class="p-3">${s.expiresAt}</td>
-      <td class="p-3"><span class="px-2.5 py-1 rounded-full font-bold text-[10px] ${exp?'bg-rose-500/20 text-rose-400':'bg-emerald-500/20 text-emerald-400'}">${exp?'متوقف':'نشط ✅'}</span></td>
-      <td class="p-3 flex flex-wrap justify-center gap-1.5">
-        <button onclick="copyActivationLink(${i})" class="bg-blue-600/30 border border-blue-500 text-blue-300 px-2.5 py-1 rounded text-[10px] font-bold">نسخ رابط التفعيل للصايغ 🔗</button>
-        <button onclick="renewSub(${i},30)" class="bg-emerald-600/30 text-emerald-300 px-2 py-1 rounded text-[10px]">+30 يوم</button>
-        <button onclick="toggleSub(${i})" class="bg-amber-600/30 text-amber-300 px-2 py-1 rounded text-[10px]">${s.active?'إيقاف':'تفعيل'}</button>
-      </td>
-    </tr>`;
-  });
-}
-
-function copyActivationLink(i) {
-  let s = subs[i];
-  let base = window.location.href.replace('admin.html', 'index.html');
-  let link = `${base}?activate=${encodeURIComponent(s.code)}&exp=${encodeURIComponent(s.expiresAt)}&name=${encodeURIComponent(s.name)}`;
-  navigator.clipboard.writeText(link);
-  alert(`تم نسخ رابط التفعيل لـ (${s.name})!`);
-}
-function renewSub(i, days) {
-  let d = new Date(); d.setDate(d.getDate() + days);
-  subs[i].expiresAt = d.toISOString().split('T')[0]; subs[i].active = true; saveSubs();
-}
-function toggleSub(i) { subs[i].active = !subs[i].active; saveSubs(); }
-
-function renderReceipts() {
-  let list = JSON.parse(localStorage.getItem('aramky_global_support_tickets')) || [];
-  let c = document.getElementById('admin-receipts-list'); c.innerHTML = '';
-  if (!list.length) { c.innerHTML = '<p class="text-xs text-slate-500">لا توجد وصلات تحويل مرسلة حالياً.</p>'; return; }
-  list.forEach(t => {
-    let img = t.receipt ? `<img src="${t.receipt}" class="w-full max-h-56 object-contain rounded-xl border border-amber-500/40 mt-2">` : '';
-    c.innerHTML += `<div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-xs space-y-1">
-      <div class="flex justify-between"><strong class="text-amber-400">${t.storeName} (${t.tenant})</strong><span class="text-slate-400">${t.time}</span></div>
-      <div>الطريقة: <strong class="text-blue-300">${t.method}</strong> | التفاصيل: <span class="font-mono text-emerald-400">${t.ref}</span></div>
-      <p class="text-slate-300">${t.msg||''}</p>
-      ${img}
-    </div>`;
-  });
-}
-</script>
-</body>
-</html>
+def register_admin_handlers(bot):
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("admin_sub_"))
+    def handle_admin_subscription_callbacks(call):
+        try:
+            parts = call.data.split("_")
+            action = parts[2]
+            target_user_id = int(parts[3])
+            
+            if action == "30":
+                bot.answer_callback_query(call.id, text="✅ تم تفعيل الاشتراك بنجاح!")
+                bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
+                bot.send_message(call.message.chat.id, f"✅ تم تفعيل اشتراك المستخدم <code>{target_user_id}</code> لمدة شهر بنجاح.", parse_mode="HTML")
+                try:
+                    bot.send_message(target_user_id, "🎉 <b>مبروك! تم تفعيل اشتراكك بنجاح في منظومة أرامكي.</b>", parse_mode="HTML")
+                except Exception:
+                    pass
+            elif action == "zero":
+                bot.answer_callback_query(call.id, text="❌ تم رفض الوصل.")
+                bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
+                bot.send_message(call.message.chat.id, f"❌ تم رفض وصل المستخدم <code>{target_user_id}</code>.", parse_mode="HTML")
+        except Exception as e:
+            print(f"Admin callback error: {e}")
+          
