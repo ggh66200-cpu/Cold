@@ -32,6 +32,14 @@ def web_pos_home():
     except Exception as e:
         return f"Error loading interface: {e}", 500
 
+# مسار لوحة الأدمن لتجنب مشكلة Not Found
+@app.route('/admin.html')
+def web_admin_panel():
+    try:
+        return render_template('admin.html')
+    except Exception as e:
+        return f"Error loading admin panel: {e}", 500
+
 @app.route('/manifest.json')
 def serve_manifest():
     manifest_content = """
@@ -79,8 +87,8 @@ def keep_alive_ping():
         except Exception as e:
             print(f"Keep-alive ping status: {e}")
 
-MASTER_CARD = admin.MASTER_CARD
-MONTHLY_PRICE = admin.MONTHLY_PRICE
+MASTER_CARD = getattr(admin, "MASTER_CARD", "5391 0000 0000 0000")
+MONTHLY_PRICE = getattr(admin, "MONTHLY_PRICE", "25,000 دينار")
 COMPANY_HEADER = getattr(admin, "COMPANY_HEADER", "⚜️ <b>ARAMKY | SMART GOLD SYSTEM</b> ⚜️\n")
 SUPPORT_NUMBER = "07766083622" 
 
