@@ -36,7 +36,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 </head>
 <body class="min-h-screen flex flex-col justify-between" onkeydown="handleGlobalZeroKey(event)">
 
-<!-- شاشة قفل الاشتراك -->
+<!-- شاشة قفل الاشتراك الصارمة -->
 <div id="subscription-lock-screen" class="fixed inset-0 bg-darkbg z-[300] flex items-center justify-center p-5 hidden">
   <div class="system-card p-8 rounded-3xl border-2 border-rose-500/60 max-w-md w-full text-center space-y-5 shadow-2xl">
     <div class="w-20 h-20 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto text-4xl"><i class="fa-solid fa-lock"></i></div>
@@ -44,6 +44,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <p class="text-sm text-slate-300">انتهت فترة اشتراكك في نظام <strong>ARAMKY Gold OS</strong>.</p>
     <div class="bg-darkbg p-3 rounded-2xl border border-slate-800 text-xs text-gold font-mono" id="locked-tenant-info">كود المعرض: --</div>
     <button onclick="openSupportFromLock()" class="w-full gold-gradient text-darkbg font-black py-3.5 rounded-2xl shadow-lg">إرسال إيصال التجديد 💳</button>
+    <button onclick="switchTenantPrompt()" class="w-full bg-slate-800 text-amber-300 font-bold py-2.5 rounded-xl text-xs">تبديل الحساب / تسجيل الخروج 🔄</button>
   </div>
 </div>
 
@@ -65,7 +66,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <div id="toast-container" class="fixed top-5 left-5 z-[350] flex flex-col gap-3 max-w-md pointer-events-none"></div>
 
 <!-- الهيدر المؤسسي -->
-<header class="glass sticky top-0 z-50 border-b border-gold/30 px-5 py-3 flex flex-wrap justify-between items-center gap-3 shadow-2xl">
+<header id="app-header" class="glass sticky top-0 z-50 border-b border-gold/30 px-5 py-3 flex flex-wrap justify-between items-center gap-3 shadow-2xl">
   <div class="flex items-center space-x-3 space-x-reverse">
     <div class="w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-xl shadow-lg overflow-hidden border border-gold">
       <img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
@@ -81,17 +82,19 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <i class="fa-solid fa-user-shield"></i> <span>لوحة الأدمن 👑</span>
       </button>
     </div>
+    <button onclick="switchTenantPrompt()" class="bg-amber-600/20 border border-amber-500/50 text-amber-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow">
+      <i class="fa-solid fa-users-gear"></i> <span>تبديل الحساب</span>
+    </button>
     <button onclick="openStorefrontView()" class="bg-gold/20 border border-gold/50 text-gold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-store"></i> <span>معرض الزبائن</span></button>
     <button onclick="openReturnModal()" class="bg-rose-500/15 border border-rose-500/45 text-rose-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-rotate-left"></i> <span>إرجاع فاتورة</span></button>
     <button onclick="toggleCalcModal()" class="bg-cardbg border border-gold/50 text-gold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-calculator"></i> <span>حاسبة آرامكي</span></button>
     <button onclick="openPriceModal()" class="bg-cardbg border border-slate-700 text-slate-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow"><i class="fa-solid fa-coins"></i> <span>الأسعار (5)</span></button>
     <button onclick="openResetSystemModal()" class="bg-rose-600/20 border border-rose-500/60 text-rose-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow" title="تصفير النظام (0)"><i class="fa-solid fa-power-off"></i> <span>تصفير (0)</span></button>
-    <button onclick="logoutTenant()" class="bg-slate-800 text-slate-300 text-xs px-3 py-2 rounded-xl" title="خروج"><i class="fa-solid fa-right-from-bracket"></i></button>
   </div>
 </header>
 
 <!-- شريط الأسعار اللحظي -->
-<section class="bg-cardbg/90 border-b border-slate-800 py-2.5 px-5 overflow-x-auto">
+<section id="app-ticker" class="bg-cardbg/90 border-b border-slate-800 py-2.5 px-5 overflow-x-auto">
   <div class="flex items-center gap-4 min-w-max text-xs">
     <span class="text-gold font-bold flex items-center gap-1.5"><i class="fa-solid fa-chart-line animate-pulse"></i> الأسعار والمثاقيل:</span>
     <div class="bg-darkbg px-3 py-1 rounded-lg border border-slate-700">الورقة (100$): <span id="ticker-usd" class="text-emerald-400 font-bold">0</span> د.ع</div>
@@ -104,7 +107,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 </section>
 
 <!-- المحتوى الرئيسي -->
-<main class="flex-1 p-5 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-4 gap-6">
+<main id="app-main" class="flex-1 p-5 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-4 gap-6">
   <aside class="lg:col-span-1 glass p-4 rounded-3xl flex flex-col gap-2 h-fit shadow-2xl border border-gold/20">
     <h2 class="text-xs text-slate-400 font-bold mb-2 px-2">لوحة التحكم المؤسسية</h2>
     <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 bg-gold text-darkbg font-bold shadow-lg"><i class="fa-solid fa-house-chimney w-5"></i> <span>الرئيسية والخزينة</span></button>
@@ -408,8 +411,8 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-darkbg p-4 rounded-2xl border border-gold/30 text-xs">
-          <div><span class="text-slate-400 block">رقم الماستر / سوبر كي:</span><strong class="text-gold font-mono text-base select-all">5391 0000 0000 0000</strong></div>
-          <div><span class="text-slate-400 block">رقم محفظة زين كاش:</span><strong class="text-emerald-400 font-mono text-base select-all">07700000000</strong></div>
+          <div><span class="text-slate-400 block">رقم الماستر / سوبر كي:</span><strong class="text-gold font-mono text-base select-all">910400201646</strong></div>
+          <div><span class="text-slate-400 block">رقم الدعم / واتساب:</span><strong class="text-emerald-400 font-mono text-base select-all">07766083622</strong></div>
         </div>
 
         <div class="bg-darkbg p-5 rounded-2xl border border-slate-800 space-y-4">
@@ -438,7 +441,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <button onclick="submitSupportTransfer()" class="gold-gradient text-darkbg font-black py-3.5 rounded-2xl text-xs shadow-lg"><i class="fa-solid fa-paper-plane"></i> حفظ وإرسال الإيصال</button>
-            <a id="sup-whatsapp-btn" href="https://wa.me/9647700000000" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg"><i class="fa-brands fa-whatsapp text-base"></i> إرسال عبر واتساب</a>
+            <a id="sup-whatsapp-btn" href="https://wa.me/9647766083622" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg"><i class="fa-brands fa-whatsapp text-base"></i> إرسال عبر واتساب</a>
           </div>
         </div>
 
@@ -716,6 +719,7 @@ let appState = {
   currencyMode: 'iraqi', invoiceTemplate: 'detailed'
 };
 let currentCategoryFilter = 'all', currentDayFilter = 'الكل', currentDebtFilter = 'all', selectedCustIdx = null, tempReceiptBase64 = "";
+
 window.onload = function() {
   const urlParams = new URLSearchParams(window.location.search);
   const storeParam = urlParams.get('store');
@@ -747,21 +751,37 @@ function loginTenant() {
   if (!code) return showToast('أدخل كود الاشتراك!', 'error');
   verifyAndBootTenant(code);
 }
-function logoutTenant() { localStorage.removeItem('aramky_active_tenant'); location.reload(); }
+
+function switchTenantPrompt() {
+  localStorage.removeItem('aramky_active_tenant');
+  location.reload();
+}
 
 function verifyAndBootTenant(code) {
   let sub = subscribersDB.find(s => s.code.toUpperCase() === code);
-  if (!sub) { showToast('كود الاشتراك غير مسجل!', 'error'); document.getElementById('tenant-login-screen').classList.remove('hidden'); return; }
+  if (!sub) { 
+    showToast('كود الاشتراك غير مسجل!', 'error'); 
+    document.getElementById('tenant-login-screen').classList.remove('hidden'); 
+    return; 
+  }
   let today = new Date().toISOString().split('T')[0];
   currentTenantCode = sub.code.toUpperCase();
   localStorage.setItem('aramky_active_tenant', currentTenantCode);
   loadTenantData(currentTenantCode);
 
+  // الفحص الصارم للإغلاق التام عند انتهاء الاشتراك
   if (!sub.active || sub.expiresAt < today) {
     document.getElementById('locked-tenant-info').innerText = `المحل: ${sub.name} | الكود: ${sub.code} | انتهى: ${sub.expiresAt}`;
     document.getElementById('subscription-lock-screen').classList.remove('hidden');
+    document.getElementById('app-main').style.display = 'none';
+    document.getElementById('app-header').style.display = 'none';
+    document.getElementById('app-ticker').style.display = 'none';
     return;
   }
+  
+  document.getElementById('app-main').style.display = 'grid';
+  document.getElementById('app-header').style.display = 'flex';
+  document.getElementById('app-ticker').style.display = 'block';
   document.getElementById('tenant-login-screen').classList.add('hidden');
   document.getElementById('subscription-lock-screen').classList.add('hidden');
   document.getElementById('header-tenant-id').innerText = `ID: ${currentTenantCode}`;
@@ -778,6 +798,9 @@ function verifyAndBootTenant(code) {
 
 function openSupportFromLock() {
   document.getElementById('subscription-lock-screen').classList.add('hidden');
+  document.getElementById('app-main').style.display = 'grid';
+  document.getElementById('app-header').style.display = 'flex';
+  document.getElementById('app-ticker').style.display = 'block';
   document.getElementById('sup-tenant-badge').innerText = `كودك: ${currentTenantCode}`;
   switchTab('support');
 }
@@ -854,7 +877,7 @@ function submitSupportTransfer() {
   localStorage.setItem('aramky_global_support_tickets', JSON.stringify(masterTickets));
 
   let waText = encodeURIComponent(`مرحباً إدارة أرامكي 💎\nكود المعرض: ${currentTenantCode}\nاسم المعرض: ${appState.store.name}\nطريقة الدفع: ${method}\nالعملية: ${ref}`);
-  document.getElementById('sup-whatsapp-btn').href = `https://wa.me/9647700000000?text=${waText}`;
+  document.getElementById('sup-whatsapp-btn').href = `https://wa.me/9647766083622?text=${waText}`;
 
   document.getElementById('sup-trans-ref').value = '';
   document.getElementById('sup-message').value = '';
@@ -1410,13 +1433,8 @@ async function saveState() {
   try {
     const storageKey = getStorageKeyForTenant(currentTenantCode);
     const dataString = JSON.stringify(appState);
-    
-    // 1. الحفظ المحلي الاحتياطي في المتصفح
     localStorage.setItem(storageKey, dataString);
-    
-    // 2. المزامنة السحابية الفورية مع Supabase
     await syncToCloudSupabase(currentTenantCode, appState);
-
     updateUI();
     return true;
   } catch (e) {
@@ -1428,9 +1446,7 @@ async function saveState() {
 async function syncToCloudSupabase(code, stateData) {
   let supabaseUrl = localStorage.getItem('aramky_supabase_url') || 'https://YOUR_PROJECT_ID.supabase.co';
   let supabaseKey = localStorage.getItem('aramky_supabase_key') || 'YOUR_SUPABASE_ANON_KEY';
-  
   if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('YOUR_PROJECT_ID')) return;
-  
   try {
     await fetch(`${supabaseUrl}/rest/v1/aramky_tenants`, {
       method: 'POST',
