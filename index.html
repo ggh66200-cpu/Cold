@@ -76,7 +76,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-2">
-    <!-- زر الإدارة يظهر لك وحدك إذا كنت المالك ARAMKY-01 -->
     <div id="admin-btn-container" class="hidden">
       <button onclick="openAdminPanel()" class="bg-purple-600/20 border border-purple-500/50 text-purple-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow">
         <i class="fa-solid fa-user-shield"></i> <span>لوحة الأدمن 👑</span>
@@ -154,7 +153,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           </div>
         </div>
 
-        <!-- خانة المعاينة الفخمة بدلاً من select الأندرويد -->
         <div class="bg-darkbg p-4 rounded-2xl border border-gold/30 space-y-3">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div class="md:col-span-2">
@@ -174,7 +172,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           </div>
         </div>
 
-        <!-- شريط البحث داخل السلة -->
         <div class="space-y-2">
           <div class="flex items-center justify-between gap-2">
             <span class="text-xs font-bold text-gold"><i class="fa-solid fa-cart-shopping"></i> القطع المضافة للسلة:</span>
@@ -672,7 +669,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <div class="space-y-2 text-xs text-slate-800" id="invoice-body-content"></div>
     <div class="flex gap-2 pt-2 no-print">
       <button onclick="window.print()" class="flex-1 bg-slate-900 text-white py-2.5 rounded-xl text-xs font-bold">🖨️ طباعة الفاتورة</button>
-      <button onclick="closeInvoiceModal()" class="px-4 py-2.5 bg-slate-200 text-slate-800 rounded-xl text-xs font-bold">إلغاء</button>
+      <button onclick="closeInvoiceModal()" class="px-4 py-2.5 bg-slate-200 text-slate-800 rounded-xl text-xs font-bold">إغلاق</button>
     </div>
   </div>
 </div>
@@ -742,7 +739,6 @@ window.onload = function() {
   verifyAndBootTenant(currentTenantCode);
 };
 
-// دالة الانتقال المباشر للوحة الأدمن (Admin)
 function openAdminPanel() {
   window.location.href = 'admin.html';
 }
@@ -774,7 +770,6 @@ function verifyAndBootTenant(code) {
   document.getElementById('header-sub-status').innerText = `نشط حتى ${sub.expiresAt}`;
   document.getElementById('header-store-name').innerText = appState.store.name;
   
-  // إظهار زر الأدمن لك وحدك (المشترك الرئيسي ARAMKY-01)
   if (currentTenantCode === "ARAMKY-01") {
     document.getElementById('admin-btn-container').classList.remove('hidden');
   }
