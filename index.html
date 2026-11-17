@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#070A12">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>ARAMKY Gold OS v22.1 | نظام إدارة صياغة الذهب</title>
+<title>ARAMKY Gold OS v23.0 | نظام إدارة صياغة الذهب</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script>
@@ -49,7 +49,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
-<!-- شاشة تسجيل دخول الصايغ المؤسسية -->
+<!-- شاشة تسجيل دخول الصايغ -->
 <div id="tenant-login-screen" class="fixed inset-0 bg-darkbg/95 backdrop-blur-xl z-[250] flex items-center justify-center p-5 hidden">
   <div class="system-card p-8 rounded-3xl border border-gold/40 max-w-md w-full space-y-5 shadow-2xl text-center">
     <div class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl mx-auto shadow-xl overflow-hidden border-2 border-gold">
@@ -64,20 +64,22 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
-<div id="toast-container" class="fixed top-5 left-5 z-[280] flex flex-col gap-3 max-w-md pointer-events-none"></div>
+<!-- حاوية الإشعارات التشخيصية -->
+<div id="toast-container" class="fixed top-5 left-5 z-[350] flex flex-col gap-3 max-w-md pointer-events-none"></div>
 
-<!-- الهيدر المؤسسي الفخم -->
+<!-- الهيدر المؤسسي -->
 <header class="glass sticky top-0 z-50 border-b border-gold/30 px-5 py-3 flex flex-wrap justify-between items-center gap-3 shadow-2xl">
   <div class="flex items-center space-x-3 space-x-reverse">
     <div class="w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-xl shadow-lg overflow-hidden border border-gold">
       <img id="header-logo-img" src="" onerror="this.style.display='none'" class="w-full h-full object-cover">
     </div>
     <div>
-      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">v22.1</span></h1>
+      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">v23.0</span></h1>
       <p class="text-xs text-slate-400 flex items-center gap-2"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">ID: ARAMKY-01</span></p>
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-2">
+    <button onclick="checkAndOpenAdmin()" class="bg-purple-600/20 border border-purple-500/50 text-purple-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-user-shield"></i> <span>الإدارة (Admin)</span></button>
     <button onclick="openStorefrontView()" class="bg-gold/20 border border-gold/50 text-gold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-store"></i> <span>معرض الزبائن</span></button>
     <button onclick="openReturnModal()" class="bg-rose-500/15 border border-rose-500/45 text-rose-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-rotate-left"></i> <span>إرجاع فاتورة</span></button>
     <button onclick="toggleCalcModal()" class="bg-cardbg border border-gold/50 text-gold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-calculator"></i> <span>حاسبة آرامكي</span></button>
@@ -100,7 +102,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </section>
 
-<!-- المحتوى الرئيسي والقوائم -->
+<!-- المحتوى الرئيسي -->
 <main class="flex-1 p-5 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-4 gap-6">
   <aside class="lg:col-span-1 glass p-4 rounded-3xl flex flex-col gap-2 h-fit shadow-2xl border border-gold/20">
     <h2 class="text-xs text-slate-400 font-bold mb-2 px-2">لوحة التحكم المؤسسية</h2>
@@ -146,18 +148,21 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
             <button onclick="openSystemInvoiceTypeModal()" class="bg-darkbg px-4 py-2.5 rounded-2xl border border-blue-500/40 text-blue-300 font-bold flex items-center gap-2 shadow">
               <i class="fa-solid fa-file-invoice text-blue-400"></i> <span id="invoice-type-text">فاتورة رسمية مفصلة (أرامكي)</span>
             </button>
-            <button onclick="openLuxuryItemModal()" class="gold-gradient text-darkbg font-bold px-4 py-2.5 rounded-2xl text-xs shadow-lg"><i class="fa-solid fa-layer-group"></i> اختيار قطعة من المخزن</button>
+            <button onclick="openLuxuryItemModal()" class="gold-gradient text-darkbg font-bold px-4 py-2.5 rounded-2xl text-xs shadow-lg"><i class="fa-solid fa-layer-group"></i> تصفح المخزن</button>
           </div>
         </div>
 
+        <!-- خانة الاختيار الفخمة للمعاينة بدلاً من select الافتراضي -->
         <div class="bg-darkbg p-4 rounded-2xl border border-gold/30 space-y-3">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div class="md:col-span-2">
-              <select id="quick-pos-select" onchange="updateCartPreview()" class="w-full bg-cardbg border border-slate-700 rounded-2xl p-3 text-xs text-slate-200 outline-none">
-                <option value="">-- اختر قطعة لمعاينة سعرها الفوري --</option>
-              </select>
+              <button onclick="openLuxuryPreviewModal()" class="w-full bg-cardbg border border-gold/40 hover:border-gold rounded-2xl p-3.5 text-xs text-right flex items-center justify-between transition shadow-inner">
+                <span id="selected-preview-label" class="text-slate-200 font-bold flex items-center gap-2"><i class="fa-solid fa-gem text-gold"></i> -- اختر قطعة للمعاينة الفورية (اضغط للبحث) --</span>
+                <i class="fa-solid fa-magnifying-glass text-gold"></i>
+              </button>
+              <input type="hidden" id="selected-preview-index" value="">
             </div>
-            <button onclick="addQuickSelectedToCart()" class="w-full bg-gold/20 border border-gold text-gold font-bold py-2.5 rounded-2xl text-xs hover:bg-gold/30"><i class="fa-solid fa-plus"></i> إضافة للسلة</button>
+            <button onclick="addQuickSelectedToCart()" class="w-full bg-gold/20 border border-gold text-gold font-bold py-3 rounded-2xl text-xs hover:bg-gold/30 transition"><i class="fa-solid fa-plus"></i> إضافة للسلة</button>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 border-t border-slate-800 text-xs">
             <div class="bg-cardbg p-3 rounded-2xl"><span class="text-slate-400 block text-[10px]">غرام الصافي:</span><span id="prev-gram-net" class="font-bold">0 د.ع</span></div>
@@ -167,7 +172,16 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           </div>
         </div>
 
-        <div id="cart-items-container" class="space-y-2 max-h-60 overflow-y-auto"><p class="text-center text-slate-500 text-xs p-3">السلة فارغة.</p></div>
+        <!-- شريط البحث داخل السلة -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-bold text-gold"><i class="fa-solid fa-cart-shopping"></i> القطع المضافة للسلة:</span>
+            <div class="relative w-1/2 md:w-1/3">
+              <input type="text" id="cart-search-input" oninput="renderCart()" placeholder="ابحث داخل السلة..." class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-xl py-1.5 px-3 text-[11px] outline-none">
+            </div>
+          </div>
+          <div id="cart-items-container" class="space-y-2 max-h-60 overflow-y-auto"><p class="text-center text-slate-500 text-xs p-3">السلة فارغة.</p></div>
+        </div>
 
         <div class="border-t border-slate-800 pt-4 space-y-3">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -245,7 +259,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           <input type="number" id="inv-qty" placeholder="الكمية المتوفرة" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
           <input type="number" id="inv-making" placeholder="أجور صياغة الغرام الواحد (د.ع)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
           <div>
-            <label class="text-xs text-slate-400 block mb-1">صور القطعة (ألبوم):</label>
+            <label class="text-xs text-slate-400 block mb-1">صور القطعة (ضغط تلقائي لحماية الذاكرة):</label>
             <input type="file" id="inv-images" accept="image/*" multiple class="w-full bg-darkbg border border-slate-700 rounded-2xl p-2 text-xs text-slate-300">
           </div>
           <div class="md:col-span-2 bg-darkbg p-4 rounded-2xl border border-gold/30 flex items-center justify-between">
@@ -275,11 +289,13 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <div class="system-card p-6 rounded-3xl border border-gold/40 shadow-xl space-y-4">
         <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-store"></i> إعدادات المعرض والهوية البصرية المؤسسية</h3>
         <div class="flex flex-col md:flex-row items-center gap-4 bg-darkbg p-4 rounded-2xl border border-slate-800">
-          <div class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl overflow-hidden border-2 border-gold shadow-lg">
+          <div class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl overflow-hidden border-2 border-gold shadow-lg relative">
             <img id="store-logo-preview" src="" onerror="this.style.display='none'" class="w-full h-full object-cover">
+            <i id="store-logo-fallback-icon" class="fa-solid fa-gem text-darkbg"></i>
           </div>
           <div class="flex-1 space-y-1">
             <label class="text-xs font-bold text-gold block">صورة شعار المعرض أو واجهة المحل:</label>
+            <p class="text-[10px] text-slate-400">يتم ضغط الصورة تلقائياً لضمان حفظها الفوري وعدم امتلاء الذاكرة.</p>
             <input type="file" id="store-logo-input" accept="image/*" onchange="handleStoreLogoUpload(event)" class="text-xs text-slate-300 mt-1 file:bg-gold file:text-darkbg file:border-0 file:rounded-xl file:px-3 file:py-1.5 file:font-bold">
           </div>
         </div>
@@ -304,7 +320,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
     </div>
 
-    <!-- 6. دفتر الديون (يطلبونك وتطلبهم) -->
+    <!-- 6. دفتر الديون (يطلبونك وتطلبهم) مع زر فخم -->
     <div id="view-debts" class="hidden space-y-6">
       <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
         <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-3">
@@ -320,12 +336,13 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           <input type="text" id="debt-customer" placeholder="اسم الزبون / التاجر" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
           <input type="tel" id="debt-phone" placeholder="رقم الهاتف" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm text-emerald-400 font-mono outline-none">
           
-          <select id="debt-type" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm text-gold font-bold outline-none">
-            <option value="دين لك (الناس تطلبهم)">دين لك (الناس تطلبهم / ذمة على الزبون) (+)</option>
-            <option value="دين عليك (أنت تطلبهم)">دين عليك (أنت تطلبهم / ذمة لك عند المحل) (-)</option>
-            <option value="إضافة ذهب (غرام)">إضافة ذهب للذمة (غرام)</option>
-            <option value="نقصان ذهب (غرام)">نقصان ذهب من الذمة (غرام)</option>
-          </select>
+          <!-- زر فخم يفتح نافذة System UI لاختيار نوع الحساب -->
+          <button onclick="openLuxuryDebtTypeModal()" class="bg-cardbg border border-gold/40 hover:border-gold rounded-xl p-3 text-sm text-right flex items-center justify-between transition">
+            <span id="selected-debt-type-label" class="text-gold font-bold">دين لك (الناس تطلبهم / ذمة على الزبون) (+)</span>
+            <i class="fa-solid fa-chevron-down text-gold text-xs"></i>
+          </button>
+          <input type="hidden" id="debt-type" value="دين لك (الناس تطلبهم)">
+
           <input type="number" id="debt-amount" placeholder="المبلغ أو الوزن" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
           <input type="text" id="debt-notes" placeholder="ملاحظات الحساب..." class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm md:col-span-2 outline-none">
           <button onclick="addDebtMovement()" class="gold-gradient text-darkbg font-bold py-3 rounded-xl shadow md:col-span-2">إضافة للحساب وتحديث الدفتر 📖</button>
@@ -438,7 +455,47 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </section>
 </main>
 
-<!-- النوافذ المنبثقة -->
+<!-- ================= نافذة System UI الفخمة: اختيار نوع الدين (بدلاً من select الأندرويد) ================= -->
+<div id="luxury-debt-type-modal" class="fixed inset-0 modal-overlay z-[260] flex items-center justify-center hidden p-4">
+  <div class="system-card p-6 rounded-3xl border border-gold/50 w-full max-w-md space-y-4 shadow-2xl text-center">
+    <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl mx-auto shadow-lg"><i class="fa-solid fa-scale-balanced"></i></div>
+    <h3 class="text-lg font-bold text-gold">اختر نوع الحركة في دفتر الديون</h3>
+    <div class="space-y-2.5 text-right">
+      <button onclick="selectLuxuryDebtType('دين لك (الناس تطلبهم)', 'دين لك (الناس تطلبهم / ذمة على الزبون) (+)')" class="w-full bg-darkbg border border-emerald-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-emerald-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> 1. دين لك (الناس تطلبهم / ذمة على الزبون) (+)</span>
+        <i class="fa-solid fa-chevron-left text-slate-500"></i>
+      </button>
+      <button onclick="selectLuxuryDebtType('دين عليك (أنت تطلبهم)', 'دين عليك (أنت تطلبهم / ذمة لك عند المحل) (-)')" class="w-full bg-darkbg border border-rose-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-rose-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-down text-rose-400"></i> 2. دين عليك (أنت تطلبهم / ذمة لك عند المحل) (-)</span>
+        <i class="fa-solid fa-chevron-left text-slate-500"></i>
+      </button>
+      <button onclick="selectLuxuryDebtType('إضافة ذهب (غرام)', 'إضافة ذهب للذمة (غرام)')" class="w-full bg-darkbg border border-amber-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-amber-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-coins text-gold"></i> 3. إضافة ذهب للذمة (غرام)</span>
+        <i class="fa-solid fa-chevron-left text-slate-500"></i>
+      </button>
+      <button onclick="selectLuxuryDebtType('نقصان ذهب (غرام)', 'نقصان ذهب من الذمة (غرام)')" class="w-full bg-darkbg border border-slate-700 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-slate-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-minus-circle text-slate-400"></i> 4. نقصان ذهب من الذمة (غرام)</span>
+        <i class="fa-solid fa-chevron-left text-slate-500"></i>
+      </button>
+    </div>
+    <button onclick="closeLuxuryDebtTypeModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-2xl text-xs font-bold">إلغاء</button>
+  </div>
+</div>
+
+<!-- ================= نافذة System UI الفخمة: اختيار قطعة للمعاينة مع البحث ================= -->
+<div id="luxury-preview-modal" class="fixed inset-0 modal-overlay z-[260] flex items-center justify-center hidden p-4">
+  <div class="system-card p-6 rounded-3xl border border-gold/50 w-full max-w-2xl space-y-4 max-h-[85vh] flex flex-col shadow-2xl">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <h3 class="text-lg font-bold text-gold flex items-center gap-2"><i class="fa-solid fa-magnifying-glass"></i> اختيار قطعة للمعاينة الفورية</h3>
+      <button onclick="closeLuxuryPreviewModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+    <input type="text" id="preview-modal-search" oninput="renderLuxuryPreviewList()" placeholder="اكتب اسم القطعة أو العيار للبحث الفوري..." class="w-full bg-darkbg border border-gold/40 focus:border-gold rounded-2xl p-3.5 text-xs text-slate-200 outline-none">
+    <div id="preview-modal-list" class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+    <button onclick="closeLuxuryPreviewModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-xl text-xs font-bold">إغلاق</button>
+  </div>
+</div>
+
+<!-- النوافذ السابقة (العملة، الفاتورة، التصفير، المخزن، الخ) -->
 <div id="system-currency-modal" class="fixed inset-0 modal-overlay z-[250] flex items-center justify-center hidden p-4">
   <div class="system-card p-6 rounded-3xl border border-gold/50 w-full max-w-sm space-y-4 shadow-2xl text-center">
     <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl mx-auto shadow-lg"><i class="fa-solid fa-coins"></i></div>
@@ -552,7 +609,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
 <div id="luxury-item-modal" class="fixed inset-0 modal-overlay z-[150] flex items-center justify-center hidden p-4">
   <div class="system-card p-6 rounded-3xl border border-gold/40 w-full max-w-2xl space-y-4 max-h-[85vh] flex flex-col shadow-2xl">
-    <h3 class="text-lg font-bold text-gold border-b border-slate-800 pb-2"><i class="fa-solid fa-layer-group"></i> اختيار قطعة من المخزن المعروض</h3>
+    <h3 class="text-lg font-bold text-gold border-b border-slate-800 pb-2"><i class="fa-solid fa-layer-group"></i> تصفح المخزن وإضافة للسلة</h3>
     <input type="text" id="modal-item-search" oninput="renderLuxuryItemList()" placeholder="ابحث باسم القطعة..." class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-xs outline-none">
     <div id="modal-items-list" class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-3"></div>
     <button onclick="closeLuxuryItemModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-xl text-xs font-bold">إغلاق</button>
@@ -623,7 +680,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
-<!-- Modal تفاصيل العميل ودفتَره -->
 <div id="customer-modal" class="fixed inset-0 modal-overlay z-[150] flex items-center justify-center hidden p-4">
   <div class="system-card p-6 rounded-3xl border border-gold/40 w-full max-w-lg space-y-4 max-h-[90vh] overflow-y-auto">
     <div class="border-b border-slate-800 pb-2 flex justify-between items-center">
@@ -691,6 +747,136 @@ window.onload = function() {
   verifyAndBootTenant(currentTenantCode);
 };
 
+// دالة تشخيص وفحص رابط الإدارة (Admin)
+async function checkAndOpenAdmin() {
+  showToast('جاري فحص رابط لوحة الإدارة (admin)...', 'info');
+  try {
+    let res = await fetch('/admin');
+    if (res.ok) {
+      window.location.href = '/admin';
+      return;
+    }
+    let resHtml = await fetch('admin.html');
+    if (resHtml.ok) {
+      window.location.href = 'admin.html';
+      return;
+    }
+    showToast('❌ الخلل: سيرفر Render لا يحتوي على مسار (/admin) أو ملف (admin.html) مرفوع في مجلد المشروع!', 'error');
+  } catch (err) {
+    showToast('❌ الخلل: تعذر الاتصال بالسيرفر! تأكد أن السيرفر يعمل أو أن ملف admin.html موجود في نفس المجلد.', 'error');
+  }
+}
+
+// دالة ضغط الصور التلقائي لحل مشكلة عدم ظهور الصورة أو امتلاء الذاكرة
+function compressImage(file, maxWidth = 400, callback) {
+  let reader = new FileReader();
+  reader.onerror = () => showToast('❌ فشل قراءة ملف الصورة من الجهاز!', 'error');
+  reader.onload = function(event) {
+    let img = new Image();
+    img.onerror = () => showToast('❌ الملف المختار ليس صورة صالحة!', 'error');
+    img.onload = function() {
+      let canvas = document.createElement('canvas');
+      let scale = maxWidth / img.width;
+      if (scale > 1) scale = 1;
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      let ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      let compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+      callback(compressedBase64);
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleStoreLogoUpload(e) {
+  let file = e.target.files[0];
+  if (!file) return showToast('⚠️ لم يتم اختيار أي صورة!', 'error');
+  showToast('جاري معالجة وضغط الشعار...', 'info');
+  compressImage(file, 300, function(base64) {
+    appState.store.logo = base64;
+    if (saveState()) {
+      applyStoreLogoToUI();
+      showToast('✅ تم ضغط وحفظ شعار المعرض بنجاح!');
+    }
+  });
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(getStorageKeyForTenant(currentTenantCode), JSON.stringify(appState));
+    updateUI();
+    return true;
+  } catch (e) {
+    showToast('❌ خطأ حرج: ذاكرة المتصفح ممتلئة! يرجى حذف بعض الصور القديمة من المخزن لتفريغ المساحة.', 'error');
+    return false;
+  }
+}
+
+function applyStoreLogoToUI() {
+  let logo = appState.store.logo;
+  let loginImg = document.getElementById('login-screen-logo-img');
+  let headerImg = document.getElementById('header-logo-img');
+  let storePreview = document.getElementById('store-logo-preview');
+  let fallbackIcon = document.getElementById('store-logo-fallback-icon');
+
+  if (logo && logo.startsWith('data:image')) {
+    if(loginImg) { loginImg.src = logo; loginImg.style.display = 'block'; }
+    if(headerImg) { headerImg.src = logo; headerImg.style.display = 'block'; }
+    if(storePreview) { storePreview.src = logo; storePreview.style.display = 'block'; }
+    if(fallbackIcon) fallbackIcon.style.display = 'none';
+  } else {
+    if(loginImg) loginImg.style.display = 'none';
+    if(headerImg) headerImg.style.display = 'none';
+    if(storePreview) storePreview.style.display = 'none';
+    if(fallbackIcon) fallbackIcon.style.display = 'block';
+  }
+}
+
+// نوافذ System UI الفخمة الجديدة
+function openLuxuryDebtTypeModal() { document.getElementById('luxury-debt-type-modal').classList.remove('hidden'); }
+function closeLuxuryDebtTypeModal() { document.getElementById('luxury-debt-type-modal').classList.add('hidden'); }
+function selectLuxuryDebtType(val, label) {
+  document.getElementById('debt-type').value = val;
+  document.getElementById('selected-debt-type-label').innerText = label;
+  closeLuxuryDebtTypeModal();
+}
+
+function openLuxuryPreviewModal() {
+  renderLuxuryPreviewList();
+  document.getElementById('luxury-preview-modal').classList.remove('hidden');
+}
+function closeLuxuryPreviewModal() { document.getElementById('luxury-preview-modal').classList.add('hidden'); }
+
+function renderLuxuryPreviewList() {
+  let c = document.getElementById('preview-modal-list');
+  let q = (document.getElementById('preview-modal-search').value || '').toLowerCase();
+  c.innerHTML = '';
+  let available = appState.inventory.map((item, idx) => ({ ...item, originalIdx: idx })).filter(i => i.qty > 0 && (i.name.toLowerCase().includes(q) || String(i.karat).includes(q)));
+  if (!available.length) {
+    c.innerHTML = '<p class="col-span-full text-center text-slate-400 py-8 text-xs">لا توجد قطع مطابقة في المخزن!</p>';
+    return;
+  }
+  available.forEach(item => {
+    let tot = Math.round((item.weight * getGramPrice(item.karat)) + (item.makingPerGram * item.weight));
+    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" class="w-12 h-12 rounded-xl object-cover border border-gold">` : `<div class="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center text-gold">💎</div>`;
+    c.innerHTML += `<div onclick="selectPreviewPiece(${item.originalIdx})" class="system-card p-3.5 rounded-2xl border border-gold/30 hover:border-gold cursor-pointer flex items-center justify-between gap-3 transition">
+      <div class="flex items-center gap-3">${img}<div><strong class="text-gold text-xs block">${item.name}</strong><span class="text-[11px] text-slate-300">عيار ${item.karat} | ${item.weight}غ | متوفر: ${item.qty}</span></div></div>
+      <span class="text-emerald-400 font-black text-xs">${tot.toLocaleString()} د.ع</span>
+    </div>`;
+  });
+}
+
+function selectPreviewPiece(idx) {
+  let item = appState.inventory[idx];
+  if (!item) return;
+  document.getElementById('selected-preview-index').value = idx;
+  document.getElementById('selected-preview-label').innerHTML = `<i class="fa-solid fa-gem text-gold"></i> ${item.name} — عيار ${item.karat} (${item.weight}غ)`;
+  closeLuxuryPreviewModal();
+  updateCartPreview();
+}
+
 function handleGlobalZeroKey(e) {
   if (e.key === '0' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
     e.preventDefault();
@@ -729,23 +915,6 @@ function verifyAndBootTenant(code) {
   updatePricesDerived(); autoFillScrapMithqal(); loadStoreSettingsToUI(); updateUI();
 }
 
-function applyStoreLogoToUI() {
-  let logo = appState.store.logo;
-  let loginImg = document.getElementById('login-screen-logo-img');
-  let headerImg = document.getElementById('header-logo-img');
-  let storePreview = document.getElementById('store-logo-preview');
-
-  if (logo) {
-    if(loginImg) { loginImg.src = logo; loginImg.style.display = 'block'; }
-    if(headerImg) { headerImg.src = logo; headerImg.style.display = 'block'; }
-    if(storePreview) { storePreview.src = logo; storePreview.style.display = 'block'; }
-  } else {
-    if(loginImg) loginImg.style.display = 'none';
-    if(headerImg) headerImg.style.display = 'none';
-    if(storePreview) storePreview.style.display = 'none';
-  }
-}
-
 function openSupportFromLock() {
   document.getElementById('subscription-lock-screen').classList.add('hidden');
   document.getElementById('sup-tenant-badge').innerText = `كودك: ${currentTenantCode}`;
@@ -757,7 +926,6 @@ function loadTenantData(code) {
   if (saved) { try { appState = { ...appState, ...JSON.parse(saved) }; } catch(e) {} }
   else { let sub = subscribersDB.find(s => s.code.toUpperCase() === code); if (sub) appState.store.name = sub.name; }
 }
-function saveState() { localStorage.setItem(getStorageKeyForTenant(currentTenantCode), JSON.stringify(appState)); updateUI(); }
 
 function openResetSystemModal() { document.getElementById('reset-system-modal').classList.remove('hidden'); }
 function closeResetSystemModal() { document.getElementById('reset-system-modal').classList.add('hidden'); }
@@ -799,13 +967,11 @@ function selectInvoiceTemplate(tmpl) {
 
 function previewSupportReceipt(e) {
   let file = e.target.files[0]; if (!file) return;
-  let r = new FileReader();
-  r.onload = ev => {
-    tempReceiptBase64 = ev.target.result;
+  compressImage(file, 500, function(base64) {
+    tempReceiptBase64 = base64;
     let img = document.getElementById('sup-receipt-preview');
     img.src = tempReceiptBase64; img.classList.remove('hidden');
-  };
-  r.readAsDataURL(file);
+  });
 }
 
 function submitSupportTransfer() {
@@ -901,18 +1067,6 @@ function confirmDeleteInventoryItem() {
   showToast(`تم الحذف والتوثيق [${delCode}]!`);
 }
 
-function handleStoreLogoUpload(e) {
-  let file = e.target.files[0]; if (!file) return;
-  let r = new FileReader();
-  r.onload = (ev) => {
-    appState.store.logo = ev.target.result;
-    applyStoreLogoToUI();
-    saveState();
-    showToast('تم حفظ شعار المعرض بنجاح!');
-  };
-  r.readAsDataURL(file);
-}
-
 function loadStoreSettingsToUI() {
   document.getElementById('store-name').value = appState.store.name;
   document.getElementById('store-phone').value = appState.store.phone;
@@ -933,7 +1087,7 @@ function saveStoreSettings() {
   appState.store.bio = document.getElementById('store-bio').value || "";
   document.getElementById('header-store-name').innerText = appState.store.name;
   applyStoreLogoToUI();
-  saveState(); showToast('تم حفظ الإعدادات بنجاح!');
+  if (saveState()) showToast('تم حفظ الإعدادات بنجاح!');
 }
 
 function copyStoreLink() { let el = document.getElementById('store-share-link'); el.select(); navigator.clipboard.writeText(el.value); showToast('تم نسخ الرابط!'); }
@@ -1049,9 +1203,10 @@ function getMithqalPrice(k) { return appState.prices['m'+k] || appState.prices.m
 
 function showToast(msg, type = 'success') {
   let t = document.createElement('div');
-  t.className = `pointer-events-auto px-5 py-3.5 rounded-2xl text-xs font-bold text-white shadow-2xl ${type==='success'?'bg-emerald-600':'bg-rose-600'}`;
+  let bg = type === 'error' ? 'bg-rose-600 border-rose-400' : (type === 'info' ? 'bg-blue-600 border-blue-400' : 'bg-emerald-600 border-emerald-400');
+  t.className = `pointer-events-auto px-5 py-3.5 rounded-2xl text-xs font-bold text-white shadow-2xl border ${bg}`;
   t.innerText = msg; document.getElementById('toast-container').appendChild(t);
-  setTimeout(() => t.remove(), 3000);
+  setTimeout(() => t.remove(), 4500);
 }
 
 function formatAltCurrency(amt) {
@@ -1086,11 +1241,9 @@ function updateUI() {
   document.getElementById('dash-zain').innerText = Math.round(appState.zainCash).toLocaleString() + ' د.ع';
   document.getElementById('dash-making-profit').innerText = Math.round(appState.makingProfit).toLocaleString() + ' د.ع';
 
-  let sel = document.getElementById('quick-pos-select'); sel.innerHTML = '<option value="">-- اختر قطعة للمعاينة --</option>';
   let tbody = document.getElementById('inventory-table-body'); tbody.innerHTML = '';
   appState.inventory.forEach((item, idx) => {
-    if (item.qty > 0) sel.innerHTML += `<option value="${idx}">${item.name} - عيار ${item.karat} (${item.weight}غ) [متوفر: ${item.qty}]</option>`;
-    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" class="w-10 h-10 rounded-lg object-cover">` : '💎';
+    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" class="w-10 h-10 rounded-lg object-cover border border-gold/40">` : '💎';
     tbody.innerHTML += `<tr class="border-b border-slate-800">
       <td class="p-3">${img}</td><td class="p-3 font-bold">${item.name}</td><td class="p-3">${item.karat}</td><td class="p-3">${item.weight}غ</td><td class="p-3 text-amber-400">${item.makingPerGram.toLocaleString()}</td><td class="p-3 font-bold text-gold">${item.qty}</td><td class="p-3">${item.publish?'منشور':'مخفي'}</td>
       <td class="p-3 text-center flex justify-center gap-1.5">
@@ -1102,7 +1255,7 @@ function updateUI() {
 }
 
 function updateCartPreview() {
-  let idx = document.getElementById('quick-pos-select').value;
+  let idx = document.getElementById('selected-preview-index').value;
   if (idx === "" || !appState.inventory[idx]) return;
   let item = appState.inventory[idx], gp = getGramPrice(item.karat), mt = item.makingPerGram * item.weight, tot = Math.round((item.weight * gp) + mt);
   document.getElementById('prev-gram-net').innerText = Math.round(gp).toLocaleString() + ' د.ع';
@@ -1111,19 +1264,32 @@ function updateCartPreview() {
   document.getElementById('prev-piece-alt').innerText = formatAltCurrency(tot);
 }
 
-function addQuickSelectedToCart() { let idx = document.getElementById('quick-pos-select').value; if (idx !== "") addItemToCartFromIndex(parseInt(idx)); }
+function addQuickSelectedToCart() {
+  let idx = document.getElementById('selected-preview-index').value;
+  if (idx === "") return showToast('يرجى اختيار قطعة للمعاينة أولاً!', 'error');
+  addItemToCartFromIndex(parseInt(idx));
+}
 function addItemToCartFromIndex(idx) {
   let item = appState.inventory[idx], mt = item.makingPerGram * item.weight, tot = Math.round((item.weight * getGramPrice(item.karat)) + mt);
-  appState.cart.push({ ...item, invIdx: idx, itemMakingTotal: mt, itemTotal: tot }); renderCart(); showToast(`أضيفت (${item.name})`);
+  appState.cart.push({ ...item, invIdx: idx, itemMakingTotal: mt, itemTotal: tot }); renderCart(); showToast(`أضيفت (${item.name}) إلى السلة`);
 }
 
 function renderCart() {
   let c = document.getElementById('cart-items-container'); c.innerHTML = '';
+  let q = (document.getElementById('cart-search-input')?.value || '').toLowerCase();
   let tot = appState.cart.reduce((s, i) => s + i.itemTotal, 0);
-  if (!appState.cart.length) c.innerHTML = '<p class="text-center text-slate-500 text-xs p-3">السلة فارغة.</p>';
-  appState.cart.forEach((item, idx) => {
-    c.innerHTML += `<div class="bg-darkbg p-3 rounded-2xl border border-gold/30 flex justify-between items-center text-xs"><div><strong class="text-gold">${item.name}</strong> (${item.weight}غ - عيار ${item.karat})</div><div class="flex items-center gap-2"><span class="text-emerald-400 font-bold">${item.itemTotal.toLocaleString()} د.ع</span><button onclick="appState.cart.splice(${idx},1);renderCart();" class="text-rose-400"><i class="fa-solid fa-trash"></i></button></div></div>`;
-  });
+  
+  let filteredCart = appState.cart.map((item, idx) => ({ ...item, cartIdx: idx })).filter(i => i.name.toLowerCase().includes(q) || String(i.karat).includes(q));
+
+  if (!appState.cart.length) {
+    c.innerHTML = '<p class="text-center text-slate-500 text-xs p-3">السلة فارغة.</p>';
+  } else if (!filteredCart.length) {
+    c.innerHTML = '<p class="text-center text-amber-400 text-xs p-3">لا توجد قطعة مطابقة لبحثك داخل السلة.</p>';
+  } else {
+    filteredCart.forEach(item => {
+      c.innerHTML += `<div class="bg-darkbg p-3 rounded-2xl border border-gold/30 flex justify-between items-center text-xs"><div><strong class="text-gold">${item.name}</strong> (${item.weight}غ - عيار ${item.karat})</div><div class="flex items-center gap-2"><span class="text-emerald-400 font-bold">${item.itemTotal.toLocaleString()} د.ع</span><button onclick="appState.cart.splice(${item.cartIdx},1);renderCart();" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-solid fa-trash"></i></button></div></div>`;
+    });
+  }
   document.getElementById('cart-total-price').innerText = tot.toLocaleString() + ' د.ع';
   document.getElementById('cart-total-alt').innerText = formatAltCurrency(tot);
 }
@@ -1214,13 +1380,19 @@ function addNewInventoryItem() {
   if (files.length) {
     let done = 0;
     Array.from(files).forEach(f => {
-      let r = new FileReader();
-      r.onload = e => { imgs.push(e.target.result); if (++done === files.length) { appState.inventory.push({ name, karat, weight, qty, makingPerGram, publish, images: imgs }); logTransaction('إضافة مخزن', `إدخال ${name}`, `${weight}غ (${qty} قطعة)`); saveState(); showToast('تمت الإضافة للمخزن!'); } };
-      r.readAsDataURL(f);
+      compressImage(f, 400, function(base64) {
+        imgs.push(base64);
+        if (++done === files.length) {
+          appState.inventory.push({ name, karat, weight, qty, makingPerGram, publish, images: imgs });
+          logTransaction('إضافة مخزن', `إدخال ${name}`, `${weight}غ (${qty} قطعة)`);
+          if (saveState()) showToast('✅ تمت الإضافة وضغط الصور للمخزن بنجاح!');
+        }
+      });
     });
   } else {
     appState.inventory.push({ name, karat, weight, qty, makingPerGram, publish, images: [] });
-    logTransaction('إضافة مخزن', `إدخال ${name}`, `${weight}غ (${qty} قطعة)`); saveState(); showToast('تمت الإضافة للمخزن!');
+    logTransaction('إضافة مخزن', `إدخال ${name}`, `${weight}غ (${qty} قطعة)`);
+    if (saveState()) showToast('✅ تمت الإضافة للمخزن!');
   }
 }
 
@@ -1273,9 +1445,9 @@ function renderCustomerCards() {
 
   if (!filtered.length) { g.innerHTML = '<p class="col-span-full text-center text-slate-500 py-6 text-xs">لا توجد سجلات ديون مطابقة.</p>'; return; }
 
-  filtered.forEach((c, i) => {
+  filtered.forEach((c) => {
     let originalIdx = appState.debts.indexOf(c);
-    g.innerHTML += `<div onclick="openCustomerModal(${originalIdx})" class="system-card p-4 rounded-3xl border border-gold/30 cursor-pointer shadow-lg space-y-3">
+    g.innerHTML += `<div onclick="openCustomerModal(${originalIdx})" class="system-card p-4 rounded-3xl border border-gold/30 hover:border-gold cursor-pointer shadow-lg space-y-3 transition">
       <div class="flex justify-between items-center"><h5 class="font-bold text-gold text-base">${c.customer}</h5><span class="text-[10px] text-slate-400 font-mono">${c.phone||'--'}</span></div>
       <div class="grid grid-cols-2 gap-2 text-xs bg-darkbg p-2.5 rounded-2xl border border-slate-800">
         <div>الناس تطلبهم (عليك): <span class="text-emerald-400 font-bold block">${Math.round(c.debtAmount).toLocaleString()} د.ع</span></div>
@@ -1372,7 +1544,7 @@ function calcAramkyQuick() {
 function printAramkyCalculatorResult() {
   if (!lastCalc) return; toggleCalcModal();
   renderInvoicePrintContent('CALC-' + Math.floor(1000+Math.random()*9000), 'حاسبة سريعة', '--', 'حاسبة آرامكي الفورية', lastCalc, 0, 0, []);
-  document.getElementById('invoice-modal').classList.add('hidden');
+  document.getElementById('invoice-modal').classList.remove('hidden');
 }
 </script>
 </body>
