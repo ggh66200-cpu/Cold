@@ -1,368 +1,165 @@
-import os
-import telebot
-from telebot import types
-import traceback
-import utils
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARAMKY Master Admin | لوحة الإدارة السرية</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FAFC; }
+.gold-gradient { background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%); }
+.glass { background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(212, 175, 55, 0.35); }
+</style>
+</head>
+<body class="min-h-screen p-5 flex flex-col items-center">
 
-ADMIN_ID = int(os.environ.get("ADMIN_ID", "0"))
+  <!-- قفل الحماية السري للإدارة فقط -->
+  <div id="admin-lock" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-5">
+    <div class="glass p-8 rounded-3xl max-w-sm w-full text-center space-y-4 shadow-2xl">
+      <div class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center mx-auto overflow-hidden border-2 border-gold shadow-lg">
+        <img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
+      </div>
+      <h2 class="text-xl font-black text-amber-400">لوحة الإدارة السرية (ARAMKY)</h2>
+      <p class="text-xs text-slate-400">هذه الصفحة مخصصة للمالك فقط</p>
+      <input type="password" id="admin-pass" placeholder="أدخل الرمز السري (2026)" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3.5 text-center text-amber-400 font-bold outline-none">
+      <button onclick="unlockAdmin()" class="w-full gold-gradient text-slate-950 font-black py-3.5 rounded-xl">دخول الإدارة 🔓</button>
+      <button onclick="window.location.href='index.html'" class="w-full bg-slate-800 text-slate-300 py-2.5 rounded-xl text-xs">العودة للنظام الرئيسي ⬅️</button>
+    </div>
+  </div>
 
-FREE_TRIAL_DAYS = 3
-MASTER_CARD = "910400201646"
-SUPPORT_PHONE = "07766083622"
-MONTHLY_PRICE = "176,000 دينار عراقي (بدلاً من 183,000 دينار)"
+  <div id="admin-panel" class="hidden max-w-6xl w-full space-y-6">
+    <div class="glass p-6 rounded-3xl flex flex-wrap justify-between items-center gap-4 shadow-2xl">
+      <div class="flex items-center gap-3">
+        <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center overflow-hidden border-2 border-gold shadow">
+          <img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
+        </div>
+        <div>
+          <h1 class="text-lg font-black text-amber-400">إدارة الاشتراكات والصاغة — أرامكي</h1>
+          <p class="text-xs text-slate-400">أضف الصاغة، انسخ رابط التفعيل السريع، وراجع وصلات تحويل الماستر وزين كاش</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="window.location.href='index.html'" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs px-4 py-2.5 rounded-xl font-bold"><i class="fa-solid fa-house"></i> النظام الرئيسي</button>
+        <button onclick="copyAdminSecretLink()" class="bg-slate-800 border border-amber-500/40 text-amber-300 text-xs px-4 py-2.5 rounded-xl font-bold"><i class="fa-solid fa-link"></i> نسخ رابط الأدمن</button>
+      </div>
+    </div>
 
-COMPANY_HEADER = (
-    "💎 <b>أرامكي للحلول الرقمية | ARAMKY</b> 💎\n"
-    "⚜️ <i>فرع نواة الذهب لأنظمة الصاغة والأسواق المالية</i> ⚜️\n"
-    "━━━━━━━━━━━━━━━━━\n"
-)
+    <!-- إضافة مشترك جديد -->
+    <div class="glass p-6 rounded-3xl space-y-4">
+      <h3 class="font-bold text-amber-400 text-base border-b border-slate-800 pb-2"><i class="fa-solid fa-user-plus"></i> تفعيل صايغ جديد أو تجديد اشتراكه</h3>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+        <input type="text" id="adm-name" placeholder="اسم المعرض / الصايغ" class="bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none">
+        <input type="text" id="adm-code" placeholder="كود الدخول (مثال: GOLD-02)" class="bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-amber-400 uppercase outline-none">
+        <input type="tel" id="adm-phone" placeholder="رقم هاتف الصايغ" class="bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-emerald-400 outline-none">
+        <select id="adm-days" class="bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none">
+          <option value="30">شهر واحد (30 يوم)</option>
+          <option value="90">3 أشهر (90 يوم)</option>
+          <option value="365">سنة كاملة (365 يوم)</option>
+        </select>
+      </div>
+      <button onclick="createSub()" class="w-full gold-gradient text-slate-950 font-black py-3.5 rounded-xl text-xs shadow-lg">إنشاء الحساب وتجهيز رابط التفعيل 🚀</button>
+    </div>
 
-USER_STATE = {}
+    <!-- جدول الصاغة -->
+    <div class="glass p-6 rounded-3xl space-y-3">
+      <h3 class="font-bold text-slate-200 text-sm">قائمة الصاغة المشتركين:</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-right text-xs">
+          <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
+            <tr><th class="p-3">المعرض</th><th class="p-3">الكود</th><th class="p-3">الهاتف</th><th class="p-3">تاريخ الانتهاء</th><th class="p-3">الحالة</th><th class="p-3 text-center">الإجراءات ورابط التفعيل</th></tr>
+          </thead>
+          <tbody id="subs-tbody" class="divide-y divide-slate-800"></tbody>
+        </table>
+      </div>
+    </div>
 
-def get_admin_main_keyboard():
-    markup = types.InlineKeyboardMarkup(row_width=2)
-    markup.add(
-        types.InlineKeyboardButton("👥 جرد وإدارة الصاغة", callback_data="admin_goldsmiths"),
-        types.InlineKeyboardButton("🚨 الصاغة المنتهية", callback_data="admin_expired"),
-        types.InlineKeyboardButton("🔍 البحث عن صائغ", callback_data="admin_search"),
-        types.InlineKeyboardButton("📊 إحصائيات النظام", callback_data="admin_stats"),
-        types.InlineKeyboardButton("📢 إذاعة رسالة للكل", callback_data="admin_broadcast"),
-        types.InlineKeyboardButton("⚙️ تعديل أيام التجربة", callback_data="admin_set_trial")
-    )
-    return markup
+    <!-- وصلات تحويل الماستر وزين كاش الواردة من الصاغة -->
+    <div class="glass p-6 rounded-3xl space-y-3">
+      <h3 class="font-bold text-blue-400 text-sm"><i class="fa-solid fa-receipt"></i> إثباتات تحويل الماستر وزين كاش المرسلة من الصاغة:</h3>
+      <div id="admin-receipts-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </div>
+  </div>
 
-def notify_admin_panel_error(bot_instance, error_msg, traceback_str=""):
-    if not ADMIN_ID:
-        return
-    try:
-        error_report = (
-            f"🚨 <b>تقرير خطأ في لوحة تحكم الآدمن</b> 🚨\n\n"
-            f"⚠️ <b>السبب:</b>\n<code>{error_msg}</code>\n\n"
-            f"📜 <b>التفاصيل:</b>\n<pre>{traceback_str[:3000]}</pre>"
-        )
-        bot_instance.send_message(ADMIN_ID, error_report, parse_mode="HTML")
-    except Exception as e:
-        print(f"Failed to send admin error notification: {e}")
+<script>
+let subs = JSON.parse(localStorage.getItem('aramky_subscribers_master')) || [
+  { code: "ARAMKY-01", name: "صاغة أرامكي - الفرع الرئيسي", phone: "07700000000", expiresAt: "2027-12-31", active: true }
+];
+function saveSubs() { localStorage.setItem('aramky_subscribers_master', JSON.stringify(subs)); renderSubs(); }
 
-def send_subscription_expired_notice(bot_instance, chat_id):
-    """دالة إرسال إشعار وفاتورة انتهاء الاشتراك للصائغ فوراً"""
-    try:
-        sub_text = (
-            f"{COMPANY_HEADER}"
-            "🚨 <b>انتهت فترتك التجريبية/اشتراكك الحالي!</b>\n\n"
-            "يرجى تجديد الاشتراك للاستمرار في استخدام المنظومة وحسابات الذهب والدولار:\n\n"
-            f"🔹 <b>قيمة الاشتراك الشهري:</b> <b>{MONTHLY_PRICE}</b>\n"
-            f"💳 <b>ماستر كارد التحويل:</b> <code>{MASTER_CARD}</code>\n"
-            f"📞 <b>الدعم الفني والطوارئ:</b> <code>{SUPPORT_PHONE}</code>\n\n"
-            "📸 <b>أرسل صورة وصل التحويل هنا فوراً لتفعيل اشتراكك تلقائياً.</b>"
-        )
-        bot_instance.send_message(chat_id, sub_text, parse_mode="HTML", reply_markup=types.ReplyKeyboardRemove())
-    except Exception as e:
-        print(f"Failed to send expiration notice: {e}")
+function unlockAdmin() {
+  if (document.getElementById('admin-pass').value === '2026') {
+    document.getElementById('admin-lock').classList.add('hidden');
+    document.getElementById('admin-panel').classList.remove('hidden');
+    renderSubs(); renderReceipts();
+  } else { alert('الرمز السري غير صحيح!'); }
+}
 
-def admin_panel_start(message, bot_instance):
-    if message.from_user.id != ADMIN_ID:
-        return
-    try:
-        text = (
-            f"{COMPANY_HEADER}"
-            "👑 <b>مرحباً بك يا مدير النظام في لوحة تحكم أرامكي</b> 👑\n\n"
-            "اختر العملية المطلوبة أدناه للتحكم السريع 👇"
-        )
-        bot_instance.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
-    except Exception as e:
-        notify_admin_panel_error(bot_instance, str(e), traceback.format_exc())
+function copyAdminSecretLink() {
+  navigator.clipboard.writeText(window.location.href);
+  alert('تم نسخ رابط لوحة الإدارة السرية الخاص بك!');
+}
 
-def register_admin_handlers(bot):
-    @bot.message_handler(commands=['admin', 'panel'])
-    def admin_panel_command(message):
-        if message.from_user.id != ADMIN_ID:
-            bot.send_message(message.chat.id, "⚠️ عذراً، هذا الأمر مخصص للإدارة فقط.")
-            return
-        admin_panel_start(message, bot)
+function createSub() {
+  let name = document.getElementById('adm-name').value.trim();
+  let code = document.getElementById('adm-code').value.trim().toUpperCase();
+  let phone = document.getElementById('adm-phone').value.trim();
+  let days = parseInt(document.getElementById('adm-days').value) || 30;
+  if (!name || !code) return alert('أدخل اسم المعرض والكود!');
+  if (subs.some(s => s.code === code)) return alert('هذا الكود موجود مسبقاً!');
+  let d = new Date(); d.setDate(d.getDate() + days);
+  subs.push({ code, name, phone, expiresAt: d.toISOString().split('T')[0], active: true });
+  saveSubs();
+}
 
-    @bot.callback_query_handler(func=lambda call: call.data.startswith("admin_") or call.data.startswith("adm_sub_"))
-    def handle_admin_callbacks(call):
-        if call.from_user.id != ADMIN_ID:
-            bot.answer_callback_query(call.id, text="⚠️ غير مسموح!", show_alert=True)
-            return
-        
-        data = call.data
-        try:
-            # --- تفعيل أو رفض اشتراك من صورة الوصل المرفوعة ---
-            if data.startswith("admin_sub_30_"):
-                target_uid = data.split("_")[3]
-                utils.update_goldsmith_subscription(target_uid, 30)
-                bot.answer_callback_query(call.id, text="✅ تم تفعيل الاشتراك بنجاح لمدة 30 يوماً!", show_alert=True)
-                
-                # تعديل نص الصورة عند الأدمن
-                try:
-                    bot.edit_message_caption(
-                        chat_id=call.message.chat.id,
-                        message_id=call.message.message_id,
-                        caption=call.message.caption + "\n\n✅ <b>[تم اعتماد الوصل وتفعيل الاشتراك لمدة شهر]</b>",
-                        parse_mode="HTML",
-                        reply_markup=None
-                    )
-                except Exception:
-                    pass
+function renderSubs() {
+  let tb = document.getElementById('subs-tbody'); tb.innerHTML = '';
+  let today = new Date().toISOString().split('T')[0];
+  subs.forEach((s, i) => {
+    let exp = !s.active || s.expiresAt < today;
+    tb.innerHTML += `<tr class="border-b border-slate-800">
+      <td class="p-3 font-bold">${s.name}</td>
+      <td class="p-3 font-mono text-amber-400 font-bold">${s.code}</td>
+      <td class="p-3 font-mono text-emerald-400">${s.phone||'--'}</td>
+      <td class="p-3">${s.expiresAt}</td>
+      <td class="p-3"><span class="px-2.5 py-1 rounded-full font-bold text-[10px] ${exp?'bg-rose-500/20 text-rose-400':'bg-emerald-500/20 text-emerald-400'}">${exp?'متوقف':'نشط ✅'}</span></td>
+      <td class="p-3 flex flex-wrap justify-center gap-1.5">
+        <button onclick="copyActivationLink(${i})" class="bg-blue-600/30 border border-blue-500 text-blue-300 px-2.5 py-1 rounded text-[10px] font-bold">نسخ رابط التفعيل للصايغ 🔗</button>
+        <button onclick="renewSub(${i},30)" class="bg-emerald-600/30 text-emerald-300 px-2 py-1 rounded text-[10px]">+30 يوم</button>
+        <button onclick="toggleSub(${i})" class="bg-amber-600/30 text-amber-300 px-2 py-1 rounded text-[10px]">${s.active?'إيقاف':'تفعيل'}</button>
+      </td>
+    </tr>`;
+  });
+}
 
-                # إرسال التفعيل والفاتورة للصائغ
-                try:
-                    invoice_success = (
-                        f"{COMPANY_HEADER}"
-                        "🎉 <b>مبارك! تم اعتماد وصل التحويل وتفعيل اشتراكك الشهري بنجاح.</b>\n\n"
-                        "🗓 <b>فترة الاشتراك:</b> 30 يوماً\n"
-                        "✨ يمكنك الآن استخدام كافة خيارات وأزرار المنظومة بحرية تامة 💛"
-                    )
-                    bot.send_message(target_uid, invoice_success, parse_mode="HTML")
-                except Exception:
-                    pass
+function copyActivationLink(i) {
+  let s = subs[i];
+  let base = window.location.href.replace('admin.html', 'index.html');
+  let link = `${base}?activate=${encodeURIComponent(s.code)}&exp=${encodeURIComponent(s.expiresAt)}&name=${encodeURIComponent(s.name)}`;
+  navigator.clipboard.writeText(link);
+  alert(`تم نسخ رابط التفعيل لـ (${s.name})!`);
+}
+function renewSub(i, days) {
+  let d = new Date(); d.setDate(d.getDate() + days);
+  subs[i].expiresAt = d.toISOString().split('T')[0]; subs[i].active = true; saveSubs();
+}
+function toggleSub(i) { subs[i].active = !subs[i].active; saveSubs(); }
 
-            elif data.startswith("admin_sub_zero_"):
-                target_uid = data.split("_")[3]
-                utils.adjust_goldsmith_days(target_uid, 0, set_zero=True)
-                bot.answer_callback_query(call.id, text="❌ تم رفض الوصل وتصفير/إيقاف الحساب!", show_alert=True)
-                
-                try:
-                    bot.edit_message_caption(
-                        chat_id=call.message.chat.id,
-                        message_id=call.message.message_id,
-                        caption=call.message.caption + "\n\n❌ <b>[تم رفض وصل التحويل]</b>",
-                        parse_mode="HTML",
-                        reply_markup=None
-                    )
-                except Exception:
-                    pass
-
-                try:
-                    bot.send_message(
-                        target_uid,
-                        "❌ <b>نأسف، تم رفض وصل التحويل من قبل الإدارة.</b>\n\nيرجى التأكد من صحة الوصل وإعادة إرساله أو التواصل مع الدعم الفني.",
-                        parse_mode="HTML"
-                    )
-                except Exception:
-                    pass
-
-            # --- باقي الإحصائيات وجرد الصاغة ---
-            elif data == "admin_stats":
-                bot.answer_callback_query(call.id)
-                res = utils.supabase.table("goldsmiths").select("user_id", count="exact").execute()
-                db_count = res.count if hasattr(res, 'count') and res.count is not None else 0
-                total_users = 145 + db_count 
-                
-                stats_text = (
-                    f"{COMPANY_HEADER}"
-                    "📊 <b>إحصائيات المنصة:</b>\n\n"
-                    f"👥 <b>إجمالي الصاغة في القاعدة:</b> {total_users} صائغ\n"
-                    f"⏳ <b>فترة التجربة المجانية الحالية:</b> {FREE_TRIAL_DAYS} أيام دقيقة\n"
-                    f"💵 <b>سعر الاشتراك الشهري:</b> {MONTHLY_PRICE}\n"
-                    f"💳 <b>رقم الماستر المعتمد:</b> <code>{MASTER_CARD}</code>\n\n"
-                    "🟢 <b>حالة السيرفر:</b> يعمل بكفاءة 100%"
-                )
-                try:
-                    bot.edit_message_text(stats_text, chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
-                except telebot.apihelper.ApiTelegramException as e:
-                    if "message is not modified" not in str(e):
-                        raise e
-
-            elif data == "admin_goldsmiths":
-                bot.answer_callback_query(call.id)
-                goldsmiths = utils.get_all_goldsmiths()
-                
-                if not goldsmiths:
-                    bot.edit_message_text(f"{COMPANY_HEADER}👥 <b>جرد الصاغة:</b>\n\nلا يوجد صاغة مسجلين في القاعدة حالياً.", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
-                    return
-
-                text = f"{COMPANY_HEADER}👥 <b>قائمة وجرد الصاغة المشتركين ({len(goldsmiths)}):</b>\nاختر الصائغ للتحكم السريع بحسابه 👇"
-                markup = types.InlineKeyboardMarkup(row_width=1)
-                
-                for g in goldsmiths[:15]: 
-                    uid = g.get('user_id')
-                    name = g.get('full_name') or 'بدون اسم'
-                    days = int(g.get('remaining_days', 0))
-                    serial = g.get('member_serial', 145)
-                    status_str = f"متبقي: {days} يوم" if days > 0 else "منتهي الصلاحية ⚠️"
-                    btn_text = f"👤 #{serial} - {name} | ({status_str})"
-                    markup.add(types.InlineKeyboardButton(btn_text, callback_data=f"adm_sub_view_{uid}"))
-                
-                markup.add(types.InlineKeyboardButton("🔙 عودة للرئيسية", callback_data="admin_home"))
-                try:
-                    bot.edit_message_text(text, chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=markup)
-                except telebot.apihelper.ApiTelegramException as e:
-                    if "message is not modified" not in str(e):
-                        raise e
-
-            elif data == "admin_expired":
-                bot.answer_callback_query(call.id)
-                goldsmiths = utils.get_all_goldsmiths()
-                expired_users = [g for g in goldsmiths if int(g.get('remaining_days', 0)) <= 0]
-                
-                if not expired_users:
-                    bot.edit_message_text(f"{COMPANY_HEADER}🚨 <b>الصاغة المنتهية اشتراكاتهم:</b>\n\nممتاز! لا يوجد أي صائغ منتهي الاشتراك حالياً، الكل مشترك وفعال.", chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
-                    return
-
-                text = f"{COMPANY_HEADER}🚨 <b>قائمة الصاغة الذين انتهت اشتراكاتهم ({len(expired_users)}):</b>\nاختر الصائغ لتجديد اشتراكه فورا 👇"
-                markup = types.InlineKeyboardMarkup(row_width=1)
-                
-                for g in expired_users[:15]:
-                    uid = g.get('user_id')
-                    name = g.get('full_name') or 'بدون اسم'
-                    days = int(g.get('remaining_days', 0))
-                    serial = g.get('member_serial', 145)
-                    markup.add(types.InlineKeyboardButton(f"🚨 #{serial} - {name} | الرصيد: {days} يوم", callback_data=f"adm_sub_view_{uid}"))
-                
-                markup.add(types.InlineKeyboardButton("🔙 عودة للرئيسية", callback_data="admin_home"))
-                try:
-                    bot.edit_message_text(text, chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=markup)
-                except telebot.apihelper.ApiTelegramException as e:
-                    if "message is not modified" not in str(e):
-                        raise e
-
-            elif data == "admin_search":
-                bot.answer_callback_query(call.id)
-                USER_STATE[call.from_user.id] = "WAITING_GOLDSMITH_SEARCH"
-                bot.send_message(call.message.chat.id, "🔍 <b>البحث السريع عن صائغ:</b>\n\nأرسل جزءاً من <b>اسم المحل</b> أو <b>رقم الهاتف</b> للبحث عنه فوراً:", parse_mode="HTML")
-
-            elif data.startswith("adm_sub_view_"):
-                bot.answer_callback_query(call.id)
-                target_uid = data.split("_")[3]
-                gs = utils.get_goldsmith(target_uid) or {}
-                
-                name = gs.get('full_name', 'غير معروف')
-                phone = gs.get('phone', 'غير متوفر')
-                days = int(gs.get('remaining_days', 0))
-                
-                info_text = (
-                    f"{COMPANY_HEADER}"
-                    f"👤 <b>تفاصيل الصائغ:</b>\n\n"
-                    f"🏢 المحل: <b>{name}</b>\n"
-                    f"📱 الهاتف: <code>{phone}</code>\n"
-                    f"🆔 الآيدي: <code>{target_uid}</code>\n"
-                    f"⏳ الأيام المتبقية فعلياً: <b>{days} يوم</b>\n\n"
-                    "اختر الإجراء المناسب أدناه لتعديل الأيام:"
-                )
-                markup = types.InlineKeyboardMarkup(row_width=2)
-                markup.add(
-                    types.InlineKeyboardButton("➕ إضافة أيام (تخصيص)", callback_data=f"adm_input_add_{target_uid}"),
-                    types.InlineKeyboardButton("➖ خصم أيام (تخصيص)", callback_data=f"adm_input_sub_{target_uid}")
-                )
-                markup.add(types.InlineKeyboardButton("🛑 إيقاف وتصفير الحساب", callback_data=f"adm_sub_zero_{target_uid}"))
-                markup.add(types.InlineKeyboardButton("⬅️ رجوع لقائمة الصاغة", callback_data="admin_goldsmiths"))
-                bot.edit_message_text(info_text, chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=markup)
-
-            elif data.startswith("adm_input_add_"):
-                bot.answer_callback_query(call.id)
-                target_uid = data.split("_")[3]
-                USER_STATE[call.from_user.id] = f"CUSTOM_ADD_{target_uid}"
-                bot.send_message(call.message.chat.id, f"➕ <b>إضافة أيام مخصصة:</b>\nأرسل عدد الأيام التي تريد <b>إضافتها</b> لهذا الصائغ (مثال: <code>30</code> أو <code>7</code>):", parse_mode="HTML")
-
-            elif data.startswith("adm_input_sub_"):
-                bot.answer_callback_query(call.id)
-                target_uid = data.split("_")[3]
-                USER_STATE[call.from_user.id] = f"CUSTOM_SUB_{target_uid}"
-                bot.send_message(call.message.chat.id, f"➖ <b>خصم أيام مخصصة:</b>\nأرسل عدد الأيام التي تريد <b>خصمها</b> من هذا الصائغ (مثال: <code>5</code> أو <code>10</code>):", parse_mode="HTML")
-
-            elif data.startswith("adm_sub_zero_"):
-                target_uid = data.split("_")[3]
-                utils.adjust_goldsmith_days(target_uid, 0, set_zero=True)
-                bot.answer_callback_query(call.id, text="🛑 تم تصفير الأيام وإيقاف الحساب!", show_alert=True)
-                call.data = f"adm_sub_view_{target_uid}"
-                handle_admin_callbacks(call)
-
-            elif data == "admin_home":
-                bot.answer_callback_query(call.id)
-                text = f"{COMPANY_HEADER}👑 <b>لوحة تحكم أرامكي المركزية</b> 👑\n\nاختر العملية المطلوبة أدناه:"
-                bot.edit_message_text(text, chat_id=call.message.chat.id, message_id=call.message.message_id, parse_mode="HTML", reply_markup=get_admin_main_keyboard())
-
-            elif data == "admin_broadcast":
-                bot.answer_callback_query(call.id)
-                USER_STATE[call.from_user.id] = "WAITING_BROADCAST"
-                bot.send_message(call.message.chat.id, "📢 أرسل الرسالة (نص، صورة، أو فيديو) التي تريد إذاعتها لجميع الصاغة الآن:")
-
-            elif data == "admin_set_trial":
-                bot.answer_callback_query(call.id)
-                bot.send_message(call.message.chat.id, f"⚙️ فترة التجربة الحالية مضبوطة على: **{FREE_TRIAL_DAYS} أيام**.", parse_mode="Markdown")
-
-        except Exception as e:
-            error_reason = f"خطأ في لوحة التحكم ({data}): {str(e)}"
-            notify_admin_panel_error(bot, error_reason, traceback.format_exc())
-            bot.answer_callback_query(call.id, text="⚠️ حدث خطأ تقني.", show_alert=True)
-
-    @bot.message_handler(func=lambda m: m.from_user.id == ADMIN_ID and (USER_STATE.get(m.from_user.id, "").startswith("CUSTOM_ADD_") or USER_STATE.get(m.from_user.id, "").startswith("CUSTOM_SUB_")))
-    def process_custom_days_input(message):
-        user_id = message.from_user.id
-        state = USER_STATE.get(user_id)
-        USER_STATE.pop(user_id, None)
-        
-        try:
-            parts = state.split("_")
-            action_type = parts[1]
-            target_uid = parts[2]
-            
-            days_val = int(message.text.strip())
-            if action_type == "SUB":
-                days_val = -days_val
-                
-            utils.adjust_goldsmith_days(target_uid, days_val)
-            bot.reply_to(message, f"✅ تم تحديث رصيد الصائغ بنجاح وتعديل الأيام بقيمة ({days_val} يوم).")
-        except Exception as e:
-            bot.reply_to(message, f"⚠️ خطأ في الرقم المدخل: {e}")
-
-    @bot.message_handler(func=lambda m: USER_STATE.get(m.from_user.id) == "WAITING_GOLDSMITH_SEARCH")
-    def process_goldsmith_search(message):
-        user_id = message.from_user.id
-        if user_id != ADMIN_ID:
-            return
-        
-        query = message.text.strip().lower()
-        USER_STATE.pop(user_id, None)
-        
-        try:
-            goldsmiths = utils.get_all_goldsmiths()
-            matched = [g for g in goldsmiths if query in str(g.get('full_name', '')).lower() or query in str(g.get('phone', '')) or query in str(g.get('user_id', ''))]
-            
-            if not matched:
-                bot.send_message(message.chat.id, "❌ لم يتم العثور على أي صائغ مطابق لبحثك.", reply_markup=get_admin_main_keyboard())
-                return
-                
-            text = f"{COMPANY_HEADER}🔍 <b>نتائج البحث عن ({query}):</b>\nاختر الصائغ المطلوب للتحكم السريع بحسابه 👇"
-            markup = types.InlineKeyboardMarkup(row_width=1)
-            for g in matched:
-                uid = g.get('user_id')
-                name = g.get('full_name') or 'بدون اسم'
-                days = int(g.get('remaining_days', 0))
-                serial = g.get('member_serial', 145)
-                markup.add(types.InlineKeyboardButton(f"👤 #{serial} - {name} | (رصيد: {days} يوم)", callback_data=f"adm_sub_view_{uid}"))
-            
-            markup.add(types.InlineKeyboardButton("🔙 عودة للرئيسية", callback_data="admin_home"))
-            bot.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=markup)
-        except Exception as e:
-            bot.send_message(message.chat.id, f"⚠️ خطأ أثناء البحث: {e}")
-
-    @bot.message_handler(func=lambda m: USER_STATE.get(m.from_user.id) == "WAITING_BROADCAST", content_types=['text', 'photo', 'video', 'document', 'voice'])
-    def process_admin_broadcast(message):
-        user_id = message.from_user.id
-        if user_id != ADMIN_ID:
-            return
-        
-        loading_msg = bot.reply_to(message, "⏳ جاري إرسال الإذاعة لجميع الصاغة...")
-        try:
-            users = utils.get_all_goldsmiths()
-            user_ids = [row['user_id'] for row in users if row.get('user_id')]
-        except Exception as e:
-            bot.edit_message_text(f"⚠️ خطأ في جلب الصاغة: {e}", message.chat.id, loading_msg.message_id)
-            return
-
-        success = 0
-        failed = 0
-        for uid in user_ids:
-            try:
-                bot.copy_message(chat_id=uid, from_chat_id=message.chat.id, message_id=message.message_id)
-                success += 1
-            except:
-                failed += 1
-
-        USER_STATE.pop(user_id, None)
-        bot.edit_message_text(f"✅ <b>تم الانتهاء من الإذاعة!</b>\n\n🟢 نجح الإرسال إلى: {success} صائغ\n🔴 فشل الإرسال إلى: {failed}", chat_id=message.chat.id, message_id=loading_msg.message_id, parse_mode="HTML")
-                
+function renderReceipts() {
+  let list = JSON.parse(localStorage.getItem('aramky_global_support_tickets')) || [];
+  let c = document.getElementById('admin-receipts-list'); c.innerHTML = '';
+  if (!list.length) { c.innerHTML = '<p class="text-xs text-slate-500">لا توجد وصلات تحويل مرسلة حالياً.</p>'; return; }
+  list.forEach(t => {
+    let img = t.receipt ? `<img src="${t.receipt}" class="w-full max-h-56 object-contain rounded-xl border border-amber-500/40 mt-2">` : '';
+    c.innerHTML += `<div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-xs space-y-1">
+      <div class="flex justify-between"><strong class="text-amber-400">${t.storeName} (${t.tenant})</strong><span class="text-slate-400">${t.time}</span></div>
+      <div>الطريقة: <strong class="text-blue-300">${t.method}</strong> | التفاصيل: <span class="font-mono text-emerald-400">${t.ref}</span></div>
+      <p class="text-slate-300">${t.msg||''}</p>
+      ${img}
+    </div>`;
+  });
+}
+</script>
+</body>
+</html>
