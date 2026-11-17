@@ -4,9 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#070A12">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>ARAMKY Gold OS v23.0 | نظام إدارة صياغة الذهب</title>
+<title>ARAMKY Gold OS v23.5 | نظام إدارة صياغة الذهب</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script>
@@ -43,7 +41,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   <div class="system-card p-8 rounded-3xl border-2 border-rose-500/60 max-w-md w-full text-center space-y-5 shadow-2xl">
     <div class="w-20 h-20 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto text-4xl"><i class="fa-solid fa-lock"></i></div>
     <h2 class="text-2xl font-black text-rose-400">الاشتراك متوقف!</h2>
-    <p class="text-sm text-slate-300">انتهت فترة اشتراكك في نظام <strong>ARAMKY Gold OS</strong> أو تم إيقاف الحساب.</p>
+    <p class="text-sm text-slate-300">انتهت فترة اشتراكك في نظام <strong>ARAMKY Gold OS</strong>.</p>
     <div class="bg-darkbg p-3 rounded-2xl border border-slate-800 text-xs text-gold font-mono" id="locked-tenant-info">كود المعرض: --</div>
     <button onclick="openSupportFromLock()" class="w-full gold-gradient text-darkbg font-black py-3.5 rounded-2xl shadow-lg">إرسال إيصال التجديد 💳</button>
   </div>
@@ -53,7 +51,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <div id="tenant-login-screen" class="fixed inset-0 bg-darkbg/95 backdrop-blur-xl z-[250] flex items-center justify-center p-5 hidden">
   <div class="system-card p-8 rounded-3xl border border-gold/40 max-w-md w-full space-y-5 shadow-2xl text-center">
     <div class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl mx-auto shadow-xl overflow-hidden border-2 border-gold">
-      <img id="login-screen-logo-img" src="" onerror="this.style.display='none'" class="w-full h-full object-cover">
+      <img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
     </div>
     <div>
       <h2 class="text-xl font-black text-gold">نظام إدارة صياغة الذهب</h2>
@@ -64,22 +62,26 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
-<!-- حاوية الإشعارات التشخيصية -->
 <div id="toast-container" class="fixed top-5 left-5 z-[350] flex flex-col gap-3 max-w-md pointer-events-none"></div>
 
 <!-- الهيدر المؤسسي -->
 <header class="glass sticky top-0 z-50 border-b border-gold/30 px-5 py-3 flex flex-wrap justify-between items-center gap-3 shadow-2xl">
   <div class="flex items-center space-x-3 space-x-reverse">
     <div class="w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-xl shadow-lg overflow-hidden border border-gold">
-      <img id="header-logo-img" src="" onerror="this.style.display='none'" class="w-full h-full object-cover">
+      <img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
     </div>
     <div>
-      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">v23.0</span></h1>
+      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">v23.5</span></h1>
       <p class="text-xs text-slate-400 flex items-center gap-2"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">ID: ARAMKY-01</span></p>
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-2">
-    <button onclick="checkAndOpenAdmin()" class="bg-purple-600/20 border border-purple-500/50 text-purple-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-user-shield"></i> <span>الإدارة (Admin)</span></button>
+    <!-- زر الإدارة يظهر لك وحدك إذا كنت المالك ARAMKY-01 -->
+    <div id="admin-btn-container" class="hidden">
+      <button onclick="openAdminPanel()" class="bg-purple-600/20 border border-purple-500/50 text-purple-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow">
+        <i class="fa-solid fa-user-shield"></i> <span>لوحة الأدمن 👑</span>
+      </button>
+    </div>
     <button onclick="openStorefrontView()" class="bg-gold/20 border border-gold/50 text-gold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-store"></i> <span>معرض الزبائن</span></button>
     <button onclick="openReturnModal()" class="bg-rose-500/15 border border-rose-500/45 text-rose-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-rotate-left"></i> <span>إرجاع فاتورة</span></button>
     <button onclick="toggleCalcModal()" class="bg-cardbg border border-gold/50 text-gold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-calculator"></i> <span>حاسبة آرامكي</span></button>
@@ -152,7 +154,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           </div>
         </div>
 
-        <!-- خانة الاختيار الفخمة للمعاينة بدلاً من select الافتراضي -->
+        <!-- خانة المعاينة الفخمة بدلاً من select الأندرويد -->
         <div class="bg-darkbg p-4 rounded-2xl border border-gold/30 space-y-3">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div class="md:col-span-2">
@@ -259,7 +261,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           <input type="number" id="inv-qty" placeholder="الكمية المتوفرة" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
           <input type="number" id="inv-making" placeholder="أجور صياغة الغرام الواحد (د.ع)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
           <div>
-            <label class="text-xs text-slate-400 block mb-1">صور القطعة (ضغط تلقائي لحماية الذاكرة):</label>
+            <label class="text-xs text-slate-400 block mb-1">صور القطعة:</label>
             <input type="file" id="inv-images" accept="image/*" multiple class="w-full bg-darkbg border border-slate-700 rounded-2xl p-2 text-xs text-slate-300">
           </div>
           <div class="md:col-span-2 bg-darkbg p-4 rounded-2xl border border-gold/30 flex items-center justify-between">
@@ -290,13 +292,11 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-store"></i> إعدادات المعرض والهوية البصرية المؤسسية</h3>
         <div class="flex flex-col md:flex-row items-center gap-4 bg-darkbg p-4 rounded-2xl border border-slate-800">
           <div class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl overflow-hidden border-2 border-gold shadow-lg relative">
-            <img id="store-logo-preview" src="" onerror="this.style.display='none'" class="w-full h-full object-cover">
-            <i id="store-logo-fallback-icon" class="fa-solid fa-gem text-darkbg"></i>
+            <img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
           </div>
           <div class="flex-1 space-y-1">
-            <label class="text-xs font-bold text-gold block">صورة شعار المعرض أو واجهة المحل:</label>
-            <p class="text-[10px] text-slate-400">يتم ضغط الصورة تلقائياً لضمان حفظها الفوري وعدم امتلاء الذاكرة.</p>
-            <input type="file" id="store-logo-input" accept="image/*" onchange="handleStoreLogoUpload(event)" class="text-xs text-slate-300 mt-1 file:bg-gold file:text-darkbg file:border-0 file:rounded-xl file:px-3 file:py-1.5 file:font-bold">
+            <label class="text-xs font-bold text-gold block">شعار المعرض الرسمي (مربوط تلقائياً من `icon.png`):</label>
+            <p class="text-[10px] text-slate-400">النظام يستخدم الآن شعار التطبيق الرسمي المرفق في مجلد المشروع لضمان ظهور بصري فخم وموثوق.</p>
           </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -320,7 +320,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
     </div>
 
-    <!-- 6. دفتر الديون (يطلبونك وتطلبهم) مع زر فخم -->
+    <!-- 6. دفتر الديون -->
     <div id="view-debts" class="hidden space-y-6">
       <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
         <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-3">
@@ -336,7 +336,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           <input type="text" id="debt-customer" placeholder="اسم الزبون / التاجر" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
           <input type="tel" id="debt-phone" placeholder="رقم الهاتف" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm text-emerald-400 font-mono outline-none">
           
-          <!-- زر فخم يفتح نافذة System UI لاختيار نوع الحساب -->
           <button onclick="openLuxuryDebtTypeModal()" class="bg-cardbg border border-gold/40 hover:border-gold rounded-xl p-3 text-sm text-right flex items-center justify-between transition">
             <span id="selected-debt-type-label" class="text-gold font-bold">دين لك (الناس تطلبهم / ذمة على الزبون) (+)</span>
             <i class="fa-solid fa-chevron-down text-gold text-xs"></i>
@@ -455,7 +454,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </section>
 </main>
 
-<!-- ================= نافذة System UI الفخمة: اختيار نوع الدين (بدلاً من select الأندرويد) ================= -->
+<!-- النوافذ المنبثقة -->
 <div id="luxury-debt-type-modal" class="fixed inset-0 modal-overlay z-[260] flex items-center justify-center hidden p-4">
   <div class="system-card p-6 rounded-3xl border border-gold/50 w-full max-w-md space-y-4 shadow-2xl text-center">
     <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl mx-auto shadow-lg"><i class="fa-solid fa-scale-balanced"></i></div>
@@ -482,7 +481,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
-<!-- ================= نافذة System UI الفخمة: اختيار قطعة للمعاينة مع البحث ================= -->
 <div id="luxury-preview-modal" class="fixed inset-0 modal-overlay z-[260] flex items-center justify-center hidden p-4">
   <div class="system-card p-6 rounded-3xl border border-gold/50 w-full max-w-2xl space-y-4 max-h-[85vh] flex flex-col shadow-2xl">
     <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -495,7 +493,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
-<!-- النوافذ السابقة (العملة، الفاتورة، التصفير، المخزن، الخ) -->
 <div id="system-currency-modal" class="fixed inset-0 modal-overlay z-[250] flex items-center justify-center hidden p-4">
   <div class="system-card p-6 rounded-3xl border border-gold/50 w-full max-w-sm space-y-4 shadow-2xl text-center">
     <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl mx-auto shadow-lg"><i class="fa-solid fa-coins"></i></div>
@@ -592,7 +589,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <div class="flex flex-wrap justify-between items-center border-b border-gold/30 pb-4 gap-3">
       <div class="flex items-center gap-3">
         <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl overflow-hidden border-2 border-gold">
-          <img id="store-view-logo" src="" onerror="this.style.display='none'" class="w-full h-full object-cover">
+          <img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
         </div>
         <div><h2 id="store-view-title" class="text-xl font-black text-gold">معرض الذهب</h2><p id="store-view-subtitle" class="text-xs text-slate-400">--</p></div>
       </div>
@@ -715,15 +712,13 @@ let currentTenantCode = localStorage.getItem('aramky_active_tenant') || "ARAMKY-
 function getStorageKeyForTenant(code) { return `aramky_gold_data_${code.toUpperCase()}`; }
 
 let appState = {
-  store: { name: "صاغة أرامكي - فرع نواة الذهب", logo: "", phone: "07700000000", address: "بغداد - الشورجة", openTime: "09:00 ص", closeTime: "10:00 م", bio: "أفضل تشكيلة ذهب" },
+  store: { name: "صاغة أرامكي - فرع نواة الذهب", logo: "icon.png", phone: "07700000000", address: "بغداد - الشورجة", openTime: "09:00 ص", closeTime: "10:00 م", bio: "أفضل تشكيلة ذهب" },
   prices: { usd: 153000, m24: 628571, m22: 576190, m21: 550000, m18: 471428, m9: 235714 },
   cash: 0, usdCash: 0, zainCash: 0, makingProfit: 0,
   inventory: [], cart: [], logs: [], debts: [], invoices: [], supportTickets: [],
   currencyMode: 'iraqi', invoiceTemplate: 'detailed'
 };
 let currentCategoryFilter = 'all', currentDayFilter = 'الكل', currentDebtFilter = 'all', selectedCustIdx = null, tempReceiptBase64 = "";
-
-if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
 
 window.onload = function() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -747,141 +742,9 @@ window.onload = function() {
   verifyAndBootTenant(currentTenantCode);
 };
 
-// دالة تشخيص وفحص رابط الإدارة (Admin)
-async function checkAndOpenAdmin() {
-  showToast('جاري فحص رابط لوحة الإدارة (admin)...', 'info');
-  try {
-    let res = await fetch('/admin');
-    if (res.ok) {
-      window.location.href = '/admin';
-      return;
-    }
-    let resHtml = await fetch('admin.html');
-    if (resHtml.ok) {
-      window.location.href = 'admin.html';
-      return;
-    }
-    showToast('❌ الخلل: سيرفر Render لا يحتوي على مسار (/admin) أو ملف (admin.html) مرفوع في مجلد المشروع!', 'error');
-  } catch (err) {
-    showToast('❌ الخلل: تعذر الاتصال بالسيرفر! تأكد أن السيرفر يعمل أو أن ملف admin.html موجود في نفس المجلد.', 'error');
-  }
-}
-
-// دالة ضغط الصور التلقائي لحل مشكلة عدم ظهور الصورة أو امتلاء الذاكرة
-function compressImage(file, maxWidth = 400, callback) {
-  let reader = new FileReader();
-  reader.onerror = () => showToast('❌ فشل قراءة ملف الصورة من الجهاز!', 'error');
-  reader.onload = function(event) {
-    let img = new Image();
-    img.onerror = () => showToast('❌ الملف المختار ليس صورة صالحة!', 'error');
-    img.onload = function() {
-      let canvas = document.createElement('canvas');
-      let scale = maxWidth / img.width;
-      if (scale > 1) scale = 1;
-      canvas.width = img.width * scale;
-      canvas.height = img.height * scale;
-      let ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      let compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-      callback(compressedBase64);
-    };
-    img.src = event.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function handleStoreLogoUpload(e) {
-  let file = e.target.files[0];
-  if (!file) return showToast('⚠️ لم يتم اختيار أي صورة!', 'error');
-  showToast('جاري معالجة وضغط الشعار...', 'info');
-  compressImage(file, 300, function(base64) {
-    appState.store.logo = base64;
-    if (saveState()) {
-      applyStoreLogoToUI();
-      showToast('✅ تم ضغط وحفظ شعار المعرض بنجاح!');
-    }
-  });
-}
-
-function saveState() {
-  try {
-    localStorage.setItem(getStorageKeyForTenant(currentTenantCode), JSON.stringify(appState));
-    updateUI();
-    return true;
-  } catch (e) {
-    showToast('❌ خطأ حرج: ذاكرة المتصفح ممتلئة! يرجى حذف بعض الصور القديمة من المخزن لتفريغ المساحة.', 'error');
-    return false;
-  }
-}
-
-function applyStoreLogoToUI() {
-  let logo = appState.store.logo;
-  let loginImg = document.getElementById('login-screen-logo-img');
-  let headerImg = document.getElementById('header-logo-img');
-  let storePreview = document.getElementById('store-logo-preview');
-  let fallbackIcon = document.getElementById('store-logo-fallback-icon');
-
-  if (logo && logo.startsWith('data:image')) {
-    if(loginImg) { loginImg.src = logo; loginImg.style.display = 'block'; }
-    if(headerImg) { headerImg.src = logo; headerImg.style.display = 'block'; }
-    if(storePreview) { storePreview.src = logo; storePreview.style.display = 'block'; }
-    if(fallbackIcon) fallbackIcon.style.display = 'none';
-  } else {
-    if(loginImg) loginImg.style.display = 'none';
-    if(headerImg) headerImg.style.display = 'none';
-    if(storePreview) storePreview.style.display = 'none';
-    if(fallbackIcon) fallbackIcon.style.display = 'block';
-  }
-}
-
-// نوافذ System UI الفخمة الجديدة
-function openLuxuryDebtTypeModal() { document.getElementById('luxury-debt-type-modal').classList.remove('hidden'); }
-function closeLuxuryDebtTypeModal() { document.getElementById('luxury-debt-type-modal').classList.add('hidden'); }
-function selectLuxuryDebtType(val, label) {
-  document.getElementById('debt-type').value = val;
-  document.getElementById('selected-debt-type-label').innerText = label;
-  closeLuxuryDebtTypeModal();
-}
-
-function openLuxuryPreviewModal() {
-  renderLuxuryPreviewList();
-  document.getElementById('luxury-preview-modal').classList.remove('hidden');
-}
-function closeLuxuryPreviewModal() { document.getElementById('luxury-preview-modal').classList.add('hidden'); }
-
-function renderLuxuryPreviewList() {
-  let c = document.getElementById('preview-modal-list');
-  let q = (document.getElementById('preview-modal-search').value || '').toLowerCase();
-  c.innerHTML = '';
-  let available = appState.inventory.map((item, idx) => ({ ...item, originalIdx: idx })).filter(i => i.qty > 0 && (i.name.toLowerCase().includes(q) || String(i.karat).includes(q)));
-  if (!available.length) {
-    c.innerHTML = '<p class="col-span-full text-center text-slate-400 py-8 text-xs">لا توجد قطع مطابقة في المخزن!</p>';
-    return;
-  }
-  available.forEach(item => {
-    let tot = Math.round((item.weight * getGramPrice(item.karat)) + (item.makingPerGram * item.weight));
-    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" class="w-12 h-12 rounded-xl object-cover border border-gold">` : `<div class="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center text-gold">💎</div>`;
-    c.innerHTML += `<div onclick="selectPreviewPiece(${item.originalIdx})" class="system-card p-3.5 rounded-2xl border border-gold/30 hover:border-gold cursor-pointer flex items-center justify-between gap-3 transition">
-      <div class="flex items-center gap-3">${img}<div><strong class="text-gold text-xs block">${item.name}</strong><span class="text-[11px] text-slate-300">عيار ${item.karat} | ${item.weight}غ | متوفر: ${item.qty}</span></div></div>
-      <span class="text-emerald-400 font-black text-xs">${tot.toLocaleString()} د.ع</span>
-    </div>`;
-  });
-}
-
-function selectPreviewPiece(idx) {
-  let item = appState.inventory[idx];
-  if (!item) return;
-  document.getElementById('selected-preview-index').value = idx;
-  document.getElementById('selected-preview-label').innerHTML = `<i class="fa-solid fa-gem text-gold"></i> ${item.name} — عيار ${item.karat} (${item.weight}غ)`;
-  closeLuxuryPreviewModal();
-  updateCartPreview();
-}
-
-function handleGlobalZeroKey(e) {
-  if (e.key === '0' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
-    e.preventDefault();
-    openResetSystemModal();
-  }
+// دالة الانتقال المباشر للوحة الأدمن (Admin)
+function openAdminPanel() {
+  window.location.href = 'admin.html';
 }
 
 function loginTenant() {
@@ -911,7 +774,11 @@ function verifyAndBootTenant(code) {
   document.getElementById('header-sub-status').innerText = `نشط حتى ${sub.expiresAt}`;
   document.getElementById('header-store-name').innerText = appState.store.name;
   
-  applyStoreLogoToUI();
+  // إظهار زر الأدمن لك وحدك (المشترك الرئيسي ARAMKY-01)
+  if (currentTenantCode === "ARAMKY-01") {
+    document.getElementById('admin-btn-container').classList.remove('hidden');
+  }
+
   updatePricesDerived(); autoFillScrapMithqal(); loadStoreSettingsToUI(); updateUI();
 }
 
@@ -967,11 +834,13 @@ function selectInvoiceTemplate(tmpl) {
 
 function previewSupportReceipt(e) {
   let file = e.target.files[0]; if (!file) return;
-  compressImage(file, 500, function(base64) {
-    tempReceiptBase64 = base64;
+  let reader = new FileReader();
+  reader.onload = function(event) {
+    tempReceiptBase64 = event.target.result;
     let img = document.getElementById('sup-receipt-preview');
     img.src = tempReceiptBase64; img.classList.remove('hidden');
-  });
+  };
+  reader.readAsDataURL(file);
 }
 
 function submitSupportTransfer() {
@@ -1074,8 +943,7 @@ function loadStoreSettingsToUI() {
   document.getElementById('store-open-time').value = appState.store.openTime;
   document.getElementById('store-close-time').value = appState.store.closeTime;
   document.getElementById('store-bio').value = appState.store.bio;
-  applyStoreLogoToUI();
-  document.getElementById('store-share-link').value = window.location.origin + window.location.pathname + '?store=' + currentTenantCode;
+  document.getElementById('store-share-link').value = window.location.origin + window.location.pathname.replace('index.html','') + '?store=' + currentTenantCode;
 }
 
 function saveStoreSettings() {
@@ -1086,8 +954,7 @@ function saveStoreSettings() {
   appState.store.closeTime = document.getElementById('store-close-time').value || "";
   appState.store.bio = document.getElementById('store-bio').value || "";
   document.getElementById('header-store-name').innerText = appState.store.name;
-  applyStoreLogoToUI();
-  if (saveState()) showToast('تم حفظ الإعدادات بنجاح!');
+  if (saveState()) showToast('تم حفظ إعدادات المعرض والشعار بنجاح!');
 }
 
 function copyStoreLink() { let el = document.getElementById('store-share-link'); el.select(); navigator.clipboard.writeText(el.value); showToast('تم نسخ الرابط!'); }
@@ -1099,10 +966,6 @@ function openStorefrontView() {
   document.getElementById('store-view-hours').innerText = `${appState.store.openTime} إلى ${appState.store.closeTime}`;
   document.getElementById('store-view-phone').innerText = appState.store.phone || '--';
   
-  let storeLogoView = document.getElementById('store-view-logo');
-  if (appState.store.logo) { storeLogoView.src = appState.store.logo; storeLogoView.style.display = 'block'; }
-  else { storeLogoView.style.display = 'none'; }
-
   let container = document.getElementById('storefront-grid'); container.innerHTML = '';
   let items = appState.inventory.filter(i => i.qty > 0 && i.publish);
   if (!items.length) container.innerHTML = `<p class="col-span-full text-center text-slate-500 py-10">لا توجد قطع منشورة حالياً.</p>`;
@@ -1116,12 +979,9 @@ function openStorefrontView() {
 function closeStorefrontView() { document.getElementById('storefront-modal').classList.add('hidden'); }
 
 function renderPublicCustomerStorefront() {
-  let logo = appState.store.logo || "";
-  let logoHtml = logo ? `<img src="${logo}" class="w-16 h-16 rounded-2xl object-cover border-2 border-gold">` : `<div class="w-16 h-16 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl">💎</div>`;
-  
   document.body.innerHTML = `<div class="min-h-screen bg-darkbg text-slate-100 p-5 flex flex-col items-center"><div class="max-w-5xl w-full space-y-6">
     <div class="system-card p-6 rounded-3xl border border-gold/40 flex flex-col md:flex-row justify-between items-center gap-4">
-      <div class="flex items-center gap-4">${logoHtml}<div><h1 class="text-2xl font-black text-gold">${appState.store.name}</h1><p class="text-xs text-slate-300">${appState.store.bio}</p></div></div>
+      <div class="flex items-center gap-4"><img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-16 h-16 rounded-2xl object-cover border-2 border-gold"><div><h1 class="text-2xl font-black text-gold">${appState.store.name}</h1><p class="text-xs text-slate-300">${appState.store.bio}</p></div></div>
       <div class="bg-darkbg p-4 rounded-2xl text-xs space-y-1"><div>📍 ${appState.store.address}</div><div>⏰ ${appState.store.openTime} - ${appState.store.closeTime}</div><div>📞 <span class="text-gold font-mono">${appState.store.phone}</span></div></div>
     </div>
     <div id="pub-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div></div></div>`;
@@ -1335,18 +1195,16 @@ function renderInvoicePrintContent(code, cust, phone, notes, tot, mk, wt, items)
   let headerBox = document.getElementById('invoice-header-box');
   let body = document.getElementById('invoice-body-content');
   let tmpl = appState.invoiceTemplate || 'detailed';
-  let storeLogo = appState.store.logo;
-  let logoImgHtml = storeLogo ? `<img src="${storeLogo}" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold">` : '';
 
   if (tmpl === 'detailed') {
-    headerBox.innerHTML = `${logoImgHtml}<h2 class="font-black text-xl text-slate-900">💎 ${appState.store.name} 💎</h2><p class="text-xs text-slate-600 font-bold">${appState.store.bio || 'فرع نواة الذهب ⚜️'}</p><div class="inline-block bg-slate-900 text-gold font-mono text-xs font-bold px-3 py-1 rounded-full mt-1">${code}</div>`;
+    headerBox.innerHTML = `<img src="icon.png" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">💎 ${appState.store.name} 💎</h2><p class="text-xs text-slate-600 font-bold">${appState.store.bio || 'فرع نواة الذهب ⚜️'}</p><div class="inline-block bg-slate-900 text-gold font-mono text-xs font-bold px-3 py-1 rounded-full mt-1">${code}</div>`;
     let itemsHtml = items.map(i => `<div class="flex justify-between border-b py-1"><span>${i.name} (${i.weight}غ - عيار ${i.karat})</span><span class="font-bold">${i.itemTotal.toLocaleString()} د.ع</span></div>`).join('');
     body.innerHTML = `<div class="flex justify-between font-bold border-b pb-1"><span>نوع المعاملة:</span><span class="text-emerald-700">بيع رسمي معتمد</span></div><div class="py-1 space-y-1 max-h-32 overflow-y-auto">${itemsHtml}</div><div class="flex justify-between pt-2 border-t"><span>الوزن الإجمالي:</span><span class="font-bold">${wt} غرام</span></div><div class="flex justify-between"><span>أجور الصياغة:</span><span class="text-amber-600 font-bold">${mk.toLocaleString()} د.ع</span></div><div class="flex justify-between text-sm font-black pt-1 border-t"><span>الإجمالي النهائي:</span><span class="text-gold-dark">${tot.toLocaleString()} دينار</span></div><div class="flex justify-between text-sm font-black text-emerald-700 bg-emerald-50 p-2 rounded-xl"><span>المقابل بالورقة:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-[11px] text-slate-600 flex justify-between pt-1 border-t"><span>الزبون: <strong>${cust}</strong></span><span>الهاتف: <strong>${phone}</strong></span></div><div class="text-[11px] text-slate-500 flex justify-between"><span>ملاحظات: <span>${notes||'--'}</span></span><span>التاريخ: <strong>${new Date().toLocaleDateString('ar-IQ')}</strong></span></div>`;
   } else if (tmpl === 'compact') {
     headerBox.innerHTML = `<h2 class="font-black text-lg text-slate-900">${appState.store.name}</h2><p class="text-[11px] text-slate-500 font-mono">فاتورة مختصرة | ${code}</p>`;
     body.innerHTML = `<div class="text-center py-2 font-bold text-sm text-slate-800">ملخص عملية البيع النقدي</div><div class="flex justify-between text-base font-black pt-2 border-t"><span>المبلغ الإجمالي:</span><span class="text-gold">${tot.toLocaleString()} دينار</span></div><div class="flex justify-between text-sm text-emerald-700 font-bold bg-emerald-50 p-2 rounded-xl"><span>المقابل اللحظي:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-xs text-slate-600 pt-2">الزبون: <strong>${cust}</strong> (${phone})</div><div class="text-[10px] text-slate-400">التاريخ: ${new Date().toLocaleDateString('ar-IQ')}</div>`;
   } else {
-    headerBox.innerHTML = `${logoImgHtml}<h2 class="font-black text-xl text-slate-900">⚜️ ${appState.store.name} ⚜️</h2><p class="text-xs text-gold-dark font-bold">سند قبض وبيع ذهب مؤسسي</p><div class="inline-block bg-gold text-darkbg font-mono text-xs font-black px-3 py-0.5 rounded-full mt-1">${code}</div>`;
+    headerBox.innerHTML = `<img src="icon.png" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">⚜️ ${appState.store.name} ⚜️</h2><p class="text-xs text-gold-dark font-bold">سند قبض وبيع ذهب مؤسسي</p><div class="inline-block bg-gold text-darkbg font-mono text-xs font-black px-3 py-0.5 rounded-full mt-1">${code}</div>`;
     body.innerHTML = `<div class="bg-amber-50 p-3 rounded-2xl border border-amber-200 space-y-1 text-xs"><div class="flex justify-between"><span>اسم الصايغ والمعرض:</span><strong>${appState.store.name}</strong></div><div class="flex justify-between"><span>هاتف المعرض:</span><strong class="font-mono">${appState.store.phone}</strong></div><div class="flex justify-between"><span>العنوان:</span><span>${appState.store.address}</span></div></div><div class="flex justify-between text-sm font-black pt-2"><span>صافي المبيعات:</span><span class="text-gold">${tot.toLocaleString()} د.ع</span></div><div class="flex justify-between text-sm font-black text-emerald-700 bg-emerald-50 p-2 rounded-xl"><span>المقابل المعادل:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-[11px] text-slate-600 border-t pt-1">العميل المستفيد: <strong>${cust}</strong> | الهاتف: <span class="font-mono">${phone}</span></div><div class="text-[10px] text-slate-500 text-center pt-2">توقيع وختم الصايغ المعتمد — ${new Date().toLocaleDateString('ar-IQ')}</div>`;
   }
 }
@@ -1380,14 +1238,16 @@ function addNewInventoryItem() {
   if (files.length) {
     let done = 0;
     Array.from(files).forEach(f => {
-      compressImage(f, 400, function(base64) {
-        imgs.push(base64);
+      let reader = new FileReader();
+      reader.onload = function(e) {
+        imgs.push(e.target.result);
         if (++done === files.length) {
           appState.inventory.push({ name, karat, weight, qty, makingPerGram, publish, images: imgs });
           logTransaction('إضافة مخزن', `إدخال ${name}`, `${weight}غ (${qty} قطعة)`);
-          if (saveState()) showToast('✅ تمت الإضافة وضغط الصور للمخزن بنجاح!');
+          if (saveState()) showToast('✅ تمت الإضافة للمخزن!');
         }
-      });
+      };
+      reader.readAsDataURL(f);
     });
   } else {
     appState.inventory.push({ name, karat, weight, qty, makingPerGram, publish, images: [] });
@@ -1545,6 +1405,66 @@ function printAramkyCalculatorResult() {
   if (!lastCalc) return; toggleCalcModal();
   renderInvoicePrintContent('CALC-' + Math.floor(1000+Math.random()*9000), 'حاسبة سريعة', '--', 'حاسبة آرامكي الفورية', lastCalc, 0, 0, []);
   document.getElementById('invoice-modal').classList.remove('hidden');
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(getStorageKeyForTenant(currentTenantCode), JSON.stringify(appState));
+    updateUI();
+    return true;
+  } catch (e) {
+    showToast('❌ خطأ حرج: ذاكرة المتصفح ممتلئة! يرجى حذف بعض الصور القديمة من المخزن.', 'error');
+    return false;
+  }
+}
+
+function openLuxuryDebtTypeModal() { document.getElementById('luxury-debt-type-modal').classList.remove('hidden'); }
+function closeLuxuryDebtTypeModal() { document.getElementById('luxury-debt-type-modal').classList.add('hidden'); }
+function selectLuxuryDebtType(val, label) {
+  document.getElementById('debt-type').value = val;
+  document.getElementById('selected-debt-type-label').innerText = label;
+  closeLuxuryDebtTypeModal();
+}
+
+function openLuxuryPreviewModal() {
+  renderLuxuryPreviewList();
+  document.getElementById('luxury-preview-modal').classList.remove('hidden');
+}
+function closeLuxuryPreviewModal() { document.getElementById('luxury-preview-modal').classList.add('hidden'); }
+
+function renderLuxuryPreviewList() {
+  let c = document.getElementById('preview-modal-list');
+  let q = (document.getElementById('preview-modal-search').value || '').toLowerCase();
+  c.innerHTML = '';
+  let available = appState.inventory.map((item, idx) => ({ ...item, originalIdx: idx })).filter(i => i.qty > 0 && (i.name.toLowerCase().includes(q) || String(i.karat).includes(q)));
+  if (!available.length) {
+    c.innerHTML = '<p class="col-span-full text-center text-slate-400 py-8 text-xs">لا توجد قطع مطابقة في المخزن!</p>';
+    return;
+  }
+  available.forEach(item => {
+    let tot = Math.round((item.weight * getGramPrice(item.karat)) + (item.makingPerGram * item.weight));
+    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" class="w-12 h-12 rounded-xl object-cover border border-gold">` : `<div class="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center text-gold">💎</div>`;
+    c.innerHTML += `<div onclick="selectPreviewPiece(${item.originalIdx})" class="system-card p-3.5 rounded-2xl border border-gold/30 hover:border-gold cursor-pointer flex items-center justify-between gap-3 transition">
+      <div class="flex items-center gap-3">${img}<div><strong class="text-gold text-xs block">${item.name}</strong><span class="text-[11px] text-slate-300">عيار ${item.karat} | ${item.weight}غ | متوفر: ${item.qty}</span></div></div>
+      <span class="text-emerald-400 font-black text-xs">${tot.toLocaleString()} د.ع</span>
+    </div>`;
+  });
+}
+
+function selectPreviewPiece(idx) {
+  let item = appState.inventory[idx];
+  if (!item) return;
+  document.getElementById('selected-preview-index').value = idx;
+  document.getElementById('selected-preview-label').innerHTML = `<i class="fa-solid fa-gem text-gold"></i> ${item.name} — عيار ${item.karat} (${item.weight}غ)`;
+  closeLuxuryPreviewModal();
+  updateCartPreview();
+}
+
+function handleGlobalZeroKey(e) {
+  if (e.key === '0' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+    e.preventDefault();
+    openResetSystemModal();
+  }
 }
 </script>
 </body>
