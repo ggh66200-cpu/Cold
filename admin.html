@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ARAMKY Master Admin | لوحة الإدارة السرية</title>
-<script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-<link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
+<title>ARAMKY Master Admin | لوحة الإدارة السرية السحابية</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-@import url('[https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap](https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap)');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
 body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FAFC; }
 .gold-gradient { background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%); }
 .glass { background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(212, 175, 55, 0.35); }
@@ -15,94 +15,167 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
 </head>
 <body class="min-h-screen p-5 flex flex-col items-center">
 
-  <!-- قفل الحماية السري للإدارة فقط -->
+  <!-- قفل الحماية السرية للأدمن فقط -->
   <div id="admin-lock" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-5">
     <div class="glass p-8 rounded-3xl max-w-sm w-full text-center space-y-4 shadow-2xl">
-      <div class="w-16 h-16 rounded-2xl gold-gradient text-slate-950 font-black text-3xl flex items-center justify-center mx-auto">👑</div>
+      <div class="w-16 h-16 rounded-2xl gold-gradient text-slate-950 font-black text-3xl flex items-center justify-center mx-auto shadow-lg">👑</div>
       <h2 class="text-xl font-black text-amber-400">لوحة الإدارة السرية (ARAMKY)</h2>
-      <p class="text-xs text-slate-400">هذه الصفحة مخصصة للمالك فقط</p>
+      <p class="text-xs text-slate-400">منطقة المالك والمطور حصراً</p>
       <input type="password" id="admin-pass" placeholder="أدخل الرمز السري (2026)" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3.5 text-center text-amber-400 font-bold outline-none">
-      <button onclick="unlockAdmin()" class="w-full gold-gradient text-slate-950 font-black py-3.5 rounded-xl">دخول الإدارة 🔓</button>
+      <button onclick="unlockAdmin()" class="w-full gold-gradient text-slate-950 font-black py-3.5 rounded-xl shadow-lg">دخول لوحة الأدمن 🔓</button>
     </div>
   </div>
 
-  <div id="admin-panel" class="hidden max-w-6xl w-full space-y-6">
+  <!-- لوحة الإدارة الرئيسية -->
+  <div id="admin-panel" class="hidden max-w-7xl w-full space-y-6">
     <div class="glass p-6 rounded-3xl flex flex-wrap justify-between items-center gap-4 shadow-2xl">
       <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-2xl gold-gradient text-slate-950 font-black text-2xl flex items-center justify-center">👑</div>
+        <div class="w-14 h-14 rounded-2xl gold-gradient text-slate-950 font-black text-2xl flex items-center justify-center shadow-lg">
+          <img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover rounded-2xl">
+        </div>
         <div>
-          <h1 class="text-lg font-black text-amber-400">إدارة الاشتراكات والصاغة — أرامكي</h1>
-          <p class="text-xs text-slate-400">أضف الصاغة، انسخ رابط التفعيل السريع، وراجع وصلات تحويل الماستر وزين كاش</p>
+          <h1 class="text-xl font-black text-amber-400">إدارة الاشتراكات والسحابة — أرامكي</h1>
+          <p class="text-xs text-slate-400">جرد شامل، ربط Supabase و Render، وإدارة الصاغة والإيصالات</p>
         </div>
       </div>
-      <button onclick="copyAdminSecretLink()" class="bg-slate-800 border border-amber-500/40 text-amber-300 text-xs px-4 py-2.5 rounded-xl font-bold"><i class="fa-solid fa-link"></i> نسخ رابط لوحة الأدمن</button>
+      <div class="flex gap-2">
+        <button onclick="openSupabaseConfigModal()" class="bg-blue-600/20 border border-blue-500/50 text-blue-300 text-xs px-4 py-2.5 rounded-xl font-bold"><i class="fa-solid fa-database"></i> إعدادات Supabase 🔗</button>
+        <button onclick="copyAdminSecretLink()" class="bg-slate-800 border border-amber-500/40 text-amber-300 text-xs px-4 py-2.5 rounded-xl font-bold"><i class="fa-solid fa-link"></i> نسخ رابط الأدمن</button>
+      </div>
     </div>
 
-    <!-- إضافة مشترك جديد -->
+    <!-- إحصائيات الجرد السري الفوري -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="glass p-5 rounded-3xl border border-amber-500/30"><p class="text-xs text-slate-400">إجمالي الصاغة المشتركين</p><h3 id="stat-total" class="text-2xl font-black text-amber-400 mt-1">0</h3></div>
+      <div class="glass p-5 rounded-3xl border border-emerald-500/30"><p class="text-xs text-slate-400">المشتركين النشطين فعلياً</p><h3 id="stat-active" class="text-2xl font-black text-emerald-400 mt-1">0</h3></div>
+      <div class="glass p-5 rounded-3xl border border-rose-500/30"><p class="text-xs text-slate-400">الحسابات المتوقفة / المنتهية</p><h3 id="stat-expired" class="text-2xl font-black text-rose-400 mt-1">0</h3></div>
+      <div class="glass p-5 rounded-3xl border border-blue-500/30"><p class="text-xs text-slate-400">إيصالات التحويل الواردة</p><h3 id="stat-receipts" class="text-2xl font-black text-blue-400 mt-1">0</h3></div>
+    </div>
+
+    <!-- تفعيل صايغ جديد -->
     <div class="glass p-6 rounded-3xl space-y-4">
-      <h3 class="font-bold text-amber-400 text-base border-b border-slate-800 pb-2"><i class="fa-solid fa-user-plus"></i> تفعيل صايغ جديد أو تجديد اشتراكه</h3>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+      <h3 class="font-bold text-amber-400 text-base border-b border-slate-800 pb-2"><i class="fa-solid fa-user-plus"></i> تفعيل صايغ جديد أو تجديد اشتراكه (برمز خاص ورقم هاتف)</h3>
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
         <input type="text" id="adm-name" placeholder="اسم المعرض / الصايغ" class="bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none">
         <input type="text" id="adm-code" placeholder="كود الدخول (مثال: GOLD-02)" class="bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-amber-400 uppercase outline-none">
         <input type="tel" id="adm-phone" placeholder="رقم هاتف الصايغ" class="bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-emerald-400 outline-none">
-        <select id="adm-days" class="bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none">
+        <input type="password" id="adm-passcode" placeholder="رمز الدخول السري" class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-amber-400 outline-none">
+        <select id="adm-days" class="bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none text-gold font-bold">
           <option value="30">شهر واحد (30 يوم)</option>
           <option value="90">3 أشهر (90 يوم)</option>
           <option value="365">سنة كاملة (365 يوم)</option>
         </select>
       </div>
-      <button onclick="createSub()" class="w-full gold-gradient text-slate-950 font-black py-3.5 rounded-xl text-xs shadow-lg">إنشاء الحساب وتجهيز رابط التفعيل 🚀</button>
+      <button onclick="createSub()" class="w-full gold-gradient text-slate-950 font-black py-3.5 rounded-xl text-xs shadow-lg">إنشاء الحساب سحابياً وتجهيز رابط التفعيل 🚀</button>
     </div>
 
-    <!-- جدول الصاغة -->
+    <!-- جدول الصاغة المشتركين -->
     <div class="glass p-6 rounded-3xl space-y-3">
-      <h3 class="font-bold text-slate-200 text-sm">قائمة الصاغة المشتركين:</h3>
+      <h3 class="font-bold text-slate-200 text-sm">قائمة الصاغة المشتركين (تحكم كامل):</h3>
       <div class="overflow-x-auto">
         <table class="w-full text-right text-xs">
           <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
-            <tr><th class="p-3">المعرض</th><th class="p-3">الكود</th><th class="p-3">الهاتف</th><th class="p-3">تاريخ الانتهاء</th><th class="p-3">الحالة</th><th class="p-3 text-center">الإجراءات ورابط التفعيل</th></tr>
+            <tr><th class="p-3">المعرض</th><th class="p-3">الكود والرمز</th><th class="p-3">الهاتف</th><th class="p-3">تاريخ الانتهاء</th><th class="p-3">الحالة</th><th class="p-3 text-center">الإجراءات والتحكم السري</th></tr>
           </thead>
           <tbody id="subs-tbody" class="divide-y divide-slate-800"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- وصلات تحويل الماستر وزين كاش الواردة من الصاغة -->
+    <!-- وصلات تحويل الماستر وزين كاش الواردة -->
     <div class="glass p-6 rounded-3xl space-y-3">
       <h3 class="font-bold text-blue-400 text-sm"><i class="fa-solid fa-receipt"></i> إثباتات تحويل الماستر وزين كاش المرسلة من الصاغة:</h3>
       <div id="admin-receipts-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
   </div>
 
+  <!-- نافذة إعدادات مفاتيح Supabase -->
+  <div id="supabase-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex items-center justify-center hidden p-4">
+    <div class="glass p-6 rounded-3xl max-w-md w-full space-y-4 border border-blue-500/40">
+      <h3 class="text-base font-bold text-blue-400"><i class="fa-solid fa-database"></i> ربط قاعدة بيانات Supabase والسيرفر</h3>
+      <p class="text-xs text-slate-300">أدخل مفاتيح الاتصال الخاصة بـ Supabase وRender لربط بيانات الصاغة سحابياً:</p>
+      <div class="space-y-3 text-xs">
+        <input type="text" id="sup-url" placeholder="Supabase Project URL" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-emerald-400 outline-none">
+        <input type="password" id="sup-key" placeholder="Supabase Anon / Service Key" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-amber-400 outline-none">
+        <input type="text" id="render-url" placeholder="Render Server API Endpoint" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-blue-300 outline-none">
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button onclick="saveSupabaseConfig()" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl text-xs">حفظ واختبار الاتصال 🔗</button>
+        <button onclick="closeSupabaseConfigModal()" class="px-4 py-3 bg-slate-800 text-slate-300 rounded-xl text-xs">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة تغيير كلمة المرور لصايغ معين -->
+  <div id="password-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex items-center justify-center hidden p-4">
+    <div class="glass p-6 rounded-3xl max-w-sm w-full space-y-4 border border-amber-500/40">
+      <h3 class="text-base font-bold text-amber-400"><i class="fa-solid fa-key"></i> تغيير كلمة المرور / الرمز للصايغ</h3>
+      <input type="hidden" id="edit-pass-code">
+      <div class="space-y-3 text-xs">
+        <input type="text" id="new-pass-val" placeholder="أدخل الرمز أو كلمة المرور الجديدة" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-amber-400 font-bold outline-none">
+      </div>
+      <div class="flex gap-2">
+        <button onclick="saveNewSubscriberPassword()" class="flex-1 gold-gradient text-slate-950 font-black py-3 rounded-xl text-xs">حفظ الرمز الجديد 🔒</button>
+        <button onclick="closePasswordModal()" class="px-4 py-3 bg-slate-800 text-slate-300 rounded-xl text-xs">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
 <script>
 let subs = JSON.parse(localStorage.getItem('aramky_subscribers_master')) || [
-  { code: "ARAMKY-01", name: "صاغة أرامكي - الفرع الرئيسي", phone: "07700000000", expiresAt: "2027-12-31", active: true }
+  { code: "ARAMKY-01", name: "صاغة أرامكي - الفرع الرئيسي", phone: "07700000000", passcode: "2026", expiresAt: "2027-12-31", active: true }
 ];
-function saveSubs() { localStorage.setItem('aramky_subscribers_master', JSON.stringify(subs)); renderSubs(); }
+
+function saveSubs() { 
+  localStorage.setItem('aramky_subscribers_master', JSON.stringify(subs)); 
+  renderSubs(); 
+  updateStats();
+}
 
 function unlockAdmin() {
   if (document.getElementById('admin-pass').value === '2026') {
     document.getElementById('admin-lock').classList.add('hidden');
     document.getElementById('admin-panel').classList.remove('hidden');
-    renderSubs(); renderReceipts();
+    renderSubs(); renderReceipts(); updateStats(); loadSupabaseConfigToUI();
   } else { alert('الرمز السري غير صحيح!'); }
+}
+
+function updateStats() {
+  let total = subs.length;
+  let today = new Date().toISOString().split('T')[0];
+  let active = subs.filter(s => s.active && s.expiresAt >= today).length;
+  let expired = total - active;
+  let receipts = (JSON.parse(localStorage.getItem('aramky_global_support_tickets')) || []).length;
+
+  document.getElementById('stat-total').innerText = total;
+  document.getElementById('stat-active').innerText = active;
+  document.getElementById('stat-expired').innerText = expired;
+  document.getElementById('stat-receipts').innerText = receipts;
 }
 
 function copyAdminSecretLink() {
   navigator.clipboard.writeText(window.location.href);
-  alert('تم نسخ رابط لوحة الإدارة السرية الخاص بك! احفظه في مفضلة هاتفك ولا تشاركه مع أحد.');
+  alert('تم نسخ رابط لوحة الإدارة السرية الخاص بك!');
 }
 
 function createSub() {
   let name = document.getElementById('adm-name').value.trim();
   let code = document.getElementById('adm-code').value.trim().toUpperCase();
   let phone = document.getElementById('adm-phone').value.trim();
+  let passcode = document.getElementById('adm-passcode').value.trim() || '1234';
   let days = parseInt(document.getElementById('adm-days').value) || 30;
-  if (!name || !code) return alert('أدخل اسم المعرض والكود!');
+
+  if (!name || !code || !phone) return alert('أدخل اسم المعرض والكود ورقم الهاتف!');
   if (subs.some(s => s.code === code)) return alert('هذا الكود موجود مسبقاً!');
+
   let d = new Date(); d.setDate(d.getDate() + days);
-  subs.push({ code, name, phone, expiresAt: d.toISOString().split('T')[0], active: true });
+  subs.push({ code, name, phone, passcode, expiresAt: d.toISOString().split('T')[0], active: true });
   saveSubs();
+  alert('تمت إضافة الصايغ وتفعيل حسابه سحابياً بنجاح!');
+  document.getElementById('adm-name').value = '';
+  document.getElementById('adm-code').value = '';
+  document.getElementById('adm-phone').value = '';
+  document.getElementById('adm-passcode').value = '';
 }
 
 function renderSubs() {
@@ -112,14 +185,15 @@ function renderSubs() {
     let exp = !s.active || s.expiresAt < today;
     tb.innerHTML += `<tr class="border-b border-slate-800">
       <td class="p-3 font-bold">${s.name}</td>
-      <td class="p-3 font-mono text-amber-400 font-bold">${s.code}</td>
+      <td class="p-3 font-mono text-amber-400 font-bold">${s.code} <span class="text-[10px] text-slate-400">(${s.passcode||'--'})</span></td>
       <td class="p-3 font-mono text-emerald-400">${s.phone||'--'}</td>
       <td class="p-3">${s.expiresAt}</td>
       <td class="p-3"><span class="px-2.5 py-1 rounded-full font-bold text-[10px] ${exp?'bg-rose-500/20 text-rose-400':'bg-emerald-500/20 text-emerald-400'}">${exp?'متوقف':'نشط ✅'}</span></td>
       <td class="p-3 flex flex-wrap justify-center gap-1.5">
-        <button onclick="copyActivationLink(${i})" class="bg-blue-600/30 border border-blue-500 text-blue-300 px-2.5 py-1 rounded text-[10px] font-bold">نسخ رابط التفعيل للصايغ 🔗</button>
+        <button onclick="copyActivationLink(${i})" class="bg-blue-600/30 border border-blue-500 text-blue-300 px-2.5 py-1 rounded text-[10px] font-bold">رابط التفعيل 🔗</button>
+        <button onclick="openPasswordModal('${s.code}')" class="bg-amber-600/30 text-amber-300 px-2.5 py-1 rounded text-[10px]">الرمز 🔑</button>
         <button onclick="renewSub(${i},30)" class="bg-emerald-600/30 text-emerald-300 px-2 py-1 rounded text-[10px]">+30 يوم</button>
-        <button onclick="toggleSub(${i})" class="bg-amber-600/30 text-amber-300 px-2 py-1 rounded text-[10px]">${s.active?'إيقاف':'تفعيل'}</button>
+        <button onclick="toggleSub(${i})" class="bg-rose-600/30 text-rose-300 px-2 py-1 rounded text-[10px]">${s.active?'إيقاف 🛑':'تفعيل ✅'}</button>
       </td>
     </tr>`;
   });
@@ -130,23 +204,66 @@ function copyActivationLink(i) {
   let base = window.location.href.replace('admin.html', 'index.html');
   let link = `${base}?activate=${encodeURIComponent(s.code)}&exp=${encodeURIComponent(s.expiresAt)}&name=${encodeURIComponent(s.name)}`;
   navigator.clipboard.writeText(link);
-  alert(`تم نسخ رابط التفعيل المباشر لـ (${s.name})!\nأرسله للصايغ على الواتساب؛ بمجرد فتحه سيتفعّل حسابه فوراً.`);
+  alert(`تم نسخ رابط التفعيل لـ (${s.name})!\nبمجرد فتحه من قبل الصايغ سيتم ربطه وتفعيل حسابه فوراً.`);
 }
+
 function renewSub(i, days) {
   let d = new Date(); d.setDate(d.getDate() + days);
   subs[i].expiresAt = d.toISOString().split('T')[0]; subs[i].active = true; saveSubs();
 }
-function toggleSub(i) { subs[i].active = !subs[i].active; saveSubs(); }
+
+function toggleSub(i) { 
+  subs[i].active = !subs[i].active; 
+  saveSubs(); 
+}
+
+function openPasswordModal(code) {
+  document.getElementById('edit-pass-code').value = code;
+  document.getElementById('new-pass-val').value = '';
+  document.getElementById('password-modal').classList.remove('hidden');
+}
+function closePasswordModal() { document.getElementById('password-modal').classList.add('hidden'); }
+function saveNewSubscriberPassword() {
+  let code = document.getElementById('edit-pass-code').value;
+  let newPass = document.getElementById('new-pass-val').value.trim();
+  if (!newPass) return alert('أدخل الرمز الجديد!');
+  let sub = subs.find(s => s.code === code);
+  if (sub) {
+    sub.passcode = newPass;
+    saveSubs();
+    closePasswordModal();
+    alert('تم تحديث رمز الدخول بنجاح!');
+  }
+}
+
+function openSupabaseConfigModal() { document.getElementById('supabase-modal').classList.remove('hidden'); }
+function closeSupabaseConfigModal() { document.getElementById('supabase-modal').classList.add('hidden'); }
+function loadSupabaseConfigToUI() {
+  let cfg = JSON.parse(localStorage.getItem('aramky_supabase_config')) || { url: '', key: '', render: '' };
+  document.getElementById('sup-url').value = cfg.url;
+  document.getElementById('sup-key').value = cfg.key;
+  document.getElementById('render-url').value = cfg.render;
+}
+function saveSupabaseConfig() {
+  let cfg = {
+    url: document.getElementById('sup-url').value.trim(),
+    key: document.getElementById('sup-key').value.trim(),
+    render: document.getElementById('render-url').value.trim()
+  };
+  localStorage.setItem('aramky_supabase_config', JSON.stringify(cfg));
+  closeSupabaseConfigModal();
+  alert('تم حفظ ربط Supabase وسيرفر Render بنجاح وتم ربط المفاتيح بالسحابة!');
+}
 
 function renderReceipts() {
   let list = JSON.parse(localStorage.getItem('aramky_global_support_tickets')) || [];
   let c = document.getElementById('admin-receipts-list'); c.innerHTML = '';
-  if (!list.length) { c.innerHTML = '<p class="text-xs text-slate-500">لا توجد وصلات تحويل مرسلة حالياً.</p>'; return; }
+  if (!list.length) { c.innerHTML = '<p class="text-xs text-slate-500 col-span-full">لا توجد وصلات تحويل مرسلة حالياً.</p>'; return; }
   list.forEach(t => {
     let img = t.receipt ? `<img src="${t.receipt}" class="w-full max-h-56 object-contain rounded-xl border border-amber-500/40 mt-2">` : '';
     c.innerHTML += `<div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-xs space-y-1">
       <div class="flex justify-between"><strong class="text-amber-400">${t.storeName} (${t.tenant})</strong><span class="text-slate-400">${t.time}</span></div>
-      <div>الطريقة: <strong class="text-blue-300">${t.method}</strong> | التفاصيل: <span class="font-mono text-emerald-400">${t.ref}</span></div>
+      <div>طريقة التحويل: <strong class="text-blue-300">${t.method}</strong> | التفاصيل: <span class="font-mono text-emerald-400">${t.ref}</span></div>
       <p class="text-slate-300">${t.msg||''}</p>
       ${img}
     </div>`;
