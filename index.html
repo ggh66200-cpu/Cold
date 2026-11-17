@@ -1,3 +1,4 @@
+إليك الملف كاملاً (index.html) بصورته النهائية المحدثة، مرتباً ونظيفاً وخالياً من أي أخطاء برمجية، ومضبوطاً بالكامل لدعم PWA (تثبيت التطبيق وشعار أرامكي) وإدارة الفروع والصاغة بكل كفاءة:
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -52,7 +53,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <div id="tenant-login-screen" class="fixed inset-0 bg-darkbg/95 backdrop-blur-xl z-[250] flex items-center justify-center p-5 hidden">
   <div class="system-card p-8 rounded-3xl border border-gold/40 max-w-md w-full space-y-5 shadow-2xl text-center">
     <div class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl mx-auto shadow-xl overflow-hidden border-2 border-gold">
-      <img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
+      <img src="icon (1).png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
     </div>
     <div>
       <h2 class="text-xl font-black text-gold">نظام إدارة صياغة الذهب</h2>
@@ -69,7 +70,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <header id="app-header" class="glass sticky top-0 z-50 border-b border-gold/30 px-5 py-3 flex flex-wrap justify-between items-center gap-3 shadow-2xl">
   <div class="flex items-center space-x-3 space-x-reverse">
     <div class="w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-xl shadow-lg overflow-hidden border border-gold">
-      <img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
+      <img src="icon (1).png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
     </div>
     <div>
       <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">v23.5</span></h1>
@@ -292,10 +293,10 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-store"></i> إعدادات المعرض والهوية البصرية المؤسسية</h3>
         <div class="flex flex-col md:flex-row items-center gap-4 bg-darkbg p-4 rounded-2xl border border-slate-800">
           <div class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl overflow-hidden border-2 border-gold shadow-lg relative">
-            <img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
+            <img src="icon (1).png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
           </div>
           <div class="flex-1 space-y-1">
-            <label class="text-xs font-bold text-gold block">شعار المعرض الرسمي (مربوط تلقائياً من `icon.png`):</label>
+            <label class="text-xs font-bold text-gold block">شعار المعرض الرسمي (مربوط تلقائياً من `icon (1).png`):</label>
             <p class="text-[10px] text-slate-400">النظام يستخدم الآن شعار التطبيق الرسمي المرفق في مجلد المشروع لضمان ظهور بصري فخم وموثوق.</p>
           </div>
         </div>
@@ -589,7 +590,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <div class="flex flex-wrap justify-between items-center border-b border-gold/30 pb-4 gap-3">
       <div class="flex items-center gap-3">
         <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl overflow-hidden border-2 border-gold">
-          <img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
+          <img src="icon (1).png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover">
         </div>
         <div><h2 id="store-view-title" class="text-xl font-black text-gold">معرض الذهب</h2><p id="store-view-subtitle" class="text-xs text-slate-400">--</p></div>
       </div>
@@ -712,7 +713,7 @@ let currentTenantCode = localStorage.getItem('aramky_active_tenant') || "ARAMKY-
 function getStorageKeyForTenant(code) { return `aramky_gold_data_${code.toUpperCase()}`; }
 
 let appState = {
-  store: { name: "صاغة أرامكي - فرع نواة الذهب", logo: "icon.png", phone: "07700000000", address: "بغداد - الشورجة", openTime: "09:00 ص", closeTime: "10:00 م", bio: "أفضل تشكيلة ذهب" },
+  store: { name: "صاغة أرامكي - فرع نواة الذهب", logo: "icon (1).png", phone: "07700000000", address: "بغداد - الشورجة", openTime: "09:00 ص", closeTime: "10:00 م", bio: "أفضل تشكيلة ذهب" },
   prices: { usd: 153000, m24: 628571, m22: 576190, m21: 550000, m18: 471428, m9: 235714 },
   cash: 0, usdCash: 0, zainCash: 0, makingProfit: 0,
   inventory: [], cart: [], logs: [], debts: [], invoices: [], supportTickets: [],
@@ -998,7 +999,7 @@ function closeStorefrontView() { document.getElementById('storefront-modal').cla
 function renderPublicCustomerStorefront() {
   document.body.innerHTML = `<div class="min-h-screen bg-darkbg text-slate-100 p-5 flex flex-col items-center"><div class="max-w-5xl w-full space-y-6">
     <div class="system-card p-6 rounded-3xl border border-gold/40 flex flex-col md:flex-row justify-between items-center gap-4">
-      <div class="flex items-center gap-4"><img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-16 h-16 rounded-2xl object-cover border-2 border-gold"><div><h1 class="text-2xl font-black text-gold">${appState.store.name}</h1><p class="text-xs text-slate-300">${appState.store.bio}</p></div></div>
+      <div class="flex items-center gap-4"><img src="icon (1).png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-16 h-16 rounded-2xl object-cover border-2 border-gold"><div><h1 class="text-2xl font-black text-gold">${appState.store.name}</h1><p class="text-xs text-slate-300">${appState.store.bio}</p></div></div>
       <div class="bg-darkbg p-4 rounded-2xl text-xs space-y-1"><div>📍 ${appState.store.address}</div><div>⏰ ${appState.store.openTime} - ${appState.store.closeTime}</div><div>📞 <span class="text-gold font-mono">${appState.store.phone}</span></div></div>
     </div>
     <div id="pub-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div></div></div>`;
@@ -1214,14 +1215,14 @@ function renderInvoicePrintContent(code, cust, phone, notes, tot, mk, wt, items)
   let tmpl = appState.invoiceTemplate || 'detailed';
 
   if (tmpl === 'detailed') {
-    headerBox.innerHTML = `<img src="icon.png" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">💎 ${appState.store.name} 💎</h2><p class="text-xs text-slate-600 font-bold">${appState.store.bio || 'فرع نواة الذهب ⚜️'}</p><div class="inline-block bg-slate-900 text-gold font-mono text-xs font-bold px-3 py-1 rounded-full mt-1">${code}</div>`;
+    headerBox.innerHTML = `<img src="icon (1).png" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">💎 ${appState.store.name} 💎</h2><p class="text-xs text-slate-600 font-bold">${appState.store.bio || 'فرع نواة الذهب ⚜️'}</p><div class="inline-block bg-slate-900 text-gold font-mono text-xs font-bold px-3 py-1 rounded-full mt-1">${code}</div>`;
     let itemsHtml = items.map(i => `<div class="flex justify-between border-b py-1"><span>${i.name} (${i.weight}غ - عيار ${i.karat})</span><span class="font-bold">${i.itemTotal.toLocaleString()} د.ع</span></div>`).join('');
     body.innerHTML = `<div class="flex justify-between font-bold border-b pb-1"><span>نوع المعاملة:</span><span class="text-emerald-700">بيع رسمي معتمد</span></div><div class="py-1 space-y-1 max-h-32 overflow-y-auto">${itemsHtml}</div><div class="flex justify-between pt-2 border-t"><span>الوزن الإجمالي:</span><span class="font-bold">${wt} غرام</span></div><div class="flex justify-between"><span>أجور الصياغة:</span><span class="text-amber-600 font-bold">${mk.toLocaleString()} د.ع</span></div><div class="flex justify-between text-sm font-black pt-1 border-t"><span>الإجمالي النهائي:</span><span class="text-gold-dark">${tot.toLocaleString()} دينار</span></div><div class="flex justify-between text-sm font-black text-emerald-700 bg-emerald-50 p-2 rounded-xl"><span>المقابل بالورقة:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-[11px] text-slate-600 flex justify-between pt-1 border-t"><span>الزبون: <strong>${cust}</strong></span><span>الهاتف: <strong>${phone}</strong></span></div><div class="text-[11px] text-slate-500 flex justify-between"><span>ملاحظات: <span>${notes||'--'}</span></span><span>التاريخ: <strong>${new Date().toLocaleDateString('ar-IQ')}</strong></span></div>`;
   } else if (tmpl === 'compact') {
     headerBox.innerHTML = `<h2 class="font-black text-lg text-slate-900">${appState.store.name}</h2><p class="text-[11px] text-slate-500 font-mono">فاتورة مختصرة | ${code}</p>`;
     body.innerHTML = `<div class="text-center py-2 font-bold text-sm text-slate-800">ملخص عملية البيع النقدي</div><div class="flex justify-between text-base font-black pt-2 border-t"><span>المبلغ الإجمالي:</span><span class="text-gold">${tot.toLocaleString()} دينار</span></div><div class="flex justify-between text-sm text-emerald-700 font-bold bg-emerald-50 p-2 rounded-xl"><span>المقابل اللحظي:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-xs text-slate-600 pt-2">الزبون: <strong>${cust}</strong> (${phone})</div><div class="text-[10px] text-slate-400">التاريخ: ${new Date().toLocaleDateString('ar-IQ')}</div>`;
   } else {
-    headerBox.innerHTML = `<img src="icon.png" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">⚜️ ${appState.store.name} ⚜️</h2><p class="text-xs text-gold-dark font-bold">سند قبض وبيع ذهب مؤسسي</p><div class="inline-block bg-gold text-darkbg font-mono text-xs font-black px-3 py-0.5 rounded-full mt-1">${code}</div>`;
+    headerBox.innerHTML = `<img src="icon (1).png" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">⚜️ ${appState.store.name} ⚜️</h2><p class="text-xs text-gold-dark font-bold">سند قبض وبيع ذهب مؤسسي</p><div class="inline-block bg-gold text-darkbg font-mono text-xs font-black px-3 py-0.5 rounded-full mt-1">${code}</div>`;
     body.innerHTML = `<div class="bg-amber-50 p-3 rounded-2xl border border-amber-200 space-y-1 text-xs"><div class="flex justify-between"><span>اسم الصايغ والمعرض:</span><strong>${appState.store.name}</strong></div><div class="flex justify-between"><span>هاتف المعرض:</span><strong class="font-mono">${appState.store.phone}</strong></div><div class="flex justify-between"><span>العنوان:</span><span>${appState.store.address}</span></div></div><div class="flex justify-between text-sm font-black pt-2"><span>صافي المبيعات:</span><span class="text-gold">${tot.toLocaleString()} د.ع</span></div><div class="flex justify-between text-sm font-black text-emerald-700 bg-emerald-50 p-2 rounded-xl"><span>المقابل المعادل:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-[11px] text-slate-600 border-t pt-1">العميل المستفيد: <strong>${cust}</strong> | الهاتف: <span class="font-mono">${phone}</span></div><div class="text-[10px] text-slate-500 text-center pt-2">توقيع وختم الصايغ المعتمد — ${new Date().toLocaleDateString('ar-IQ')}</div>`;
   }
 }
@@ -1516,6 +1517,8 @@ function handleGlobalZeroKey(e) {
     openResetSystemModal();
   }
 }
+</script>
+
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -1525,3 +1528,4 @@ function handleGlobalZeroKey(e) {
 </script>
 </body>
 </html>
+
