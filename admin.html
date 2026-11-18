@@ -35,7 +35,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
         </div>
         <div>
           <h1 class="text-xl font-black text-amber-400">إدارة الاشتراكات والسحابة — أرامكي</h1>
-          <p class="text-xs text-slate-400">جرد شامل، ربط Supabase و Render، وإدارة الصاغة والإيصالات</p>
+          <p class="text-xs text-slate-400">تحكم صارم، حظر وتفعيل سحابي للفروع والصاغة</p>
         </div>
       </div>
       <div class="flex gap-2">
@@ -54,7 +54,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
 
     <!-- تفعيل صايغ جديد -->
     <div class="glass p-6 rounded-3xl space-y-4">
-      <h3 class="font-bold text-amber-400 text-base border-b border-slate-800 pb-2"><i class="fa-solid fa-user-plus"></i> تفعيل صايغ جديد أو تجديد اشتراكه (برمز خاص ورقم هاتف)</h3>
+      <h3 class="font-bold text-amber-400 text-base border-b border-slate-800 pb-2"><i class="fa-solid fa-user-plus"></i> تفعيل صايغ جديد أو تجديد اشتراكه سحابياً</h3>
       <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
         <input type="text" id="adm-name" placeholder="اسم المعرض / الصايغ" class="bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none">
         <input type="text" id="adm-code" placeholder="كود الدخول (مثال: GOLD-02)" class="bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-amber-400 uppercase outline-none">
@@ -66,16 +66,16 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
           <option value="365">سنة كاملة (365 يوم)</option>
         </select>
       </div>
-      <button onclick="createSub()" class="w-full gold-gradient text-slate-950 font-black py-3.5 rounded-xl text-xs shadow-lg">إنشاء الحساب سحابياً وتجهيز رابط التفعيل 🚀</button>
+      <button onclick="createSub()" class="w-full gold-gradient text-slate-950 font-black py-3.5 rounded-xl text-xs shadow-lg">إنشاء الحساب وتفعيل القفل الصارم 🚀</button>
     </div>
 
     <!-- جدول الصاغة المشتركين -->
     <div class="glass p-6 rounded-3xl space-y-3">
-      <h3 class="font-bold text-slate-200 text-sm">قائمة الصاغة المشتركين (تحكم كامل):</h3>
+      <h3 class="font-bold text-slate-200 text-sm">قائمة الصاغة المشتركين (تحكم كامل بالحظر والتفعيل):</h3>
       <div class="overflow-x-auto">
         <table class="w-full text-right text-xs">
           <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
-            <tr><th class="p-3">المعرض</th><th class="p-3">الكود والرمز</th><th class="p-3">الهاتف</th><th class="p-3">تاريخ الانتهاء</th><th class="p-3">الحالة</th><th class="p-3 text-center">الإجراءات والتحكم السري</th></tr>
+            <tr><th class="p-3">المعرض</th><th class="p-3">الكود والرمز</th><th class="p-3">الهاتف</th><th class="p-3">تاريخ الانتهاء</th><th class="p-3">الحالة</th><th class="p-3 text-center">الإجراءات والتحكم الصارم</th></tr>
           </thead>
           <tbody id="subs-tbody" class="divide-y divide-slate-800"></tbody>
         </table>
@@ -93,30 +93,13 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
   <div id="supabase-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex items-center justify-center hidden p-4">
     <div class="glass p-6 rounded-3xl max-w-md w-full space-y-4 border border-blue-500/40">
       <h3 class="text-base font-bold text-blue-400"><i class="fa-solid fa-database"></i> ربط قاعدة بيانات Supabase والسيرفر</h3>
-      <p class="text-xs text-slate-300">أدخل مفاتيح الاتصال الخاصة بـ Supabase وRender لربط بيانات الصاغة سحابياً:</p>
       <div class="space-y-3 text-xs">
         <input type="text" id="sup-url" placeholder="Supabase Project URL" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-emerald-400 outline-none">
         <input type="password" id="sup-key" placeholder="Supabase Anon / Service Key" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-amber-400 outline-none">
-        <input type="text" id="render-url" placeholder="Render Server API Endpoint" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-blue-300 outline-none">
       </div>
       <div class="flex gap-2 pt-2">
-        <button onclick="saveSupabaseConfig()" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl text-xs">حفظ واختبار الاتصال 🔗</button>
+        <button onclick="saveSupabaseConfig()" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl text-xs">حفظ مفاتيح السحابة 🔗</button>
         <button onclick="closeSupabaseConfigModal()" class="px-4 py-3 bg-slate-800 text-slate-300 rounded-xl text-xs">إلغاء</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- نافذة تغيير كلمة المرور لصايغ معين -->
-  <div id="password-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex items-center justify-center hidden p-4">
-    <div class="glass p-6 rounded-3xl max-w-sm w-full space-y-4 border border-amber-500/40">
-      <h3 class="text-base font-bold text-amber-400"><i class="fa-solid fa-key"></i> تغيير كلمة المرور / الرمز للصايغ</h3>
-      <input type="hidden" id="edit-pass-code">
-      <div class="space-y-3 text-xs">
-        <input type="text" id="new-pass-val" placeholder="أدخل الرمز أو كلمة المرور الجديدة" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-amber-400 font-bold outline-none">
-      </div>
-      <div class="flex gap-2">
-        <button onclick="saveNewSubscriberPassword()" class="flex-1 gold-gradient text-slate-950 font-black py-3 rounded-xl text-xs">حفظ الرمز الجديد 🔒</button>
-        <button onclick="closePasswordModal()" class="px-4 py-3 bg-slate-800 text-slate-300 rounded-xl text-xs">إلغاء</button>
       </div>
     </div>
   </div>
@@ -136,7 +119,7 @@ function unlockAdmin() {
   if (document.getElementById('admin-pass').value === '2026') {
     document.getElementById('admin-lock').classList.add('hidden');
     document.getElementById('admin-panel').classList.remove('hidden');
-    renderSubs(); renderReceipts(); updateStats(); loadSupabaseConfigToUI();
+    renderSubs(); renderReceipts(); updateStats();
   } else { alert('الرمز السري غير صحيح!'); }
 }
 
@@ -171,7 +154,7 @@ function createSub() {
   let d = new Date(); d.setDate(d.getDate() + days);
   subs.push({ code, name, phone, passcode, expiresAt: d.toISOString().split('T')[0], active: true });
   saveSubs();
-  alert('تمت إضافة الصايغ وتفعيل حسابه سحابياً بنجاح!');
+  alert('تمت إضافة الصايغ وتفعيل قفله الصارم بنجاح!');
   document.getElementById('adm-name').value = '';
   document.getElementById('adm-code').value = '';
   document.getElementById('adm-phone').value = '';
@@ -188,12 +171,11 @@ function renderSubs() {
       <td class="p-3 font-mono text-amber-400 font-bold">${s.code} <span class="text-[10px] text-slate-400">(${s.passcode||'--'})</span></td>
       <td class="p-3 font-mono text-emerald-400">${s.phone||'--'}</td>
       <td class="p-3">${s.expiresAt}</td>
-      <td class="p-3"><span class="px-2.5 py-1 rounded-full font-bold text-[10px] ${exp?'bg-rose-500/20 text-rose-400':'bg-emerald-500/20 text-emerald-400'}">${exp?'متوقف':'نشط ✅'}</span></td>
+      <td class="p-3"><span class="px-2.5 py-1 rounded-full font-bold text-[10px] ${exp?'bg-rose-500/20 text-rose-400':'bg-emerald-500/20 text-emerald-400'}">${exp?'متوقف وقفل صارم':'نشط ✅'}</span></td>
       <td class="p-3 flex flex-wrap justify-center gap-1.5">
         <button onclick="copyActivationLink(${i})" class="bg-blue-600/30 border border-blue-500 text-blue-300 px-2.5 py-1 rounded text-[10px] font-bold">رابط التفعيل 🔗</button>
-        <button onclick="openPasswordModal('${s.code}')" class="bg-amber-600/30 text-amber-300 px-2.5 py-1 rounded text-[10px]">الرمز 🔑</button>
         <button onclick="renewSub(${i},30)" class="bg-emerald-600/30 text-emerald-300 px-2 py-1 rounded text-[10px]">+30 يوم</button>
-        <button onclick="toggleSub(${i})" class="bg-rose-600/30 text-rose-300 px-2 py-1 rounded text-[10px]">${s.active?'إيقاف 🛑':'تفعيل ✅'}</button>
+        <button onclick="toggleSub(${i})" class="bg-rose-600/30 text-rose-300 px-2.5 py-1 rounded text-[10px]">${s.active?'إيقاف وقفل الصايغ 🛑':'تفعيل الحساب ✅'}</button>
       </td>
     </tr>`;
   });
@@ -204,55 +186,31 @@ function copyActivationLink(i) {
   let base = window.location.href.replace('admin.html', 'index.html');
   let link = `${base}?activate=${encodeURIComponent(s.code)}&exp=${encodeURIComponent(s.expiresAt)}&name=${encodeURIComponent(s.name)}`;
   navigator.clipboard.writeText(link);
-  alert(`تم نسخ رابط التفعيل لـ (${s.name})!\nبمجرد فتحه من قبل الصايغ سيتم ربطه وتفعيل حسابه فوراً.`);
+  alert(`تم نسخ رابط التفعيل لـ (${s.name})!`);
 }
 
 function renewSub(i, days) {
   let d = new Date(); d.setDate(d.getDate() + days);
   subs[i].expiresAt = d.toISOString().split('T')[0]; subs[i].active = true; saveSubs();
+  alert('تم تجديد الاشتراك بنجاح!');
 }
 
 function toggleSub(i) { 
   subs[i].active = !subs[i].active; 
   saveSubs(); 
-}
-
-function openPasswordModal(code) {
-  document.getElementById('edit-pass-code').value = code;
-  document.getElementById('new-pass-val').value = '';
-  document.getElementById('password-modal').classList.remove('hidden');
-}
-function closePasswordModal() { document.getElementById('password-modal').classList.add('hidden'); }
-function saveNewSubscriberPassword() {
-  let code = document.getElementById('edit-pass-code').value;
-  let newPass = document.getElementById('new-pass-val').value.trim();
-  if (!newPass) return alert('أدخل الرمز الجديد!');
-  let sub = subs.find(s => s.code === code);
-  if (sub) {
-    sub.passcode = newPass;
-    saveSubs();
-    closePasswordModal();
-    alert('تم تحديث رمز الدخول بنجاح!');
-  }
+  alert(`تم تغيير حالة الصايغ إلى: ${subs[i].active ? 'نشط' : 'متوقف ومقفل تماماً'}`);
 }
 
 function openSupabaseConfigModal() { document.getElementById('supabase-modal').classList.remove('hidden'); }
 function closeSupabaseConfigModal() { document.getElementById('supabase-modal').classList.add('hidden'); }
-function loadSupabaseConfigToUI() {
-  let cfg = JSON.parse(localStorage.getItem('aramky_supabase_config')) || { url: '', key: '', render: '' };
-  document.getElementById('sup-url').value = cfg.url;
-  document.getElementById('sup-key').value = cfg.key;
-  document.getElementById('render-url').value = cfg.render;
-}
 function saveSupabaseConfig() {
   let cfg = {
     url: document.getElementById('sup-url').value.trim(),
-    key: document.getElementById('sup-key').value.trim(),
-    render: document.getElementById('render-url').value.trim()
+    key: document.getElementById('sup-key').value.trim()
   };
   localStorage.setItem('aramky_supabase_config', JSON.stringify(cfg));
   closeSupabaseConfigModal();
-  alert('تم حفظ ربط Supabase وسيرفر Render بنجاح وتم ربط المفاتيح بالسحابة!');
+  alert('تم حفظ مفاتيح Supabase بنجاح!');
 }
 
 function renderReceipts() {
