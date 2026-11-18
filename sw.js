@@ -6,7 +6,6 @@ const ASSETS_TO_CACHE = [
   './icon.png'
 ];
 
-// مرحلة تثبيت التخزين المؤقت
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -16,7 +15,6 @@ self.addEventListener('install', (e) => {
   self.skipWaiting();
 });
 
-// تفعيل وتطهير الكاش القديم
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
@@ -32,7 +30,6 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
-// استراتيجية جلب البيانات (Fetch)
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     fetch(e.request).catch(() => {
