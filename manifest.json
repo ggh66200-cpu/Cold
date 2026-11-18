@@ -1,9 +1,8 @@
 {
-  "name": "ARAMKY | أرامكي للحلول الرقمية",
-  "short_name": "أرامكي",
+  "name": "ARAMKY Gold OS",
+  "short_name": "أرامكي للذهب",
   "start_url": "index.html",
   "display": "standalone",
-  "orientation": "portrait",
   "background_color": "#070A12",
   "theme_color": "#D4AF37",
   "icons": [
