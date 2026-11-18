@@ -1,0 +1,14 @@
+{
+  "name": "aramky-gold-os",
+  "version": "24.0.0",
+  "description": "ARAMKY Gold OS - نظام إدارة صياغة الذهب",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager . ARAMKY-Gold-OS --platform=win32 --arch=x64 --icon=icon.png --out=dist --overwrite"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-packager": "^17.1.2"
+  }
+}
