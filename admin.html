@@ -18,7 +18,9 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
   <!-- قفل الحماية السرية للأدمن فقط -->
   <div id="admin-lock" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-5">
     <div class="glass p-8 rounded-3xl max-w-sm w-full text-center space-y-4 shadow-2xl">
-      <div class="w-16 h-16 rounded-2xl gold-gradient text-slate-950 font-black text-3xl flex items-center justify-center mx-auto shadow-lg">👑</div>
+      <div class="w-16 h-16 rounded-2xl gold-gradient text-slate-950 font-black text-3xl flex items-center justify-center mx-auto shadow-lg overflow-hidden">
+        <img src="icon.png" onerror="this.style.display='none'; this.parentElement.innerHTML='👑';" class="w-full h-full object-cover">
+      </div>
       <h2 class="text-xl font-black text-amber-400">لوحة الإدارة السرية (ARAMKY)</h2>
       <p class="text-xs text-slate-400">منطقة المالك والمطور حصراً</p>
       <input type="password" id="admin-pass" placeholder="أدخل الرمز السري (2026)" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3.5 text-center text-amber-400 font-bold outline-none">
@@ -30,15 +32,16 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
   <div id="admin-panel" class="hidden max-w-7xl w-full space-y-6">
     <div class="glass p-6 rounded-3xl flex flex-wrap justify-between items-center gap-4 shadow-2xl">
       <div class="flex items-center gap-3">
-        <div class="w-14 h-14 rounded-2xl gold-gradient text-slate-950 font-black text-2xl flex items-center justify-center shadow-lg">
-          <img src="icon.png" onerror="this.src='https://placehold.co/100?text=ARAMKY'" class="w-full h-full object-cover rounded-2xl">
+        <div class="w-14 h-14 rounded-2xl gold-gradient text-slate-950 font-black text-2xl flex items-center justify-center shadow-lg overflow-hidden">
+          <img src="icon.png" onerror="this.style.display='none'; this.parentElement.innerHTML='👑';" class="w-full h-full object-cover rounded-2xl">
         </div>
         <div>
-          <h1 class="text-xl font-black text-amber-400">إدارة الاشتراكات والسحابة — أرامكي</h1>
-          <p class="text-xs text-slate-400">تحكم صارم، حظر وتفعيل سحابي للفروع والصاغة</p>
+          <h1 class="text-xl font-black text-amber-400">إدارة الاشتراكات، الرسائل، والسحابة — أرامكي</h1>
+          <p class="text-xs text-slate-400">تحكم صارم، متابعة تحديثات الصور والأغلفة، وإيصالات الفروع</p>
         </div>
       </div>
-      <div class="flex gap-2">
+      <div class="flex flex-wrap gap-2">
+        <button onclick="window.location.href='index.html'" class="bg-gold/20 border border-gold text-gold text-xs px-4 py-2.5 rounded-xl font-bold"><i class="fa-solid fa-arrow-right"></i> العودة للنظام</button>
         <button onclick="openSupabaseConfigModal()" class="bg-blue-600/20 border border-blue-500/50 text-blue-300 text-xs px-4 py-2.5 rounded-xl font-bold"><i class="fa-solid fa-database"></i> إعدادات Supabase 🔗</button>
         <button onclick="copyAdminSecretLink()" class="bg-slate-800 border border-amber-500/40 text-amber-300 text-xs px-4 py-2.5 rounded-xl font-bold"><i class="fa-solid fa-link"></i> نسخ رابط الأدمن</button>
       </div>
@@ -49,7 +52,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
       <div class="glass p-5 rounded-3xl border border-amber-500/30"><p class="text-xs text-slate-400">إجمالي الصاغة المشتركين</p><h3 id="stat-total" class="text-2xl font-black text-amber-400 mt-1">0</h3></div>
       <div class="glass p-5 rounded-3xl border border-emerald-500/30"><p class="text-xs text-slate-400">المشتركين النشطين فعلياً</p><h3 id="stat-active" class="text-2xl font-black text-emerald-400 mt-1">0</h3></div>
       <div class="glass p-5 rounded-3xl border border-rose-500/30"><p class="text-xs text-slate-400">الحسابات المتوقفة / المنتهية</p><h3 id="stat-expired" class="text-2xl font-black text-rose-400 mt-1">0</h3></div>
-      <div class="glass p-5 rounded-3xl border border-blue-500/30"><p class="text-xs text-slate-400">إيصالات التحويل الواردة</p><h3 id="stat-receipts" class="text-2xl font-black text-blue-400 mt-1">0</h3></div>
+      <div class="glass p-5 rounded-3xl border border-blue-500/30"><p class="text-xs text-slate-400">الرسائل وإيصالات الصور الواردة</p><h3 id="stat-receipts" class="text-2xl font-black text-blue-400 mt-1">0</h3></div>
     </div>
 
     <!-- تفعيل صايغ جديد -->
@@ -82,9 +85,12 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
       </div>
     </div>
 
-    <!-- وصلات تحويل الماستر وزين كاش الواردة -->
-    <div class="glass p-6 rounded-3xl space-y-3">
-      <h3 class="font-bold text-blue-400 text-sm"><i class="fa-solid fa-receipt"></i> إثباتات تحويل الماستر وزين كاش المرسلة من الصاغة:</h3>
+    <!-- صندوق الرسائل، تحديثات الصور والأغلفة، وإيصالات التحويل الواردة -->
+    <div class="glass p-6 rounded-3xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-blue-400 text-sm"><i class="fa-solid fa-envelope-open-text"></i> صندوق رسائل الصاغة، تحديثات الشعارات والأغلفة، وإيصالات التحويل:</h3>
+        <button onclick="renderReceipts(); updateStats();" class="bg-slate-800 text-gold px-3 py-1.5 rounded-xl text-xs font-bold"><i class="fa-solid fa-rotate"></i> تحديث الصندوق</button>
+      </div>
       <div id="admin-receipts-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
   </div>
@@ -201,28 +207,47 @@ function toggleSub(i) {
   alert(`تم تغيير حالة الصايغ إلى: ${subs[i].active ? 'نشط' : 'متوقف ومقفل تماماً'}`);
 }
 
-function openSupabaseConfigModal() { document.getElementById('supabase-modal').classList.remove('hidden'); }
+function openSupabaseConfigModal() { 
+  let cfg = JSON.parse(localStorage.getItem('aramky_supabase_config')) || {};
+  document.getElementById('sup-url').value = cfg.url || '';
+  document.getElementById('sup-key').value = cfg.key || '';
+  document.getElementById('supabase-modal').classList.remove('hidden'); 
+}
 function closeSupabaseConfigModal() { document.getElementById('supabase-modal').classList.add('hidden'); }
 function saveSupabaseConfig() {
-  let cfg = {
-    url: document.getElementById('sup-url').value.trim(),
-    key: document.getElementById('sup-key').value.trim()
-  };
-  localStorage.setItem('aramky_supabase_config', JSON.stringify(cfg));
+  let url = document.getElementById('sup-url').value.trim();
+  let key = document.getElementById('sup-key').value.trim();
+  localStorage.setItem('aramky_supabase_config', JSON.stringify({ url, key }));
+  localStorage.setItem('aramky_supabase_url', url);
+  localStorage.setItem('aramky_supabase_key', key);
   closeSupabaseConfigModal();
-  alert('تم حفظ مفاتيح Supabase بنجاح!');
+  alert('تم حفظ ومزامنة مفاتيح Supabase مع النظام بنجاح!');
+}
+
+function deleteTicket(idx) {
+  let list = JSON.parse(localStorage.getItem('aramky_global_support_tickets')) || [];
+  list.splice(idx, 1);
+  localStorage.setItem('aramky_global_support_tickets', JSON.stringify(list));
+  renderReceipts();
+  updateStats();
 }
 
 function renderReceipts() {
   let list = JSON.parse(localStorage.getItem('aramky_global_support_tickets')) || [];
   let c = document.getElementById('admin-receipts-list'); c.innerHTML = '';
-  if (!list.length) { c.innerHTML = '<p class="text-xs text-slate-500 col-span-full">لا توجد وصلات تحويل مرسلة حالياً.</p>'; return; }
-  list.forEach(t => {
-    let img = t.receipt ? `<img src="${t.receipt}" class="w-full max-h-56 object-contain rounded-xl border border-amber-500/40 mt-2">` : '';
-    c.innerHTML += `<div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-xs space-y-1">
-      <div class="flex justify-between"><strong class="text-amber-400">${t.storeName} (${t.tenant})</strong><span class="text-slate-400">${t.time}</span></div>
-      <div>طريقة التحويل: <strong class="text-blue-300">${t.method}</strong> | التفاصيل: <span class="font-mono text-emerald-400">${t.ref}</span></div>
-      <p class="text-slate-300">${t.msg||''}</p>
+  if (!list.length) { c.innerHTML = '<p class="text-xs text-slate-500 col-span-full">لا توجد رسائل أو صور مرسلة حالياً.</p>'; return; }
+  list.forEach((t, idx) => {
+    let img = t.receipt ? `<img src="${t.receipt}" class="w-full max-h-64 object-contain rounded-xl border border-amber-500/40 mt-2 bg-slate-950">` : '';
+    c.innerHTML += `<div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 text-xs space-y-2">
+      <div class="flex justify-between items-center">
+        <strong class="text-amber-400">${t.storeName} (${t.tenant})</strong>
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400 text-[10px]">${t.time}</span>
+          <button onclick="deleteTicket(${idx})" class="text-rose-400 hover:text-rose-300" title="حذف الرسالة"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+      <div>النوع: <strong class="text-blue-300">${t.method}</strong> | التفاصيل: <span class="font-mono text-emerald-400">${t.ref||'--'}</span></div>
+      <p class="text-slate-200 bg-slate-950 p-2.5 rounded-xl border border-slate-800">${t.msg||'بدون نص إضافي'}</p>
       ${img}
     </div>`;
   });
