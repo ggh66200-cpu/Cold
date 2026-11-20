@@ -1,5 +1,6 @@
-const CACHE_NAME = 'aramky-gold-v24.0';
+const CACHE_NAME = 'aramky-gold-v25.0';
 const ASSETS_TO_CACHE = [
+  './',
   './index.html',
   './admin.html',
   './manifest.json',
@@ -8,8 +9,12 @@ const ASSETS_TO_CACHE = [
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      for (const asset of ASSETS_TO_CACHE) {
+        try {
+          await cache.add(asset);
+        } catch (_) {}
+      }
     })
   );
   self.skipWaiting();
@@ -17,23 +22,27 @@ self.addEventListener('install', (e) => {
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
-      );
-    })
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+    )
   );
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (e) => {
+  const url = new URL(e.request.url);
+  if (e.request.method !== 'GET' || url.hostname.includes('supabase.co')) {
+    return;
+  }
   e.respondWith(
-    fetch(e.request).catch(() => {
-      return caches.match(e.request);
-    })
+    fetch(e.request)
+      .then((res) => {
+        if (res && res.status === 200 && url.origin === self.location.origin) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, copy));
+        }
+        return res;
+      })
+      .catch(() => caches.match(e.request).then((cached) => cached || caches.match('./index.html')))
   );
 });
