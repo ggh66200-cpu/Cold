@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<title>ARAMKY Gold OS v26.0 | نظام إدارة صياغة الذهب</title>
+<title>ARAMKY Gold OS v27.0 | نظام إدارة صياغة الذهب</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script>
@@ -30,6 +30,16 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 .system-card { background: linear-gradient(145deg, #111827, #1f2937); border: 1px solid rgba(212, 175, 55, 0.25); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6); }
 .luxury-modal-card { background: radial-gradient(circle at top, rgba(212, 175, 55, 0.16), rgba(15, 23, 42, 0.98) 55%); border: 1.5px solid rgba(212, 175, 55, 0.55); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.14); }
 .modal-overlay { background: rgba(7, 10, 18, 0.88); backdrop-filter: blur(12px); }
+.aramky-dissolve-logo {
+  mix-blend-mode: lighten;
+  -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 52%, rgba(0,0,0,0.65) 67%, rgba(0,0,0,0) 79%);
+  mask-image: radial-gradient(circle, rgba(0,0,0,1) 52%, rgba(0,0,0,0.65) 67%, rgba(0,0,0,0) 79%);
+  animation: aramkySplashIntro 1.15s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes aramkySplashIntro {
+  0% { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: #070A12; }
 ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
@@ -42,6 +52,34 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between" onkeydown="handleGlobalZeroKey(event)">
+
+<!-- شاشة بداية أرامكي المذابة بالخلفية -->
+<div id="aramky-splash-screen" class="fixed inset-0 z-[400] flex flex-col items-center justify-between py-12 px-6 bg-[#070A12] text-center select-none transition-opacity duration-700">
+  <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+    <div class="w-80 h-80 rounded-full bg-amber-500/10 blur-3xl"></div>
+  </div>
+  <div class="relative z-10 text-[11px] font-bold tracking-wider text-amber-300/75">
+    ARAMKY GOLD OS • v27.0
+  </div>
+  <div class="relative z-10 flex flex-col items-center">
+    <img
+      id="aramky-splash-logo"
+      src="aramky-splash-logo.png"
+      data-next-src="icon.png"
+      onerror="handleSplashLogoFallback(this)"
+      alt="ARAMKY"
+      class="w-60 h-60 sm:w-72 sm:h-72 object-contain aramky-dissolve-logo"
+    />
+  </div>
+  <div class="relative z-10 pb-3 space-y-1">
+    <p class="text-sm sm:text-base font-black tracking-wide text-amber-200">
+      أرامكي للحلول الرقمية | ARAMKY
+    </p>
+    <p class="text-[11px] text-amber-400/75">
+      فرع نواة الذهب • جاري تهيئة النظام وتحديث النسخة
+    </p>
+  </div>
+</div>
 
 <!-- شاشة قفل الاشتراك الصارمة -->
 <div id="subscription-lock-screen" class="fixed inset-0 bg-darkbg z-[300] flex items-center justify-center p-5 hidden">
@@ -246,13 +284,16 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <img id="header-store-logo" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover bg-darkbg">
     </div>
     <div>
-      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span id="aramky-install-badge" class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">⚜️ أرامكي v26.0</span></h1>
+      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span id="aramky-install-badge" class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">⚜️ أرامكي v27.0</span></h1>
       <p class="text-xs text-slate-400 flex items-center gap-2"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">ID: ARAMKY-01</span></p>
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-2">
     <button id="pwa-install-btn" onclick="installPWA()" class="bg-emerald-600/20 border border-emerald-500 text-emerald-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-2 font-bold shadow">
       <img src="icon.png" onerror="handleBrandImageError(this)" class="w-5 h-5 rounded-full object-cover bg-darkbg border border-gold/60"> <span>تثبيت النظام ⚜️</span>
+    </button>
+    <button onclick="refreshAppAndClearCache()" class="bg-cyan-600/20 border border-cyan-500/50 text-cyan-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow" title="تحديث التطبيق وتفريغ الكاش من الذاكرة">
+      <i class="fa-solid fa-rotate"></i> <span>تحديث الذاكرة</span>
     </button>
     <div id="admin-btn-container" class="hidden">
       <button onclick="openAdminPanel()" class="bg-purple-600/20 border border-purple-500/50 text-purple-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow">
@@ -1109,6 +1150,84 @@ const FALLBACK_BRAND_ICON = "data:image/svg+xml;utf8," + encodeURIComponent('<sv
 let pwaDiagnosticsReason = "";
 let swRegisteredOk = false;
 let editingImagesDraft = [];
+let splashDismissed = false;
+
+function handleSplashLogoFallback(imgEl) {
+  if (!imgEl) return;
+  if (imgEl.dataset.nextSrc && imgEl.src.indexOf(imgEl.dataset.nextSrc) === -1) {
+    const nextUrl = imgEl.dataset.nextSrc;
+    imgEl.dataset.nextSrc = '';
+    imgEl.src = nextUrl;
+    return;
+  }
+  handleBrandImageError(imgEl);
+}
+
+function dismissAramkySplash() {
+  if (splashDismissed) return;
+  splashDismissed = true;
+  const el = document.getElementById('aramky-splash-screen');
+  if (!el) return;
+  el.style.opacity = '0';
+  setTimeout(() => {
+    el.remove();
+  }, 700);
+}
+
+(function initSmartSplashLifecycle() {
+  let loadDone = document.readyState === 'complete';
+  let swSettled = !('serviceWorker' in navigator);
+
+  function tryCloseWhenReady() {
+    if (loadDone && swSettled) {
+      setTimeout(dismissAramkySplash, 850);
+    }
+  }
+
+  if (!loadDone) {
+    window.addEventListener('load', () => {
+      loadDone = true;
+      tryCloseWhenReady();
+    }, { once: true });
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(() => {
+      swSettled = true;
+      tryCloseWhenReady();
+    }).catch(() => {
+      swSettled = true;
+      tryCloseWhenReady();
+    });
+  }
+
+  setTimeout(dismissAramkySplash, 2600);
+})();
+
+async function refreshAppAndClearCache() {
+  try {
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    }
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for (const reg of regs) {
+        if (reg.waiting) {
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+        await reg.update();
+      }
+    }
+    localStorage.removeItem('aramky_last_diag_signature');
+    showToast('تم تفريغ الكاش القديم وتحديث النسخة، جاري إعادة التحميل...', 'info');
+    setTimeout(() => {
+      window.location.reload();
+    }, 550);
+  } catch (_) {
+    window.location.reload();
+  }
+}
 
 function isAdminTenant(code) {
   return String(code || '').trim().toUpperCase() === ADMIN_TENANT_CODE;
@@ -1401,7 +1520,7 @@ async function uploadImageToIsolatedStorage(file, folder = 'items', bucket = 'go
 window.onload = function() {
   const urlParams = new URLSearchParams(window.location.search);
   const storeParam = urlParams.get('store');
-  if (storeParam) { loadTenantData(storeParam.toUpperCase()); renderPublicCustomerStorefront(); return; }
+  if (storeParam) { loadTenantData(storeParam.toUpperCase()); renderPublicCustomerStorefront(); dismissAramkySplash(); return; }
 
   const activateCode = urlParams.get('activate');
   const activateExp = urlParams.get('exp');
@@ -1775,7 +1894,7 @@ function loadStoreSettingsToUI() {
   document.getElementById('store-bio').value = appState.store.bio;
   document.getElementById('settings-logo-preview').src = appState.store.logo || 'icon.png';
   document.getElementById('settings-cover-preview').src = appState.store.cover || 'icon.png';
-  document.getElementById('store-share-link').value = window.location.origin + window.location.pathname.replace('index_3.html','') + '?store=' + encodeURIComponent(currentTenantCode);
+  document.getElementById('store-share-link').value = window.location.origin + window.location.pathname + '?store=' + encodeURIComponent(currentTenantCode);
 }
 
 function saveStoreSettings() {
