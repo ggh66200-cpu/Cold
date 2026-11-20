@@ -4,12 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#070A12">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<title>ARAMKY Gold OS v24.0 | نظام إدارة صياغة الذهب</title>
+<title>ARAMKY Gold OS v25.0 | نظام إدارة صياغة الذهب</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script>
@@ -57,7 +58,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <div id="tenant-login-screen" class="fixed inset-0 bg-darkbg/95 backdrop-blur-xl z-[250] flex items-center justify-center p-5 hidden">
   <div class="system-card p-8 rounded-3xl border border-gold/40 max-w-md w-full space-y-5 shadow-2xl text-center">
     <div class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl mx-auto shadow-xl overflow-hidden border-2 border-gold">
-      <img src="icon.png" onerror="this.style.display='none'; this.parentElement.innerHTML='👑';" class="w-full h-full object-cover">
+      <img src="icon.png" onerror="this.onerror=null; this.parentElement.innerHTML='👑';" class="w-full h-full object-cover">
     </div>
     <div>
       <h2 class="text-xl font-black text-gold">نظام إدارة صياغة الذهب</h2>
@@ -74,10 +75,10 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <header id="app-header" class="glass sticky top-0 z-50 border-b border-gold/30 px-5 py-3 flex flex-wrap justify-between items-center gap-3 shadow-2xl">
   <div class="flex items-center space-x-3 space-x-reverse">
     <div class="w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-xl shadow-lg overflow-hidden border border-gold">
-      <img id="header-store-logo" src="icon.png" onerror="this.src='icon.png'" class="w-full h-full object-cover">
+      <img id="header-store-logo" src="icon.png" onerror="this.onerror=null; this.src='icon.png';" class="w-full h-full object-cover">
     </div>
     <div>
-      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">v24.0</span></h1>
+      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">v25.0</span></h1>
       <p class="text-xs text-slate-400 flex items-center gap-2"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">ID: ARAMKY-01</span></p>
     </div>
   </div>
@@ -308,7 +309,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
             <span class="text-[10px] text-slate-400">تظهر أعلى معرض الزبائن وتصل للأدمن</span>
           </div>
           <div class="w-full h-40 rounded-2xl bg-cardbg border-2 border-dashed border-gold/40 overflow-hidden relative flex items-center justify-center">
-            <img id="settings-cover-preview" src="icon.png" class="w-full h-full object-cover">
+            <img id="settings-cover-preview" src="icon.png" onerror="this.onerror=null; this.src='icon.png';" class="w-full h-full object-cover">
           </div>
           <input type="file" id="store-cover-input" accept="image/*" onchange="handleStoreCoverUpload(event)" class="w-full bg-cardbg border border-slate-700 rounded-xl p-2 text-xs text-slate-300">
         </div>
@@ -316,7 +317,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <!-- شعار الصايغ (Logo) -->
         <div class="flex flex-col md:flex-row items-center gap-4 bg-darkbg p-4 rounded-2xl border border-slate-800">
           <div class="w-24 h-24 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl overflow-hidden border-2 border-gold shadow-lg relative shrink-0">
-            <img id="settings-logo-preview" src="icon.png" onerror="this.src='icon.png'" class="w-full h-full object-cover">
+            <img id="settings-logo-preview" src="icon.png" onerror="this.onerror=null; this.src='icon.png';" class="w-full h-full object-cover">
           </div>
           <div class="flex-1 space-y-2 w-full">
             <label class="text-xs font-bold text-gold block">صورة شعار الصايغ / المعرض الخاص بك (Logo):</label>
@@ -376,8 +377,64 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
     </div>
 
-    <!-- 7. التقارير وجرد إكسل -->
+    <!-- 7. التقارير وجرد إكسل وجرد أجور الصياغة والمثاقيل -->
     <div id="view-logs" class="hidden space-y-6">
+      <!-- جرد قطع أجور الصياغة وجرد الشراء/المبيعات حسب المثقال المختار -->
+      <div class="system-card p-6 rounded-3xl border border-amber-500/40 shadow-xl space-y-4">
+        <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-3">
+          <div>
+            <h3 class="font-bold text-amber-400 text-base"><i class="fa-solid fa-scale-balanced"></i> جرد قطع أجور الصياغة وجرد الشراء/المبيعات حسب المثقال</h3>
+            <p class="text-[11px] text-slate-400">اختر المثقال لمعرفة عدد القطع المباعة، الوزن (غرام ومثاقيل ÷ 5)، وصافي أرباح الصياغة لكل مثقال على حدة</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <select id="mithqal-audit-karat" onchange="renderMithqalMakingAudit()" class="bg-darkbg border border-gold/50 rounded-xl px-3 py-2 text-gold font-bold outline-none">
+              <option value="all">جميع المثاقيل (كل العيارات)</option>
+              <option value="24">مثقال عيار 24</option>
+              <option value="22">مثقال عيار 22</option>
+              <option value="21">مثقال عيار 21</option>
+              <option value="18">مثقال عيار 18</option>
+              <option value="9">مثقال عيار 9</option>
+            </select>
+            <input type="number" id="mithqal-audit-custom-price" oninput="renderMithqalMakingAudit()" placeholder="سعر مثقال محدد (اختياري)" class="bg-darkbg border border-slate-700 rounded-xl px-3 py-2 text-emerald-400 font-bold outline-none w-48">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <div class="bg-darkbg p-3.5 rounded-2xl border border-slate-800">
+            <span class="text-slate-400 block text-[10px]">القطع / الفواتير المباعة:</span>
+            <span id="audit-sold-count" class="text-base font-black text-white">0</span>
+          </div>
+          <div class="bg-darkbg p-3.5 rounded-2xl border border-gold/30">
+            <span class="text-slate-400 block text-[10px]">الوزن المباع (غرام / مثقال):</span>
+            <span id="audit-sold-weight" class="text-sm font-black text-gold">0 غ (0 مثقال)</span>
+          </div>
+          <div class="bg-darkbg p-3.5 rounded-2xl border border-emerald-500/40">
+            <span class="text-slate-400 block text-[10px]">صافي أرباح أجور الصياغة:</span>
+            <span id="audit-making-total" class="text-base font-black text-emerald-400">0 د.ع</span>
+          </div>
+          <div class="bg-darkbg p-3.5 rounded-2xl border border-amber-500/50">
+            <span class="text-slate-400 block text-[10px]">ربح أجور الصياغة لكل مثقال:</span>
+            <span id="audit-making-per-mithqal" class="text-base font-black text-amber-300">0 د.ع</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-right text-xs">
+            <thead class="bg-darkbg text-slate-400 border-b border-slate-800">
+              <tr>
+                <th class="p-2.5">القطعة / الفاتورة</th>
+                <th class="p-2.5">العيار</th>
+                <th class="p-2.5">الوزن (غرام)</th>
+                <th class="p-2.5">عدد المثاقيل</th>
+                <th class="p-2.5">صياغة المثقال</th>
+                <th class="p-2.5">صافي أرباح الصياغة</th>
+              </tr>
+            </thead>
+            <tbody id="mithqal-audit-tbody" class="divide-y divide-slate-800"></tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-5">
         <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-2">
           <h3 class="font-bold text-gold text-lg"><i class="fa-solid fa-chart-pie"></i> التقارير المالية وجرد التعديلات وتصدير Excel</h3>
@@ -615,16 +672,15 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <!-- معرض الزبائن: بطاقات كبيرة وواقعية واضحة جداً -->
 <div id="storefront-modal" class="fixed inset-0 bg-darkbg z-[180] flex flex-col hidden overflow-y-auto p-4 md:p-6">
   <div class="max-w-5xl mx-auto w-full space-y-6">
-    <!-- الغلاف والشعار -->
     <div class="rounded-3xl overflow-hidden border border-gold/40 system-card shadow-2xl">
       <div class="w-full h-48 md:h-64 bg-slate-900 relative">
-        <img id="store-view-cover" src="icon.png" class="w-full h-full object-cover opacity-85">
+        <img id="store-view-cover" src="icon.png" onerror="this.onerror=null; this.src='icon.png';" class="w-full h-full object-cover opacity-85">
         <button onclick="closeStorefrontView()" class="absolute top-4 left-4 bg-darkbg/90 border border-gold/50 text-gold px-4 py-2.5 rounded-xl text-xs font-bold shadow-xl">إغلاق المعرض ✕</button>
       </div>
       <div class="p-6 flex flex-col md:flex-row items-center md:items-end justify-between gap-4 -mt-12 relative z-10">
         <div class="flex flex-col md:flex-row items-center gap-4 text-center md:text-right">
           <div class="w-24 h-24 rounded-3xl gold-gradient p-1 shadow-2xl">
-            <img id="store-view-logo" src="icon.png" class="w-full h-full object-cover rounded-2xl bg-darkbg">
+            <img id="store-view-logo" src="icon.png" onerror="this.onerror=null; this.src='icon.png';" class="w-full h-full object-cover rounded-2xl bg-darkbg">
           </div>
           <div class="pt-2 md:pt-8">
             <h2 id="store-view-title" class="text-2xl font-black text-gold">معرض الذهب</h2>
@@ -638,8 +694,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         </div>
       </div>
     </div>
-
-    <!-- شبكة العرض الكبيرة (بطاقتين كبيرتين بالصف على الشاشات الكبيرة وبطاقة كاملة على الهاتف) -->
     <div id="storefront-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
   </div>
 </div>
@@ -784,6 +838,79 @@ let appState = {
 };
 let currentCategoryFilter = 'all', currentDayFilter = 'الكل', currentDebtFilter = 'all', selectedCustIdx = null, tempReceiptBase64 = "";
 
+// ضغط الصور إلى WebP ورفعها إلى Supabase Storage بمسار معزول وتسلسلي
+function getSupabaseCreds() {
+  let cfg = JSON.parse(localStorage.getItem('aramky_supabase_config')) || {};
+  let url = (cfg.url || localStorage.getItem('aramky_supabase_url') || '').replace(/\/+$/, '');
+  let key = cfg.key || localStorage.getItem('aramky_supabase_key') || '';
+  return { url, key };
+}
+
+function getNextMediaSeq(folder) {
+  let key = `aramky_media_seq_${currentTenantCode.toUpperCase()}_${folder}`;
+  let next = (parseInt(localStorage.getItem(key) || '0', 10) || 0) + 1;
+  localStorage.setItem(key, String(next));
+  return String(next).padStart(4, '0');
+}
+
+function compressImageFileToWebP(file, maxSize = 1200, quality = 0.8) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxSize || h > maxSize) {
+          if (w >= h) { h = Math.round((h * maxSize) / w); w = maxSize; }
+          else { w = Math.round((w * maxSize) / h); h = maxSize; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        canvas.toBlob((blob) => {
+          if (!blob) return reject(new Error('Canvas blob failed'));
+          const bReader = new FileReader();
+          bReader.onloadend = () => resolve({ blob, dataUrl: bReader.result });
+          bReader.readAsDataURL(blob);
+        }, 'image/webp', quality);
+      };
+      img.onerror = reject;
+      img.src = ev.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadImageToIsolatedStorage(file, folder = 'items', bucket = 'gold-media') {
+  const { blob, dataUrl } = await compressImageFileToWebP(file);
+  const { url, key } = getSupabaseCreds();
+  if (!url || !key || url.includes('YOUR_PROJECT_ID')) {
+    return dataUrl;
+  }
+  const seq = getNextMediaSeq(folder);
+  const objectPath = `${currentTenantCode.toUpperCase()}/${folder}/${seq}_${Date.now()}.webp`;
+  try {
+    const res = await fetch(`${url}/storage/v1/object/${bucket}/${objectPath}`, {
+      method: 'POST',
+      headers: {
+        'apikey': key,
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'image/webp',
+        'x-upsert': 'true'
+      },
+      body: blob
+    });
+    if (res.ok) {
+      return `${url}/storage/v1/object/public/${bucket}/${objectPath}`;
+    }
+    return dataUrl;
+  } catch (_) {
+    return dataUrl;
+  }
+}
+
 window.onload = function() {
   const urlParams = new URLSearchParams(window.location.search);
   const storeParam = urlParams.get('store');
@@ -911,15 +1038,15 @@ function selectInvoiceTemplate(tmpl) {
   showToast(`تم اعتماد نموذج: ${label}`);
 }
 
-function previewSupportReceipt(e) {
+async function previewSupportReceipt(e) {
   let file = e.target.files[0]; if (!file) return;
-  let reader = new FileReader();
-  reader.onload = function(event) {
-    tempReceiptBase64 = event.target.result;
+  try {
+    tempReceiptBase64 = await uploadImageToIsolatedStorage(file, 'support');
     let img = document.getElementById('sup-receipt-preview');
     img.src = tempReceiptBase64; img.classList.remove('hidden');
-  };
-  reader.readAsDataURL(file);
+  } catch (_) {
+    showToast('تعذر قراءة الصورة!', 'error');
+  }
 }
 
 function sendNotificationToAdmin(method, ref, msg, imageBase64 = "") {
@@ -964,7 +1091,7 @@ function renderSupportTickets() {
   let c = document.getElementById('support-tickets-list'); if (!c) return; c.innerHTML = '';
   if (!appState.supportTickets.length) { c.innerHTML = '<p class="text-xs text-slate-500">لا توجد رسائل أو تحويلات سابقة.</p>'; return; }
   appState.supportTickets.forEach(t => {
-    let imgHtml = t.receipt ? `<img src="${t.receipt}" class="w-16 h-16 rounded-xl object-cover border border-gold">` : '';
+    let imgHtml = t.receipt ? `<img src="${t.receipt}" onerror="this.style.display='none'" class="w-16 h-16 rounded-xl object-cover border border-gold">` : '';
     c.innerHTML += `<div class="bg-darkbg p-3 rounded-2xl border border-slate-800 flex justify-between items-center gap-3 text-xs">
       <div class="flex items-center gap-3">${imgHtml}<div><strong class="text-gold">${t.method}</strong> — <span class="font-mono text-emerald-400">${t.ref||'بدون'}</span><p class="text-slate-400 text-[11px]">${t.msg||''} (${t.time})</p></div></div>
       <span class="bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full text-[10px] font-bold">${t.status}</span>
@@ -972,31 +1099,33 @@ function renderSupportTickets() {
   });
 }
 
-function handleStoreLogoUpload(e) {
+async function handleStoreLogoUpload(e) {
   let file = e.target.files[0]; if (!file) return;
-  let reader = new FileReader();
-  reader.onload = function(event) {
-    appState.store.logo = event.target.result;
+  try {
+    const uploaded = await uploadImageToIsolatedStorage(file, 'logo');
+    appState.store.logo = uploaded;
     document.getElementById('settings-logo-preview').src = appState.store.logo;
     document.getElementById('header-store-logo').src = appState.store.logo;
     sendNotificationToAdmin('تحديث شعار الصايغ 🖼️', appState.store.name, 'قام الصايغ برفع صورة شعار جديدة لمعرضه', appState.store.logo);
     saveState();
     showToast('تم تحديث شعارك وإرسال نسخة للإدارة بنجاح!');
-  };
-  reader.readAsDataURL(file);
+  } catch (_) {
+    showToast('تعذر رفع الشعار!', 'error');
+  }
 }
 
-function handleStoreCoverUpload(e) {
+async function handleStoreCoverUpload(e) {
   let file = e.target.files[0]; if (!file) return;
-  let reader = new FileReader();
-  reader.onload = function(event) {
-    appState.store.cover = event.target.result;
+  try {
+    const uploaded = await uploadImageToIsolatedStorage(file, 'cover');
+    appState.store.cover = uploaded;
     document.getElementById('settings-cover-preview').src = appState.store.cover;
     sendNotificationToAdmin('تحديث غلاف المعرض 🏞️', appState.store.name, 'قام الصايغ بتحديث صورة غلاف المعرض', appState.store.cover);
     saveState();
     showToast('تم تحديث غلاف المعرض وإشعار الإدارة بنجاح!');
-  };
-  reader.readAsDataURL(file);
+  } catch (_) {
+    showToast('تعذر رفع الغلاف!', 'error');
+  }
 }
 
 function openEditInventoryModal(idx) {
@@ -1038,7 +1167,7 @@ function openDeleteInventoryModal(idx) {
   document.getElementById('delete-inv-index').value = idx;
   document.getElementById('delete-inv-summary').innerText = `حذف (${item.name}) عيار ${item.karat} — وزن ${item.weight}غ؟`;
   document.getElementById('delete-inv-reason').value = '';
-  document.getElementById('delete-inv-modal').classList.remove('hidden');
+  document.getElementById('delete-inventory-modal').classList.remove('hidden');
 }
 function closeDeleteInventoryModal() { document.getElementById('delete-inventory-modal').classList.add('hidden'); }
 
@@ -1100,7 +1229,7 @@ function openStorefrontView() {
     let total = Math.round((item.weight * gramPrice) + totalMaking);
     
     let img = (item.images && item.images.length) 
-      ? `<img src="${item.images[0]}" class="w-full h-80 md:h-96 rounded-2xl object-cover border border-gold/30 shadow-xl">` 
+      ? `<img src="${item.images[0]}" onerror="this.outerHTML='<div class=\\'w-full h-80 bg-slate-800 rounded-2xl flex items-center justify-center text-gold text-5xl\\'><i class=\\'fa-solid fa-gem\\'></i></div>'" class="w-full h-80 md:h-96 rounded-2xl object-cover border border-gold/30 shadow-xl">` 
       : `<div class="w-full h-80 bg-slate-800 rounded-2xl flex items-center justify-center text-gold text-5xl"><i class="fa-solid fa-gem"></i></div>`;
       
     container.innerHTML += `<div class="system-card p-5 rounded-3xl border border-gold/40 space-y-4 shadow-2xl">
@@ -1131,11 +1260,11 @@ function renderPublicCustomerStorefront() {
   document.body.innerHTML = `<div class="min-h-screen bg-darkbg text-slate-100 p-4 md:p-6 flex flex-col items-center"><div class="max-w-5xl w-full space-y-6">
     <div class="rounded-3xl overflow-hidden border border-gold/40 system-card shadow-2xl">
       <div class="w-full h-48 md:h-64 bg-slate-900 relative">
-        <img src="${appState.store.cover || 'icon.png'}" class="w-full h-full object-cover opacity-85">
+        <img src="${appState.store.cover || 'icon.png'}" onerror="this.style.display='none'" class="w-full h-full object-cover opacity-85">
       </div>
       <div class="p-6 flex flex-col md:flex-row justify-between items-center md:items-end gap-4 -mt-12 relative z-10">
         <div class="flex flex-col md:flex-row items-center gap-4 text-center md:text-right">
-          <img src="${appState.store.logo || 'icon.png'}" class="w-24 h-24 rounded-3xl object-cover border-2 border-gold bg-darkbg shadow-2xl">
+          <img src="${appState.store.logo || 'icon.png'}" onerror="this.style.display='none'" class="w-24 h-24 rounded-3xl object-cover border-2 border-gold bg-darkbg shadow-2xl">
           <div class="pt-2 md:pt-8"><h1 class="text-2xl font-black text-gold">${appState.store.name}</h1><p class="text-xs text-slate-300 mt-1">${appState.store.bio}</p></div>
         </div>
         <div class="bg-darkbg/90 p-3.5 rounded-2xl text-xs space-y-1 border border-slate-800 w-full md:w-auto">
@@ -1152,7 +1281,7 @@ function renderPublicCustomerStorefront() {
     let makingPerMithqal = Math.round(item.makingPerGram * 5);
     let totalMaking = Math.round(item.makingPerGram * item.weight);
     let total = Math.round((item.weight * getGramPrice(item.karat)) + totalMaking);
-    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" class="w-full h-80 md:h-96 rounded-2xl object-cover border border-gold/30">` : `<div class="w-full h-80 bg-slate-800 rounded-2xl flex items-center justify-center text-5xl">💎</div>`;
+    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" onerror="this.outerHTML='<div class=\\'w-full h-80 bg-slate-800 rounded-2xl flex items-center justify-center text-5xl\\'>💎</div>'" class="w-full h-80 md:h-96 rounded-2xl object-cover border border-gold/30">` : `<div class="w-full h-80 bg-slate-800 rounded-2xl flex items-center justify-center text-5xl">💎</div>`;
     g.innerHTML += `<div class="system-card p-5 rounded-3xl border border-gold/40 space-y-4 shadow-xl">
       ${img}
       <div class="space-y-2">
@@ -1169,6 +1298,65 @@ function renderPublicCustomerStorefront() {
       </div>
     </div>`;
   });
+}
+
+// جرد قطع أجور الصياغة وجرد الشراء/المبيعات حسب المثقال المختار
+function renderMithqalMakingAudit() {
+  const tbody = document.getElementById('mithqal-audit-tbody');
+  if (!tbody) return;
+  const selectedKarat = document.getElementById('mithqal-audit-karat')?.value || 'all';
+  const customPriceVal = parseFloat(document.getElementById('mithqal-audit-custom-price')?.value || '');
+  const hasCustomPrice = !isNaN(customPriceVal) && customPriceVal > 0;
+
+  let rows = [];
+  (appState.invoices || []).forEach((inv) => {
+    if (inv.returned) return;
+    (inv.items || []).forEach((it) => {
+      const k = String(it.karat || '21');
+      if (selectedKarat !== 'all' && k !== selectedKarat) return;
+      const itemMithqalPrice = Math.round(getMithqalPrice(k));
+      if (hasCustomPrice && itemMithqalPrice !== Math.round(customPriceVal)) return;
+
+      const weight = parseFloat(it.weight) || 0;
+      const mithqals = weight / 5.0;
+      const makingTotal = (parseFloat(it.itemMakingTotal) || ((parseFloat(it.makingPerGram) || 0) * weight));
+      const makingPerMithqal = mithqals > 0 ? Math.round(makingTotal / mithqals) : Math.round((parseFloat(it.makingPerGram) || 0) * 5);
+
+      rows.push({
+        label: `${it.name} (${inv.code})`,
+        karat: k,
+        weight,
+        mithqals,
+        makingPerMithqal,
+        makingTotal
+      });
+    });
+  });
+
+  const totalCount = rows.length;
+  const totalWeight = rows.reduce((s, r) => s + r.weight, 0);
+  const totalMithqals = rows.reduce((s, r) => s + r.mithqals, 0);
+  const totalMaking = rows.reduce((s, r) => s + r.makingTotal, 0);
+  const avgMakingPerMithqal = totalMithqals > 0 ? Math.round(totalMaking / totalMithqals) : 0;
+
+  document.getElementById('audit-sold-count').innerText = `${totalCount} قطعة`;
+  document.getElementById('audit-sold-weight').innerText = `${totalWeight.toFixed(3)} غ (${totalMithqals.toFixed(3)} مثقال)`;
+  document.getElementById('audit-making-total').innerText = `${Math.round(totalMaking).toLocaleString()} د.ع`;
+  document.getElementById('audit-making-per-mithqal').innerText = `${avgMakingPerMithqal.toLocaleString()} د.ع`;
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">لا توجد مبيعات مطابقة للمثقال المحدد.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => `<tr class="border-b border-slate-800">
+    <td class="p-2.5 font-bold text-white">${r.label}</td>
+    <td class="p-2.5 text-gold font-bold">عيار ${r.karat}</td>
+    <td class="p-2.5">${r.weight.toFixed(3)} غ</td>
+    <td class="p-2.5 text-emerald-300 font-mono">${r.mithqals.toFixed(3)}</td>
+    <td class="p-2.5 text-amber-300 font-bold">${r.makingPerMithqal.toLocaleString()} د.ع</td>
+    <td class="p-2.5 text-emerald-400 font-black">${Math.round(r.makingTotal).toLocaleString()} د.ع</td>
+  </tr>`).join('');
 }
 
 function setDayFilter(d) {
@@ -1211,6 +1399,7 @@ function filterLogs() {
   document.getElementById('period-profit-total').innerText = `${Math.round(p).toLocaleString()} د.ع`;
   document.getElementById('period-scrap-total').innerText = `${Math.round(sc).toLocaleString()} د.ع`;
   document.getElementById('period-exp-total').innerText = `${Math.round(ex).toLocaleString()} د.ع`;
+  renderMithqalMakingAudit();
 }
 
 function exportLogsToExcel() {
@@ -1267,6 +1456,7 @@ function switchTab(id) {
   let activeBtn = document.getElementById('btn-tab-' + id);
   if (activeBtn) activeBtn.className = "tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 bg-gold text-darkbg font-bold shadow-lg";
   if (id === 'support') renderSupportTickets();
+  if (id === 'logs') renderMithqalMakingAudit();
 }
 
 function updateUI() {
@@ -1281,7 +1471,7 @@ function updateUI() {
 
   let tbody = document.getElementById('inventory-table-body'); tbody.innerHTML = '';
   appState.inventory.forEach((item, idx) => {
-    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" class="w-12 h-12 rounded-xl object-cover border border-gold/40">` : '💎';
+    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" onerror="this.outerHTML='💎'" class="w-12 h-12 rounded-xl object-cover border border-gold/40">` : '💎';
     let mithqalMaking = Math.round(item.makingPerGram * 5);
     tbody.innerHTML += `<tr class="border-b border-slate-800">
       <td class="p-3">${img}</td><td class="p-3 font-bold">${item.name}</td><td class="p-3">${item.karat}</td><td class="p-3">${item.weight}غ</td>
@@ -1390,7 +1580,7 @@ function renderInvoicePrintContent(code, cust, phone, notes, tot, mk, wt, items)
   let storeLogo = appState.store.logo || 'icon.png';
 
   if (tmpl === 'detailed') {
-    headerBox.innerHTML = `<img src="${storeLogo}" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">💎 ${appState.store.name} 💎</h2><p class="text-xs text-slate-600 font-bold">${appState.store.bio || 'فرع نواة الذهب ⚜️'}</p><div class="inline-block bg-slate-900 text-gold font-mono text-xs font-bold px-3 py-1 rounded-full mt-1">${code}</div>`;
+    headerBox.innerHTML = `<img src="${storeLogo}" onerror="this.style.display='none'" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">💎 ${appState.store.name} 💎</h2><p class="text-xs text-slate-600 font-bold">${appState.store.bio || 'فرع نواة الذهب ⚜️'}</p><div class="inline-block bg-slate-900 text-gold font-mono text-xs font-bold px-3 py-1 rounded-full mt-1">${code}</div>`;
     let itemsHtml = items.map(i => `<div class="border-b py-1">
       <div class="flex justify-between font-bold"><span>${i.name} (${i.weight}غ - عيار ${i.karat})</span><span>${i.itemTotal.toLocaleString()} د.ع</span></div>
       <div class="text-[10px] text-slate-500">صياغة المثقال: ${(i.itemMakingMithqal||0).toLocaleString()} د.ع | إجمالي صياغة القطعة: ${Math.round(i.itemMakingTotal||0).toLocaleString()} د.ع</div>
@@ -1400,7 +1590,7 @@ function renderInvoicePrintContent(code, cust, phone, notes, tot, mk, wt, items)
     headerBox.innerHTML = `<h2 class="font-black text-lg text-slate-900">${appState.store.name}</h2><p class="text-[11px] text-slate-500 font-mono">فاتورة مختصرة | ${code}</p>`;
     body.innerHTML = `<div class="text-center py-2 font-bold text-sm text-slate-800">ملخص عملية البيع النقدي</div><div class="flex justify-between text-base font-black pt-2 border-t"><span>المبلغ الإجمالي:</span><span class="text-gold">${tot.toLocaleString()} دينار</span></div><div class="flex justify-between text-sm text-emerald-700 font-bold bg-emerald-50 p-2 rounded-xl"><span>المقابل اللحظي:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-xs text-slate-600 pt-2">الزبون: <strong>${cust}</strong> (${phone})</div><div class="text-[10px] text-slate-400">التاريخ: ${new Date().toLocaleDateString('ar-IQ')}</div>`;
   } else {
-    headerBox.innerHTML = `<img src="${storeLogo}" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">⚜️ ${appState.store.name} ⚜️</h2><p class="text-xs text-gold-dark font-bold">سند قبض وبيع ذهب مؤسسي</p><div class="inline-block bg-gold text-darkbg font-mono text-xs font-black px-3 py-0.5 rounded-full mt-1">${code}</div>`;
+    headerBox.innerHTML = `<img src="${storeLogo}" onerror="this.style.display='none'" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">⚜️ ${appState.store.name} ⚜️</h2><p class="text-xs text-gold-dark font-bold">سند قبض وبيع ذهب مؤسسي</p><div class="inline-block bg-gold text-darkbg font-mono text-xs font-black px-3 py-0.5 rounded-full mt-1">${code}</div>`;
     body.innerHTML = `<div class="bg-amber-50 p-3 rounded-2xl border border-amber-200 space-y-1 text-xs"><div class="flex justify-between"><span>اسم الصايغ والمعرض:</span><strong>${appState.store.name}</strong></div><div class="flex justify-between"><span>هاتف المعرض:</span><strong class="font-mono">${appState.store.phone}</strong></div><div class="flex justify-between"><span>العنوان:</span><span>${appState.store.address}</span></div></div><div class="flex justify-between text-sm font-black pt-2"><span>صافي المبيعات:</span><span class="text-gold">${tot.toLocaleString()} د.ع</span></div><div class="flex justify-between text-sm font-black text-emerald-700 bg-emerald-50 p-2 rounded-xl"><span>المقابل المعادل:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-[11px] text-slate-600 border-t pt-1">العميل المستفيد: <strong>${cust}</strong> | الهاتف: <span class="font-mono">${phone}</span></div><div class="text-[10px] text-slate-500 text-center pt-2">توقيع وختم الصايغ المعتمد — ${new Date().toLocaleDateString('ar-IQ')}</div>`;
   }
 }
@@ -1435,12 +1625,8 @@ async function addNewInventoryItem() {
   let imgs = [];
   if (files.length) {
     for (let f of files) {
-      let base64Img = await new Promise((resolve) => {
-        let reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.readAsDataURL(f);
-      });
-      imgs.push(base64Img);
+      const imgUrl = await uploadImageToIsolatedStorage(f, 'items');
+      imgs.push(imgUrl);
     }
   }
 
@@ -1586,7 +1772,7 @@ function renderLuxuryItemList() {
   appState.inventory.forEach((item, idx) => {
     if (item.qty > 0 && item.name.toLowerCase().includes(q)) {
       let tot = Math.round((item.weight * getGramPrice(item.karat)) + (item.makingPerGram * item.weight));
-      let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" class="w-16 h-16 rounded-xl object-cover border border-gold">` : `<div class="w-16 h-16 bg-slate-800 rounded-xl flex items-center justify-center text-gold">💎</div>`;
+      let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" onerror="this.outerHTML='<div class=\\'w-16 h-16 bg-slate-800 rounded-xl flex items-center justify-center text-gold\\'>💎</div>'" class="w-16 h-16 rounded-xl object-cover border border-gold">` : `<div class="w-16 h-16 bg-slate-800 rounded-xl flex items-center justify-center text-gold">💎</div>`;
       c.innerHTML += `<div class="system-card p-3.5 rounded-2xl border border-gold/30 flex justify-between items-center gap-3">
         <div class="flex items-center gap-3">${img}<div><strong class="text-gold text-sm">${item.name}</strong><p class="text-xs text-slate-300">عيار ${item.karat} | ${item.weight}غ | متبقي: ${item.qty}</p><span class="text-emerald-400 font-bold text-xs">${tot.toLocaleString()} د.ع</span></div></div>
         <button onclick="addItemToCartFromIndex(${idx}); closeLuxuryItemModal();" class="gold-gradient text-darkbg font-bold px-4 py-2.5 rounded-xl text-xs shadow-lg">إضافة للسلة</button>
@@ -1626,9 +1812,7 @@ async function saveState() {
 }
 
 async function syncToCloudSupabase(code, stateData) {
-  let cfg = JSON.parse(localStorage.getItem('aramky_supabase_config')) || {};
-  let supabaseUrl = cfg.url || localStorage.getItem('aramky_supabase_url') || '';
-  let supabaseKey = cfg.key || localStorage.getItem('aramky_supabase_key') || '';
+  let { url: supabaseUrl, key: supabaseKey } = getSupabaseCreds();
   if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('YOUR_PROJECT_ID')) return;
   try {
     await fetch(`${supabaseUrl}/rest/v1/aramky_tenants`, {
@@ -1676,7 +1860,7 @@ function renderLuxuryPreviewList() {
   }
   available.forEach(item => {
     let tot = Math.round((item.weight * getGramPrice(item.karat)) + (item.makingPerGram * item.weight));
-    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" class="w-14 h-14 rounded-xl object-cover border border-gold">` : `<div class="w-14 h-14 bg-slate-800 rounded-xl flex items-center justify-center text-gold">💎</div>`;
+    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" onerror="this.outerHTML='<div class=\\'w-14 h-14 bg-slate-800 rounded-xl flex items-center justify-center text-gold\\'>💎</div>'" class="w-14 h-14 rounded-xl object-cover border border-gold">` : `<div class="w-14 h-14 bg-slate-800 rounded-xl flex items-center justify-center text-gold">💎</div>`;
     c.innerHTML += `<div onclick="selectPreviewPiece(${item.originalIdx})" class="system-card p-3.5 rounded-2xl border border-gold/30 hover:border-gold cursor-pointer flex items-center justify-between gap-3 transition">
       <div class="flex items-center gap-3">${img}<div><strong class="text-gold text-xs block">${item.name}</strong><span class="text-[11px] text-slate-300">عيار ${item.karat} | ${item.weight}غ | متوفر: ${item.qty}</span></div></div>
       <span class="text-emerald-400 font-black text-xs">${tot.toLocaleString()} د.ع</span>
