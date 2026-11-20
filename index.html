@@ -28,6 +28,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 .glass { background: rgba(22, 31, 50, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.35); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
 .gold-gradient { background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%); }
 .system-card { background: linear-gradient(145deg, #111827, #1f2937); border: 1px solid rgba(212, 175, 55, 0.25); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6); }
+.luxury-modal-card { background: radial-gradient(circle at top, rgba(212, 175, 55, 0.16), rgba(15, 23, 42, 0.98) 55%); border: 1.5px solid rgba(212, 175, 55, 0.55); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.14); }
 .modal-overlay { background: rgba(7, 10, 18, 0.88); backdrop-filter: blur(12px); }
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: #070A12; }
@@ -58,7 +59,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <div id="tenant-login-screen" class="fixed inset-0 bg-darkbg/95 backdrop-blur-xl z-[250] flex items-center justify-center p-5 hidden">
   <div class="system-card p-8 rounded-3xl border border-gold/40 max-w-md w-full space-y-5 shadow-2xl text-center">
     <div class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl mx-auto shadow-xl overflow-hidden border-2 border-gold">
-      <img src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
+      <img src="icon.png" onerror="handleBrandImageError(this, 'login-logo')" class="w-full h-full object-cover">
     </div>
     <div>
       <h2 class="text-xl font-black text-gold">نظام إدارة صياغة الذهب</h2>
@@ -69,20 +70,115 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
-<!-- نافذة كلمة مرور الأدمن (بعد الضغط 5 مرات على إدارة المخزن) -->
+<!-- نافذة كلمة مرور الأدمن (بعد الضغط 5 مرات على صورة إدارة المخزن) -->
 <div id="admin-secret-modal" class="fixed inset-0 modal-overlay z-[320] flex items-center justify-center hidden p-4">
-  <div class="system-card p-6 rounded-3xl border-2 border-gold/60 w-full max-w-sm space-y-4 shadow-2xl text-center">
-    <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-2xl mx-auto shadow-lg">
-      <i class="fa-solid fa-user-shield"></i>
+  <div class="luxury-modal-card p-6 rounded-3xl w-full max-w-sm space-y-4 shadow-2xl text-center">
+    <div class="w-16 h-16 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-2xl mx-auto shadow-lg overflow-hidden border border-gold">
+      <img src="icon.png" onerror="handleBrandImageError(this, 'admin-secret-logo')" class="w-full h-full object-cover">
     </div>
     <div>
       <h3 class="text-lg font-black text-gold">تفعيل وضع الأدمن</h3>
-      <p class="text-xs text-slate-400 mt-1">تم رصد 5 ضغطات على إدارة المخزن. أدخل كلمة مرور الأدمن للمتابعة.</p>
+      <p class="text-xs text-slate-400 mt-1">تم رصد 5 ضغطات على صورة إدارة المخزن. أدخل كلمة مرور الأدمن للمتابعة.</p>
     </div>
     <input type="password" id="admin-secret-password" placeholder="أدخل كلمة مرور الأدمن..." onkeydown="if(event.key==='Enter') verifyAdminSecretPassword()" class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-2xl p-3.5 text-center text-sm text-gold font-bold outline-none">
     <div class="flex gap-2">
       <button onclick="verifyAdminSecretPassword()" class="flex-1 gold-gradient text-darkbg font-black py-3 rounded-xl text-xs shadow-lg">تأكيد الدخول</button>
       <button onclick="closeAdminSecretModal()" class="px-4 py-3 bg-slate-800 text-slate-300 rounded-xl text-xs font-bold">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة فخمة لاختيار طريقة التحويل -->
+<div id="luxury-transfer-method-modal" class="fixed inset-0 modal-overlay z-[270] flex items-center justify-center hidden p-4">
+  <div class="luxury-modal-card p-6 rounded-3xl w-full max-w-md space-y-4 shadow-2xl text-center">
+    <div class="w-16 h-16 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-2xl mx-auto shadow-lg">
+      <i class="fa-solid fa-building-columns"></i>
+    </div>
+    <div>
+      <h3 class="text-lg font-black text-gold">اختر طريقة التحويل الفاخرة</h3>
+      <p class="text-xs text-slate-400 mt-1">حدد القناة المعتمدة لإرسال الرسالة أو إيصال التجديد أو طلب الصورة</p>
+    </div>
+    <div class="space-y-2.5 text-right">
+      <button onclick="selectLuxuryTransferMethod('رسالة عامة / استفسار للإدارة', 'رسالة عامة / استفسار للإدارة 💬')" class="w-full bg-darkbg/90 border border-blue-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-blue-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2.5"><i class="fa-solid fa-comments text-blue-400 text-base"></i> رسالة عامة / استفسار مباشر للإدارة</span>
+        <i class="fa-solid fa-chevron-left text-slate-500"></i>
+      </button>
+      <button onclick="selectLuxuryTransferMethod('طلب اعتماد صورة شعار أو غلاف', 'طلب اعتماد صورة شعار أو غلاف 🖼️')" class="w-full bg-darkbg/90 border border-amber-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-amber-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2.5"><i class="fa-solid fa-image text-amber-400 text-base"></i> طلب اعتماد صورة شعار أو غلاف أو أيقونة</span>
+        <i class="fa-solid fa-chevron-left text-slate-500"></i>
+      </button>
+      <button onclick="selectLuxuryTransferMethod('ماستر كارد / سوبر كي', 'إيصال تحويل: ماستر كارد / سوبر كي 💳')" class="w-full bg-darkbg/90 border border-gold/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-gold flex items-center justify-between transition">
+        <span class="flex items-center gap-2.5"><i class="fa-solid fa-credit-card text-gold text-base"></i> ماستر كارد / سوبر كي (SuperQi)</span>
+        <i class="fa-solid fa-chevron-left text-slate-500"></i>
+      </button>
+      <button onclick="selectLuxuryTransferMethod('زين كاش', 'إيصال تحويل: زين كاش (ZainCash) 📱')" class="w-full bg-darkbg/90 border border-emerald-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-emerald-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2.5"><i class="fa-solid fa-mobile-screen-button text-emerald-400 text-base"></i> زين كاش (ZainCash)</span>
+        <i class="fa-solid fa-chevron-left text-slate-500"></i>
+      </button>
+      <button onclick="selectLuxuryTransferMethod('حوالة مكتب', 'إيصال تحويل: حوالة مكتب صيرفة 🏦')" class="w-full bg-darkbg/90 border border-purple-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-purple-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2.5"><i class="fa-solid fa-money-check-dollar text-purple-400 text-base"></i> حوالة مكتب صيرفة معتمد</span>
+        <i class="fa-solid fa-chevron-left text-slate-500"></i>
+      </button>
+    </div>
+    <button onclick="closeLuxuryTransferMethodModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-2xl text-xs font-bold">إغلاق</button>
+  </div>
+</div>
+
+<!-- نافذة فخمة لاختبار وجرد المثقال -->
+<div id="luxury-mithqal-test-modal" class="fixed inset-0 modal-overlay z-[270] flex items-center justify-center hidden p-4">
+  <div class="luxury-modal-card p-6 rounded-3xl w-full max-w-lg space-y-4 shadow-2xl">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-xl shadow-lg">
+          <i class="fa-solid fa-scale-balanced"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-black text-gold">مختبر وجرد المثقال الفاخر (المثقال = 5 غرام)</h3>
+          <p class="text-[11px] text-slate-400">اختبر أسعار العيارات وخصم أجور الصياغة على الغرام الواحد واحسب المثقال</p>
+        </div>
+      </div>
+      <button onclick="closeLuxuryMithqalTestModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+      <div>
+        <label class="text-slate-400 block mb-1">اختر العيار للاختبار:</label>
+        <select id="test-mq-karat" onchange="syncTestMithqalDefault(); calculateLuxuryMithqalTest();" class="w-full bg-darkbg border border-gold/40 rounded-xl p-3 text-gold font-bold outline-none">
+          <option value="24">عيار 24</option>
+          <option value="22">عيار 22</option>
+          <option value="21" selected>عيار 21</option>
+          <option value="18">عيار 18</option>
+          <option value="9">عيار 9</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-slate-400 block mb-1">سعر المثقال (د.ع):</label>
+        <input type="number" id="test-mq-price" oninput="calculateLuxuryMithqalTest()" class="w-full bg-darkbg border border-slate-700 rounded-xl p-3 text-emerald-400 font-bold outline-none">
+      </div>
+      <div>
+        <label class="text-slate-400 block mb-1">الوزن المراد اختباره (غرام):</label>
+        <input type="number" step="0.001" id="test-mq-weight" value="5" oninput="calculateLuxuryMithqalTest()" class="w-full bg-darkbg border border-slate-700 rounded-xl p-3 text-white font-bold outline-none">
+      </div>
+      <div>
+        <label class="text-slate-400 block mb-1">خصم / صياغة الغرام الواحد (د.ع):</label>
+        <input type="number" id="test-mq-gram-adj" value="5000" oninput="calculateLuxuryMithqalTest()" class="w-full bg-darkbg border border-amber-500/50 rounded-xl p-3 text-amber-300 font-bold outline-none">
+      </div>
+    </div>
+
+    <div class="bg-darkbg/90 p-4 rounded-2xl border border-gold/30 grid grid-cols-2 gap-3 text-xs">
+      <div><span class="text-slate-400 block text-[10px]">سعر الغرام الأساسي:</span><strong id="test-mq-base-gram" class="text-white text-sm">0 د.ع</strong></div>
+      <div><span class="text-slate-400 block text-[10px]">سعر الغرام بعد تعديل الصياغة:</span><strong id="test-mq-adj-gram" class="text-gold text-sm">0 د.ع</strong></div>
+      <div><span class="text-slate-400 block text-[10px]">عدد المثاقيل (الوزن ÷ 5):</span><strong id="test-mq-count" class="text-emerald-400 text-sm">0 مثقال</strong></div>
+      <div><span class="text-slate-400 block text-[10px]">أثر الغرام الواحد × الوزن:</span><strong id="test-mq-total-adj" class="text-amber-300 text-sm">0 د.ع</strong></div>
+      <div class="col-span-2 pt-2 border-t border-slate-800 flex justify-between items-center">
+        <span class="text-slate-300 font-bold">الإجمالي التقديري للوزن المختبر:</span>
+        <strong id="test-mq-grand-total" class="text-lg font-black text-gold">0 د.ع</strong>
+      </div>
+    </div>
+
+    <div class="flex gap-2">
+      <button onclick="applyTestMithqalToAudit()" class="flex-1 gold-gradient text-darkbg font-black py-3 rounded-xl text-xs shadow-lg">اعتماد العيار في الجرد وإغلاق</button>
+      <button onclick="closeLuxuryMithqalTestModal()" class="px-4 py-3 bg-slate-800 text-slate-300 rounded-xl text-xs font-bold">إغلاق</button>
     </div>
   </div>
 </div>
@@ -93,16 +189,16 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <header id="app-header" class="glass sticky top-0 z-50 border-b border-gold/30 px-5 py-3 flex flex-wrap justify-between items-center gap-3 shadow-2xl">
   <div class="flex items-center space-x-3 space-x-reverse">
     <div class="w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-xl shadow-lg overflow-hidden border border-gold">
-      <img id="header-store-logo" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
+      <img id="header-store-logo" src="icon.png" onerror="handleBrandImageError(this, 'header-logo')" class="w-full h-full object-cover">
     </div>
     <div>
-      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">v25.0</span></h1>
+      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span id="aramky-install-badge" class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">⚜️ أرامكي v25.0</span></h1>
       <p class="text-xs text-slate-400 flex items-center gap-2"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">ID: ARAMKY-01</span></p>
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-2">
     <button id="pwa-install-btn" onclick="installPWA()" class="bg-emerald-600/20 border border-emerald-500 text-emerald-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow">
-      <i class="fa-solid fa-download"></i> <span>تثبيت التطبيق 📲</span>
+      <img src="icon.png" onerror="handleBrandImageError(this, 'install-btn-icon')" class="w-4 h-4 rounded-sm object-cover"> <span>تثبيت التطبيق 📲</span>
     </button>
     <div id="admin-btn-container" class="hidden">
       <button onclick="openAdminPanel()" class="bg-purple-600/20 border border-purple-500/50 text-purple-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow">
@@ -142,7 +238,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <button onclick="switchTab('scrap')" id="btn-tab-scrap" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-scale-balanced w-5"></i> <span>شراء ذهب كسر</span></button>
     <button onclick="switchTab('inventory')" id="btn-tab-inventory" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-boxes-stacked w-5"></i> <span>المخزن (تعديل وحذف)</span></button>
     <button onclick="switchTab('store-settings')" id="btn-tab-store-settings" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-store w-5"></i> <span>إعدادات المعرض والشعار</span></button>
-    <button onclick="switchTab('debts')" id="btn-tab-debts" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-file-invoice-dollar w-5"></i> <span>دفتر الديون (يطلبونك وتطلبهم)</span></button>
+    <button onclick="switchTab('debts')" id="btn-tab-debts" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-file-invoice-dollar w-5"></i> <span>دفتر الديون (تطلب ومطلوب)</span></button>
     <button onclick="switchTab('logs')" id="btn-tab-logs" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-chart-pie w-5"></i> <span>الأرباح وجرد Excel</span></button>
     <button onclick="switchTab('support')" id="btn-tab-support" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-blue-300 hover:bg-slate-800 border border-blue-500/30"><i class="fa-solid fa-headset w-5"></i> <span>الدعم ومراسلة الأدمن</span></button>
   </aside>
@@ -250,7 +346,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
     </div>
 
-    <!-- 3. شراء ذهب كسر -->
+    <!-- 3. شراء ذهب كسر (خصم أجور الصياغة على الغرام الواحد بالدينار وليس نسبة مئوية) -->
     <div id="view-scrap" class="hidden space-y-6">
       <div class="system-card p-6 rounded-3xl border border-emerald-500/35 shadow-xl space-y-4">
         <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-scale-balanced"></i> شراء ذهب كسر</h3>
@@ -264,12 +360,12 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div><label class="text-xs text-slate-400 block mb-1">سعر المثقال:</label><input type="number" id="scrap-mithqal-price" oninput="updateScrapPreview()" class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm text-gold font-bold outline-none"></div>
           <div><label class="text-xs text-slate-400 block mb-1">الوزن (غرام):</label><input type="number" step="0.001" id="scrap-weight" oninput="updateScrapPreview()" class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none"></div>
-          <div><label class="text-xs text-slate-400 block mb-1">الخصم (%):</label><input type="number" placeholder="0" id="scrap-deduct" oninput="updateScrapPreview()" class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none"></div>
+          <div><label class="text-xs text-amber-300 block mb-1">خصم أجور الصياغة على الغرام الواحد (د.ع):</label><input type="number" placeholder="مثال: 5000" id="scrap-deduct" oninput="updateScrapPreview()" class="w-full bg-darkbg border border-amber-500/50 rounded-2xl p-3 text-sm text-amber-300 font-bold outline-none"></div>
         </div>
         <input type="text" id="scrap-notes" placeholder="ملاحظات..." class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-darkbg p-4 rounded-2xl border border-gold/40 text-xs">
-          <div><span class="text-slate-400 block">سعر الغرام:</span><span id="scrap-prev-gram" class="font-bold">0 د.ع</span></div>
-          <div><span class="text-slate-400 block">الوزن الصافي:</span><span id="scrap-prev-net-weight" class="text-amber-400 font-bold">0 غرام</span></div>
+          <div><span class="text-slate-400 block">سعر الغرام بعد خصم الصياغة:</span><span id="scrap-prev-gram" class="font-bold text-amber-300">0 د.ع</span></div>
+          <div><span class="text-slate-400 block">الوزن الصافي:</span><span id="scrap-prev-net-weight" class="text-emerald-400 font-bold">0 غرام</span></div>
           <div><span class="text-slate-400 block">الإجمالي بالدينار:</span><span id="scrap-prev-iqd" class="text-gold font-black">0 د.ع</span></div>
           <div><span class="text-slate-400 block">بالدولار:</span><span id="scrap-prev-usd" class="text-emerald-400 font-black">$0</span></div>
         </div>
@@ -277,12 +373,17 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
     </div>
 
-    <!-- 4. المخزن (إدارة المخزن - ضغط 5 مرات لتفعيل الأدمن بكلمة مرور) -->
+    <!-- 4. المخزن (صورة إدارة المخزن مخفية لتفعيل الأدمن 5 ضغطات + كلمة مرور) -->
     <div id="view-inventory" class="hidden space-y-6">
       <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
-        <h3 onclick="handleInventoryAdminTrigger()" title="إدارة المخزن" class="font-bold text-gold text-lg border-b border-slate-800 pb-3 cursor-pointer select-none">
-          <i class="fa-solid fa-boxes-stacked"></i> إدارة المخزن — إضافة بضاعة للمخزن والمعرض
-        </h3>
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 gap-3">
+          <div class="flex items-center gap-3">
+            <img id="inventory-secret-img" src="icon.png" onerror="handleBrandImageError(this, 'inv-secret-icon')" onclick="handleInventoryAdminTrigger()" title="إدارة المخزن" class="w-11 h-11 rounded-2xl object-cover border-2 border-gold/60 cursor-pointer shadow-lg">
+            <h3 class="font-bold text-gold text-lg">
+              <i class="fa-solid fa-boxes-stacked"></i> إدارة المخزن — إضافة بضاعة للمخزن والمعرض
+            </h3>
+          </div>
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input type="text" id="inv-name" placeholder="اسم الصنف (مثال: محبس ذهب فاخر)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
           <select id="inv-karat" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm text-gold font-bold outline-none">
@@ -322,22 +423,20 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <div class="system-card p-6 rounded-3xl border border-gold/40 shadow-xl space-y-5">
         <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-store"></i> إعدادات المعرض، الشعار، والغلاف الخاص بالصايغ</h3>
         
-        <!-- غلاف المعرض (Banner) -->
         <div class="bg-darkbg p-4 rounded-2xl border border-slate-800 space-y-3">
           <div class="flex justify-between items-center">
             <label class="text-xs font-bold text-gold">صورة غلاف المعرض (Cover Banner):</label>
             <span class="text-[10px] text-slate-400">تظهر أعلى معرض الزبائن وتصل للأدمن</span>
           </div>
           <div class="w-full h-40 rounded-2xl bg-cardbg border-2 border-dashed border-gold/40 overflow-hidden relative flex items-center justify-center">
-            <img id="settings-cover-preview" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
+            <img id="settings-cover-preview" src="icon.png" onerror="handleBrandImageError(this, 'settings-cover')" class="w-full h-full object-cover">
           </div>
           <input type="file" id="store-cover-input" accept="image/*" onchange="handleStoreCoverUpload(event)" class="w-full bg-cardbg border border-slate-700 rounded-xl p-2 text-xs text-slate-300">
         </div>
 
-        <!-- شعار الصايغ (Logo) -->
         <div class="flex flex-col md:flex-row items-center gap-4 bg-darkbg p-4 rounded-2xl border border-slate-800">
           <div class="w-24 h-24 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl overflow-hidden border-2 border-gold shadow-lg relative shrink-0">
-            <img id="settings-logo-preview" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
+            <img id="settings-logo-preview" src="icon.png" onerror="handleBrandImageError(this, 'settings-logo')" class="w-full h-full object-cover">
           </div>
           <div class="flex-1 space-y-2 w-full">
             <label class="text-xs font-bold text-gold block">صورة شعار الصايغ / المعرض الخاص بك (Logo):</label>
@@ -367,15 +466,15 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
     </div>
 
-    <!-- 6. دفتر الديون -->
+    <!-- 6. دفتر الديون (تمييز واضح بين تطلب ومطلوب) -->
     <div id="view-debts" class="hidden space-y-6">
       <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
         <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-3">
-          <h3 class="font-bold text-gold text-lg"><i class="fa-solid fa-file-invoice-dollar"></i> دفتر الديون والحسابات (يطلبونك وتطلبهم)</h3>
-          <div class="flex items-center gap-2">
-            <button onclick="setDebtFilter('all')" id="debt-filter-all" class="bg-gold text-darkbg px-3 py-1.5 rounded-xl text-xs font-bold">الكل</button>
-            <button onclick="setDebtFilter('on_them')" id="debt-filter-them" class="bg-darkbg text-emerald-400 border border-emerald-500/40 px-3 py-1.5 rounded-xl text-xs font-bold">الناس تطلبهم (عليك)</button>
-            <button onclick="setDebtFilter('on_us')" id="debt-filter-us" class="bg-darkbg text-rose-400 border border-rose-500/40 px-3 py-1.5 rounded-xl text-xs font-bold">أنت تطلبهم (لك)</button>
+          <h3 class="font-bold text-gold text-lg"><i class="fa-solid fa-file-invoice-dollar"></i> دفتر الديون والحسابات (تطلب ومطلوب)</h3>
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="setDebtFilter('all')" id="debt-filter-all" class="bg-gold text-darkbg px-3.5 py-1.5 rounded-xl text-xs font-bold">الكل</button>
+            <button onclick="setDebtFilter('on_them')" id="debt-filter-them" class="bg-darkbg text-emerald-400 border border-emerald-500/40 px-3.5 py-1.5 rounded-xl text-xs font-bold">أنت تطلبهم (تطلب / لك)</button>
+            <button onclick="setDebtFilter('on_us')" id="debt-filter-us" class="bg-darkbg text-rose-400 border border-rose-500/40 px-3.5 py-1.5 rounded-xl text-xs font-bold">مطلوب منك (عليك / للناس)</button>
           </div>
         </div>
 
@@ -384,10 +483,10 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           <input type="tel" id="debt-phone" placeholder="رقم الهاتف" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm text-emerald-400 font-mono outline-none">
           
           <button onclick="openLuxuryDebtTypeModal()" class="bg-cardbg border border-gold/40 hover:border-gold rounded-xl p-3 text-sm text-right flex items-center justify-between transition">
-            <span id="selected-debt-type-label" class="text-gold font-bold">دين لك (الناس تطلبهم / ذمة على الزبون) (+)</span>
+            <span id="selected-debt-type-label" class="text-emerald-400 font-bold">تطلبهم (دين لك / ذمة لك) (+)</span>
             <i class="fa-solid fa-chevron-down text-gold text-xs"></i>
           </button>
-          <input type="hidden" id="debt-type" value="دين لك (الناس تطلبهم)">
+          <input type="hidden" id="debt-type" value="تطلبهم (دين لك)">
 
           <input type="number" id="debt-amount" placeholder="المبلغ أو الوزن" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
           <input type="text" id="debt-notes" placeholder="ملاحظات الحساب..." class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm md:col-span-2 outline-none">
@@ -399,7 +498,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
     <!-- 7. التقارير وجرد إكسل وجرد أجور الصياغة والمثاقيل -->
     <div id="view-logs" class="hidden space-y-6">
-      <!-- جرد قطع أجور الصياغة وجرد الشراء/المبيعات حسب المثقال المختار -->
       <div class="system-card p-6 rounded-3xl border border-amber-500/40 shadow-xl space-y-4">
         <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-3">
           <div>
@@ -407,6 +505,9 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
             <p class="text-[11px] text-slate-400">اختر المثقال لمعرفة عدد القطع المباعة، الوزن (غرام ومثاقيل ÷ 5)، وصافي أرباح الصياغة لكل مثقال على حدة</p>
           </div>
           <div class="flex flex-wrap items-center gap-2 text-xs">
+            <button onclick="openLuxuryMithqalTestModal()" class="gold-gradient text-darkbg font-black px-3.5 py-2 rounded-xl text-xs shadow-lg flex items-center gap-1.5">
+              <i class="fa-solid fa-flask-vial"></i> <span>اختبار المثقال الفاخر</span>
+            </button>
             <select id="mithqal-audit-karat" onchange="renderMithqalMakingAudit()" class="bg-darkbg border border-gold/50 rounded-xl px-3 py-2 text-gold font-bold outline-none">
               <option value="all">جميع المثاقيل (كل العيارات)</option>
               <option value="24">مثقال عيار 24</option>
@@ -522,14 +623,12 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           <h4 class="text-sm font-bold text-gold"><i class="fa-solid fa-paper-plane"></i> إرسال رسالة أو إيصال تحويل أو طلب صورة/غلاف للإدارة:</h4>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
             <div>
-              <label class="text-slate-400 block mb-1">نوع الرسالة / الطلب:</label>
-              <select id="sup-pay-method" class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 text-gold font-bold outline-none">
-                <option value="رسالة عامة / استفسار للإدارة">رسالة عامة / استفسار للإدارة 💬</option>
-                <option value="طلب اعتماد صورة شعار أو غلاف">طلب اعتماد صورة شعار أو غلاف 🖼️</option>
-                <option value="ماستر كارد / سوبر كي">إيصال تحويل: ماستر كارد / سوبر كي 💳</option>
-                <option value="زين كاش">إيصال تحويل: زين كاش (ZainCash) 📱</option>
-                <option value="حوالة مكتب">إيصال تحويل: حوالة مكتب صيرفة 🏦</option>
-              </select>
+              <label class="text-slate-400 block mb-1">نوع الرسالة / طريقة التحويل:</label>
+              <button type="button" onclick="openLuxuryTransferMethodModal()" class="w-full bg-cardbg border border-gold/50 hover:border-gold rounded-xl p-3 text-gold font-bold flex items-center justify-between transition">
+                <span id="selected-transfer-method-label">رسالة عامة / استفسار للإدارة 💬</span>
+                <i class="fa-solid fa-chevron-down text-xs text-gold"></i>
+              </button>
+              <input type="hidden" id="sup-pay-method" value="رسالة عامة / استفسار للإدارة">
             </div>
             <div>
               <label class="text-slate-400 block mb-1">عنوان الرسالة / رقم العملية:</label>
@@ -565,12 +664,12 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl mx-auto shadow-lg"><i class="fa-solid fa-scale-balanced"></i></div>
     <h3 class="text-lg font-bold text-gold">اختر نوع الحركة في دفتر الديون</h3>
     <div class="space-y-2.5 text-right">
-      <button onclick="selectLuxuryDebtType('دين لك (الناس تطلبهم)', 'دين لك (الناس تطلبهم / ذمة على الزبون) (+)')" class="w-full bg-darkbg border border-emerald-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-emerald-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> 1. دين لك (الناس تطلبهم / ذمة على الزبون) (+)</span>
+      <button onclick="selectLuxuryDebtType('تطلبهم (دين لك)', 'تطلبهم (دين لك / ذمة لك) (+)')" class="w-full bg-darkbg border border-emerald-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-emerald-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> 1. تطلبهم (دين لك / ذمة لك) (+)</span>
         <i class="fa-solid fa-chevron-left text-slate-500"></i>
       </button>
-      <button onclick="selectLuxuryDebtType('دين عليك (أنت تطلبهم)', 'دين عليك (أنت تطلبهم / ذمة لك عند المحل) (-)')" class="w-full bg-darkbg border border-rose-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-rose-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-down text-rose-400"></i> 2. دين عليك (أنت تطلبهم / ذمة لك عند المحل) (-)</span>
+      <button onclick="selectLuxuryDebtType('مطلوب منك (دين عليك)', 'مطلوب منك (دين عليك / ذمة للناس) (-)')" class="w-full bg-darkbg border border-rose-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-rose-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-down text-rose-400"></i> 2. مطلوب منك (دين عليك / ذمة للناس) (-)</span>
         <i class="fa-solid fa-chevron-left text-slate-500"></i>
       </button>
       <button onclick="selectLuxuryDebtType('إضافة ذهب (غرام)', 'إضافة ذهب للذمة (غرام)')" class="w-full bg-darkbg border border-amber-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-amber-300 flex items-center justify-between transition">
@@ -689,18 +788,18 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
-<!-- معرض الزبائن: بطاقات كبيرة وواقعية واضحة جداً -->
+<!-- معرض الزبائن -->
 <div id="storefront-modal" class="fixed inset-0 bg-darkbg z-[180] flex flex-col hidden overflow-y-auto p-4 md:p-6">
   <div class="max-w-5xl mx-auto w-full space-y-6">
     <div class="rounded-3xl overflow-hidden border border-gold/40 system-card shadow-2xl">
       <div class="w-full h-48 md:h-64 bg-slate-900 relative">
-        <img id="store-view-cover" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover opacity-85">
+        <img id="store-view-cover" src="icon.png" onerror="handleBrandImageError(this, 'store-view-cover')" class="w-full h-full object-cover opacity-85">
         <button onclick="closeStorefrontView()" class="absolute top-4 left-4 bg-darkbg/90 border border-gold/50 text-gold px-4 py-2.5 rounded-xl text-xs font-bold shadow-xl">إغلاق المعرض ✕</button>
       </div>
       <div class="p-6 flex flex-col md:flex-row items-center md:items-end justify-between gap-4 -mt-12 relative z-10">
         <div class="flex flex-col md:flex-row items-center gap-4 text-center md:text-right">
           <div class="w-24 h-24 rounded-3xl gold-gradient p-1 shadow-2xl">
-            <img id="store-view-logo" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover rounded-2xl bg-darkbg">
+            <img id="store-view-logo" src="icon.png" onerror="handleBrandImageError(this, 'store-view-logo')" class="w-full h-full object-cover rounded-2xl bg-darkbg">
           </div>
           <div class="pt-2 md:pt-8">
             <h2 id="store-view-title" class="text-2xl font-black text-gold">معرض الذهب</h2>
@@ -799,16 +898,16 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <span id="modal-cust-phone" class="text-xs font-mono text-emerald-400">--</span>
     </div>
     <div class="grid grid-cols-2 gap-2 text-xs bg-darkbg p-3 rounded-2xl border border-slate-800">
-      <div>دين لك (يطلبونك): <span id="modal-cust-debt" class="text-emerald-400 font-bold">0 د.ع</span></div>
-      <div>دين عليك (أنت تطلبهم): <span id="modal-cust-credit" class="text-rose-400 font-bold">0 د.ع</span></div>
+      <div>تطلبهم (لك / ذمة لك): <span id="modal-cust-debt" class="text-emerald-400 font-bold">0 د.ع</span></div>
+      <div>مطلوب منك (عليك / للناس): <span id="modal-cust-credit" class="text-rose-400 font-bold">0 د.ع</span></div>
       <div class="col-span-2 pt-1 border-t border-slate-800">رصيد الذهب: <span id="modal-cust-gold" class="text-gold font-bold">0 غرام</span></div>
     </div>
     <div class="bg-darkbg p-4 rounded-2xl space-y-3 border border-slate-800">
       <select id="modal-action-type" class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 text-xs text-gold font-bold outline-none">
-        <option value="plus_debt">إضافة دين (الناس تطلبهم +)</option>
-        <option value="minus_debt">تسديد دين (نقصان -)</option>
-        <option value="plus_credit">إضافة ذمة لك (أنت تطلبهم +)</option>
-        <option value="minus_credit">استلام من ذمتك (-)</option>
+        <option value="plus_debt">إضافة ما تطلبه أنت (تطلبهم +)</option>
+        <option value="minus_debt">تسديد مما تطلبه أنت (-)</option>
+        <option value="plus_credit">إضافة ما هو مطلوب منك (عليك +)</option>
+        <option value="minus_credit">تسديد مما هو مطلوب منك (-)</option>
       </select>
       <input type="number" id="cust-custom-amount" placeholder="أدخل المبلغ أو الوزن..." class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 text-sm text-gold font-bold outline-none">
       <button onclick="custActionSubmitAdvanced()" class="w-full gold-gradient text-darkbg py-3 rounded-xl text-xs font-black shadow">تنفيذ وتحديث كارت العميل</button>
@@ -823,14 +922,83 @@ const ADMIN_TENANT_CODE = "ARAMKY-01";
 const ADMIN_SECRET_PASS = localStorage.getItem('aramky_admin_secret_pass') || "ARAMKY2026";
 const FALLBACK_BRAND_ICON = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><rect width="256" height="256" rx="48" fill="#070A12"/><rect x="8" y="8" width="240" height="240" rx="42" fill="none" stroke="#D4AF37" stroke-width="6"/><text x="128" y="148" text-anchor="middle" font-size="96" fill="#D4AF37" font-family="Arial, sans-serif">👑</text></svg>');
 
+let brokenImageReasons = [];
+let pwaDiagnosticsReason = "";
+let swRegisteredOk = false;
+
 function isAdminTenant(code) {
   return String(code || '').trim().toUpperCase() === ADMIN_TENANT_CODE;
 }
 
-function handleBrandImageError(imgEl) {
+function handleBrandImageError(imgEl, slotName = 'brand-image') {
   if (!imgEl || imgEl.dataset.fallbackApplied === '1') return;
+  const failedSrc = imgEl.getAttribute('src') || 'icon.png';
   imgEl.dataset.fallbackApplied = '1';
   imgEl.src = FALLBACK_BRAND_ICON;
+  const entry = `${slotName}: تعذر تحميل الصورة (${failedSrc})`;
+  if (!brokenImageReasons.includes(entry)) brokenImageReasons.push(entry);
+  scheduleDiagnosticsToAdmin();
+}
+
+function sendNotificationToAdmin(method, ref, msg, imageBase64 = "") {
+  const activeCode = (currentTenantCode || localStorage.getItem('aramky_active_tenant') || 'GUEST').toUpperCase();
+  const activeStore = (appState && appState.store && appState.store.name) ? appState.store.name : activeCode;
+  let ticket = {
+    id: 'MSG-' + Math.floor(1000 + Math.random() * 9000),
+    time: new Date().toLocaleDateString('ar-IQ') + ' ' + new Date().toLocaleTimeString('ar-IQ', {hour:'2-digit',minute:'2-digit'}),
+    tenant: activeCode,
+    storeName: activeStore,
+    method: method,
+    ref: ref,
+    msg: msg,
+    receipt: imageBase64,
+    status: 'جديد'
+  };
+  if (appState && Array.isArray(appState.supportTickets)) {
+    appState.supportTickets.unshift(ticket);
+  }
+  let masterTickets = JSON.parse(localStorage.getItem('aramky_global_support_tickets')) || [];
+  masterTickets.unshift(ticket);
+  localStorage.setItem('aramky_global_support_tickets', JSON.stringify(masterTickets));
+}
+
+let diagTimer = null;
+function scheduleDiagnosticsToAdmin() {
+  clearTimeout(diagTimer);
+  diagTimer = setTimeout(() => {
+    reportDiagnosticsToAdmin();
+  }, 1800);
+}
+
+function collectInstallDiagnosticReason() {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (isStandalone) {
+    pwaDiagnosticsReason = "مثبت كواجهة تطبيق مستقلة (standalone)";
+    return pwaDiagnosticsReason;
+  }
+  const reasons = [];
+  if (!deferredPrompt) reasons.push("المتصفح لم يطلق حدث beforeinstallprompt بعد (أو تم تجاهله مسبقاً / يتطلب تثبيت يدوي من القائمة)");
+  if (!swRegisteredOk) reasons.push("لم يتم تأكيد تسجيل Service Worker (sw.js) على السيرفر");
+  if (!window.isSecureContext && location.hostname !== 'localhost') reasons.push("الاتصال ليس HTTPS آمن");
+  pwaDiagnosticsReason = reasons.join(" | ") || "جاهز للتثبيت";
+  return pwaDiagnosticsReason;
+}
+
+function reportDiagnosticsToAdmin() {
+  const installReason = collectInstallDiagnosticReason();
+  const imgReason = brokenImageReasons.length ? brokenImageReasons.join(" | ") : "جميع الصور المعروضة تعمل أو تم استبدالها ببديل آمن";
+  if (!brokenImageReasons.length && deferredPrompt && swRegisteredOk) return;
+
+  const signature = `${currentTenantCode || 'NONE'}::${installReason}::${imgReason}`;
+  const lastSig = localStorage.getItem('aramky_last_diag_signature');
+  if (signature === lastSig) return;
+  localStorage.setItem('aramky_last_diag_signature', signature);
+
+  sendNotificationToAdmin(
+    "تشخيص تلقائي: التطبيق والصور 🛠️",
+    `التطبيق: ${installReason.slice(0, 35)}`,
+    `سبب عدم تثبيت التطبيق: ${installReason} || حالة الصور: ${imgReason}`
+  );
 }
 
 let invTapCount = 0;
@@ -868,6 +1036,62 @@ function verifyAdminSecretPassword() {
   }
 }
 
+// نافذة اختيار طريقة التحويل الفاخرة
+function openLuxuryTransferMethodModal() {
+  document.getElementById('luxury-transfer-method-modal').classList.remove('hidden');
+}
+function closeLuxuryTransferMethodModal() {
+  document.getElementById('luxury-transfer-method-modal').classList.add('hidden');
+}
+function selectLuxuryTransferMethod(val, label) {
+  document.getElementById('sup-pay-method').value = val;
+  document.getElementById('selected-transfer-method-label').innerText = label;
+  closeLuxuryTransferMethodModal();
+  showToast(`تم اختيار: ${label}`);
+}
+
+// نافذة اختبار وجرد المثقال الفاخرة
+function openLuxuryMithqalTestModal() {
+  syncTestMithqalDefault();
+  calculateLuxuryMithqalTest();
+  document.getElementById('luxury-mithqal-test-modal').classList.remove('hidden');
+}
+function closeLuxuryMithqalTestModal() {
+  document.getElementById('luxury-mithqal-test-modal').classList.add('hidden');
+}
+function syncTestMithqalDefault() {
+  const k = document.getElementById('test-mq-karat')?.value || '21';
+  document.getElementById('test-mq-price').value = Math.round(getMithqalPrice(k));
+}
+function calculateLuxuryMithqalTest() {
+  const mqPrice = parseFloat(document.getElementById('test-mq-price')?.value) || 0;
+  const weight = parseFloat(document.getElementById('test-mq-weight')?.value) || 0;
+  const gramAdj = parseFloat(document.getElementById('test-mq-gram-adj')?.value) || 0;
+
+  const baseGram = mqPrice / 5;
+  const adjGram = baseGram - gramAdj;
+  const mithqalCount = weight / 5;
+  const totalAdj = gramAdj * weight;
+  const grandTotal = Math.round(weight * adjGram);
+
+  document.getElementById('test-mq-base-gram').innerText = `${Math.round(baseGram).toLocaleString()} د.ع`;
+  document.getElementById('test-mq-adj-gram').innerText = `${Math.round(adjGram).toLocaleString()} د.ع`;
+  document.getElementById('test-mq-count').innerText = `${mithqalCount.toFixed(3)} مثقال`;
+  document.getElementById('test-mq-total-adj').innerText = `${Math.round(totalAdj).toLocaleString()} د.ع`;
+  document.getElementById('test-mq-grand-total').innerText = `${grandTotal.toLocaleString()} د.ع`;
+}
+function applyTestMithqalToAudit() {
+  const k = document.getElementById('test-mq-karat')?.value || '21';
+  const mqPrice = parseFloat(document.getElementById('test-mq-price')?.value) || 0;
+  const karatSelect = document.getElementById('mithqal-audit-karat');
+  const customPriceInput = document.getElementById('mithqal-audit-custom-price');
+  if (karatSelect) karatSelect.value = k;
+  if (customPriceInput && mqPrice > 0) customPriceInput.value = Math.round(mqPrice);
+  renderMithqalMakingAudit();
+  closeLuxuryMithqalTestModal();
+  showToast(`تم تطبيق اختبار مثقال عيار ${k} على الجرد`);
+}
+
 // دعم تثبيت التطبيق PWA
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -879,13 +1103,18 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 async function installPWA() {
   if (!deferredPrompt) {
-    showToast('لتثبيت التطبيق كواجهة رسمية: افتح قائمة المتصفح (⋮) واختر "تثبيت التطبيق" أو "الإضافة إلى الشاشة الرئيسية"', 'info');
+    const reason = collectInstallDiagnosticReason();
+    reportDiagnosticsToAdmin();
+    showToast(`تثبيت التطبيق: افتح قائمة المتصفح (⋮) واختر "تثبيت التطبيق" أو "الإضافة إلى الشاشة الرئيسية" (${reason})`, 'info');
     return;
   }
   deferredPrompt.prompt();
   const { outcome } = await deferredPrompt.userChoice;
   if (outcome === 'accepted') {
-    showToast('تم تثبيت التطبيق على جهازك بنجاح 📲');
+    showToast('تم تثبيت التطبيق وظهرت علامة أرامكي ⚜️ بنجاح');
+  } else {
+    pwaDiagnosticsReason = "تم إلغاء نافذة التثبيت من قبل المستخدم";
+    reportDiagnosticsToAdmin();
   }
   deferredPrompt = null;
 }
@@ -906,7 +1135,6 @@ let appState = {
 };
 let currentCategoryFilter = 'all', currentDayFilter = 'الكل', currentDebtFilter = 'all', selectedCustIdx = null, tempReceiptBase64 = "";
 
-// ضغط الصور إلى WebP ورفعها إلى Supabase Storage بمسار معزول وتسلسلي
 function getSupabaseCreds() {
   let cfg = JSON.parse(localStorage.getItem('aramky_supabase_config')) || {};
   let url = (cfg.url || localStorage.getItem('aramky_supabase_url') || '').replace(/\/+$/, '');
@@ -987,21 +1215,30 @@ window.onload = function() {
   const activateCode = urlParams.get('activate');
   const activateExp = urlParams.get('exp');
   const activateName = urlParams.get('name');
-  if (activateCode && activateExp) {
-    let idx = subscribersDB.findIndex(s => s.code.toUpperCase() === activateCode.toUpperCase());
-    if (idx > -1) { subscribersDB[idx].expiresAt = activateExp; subscribersDB[idx].active = true; }
-    else { subscribersDB.push({ code: activateCode.toUpperCase(), name: decodeURIComponent(activateName || activateCode), phone: "", expiresAt: activateExp, active: true }); }
+  if (activateCode) {
+    const cleanCode = activateCode.trim().toUpperCase();
+    const futureExp = activateExp || new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+    let idx = subscribersDB.findIndex(s => s.code.toUpperCase() === cleanCode);
+    if (idx > -1) {
+      subscribersDB[idx].expiresAt = futureExp;
+      subscribersDB[idx].active = true;
+    } else {
+      subscribersDB.push({ code: cleanCode, name: decodeURIComponent(activateName || cleanCode), phone: "", expiresAt: futureExp, active: true });
+    }
     saveSubscribersDB();
-    currentTenantCode = activateCode.toUpperCase();
+    localStorage.removeItem('aramky_last_diag_signature');
+    currentTenantCode = cleanCode;
     localStorage.setItem('aramky_active_tenant', currentTenantCode);
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
   if (!currentTenantCode) {
     openLoginScreenOnly();
+    scheduleDiagnosticsToAdmin();
     return;
   }
   verifyAndBootTenant(currentTenantCode);
+  scheduleDiagnosticsToAdmin();
 };
 
 function openLoginScreenOnly() {
@@ -1030,6 +1267,7 @@ function switchTenantPrompt() {
 }
 
 function verifyAndBootTenant(code) {
+  subscribersDB = JSON.parse(localStorage.getItem('aramky_subscribers_master')) || subscribersDB;
   let normalizedCode = String(code || '').trim().toUpperCase();
   let sub = subscribersDB.find(s => s.code.toUpperCase() === normalizedCode);
 
@@ -1045,14 +1283,20 @@ function verifyAndBootTenant(code) {
     return; 
   }
 
+  // إذا أُعيد تفعيل الحساب من الإدارة وكان تاريخه ماضياً، يتم تمديده تلقائياً ليفتح بدون تعليق
   let today = new Date().toISOString().split('T')[0];
+  if (sub.active === true && sub.expiresAt && sub.expiresAt < today && !isAdminTenant(sub.code)) {
+    sub.expiresAt = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+    saveSubscribersDB();
+  }
+
   currentTenantCode = sub.code.toUpperCase();
   localStorage.setItem('aramky_active_tenant', currentTenantCode);
   loadTenantData(currentTenantCode);
 
   const adminBypass = isAdminTenant(currentTenantCode);
-  if (!adminBypass && (!sub.active || sub.expiresAt < today)) {
-    document.getElementById('locked-tenant-info').innerText = `المحل: ${sub.name} | الكود: ${sub.code} | انتهى: ${sub.expiresAt}`;
+  if (!adminBypass && (!sub.active || !sub.expiresAt || sub.expiresAt < today)) {
+    document.getElementById('locked-tenant-info').innerText = `المحل: ${sub.name} | الكود: ${sub.code} | انتهى: ${sub.expiresAt || '--'}`;
     document.getElementById('subscription-lock-screen').classList.remove('hidden');
     document.getElementById('app-main').style.display = 'none';
     document.getElementById('app-header').style.display = 'none';
@@ -1143,24 +1387,6 @@ async function previewSupportReceipt(e) {
   } catch (_) {
     showToast('تعذر قراءة الصورة!', 'error');
   }
-}
-
-function sendNotificationToAdmin(method, ref, msg, imageBase64 = "") {
-  let ticket = {
-    id: 'MSG-' + Math.floor(1000 + Math.random() * 9000),
-    time: new Date().toLocaleDateString('ar-IQ') + ' ' + new Date().toLocaleTimeString('ar-IQ', {hour:'2-digit',minute:'2-digit'}),
-    tenant: currentTenantCode,
-    storeName: appState.store.name,
-    method: method,
-    ref: ref,
-    msg: msg,
-    receipt: imageBase64,
-    status: 'جديد'
-  };
-  appState.supportTickets.unshift(ticket);
-  let masterTickets = JSON.parse(localStorage.getItem('aramky_global_support_tickets')) || [];
-  masterTickets.unshift(ticket);
-  localStorage.setItem('aramky_global_support_tickets', JSON.stringify(masterTickets));
 }
 
 function submitSupportTransfer() {
@@ -1304,7 +1530,6 @@ function saveStoreSettings() {
 
 function copyStoreLink() { let el = document.getElementById('store-share-link'); el.select(); navigator.clipboard.writeText(el.value); showToast('تم نسخ الرابط!'); }
 
-// عرض معرض الزبائن بحجم بطاقات كبير وواقعي
 function openStorefrontView() {
   document.getElementById('store-view-title').innerText = appState.store.name;
   document.getElementById('store-view-subtitle').innerText = appState.store.bio;
@@ -1396,7 +1621,6 @@ function renderPublicCustomerStorefront() {
   });
 }
 
-// جرد قطع أجور الصياغة وجرد الشراء/المبيعات حسب المثقال المختار
 function renderMithqalMakingAudit() {
   const tbody = document.getElementById('mithqal-audit-tbody');
   if (!tbody) return;
@@ -1659,7 +1883,7 @@ function completeSale(mode) {
     let d = appState.debts.find(x => x.customer === cust);
     if (!d) { d = { customer: cust, phone, code: 'CUST-'+Math.floor(1000+Math.random()*9000), debtAmount: 0, creditAmount: 0, goldAmount: 0, movements: [] }; appState.debts.push(d); }
     d.debtAmount += tot; 
-    d.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: 'مبيعات آجل (+ دين)', amount: tot });
+    d.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: 'تطلبهم (مبيعات آجل +)', amount: tot });
     logTransaction('عملية بيع', `آجل (${cust}): ${snap.map(x=>x.name).join(', ')}`, `${tot.toLocaleString()} د.ع`, notes, code, mk);
   }
   
@@ -1676,7 +1900,7 @@ function renderInvoicePrintContent(code, cust, phone, notes, tot, mk, wt, items)
   let storeLogo = appState.store.logo || 'icon.png';
 
   if (tmpl === 'detailed') {
-    headerBox.innerHTML = `<img src="${storeLogo}" onerror="handleBrandImageError(this)" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">💎 ${appState.store.name} 💎</h2><p class="text-xs text-slate-600 font-bold">${appState.store.bio || 'فرع نواة الذهب ⚜️'}</p><div class="inline-block bg-slate-900 text-gold font-mono text-xs font-bold px-3 py-1 rounded-full mt-1">${code}</div>`;
+    headerBox.innerHTML = `<img src="${storeLogo}" onerror="handleBrandImageError(this, 'inv-header-logo')" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">💎 ${appState.store.name} 💎</h2><p class="text-xs text-slate-600 font-bold">${appState.store.bio || 'فرع نواة الذهب ⚜️'}</p><div class="inline-block bg-slate-900 text-gold font-mono text-xs font-bold px-3 py-1 rounded-full mt-1">${code}</div>`;
     let itemsHtml = items.map(i => `<div class="border-b py-1">
       <div class="flex justify-between font-bold"><span>${i.name} (${i.weight}غ - عيار ${i.karat})</span><span>${i.itemTotal.toLocaleString()} د.ع</span></div>
       <div class="text-[10px] text-slate-500">صياغة المثقال: ${(i.itemMakingMithqal||0).toLocaleString()} د.ع | إجمالي صياغة القطعة: ${Math.round(i.itemMakingTotal||0).toLocaleString()} د.ع</div>
@@ -1686,27 +1910,37 @@ function renderInvoicePrintContent(code, cust, phone, notes, tot, mk, wt, items)
     headerBox.innerHTML = `<h2 class="font-black text-lg text-slate-900">${appState.store.name}</h2><p class="text-[11px] text-slate-500 font-mono">فاتورة مختصرة | ${code}</p>`;
     body.innerHTML = `<div class="text-center py-2 font-bold text-sm text-slate-800">ملخص عملية البيع النقدي</div><div class="flex justify-between text-base font-black pt-2 border-t"><span>المبلغ الإجمالي:</span><span class="text-gold">${tot.toLocaleString()} دينار</span></div><div class="flex justify-between text-sm text-emerald-700 font-bold bg-emerald-50 p-2 rounded-xl"><span>المقابل اللحظي:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-xs text-slate-600 pt-2">الزبون: <strong>${cust}</strong> (${phone})</div><div class="text-[10px] text-slate-400">التاريخ: ${new Date().toLocaleDateString('ar-IQ')}</div>`;
   } else {
-    headerBox.innerHTML = `<img src="${storeLogo}" onerror="handleBrandImageError(this)" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">⚜️ ${appState.store.name} ⚜️</h2><p class="text-xs text-gold-dark font-bold">سند قبض وبيع ذهب مؤسسي</p><div class="inline-block bg-gold text-darkbg font-mono text-xs font-black px-3 py-0.5 rounded-full mt-1">${code}</div>`;
+    headerBox.innerHTML = `<img src="${storeLogo}" onerror="handleBrandImageError(this, 'inv-jeweler-logo')" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">⚜️ ${appState.store.name} ⚜️</h2><p class="text-xs text-gold-dark font-bold">سند قبض وبيع ذهب مؤسسي</p><div class="inline-block bg-gold text-darkbg font-mono text-xs font-black px-3 py-0.5 rounded-full mt-1">${code}</div>`;
     body.innerHTML = `<div class="bg-amber-50 p-3 rounded-2xl border border-amber-200 space-y-1 text-xs"><div class="flex justify-between"><span>اسم الصايغ والمعرض:</span><strong>${appState.store.name}</strong></div><div class="flex justify-between"><span>هاتف المعرض:</span><strong class="font-mono">${appState.store.phone}</strong></div><div class="flex justify-between"><span>العنوان:</span><span>${appState.store.address}</span></div></div><div class="flex justify-between text-sm font-black pt-2"><span>صافي المبيعات:</span><span class="text-gold">${tot.toLocaleString()} د.ع</span></div><div class="flex justify-between text-sm font-black text-emerald-700 bg-emerald-50 p-2 rounded-xl"><span>المقابل المعادل:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-[11px] text-slate-600 border-t pt-1">العميل المستفيد: <strong>${cust}</strong> | الهاتف: <span class="font-mono">${phone}</span></div><div class="text-[10px] text-slate-500 text-center pt-2">توقيع وختم الصايغ المعتمد — ${new Date().toLocaleDateString('ar-IQ')}</div>`;
   }
 }
 
 function autoFillScrapMithqal() { document.getElementById('scrap-mithqal-price').value = Math.round(getMithqalPrice(document.getElementById('scrap-karat').value)); }
+
+// خصم أجور الصياغة على الغرام الواحد بالدينار المباشر (وليس نسبة مئوية)
 function updateScrapPreview() {
-  let m = parseFloat(document.getElementById('scrap-mithqal-price').value)||0, w = parseFloat(document.getElementById('scrap-weight').value)||0, d = parseFloat(document.getElementById('scrap-deduct').value)||0;
-  let gp = m/5, nw = w*(1-d/100), pay = Math.round(nw*gp);
-  document.getElementById('scrap-prev-gram').innerText = Math.round(gp).toLocaleString()+' د.ع';
-  document.getElementById('scrap-prev-net-weight').innerText = nw.toFixed(3)+'غ';
+  let m = parseFloat(document.getElementById('scrap-mithqal-price').value)||0;
+  let w = parseFloat(document.getElementById('scrap-weight').value)||0;
+  let gramMakingDiscount = parseFloat(document.getElementById('scrap-deduct').value)||0;
+  let baseGramPrice = m / 5;
+  let effectiveGramPrice = baseGramPrice - gramMakingDiscount;
+  let pay = Math.round(w * effectiveGramPrice);
+  document.getElementById('scrap-prev-gram').innerText = Math.round(effectiveGramPrice).toLocaleString()+' د.ع';
+  document.getElementById('scrap-prev-net-weight').innerText = w.toFixed(3)+'غ';
   document.getElementById('scrap-prev-iqd').innerText = pay.toLocaleString()+' د.ع';
   document.getElementById('scrap-prev-usd').innerText = '$'+(pay/(appState.prices.usd/100)).toFixed(2);
 }
+
 function buyScrapGold() {
   let cust = document.getElementById('scrap-customer').value.trim()||'بائع كسر', k = document.getElementById('scrap-karat').value;
-  let m = parseFloat(document.getElementById('scrap-mithqal-price').value), w = parseFloat(document.getElementById('scrap-weight').value), d = parseFloat(document.getElementById('scrap-deduct').value)||0;
+  let m = parseFloat(document.getElementById('scrap-mithqal-price').value), w = parseFloat(document.getElementById('scrap-weight').value);
+  let gramMakingDiscount = parseFloat(document.getElementById('scrap-deduct').value)||0;
   if (isNaN(m) || isNaN(w) || w <= 0) return showToast('أدخل البيانات!', 'error');
-  let pay = Math.round((w*(1-d/100))*(m/5));
+  let effectiveGramPrice = (m / 5) - gramMakingDiscount;
+  let pay = Math.round(w * effectiveGramPrice);
   if (appState.cash < pay) return showToast('الكاش لا يكفي!', 'error');
-  appState.cash -= pay; logTransaction('شراء كسر', `كسر عيار ${k} من ${cust}`, `-${pay.toLocaleString()} د.ع`, document.getElementById('scrap-notes').value);
+  appState.cash -= pay;
+  logTransaction('شراء كسر', `كسر عيار ${k} من ${cust} (خصم صياغة الغرام: ${gramMakingDiscount.toLocaleString()} د.ع)`, `-${pay.toLocaleString()} د.ع`, document.getElementById('scrap-notes').value);
   saveState(); showToast('تم شراء الكسر بنجاح!');
 }
 
@@ -1758,8 +1992,8 @@ function addDebtMovement() {
   let d = appState.debts.find(x => x.customer === c);
   if (!d) { d = { customer: c, phone: document.getElementById('debt-phone').value, code: 'CUST-'+Math.floor(1000+Math.random()*9000), debtAmount: 0, creditAmount: 0, goldAmount: 0, movements: [] }; appState.debts.push(d); }
   
-  if (t.includes('دين لك')) d.debtAmount += a;
-  else if (t.includes('دين عليك')) d.creditAmount += a;
+  if (t.includes('تطلبهم')) d.debtAmount += a;
+  else if (t.includes('مطلوب منك')) d.creditAmount += a;
   else if (t.includes('إضافة ذهب')) d.goldAmount += a;
   else d.goldAmount -= a;
 
@@ -1772,9 +2006,9 @@ function addDebtMovement() {
 
 function setDebtFilter(f) {
   currentDebtFilter = f;
-  document.getElementById('debt-filter-all').className = f === 'all' ? 'bg-gold text-darkbg px-3 py-1.5 rounded-xl text-xs font-bold' : 'bg-darkbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold';
-  document.getElementById('debt-filter-them').className = f === 'on_them' ? 'bg-gold text-darkbg px-3 py-1.5 rounded-xl text-xs font-bold' : 'bg-darkbg text-emerald-400 border border-emerald-500/40 px-3 py-1.5 rounded-xl text-xs font-bold';
-  document.getElementById('debt-filter-us').className = f === 'on_us' ? 'bg-gold text-darkbg px-3 py-1.5 rounded-xl text-xs font-bold' : 'bg-darkbg text-rose-400 border border-rose-500/40 px-3 py-1.5 rounded-xl text-xs font-bold';
+  document.getElementById('debt-filter-all').className = f === 'all' ? 'bg-gold text-darkbg px-3.5 py-1.5 rounded-xl text-xs font-bold' : 'bg-darkbg text-slate-300 border border-slate-700 px-3.5 py-1.5 rounded-xl text-xs font-bold';
+  document.getElementById('debt-filter-them').className = f === 'on_them' ? 'bg-emerald-500 text-darkbg px-3.5 py-1.5 rounded-xl text-xs font-bold' : 'bg-darkbg text-emerald-400 border border-emerald-500/40 px-3.5 py-1.5 rounded-xl text-xs font-bold';
+  document.getElementById('debt-filter-us').className = f === 'on_us' ? 'bg-rose-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold' : 'bg-darkbg text-rose-400 border border-rose-500/40 px-3.5 py-1.5 rounded-xl text-xs font-bold';
   renderCustomerCards();
 }
 
@@ -1790,11 +2024,15 @@ function renderCustomerCards() {
 
   filtered.forEach((c) => {
     let originalIdx = appState.debts.indexOf(c);
+    let badgeHtml = c.debtAmount >= c.creditAmount
+      ? `<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-bold">تطلبهم (لك)</span>`
+      : `<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-bold">مطلوب منك (عليك)</span>`;
     g.innerHTML += `<div onclick="openCustomerModal(${originalIdx})" class="system-card p-4 rounded-3xl border border-gold/30 hover:border-gold cursor-pointer shadow-lg space-y-3 transition">
-      <div class="flex justify-between items-center"><h5 class="font-bold text-gold text-base">${c.customer}</h5><span class="text-[10px] text-slate-400 font-mono">${c.phone||'--'}</span></div>
+      <div class="flex justify-between items-center gap-2"><h5 class="font-bold text-gold text-base">${c.customer}</h5>${badgeHtml}</div>
+      <div class="text-[10px] text-slate-400 font-mono">${c.phone||'--'}</div>
       <div class="grid grid-cols-2 gap-2 text-xs bg-darkbg p-2.5 rounded-2xl border border-slate-800">
-        <div>الناس تطلبهم (عليك): <span class="text-emerald-400 font-bold block">${Math.round(c.debtAmount).toLocaleString()} د.ع</span></div>
-        <div>أنت تطلبهم (لك): <span class="text-rose-400 font-bold block">${Math.round(c.creditAmount).toLocaleString()} د.ع</span></div>
+        <div class="border-l border-slate-800 pl-2">تطلبهم (لك): <span class="text-emerald-400 font-bold block">${Math.round(c.debtAmount).toLocaleString()} د.ع</span></div>
+        <div>مطلوب منك (عليك): <span class="text-rose-400 font-bold block">${Math.round(c.creditAmount).toLocaleString()} د.ع</span></div>
       </div>
       <div class="text-[11px] text-slate-300">رصيد الذهب: <span class="text-gold font-bold">${c.goldAmount}غ</span></div>
     </div>`;
@@ -1826,10 +2064,10 @@ function custActionSubmitAdvanced() {
   if (isNaN(v) || v <= 0) return showToast('أدخل مبلغاً صحيحاً!', 'error');
   
   let c = appState.debts[selectedCustIdx];
-  if (action === 'plus_debt') { c.debtAmount += v; c.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: 'إضافة دين (الناس تطلبهم +)', amount: v }); }
-  else if (action === 'minus_debt') { c.debtAmount -= v; c.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: 'تسديد دين (-)', amount: v }); }
-  else if (action === 'plus_credit') { c.creditAmount += v; c.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: 'إضافة ذمة لك (أنت تطلبهم +)', amount: v }); }
-  else if (action === 'minus_credit') { c.creditAmount -= v; c.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: 'استلام من ذمتك (-)', amount: v }); }
+  if (action === 'plus_debt') { c.debtAmount += v; c.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: 'إضافة ما تطلبه أنت (تطلبهم +)', amount: v }); }
+  else if (action === 'minus_debt') { c.debtAmount -= v; c.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: 'تسديد مما تطلبه أنت (-)', amount: v }); }
+  else if (action === 'plus_credit') { c.creditAmount += v; c.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: 'إضافة ما هو مطلوب منك (عليك +)', amount: v }); }
+  else if (action === 'minus_credit') { c.creditAmount -= v; c.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: 'تسديد مما هو مطلوب منك (-)', amount: v }); }
 
   saveState(); openCustomerModal(selectedCustIdx);
   document.getElementById('cust-custom-amount').value = '';
@@ -1983,7 +2221,13 @@ function handleGlobalZeroKey(e) {
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed: ', err));
+    navigator.serviceWorker.register('sw.js')
+      .then(() => { swRegisteredOk = true; scheduleDiagnosticsToAdmin(); })
+      .catch(err => {
+        swRegisteredOk = false;
+        pwaDiagnosticsReason = `فشل تسجيل sw.js: ${err && err.message ? err.message : 'غير متاح'}`;
+        scheduleDiagnosticsToAdmin();
+      });
   });
 }
 </script>
