@@ -1,6 +1,8 @@
 {
+  "id": "./index.html",
   "name": "ARAMKY Gold OS",
   "short_name": "أرامكي للذهب",
+  "scope": "./",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
