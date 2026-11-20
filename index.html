@@ -59,7 +59,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <div id="tenant-login-screen" class="fixed inset-0 bg-darkbg/95 backdrop-blur-xl z-[250] flex items-center justify-center p-5 hidden">
   <div class="system-card p-8 rounded-3xl border border-gold/40 max-w-md w-full space-y-5 shadow-2xl text-center">
     <div class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl mx-auto shadow-xl overflow-hidden border-2 border-gold">
-      <img src="icon.png" onerror="handleBrandImageError(this, 'login-logo')" class="w-full h-full object-cover">
+      <img src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
     </div>
     <div>
       <h2 class="text-xl font-black text-gold">نظام إدارة صياغة الذهب</h2>
@@ -74,7 +74,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <div id="admin-secret-modal" class="fixed inset-0 modal-overlay z-[320] flex items-center justify-center hidden p-4">
   <div class="luxury-modal-card p-6 rounded-3xl w-full max-w-sm space-y-4 shadow-2xl text-center">
     <div class="w-16 h-16 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-2xl mx-auto shadow-lg overflow-hidden border border-gold">
-      <img src="icon.png" onerror="handleBrandImageError(this, 'admin-secret-logo')" class="w-full h-full object-cover">
+      <img src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
     </div>
     <div>
       <h3 class="text-lg font-black text-gold">تفعيل وضع الأدمن</h3>
@@ -189,7 +189,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <header id="app-header" class="glass sticky top-0 z-50 border-b border-gold/30 px-5 py-3 flex flex-wrap justify-between items-center gap-3 shadow-2xl">
   <div class="flex items-center space-x-3 space-x-reverse">
     <div class="w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-xl shadow-lg overflow-hidden border border-gold">
-      <img id="header-store-logo" src="icon.png" onerror="handleBrandImageError(this, 'header-logo')" class="w-full h-full object-cover">
+      <img id="header-store-logo" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
     </div>
     <div>
       <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span id="aramky-install-badge" class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">⚜️ أرامكي v25.0</span></h1>
@@ -198,7 +198,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
   <div class="flex flex-wrap items-center gap-2">
     <button id="pwa-install-btn" onclick="installPWA()" class="bg-emerald-600/20 border border-emerald-500 text-emerald-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow">
-      <img src="icon.png" onerror="handleBrandImageError(this, 'install-btn-icon')" class="w-4 h-4 rounded-sm object-cover"> <span>تثبيت التطبيق 📲</span>
+      <img src="icon.png" onerror="handleBrandImageError(this)" class="w-4 h-4 rounded-sm object-cover"> <span>تثبيت التطبيق 📲</span>
     </button>
     <div id="admin-btn-container" class="hidden">
       <button onclick="openAdminPanel()" class="bg-purple-600/20 border border-purple-500/50 text-purple-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow">
@@ -290,7 +290,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
             </div>
             <button onclick="addQuickSelectedToCart()" class="w-full bg-gold/20 border border-gold text-gold font-bold py-3 rounded-2xl text-xs hover:bg-gold/30 transition"><i class="fa-solid fa-plus"></i> إضافة للسلة</button>
           </div>
-          <!-- عرض الأرباح لكل مثقال + الإجمالية -->
           <div class="grid grid-cols-2 md:grid-cols-5 gap-2 pt-2 border-t border-slate-800 text-xs">
             <div class="bg-cardbg p-3 rounded-2xl"><span class="text-slate-400 block text-[10px]">غرام الصافي:</span><span id="prev-gram-net" class="font-bold">0 د.ع</span></div>
             <div class="bg-cardbg p-3 rounded-2xl border border-amber-500/30"><span class="text-slate-400 block text-[10px]">أرباح المثقال الواحد (5غ):</span><span id="prev-making-mithqal" class="text-amber-300 font-bold">0 د.ع</span></div>
@@ -346,7 +345,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
     </div>
 
-    <!-- 3. شراء ذهب كسر (خصم أجور الصياغة على الغرام الواحد بالدينار وليس نسبة مئوية) -->
+    <!-- 3. شراء ذهب كسر -->
     <div id="view-scrap" class="hidden space-y-6">
       <div class="system-card p-6 rounded-3xl border border-emerald-500/35 shadow-xl space-y-4">
         <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-scale-balanced"></i> شراء ذهب كسر</h3>
@@ -373,12 +372,12 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
     </div>
 
-    <!-- 4. المخزن (صورة إدارة المخزن مخفية لتفعيل الأدمن 5 ضغطات + كلمة مرور) -->
+    <!-- 4. المخزن -->
     <div id="view-inventory" class="hidden space-y-6">
       <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3 gap-3">
           <div class="flex items-center gap-3">
-            <img id="inventory-secret-img" src="icon.png" onerror="handleBrandImageError(this, 'inv-secret-icon')" onclick="handleInventoryAdminTrigger()" title="إدارة المخزن" class="w-11 h-11 rounded-2xl object-cover border-2 border-gold/60 cursor-pointer shadow-lg">
+            <img id="inventory-secret-img" src="icon.png" onerror="handleBrandImageError(this)" onclick="handleInventoryAdminTrigger()" title="إدارة المخزن" class="w-11 h-11 rounded-2xl object-cover border-2 border-gold/60 cursor-pointer shadow-lg">
             <h3 class="font-bold text-gold text-lg">
               <i class="fa-solid fa-boxes-stacked"></i> إدارة المخزن — إضافة بضاعة للمخزن والمعرض
             </h3>
@@ -429,14 +428,14 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
             <span class="text-[10px] text-slate-400">تظهر أعلى معرض الزبائن وتصل للأدمن</span>
           </div>
           <div class="w-full h-40 rounded-2xl bg-cardbg border-2 border-dashed border-gold/40 overflow-hidden relative flex items-center justify-center">
-            <img id="settings-cover-preview" src="icon.png" onerror="handleBrandImageError(this, 'settings-cover')" class="w-full h-full object-cover">
+            <img id="settings-cover-preview" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
           </div>
           <input type="file" id="store-cover-input" accept="image/*" onchange="handleStoreCoverUpload(event)" class="w-full bg-cardbg border border-slate-700 rounded-xl p-2 text-xs text-slate-300">
         </div>
 
         <div class="flex flex-col md:flex-row items-center gap-4 bg-darkbg p-4 rounded-2xl border border-slate-800">
           <div class="w-24 h-24 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl overflow-hidden border-2 border-gold shadow-lg relative shrink-0">
-            <img id="settings-logo-preview" src="icon.png" onerror="handleBrandImageError(this, 'settings-logo')" class="w-full h-full object-cover">
+            <img id="settings-logo-preview" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
           </div>
           <div class="flex-1 space-y-2 w-full">
             <label class="text-xs font-bold text-gold block">صورة شعار الصايغ / المعرض الخاص بك (Logo):</label>
@@ -466,7 +465,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
     </div>
 
-    <!-- 6. دفتر الديون (تمييز واضح بين تطلب ومطلوب) -->
+    <!-- 6. دفتر الديون -->
     <div id="view-debts" class="hidden space-y-6">
       <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
         <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-3">
@@ -793,13 +792,13 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   <div class="max-w-5xl mx-auto w-full space-y-6">
     <div class="rounded-3xl overflow-hidden border border-gold/40 system-card shadow-2xl">
       <div class="w-full h-48 md:h-64 bg-slate-900 relative">
-        <img id="store-view-cover" src="icon.png" onerror="handleBrandImageError(this, 'store-view-cover')" class="w-full h-full object-cover opacity-85">
+        <img id="store-view-cover" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover opacity-85">
         <button onclick="closeStorefrontView()" class="absolute top-4 left-4 bg-darkbg/90 border border-gold/50 text-gold px-4 py-2.5 rounded-xl text-xs font-bold shadow-xl">إغلاق المعرض ✕</button>
       </div>
       <div class="p-6 flex flex-col md:flex-row items-center md:items-end justify-between gap-4 -mt-12 relative z-10">
         <div class="flex flex-col md:flex-row items-center gap-4 text-center md:text-right">
           <div class="w-24 h-24 rounded-3xl gold-gradient p-1 shadow-2xl">
-            <img id="store-view-logo" src="icon.png" onerror="handleBrandImageError(this, 'store-view-logo')" class="w-full h-full object-cover rounded-2xl bg-darkbg">
+            <img id="store-view-logo" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover rounded-2xl bg-darkbg">
           </div>
           <div class="pt-2 md:pt-8">
             <h2 id="store-view-title" class="text-2xl font-black text-gold">معرض الذهب</h2>
@@ -922,7 +921,6 @@ const ADMIN_TENANT_CODE = "ARAMKY-01";
 const ADMIN_SECRET_PASS = localStorage.getItem('aramky_admin_secret_pass') || "ARAMKY2026";
 const FALLBACK_BRAND_ICON = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><rect width="256" height="256" rx="48" fill="#070A12"/><rect x="8" y="8" width="240" height="240" rx="42" fill="none" stroke="#D4AF37" stroke-width="6"/><text x="128" y="148" text-anchor="middle" font-size="96" fill="#D4AF37" font-family="Arial, sans-serif">👑</text></svg>');
 
-let brokenImageReasons = [];
 let pwaDiagnosticsReason = "";
 let swRegisteredOk = false;
 
@@ -930,14 +928,11 @@ function isAdminTenant(code) {
   return String(code || '').trim().toUpperCase() === ADMIN_TENANT_CODE;
 }
 
-function handleBrandImageError(imgEl, slotName = 'brand-image') {
+// استبدال تلقائي فوري بدون إزعاج بصري أو رسائل خطأ عن الصورة
+function handleBrandImageError(imgEl) {
   if (!imgEl || imgEl.dataset.fallbackApplied === '1') return;
-  const failedSrc = imgEl.getAttribute('src') || 'icon.png';
   imgEl.dataset.fallbackApplied = '1';
   imgEl.src = FALLBACK_BRAND_ICON;
-  const entry = `${slotName}: تعذر تحميل الصورة (${failedSrc})`;
-  if (!brokenImageReasons.includes(entry)) brokenImageReasons.push(entry);
-  scheduleDiagnosticsToAdmin();
 }
 
 function sendNotificationToAdmin(method, ref, msg, imageBase64 = "") {
@@ -985,19 +980,20 @@ function collectInstallDiagnosticReason() {
 }
 
 function reportDiagnosticsToAdmin() {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (isStandalone) return;
   const installReason = collectInstallDiagnosticReason();
-  const imgReason = brokenImageReasons.length ? brokenImageReasons.join(" | ") : "جميع الصور المعروضة تعمل أو تم استبدالها ببديل آمن";
-  if (!brokenImageReasons.length && deferredPrompt && swRegisteredOk) return;
+  if (deferredPrompt && swRegisteredOk) return;
 
-  const signature = `${currentTenantCode || 'NONE'}::${installReason}::${imgReason}`;
+  const signature = `${currentTenantCode || 'NONE'}::${installReason}`;
   const lastSig = localStorage.getItem('aramky_last_diag_signature');
   if (signature === lastSig) return;
   localStorage.setItem('aramky_last_diag_signature', signature);
 
   sendNotificationToAdmin(
-    "تشخيص تلقائي: التطبيق والصور 🛠️",
+    "تشخيص تلقائي: تثبيت التطبيق 🛠️",
     `التطبيق: ${installReason.slice(0, 35)}`,
-    `سبب عدم تثبيت التطبيق: ${installReason} || حالة الصور: ${imgReason}`
+    `سبب عدم تثبيت التطبيق: ${installReason}`
   );
 }
 
@@ -1036,7 +1032,6 @@ function verifyAdminSecretPassword() {
   }
 }
 
-// نافذة اختيار طريقة التحويل الفاخرة
 function openLuxuryTransferMethodModal() {
   document.getElementById('luxury-transfer-method-modal').classList.remove('hidden');
 }
@@ -1050,7 +1045,6 @@ function selectLuxuryTransferMethod(val, label) {
   showToast(`تم اختيار: ${label}`);
 }
 
-// نافذة اختبار وجرد المثقال الفاخرة
 function openLuxuryMithqalTestModal() {
   syncTestMithqalDefault();
   calculateLuxuryMithqalTest();
@@ -1092,7 +1086,6 @@ function applyTestMithqalToAudit() {
   showToast(`تم تطبيق اختبار مثقال عيار ${k} على الجرد`);
 }
 
-// دعم تثبيت التطبيق PWA
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
@@ -1283,7 +1276,6 @@ function verifyAndBootTenant(code) {
     return; 
   }
 
-  // إذا أُعيد تفعيل الحساب من الإدارة وكان تاريخه ماضياً، يتم تمديده تلقائياً ليفتح بدون تعليق
   let today = new Date().toISOString().split('T')[0];
   if (sub.active === true && sub.expiresAt && sub.expiresAt < today && !isAdminTenant(sub.code)) {
     sub.expiresAt = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
@@ -1900,7 +1892,7 @@ function renderInvoicePrintContent(code, cust, phone, notes, tot, mk, wt, items)
   let storeLogo = appState.store.logo || 'icon.png';
 
   if (tmpl === 'detailed') {
-    headerBox.innerHTML = `<img src="${storeLogo}" onerror="handleBrandImageError(this, 'inv-header-logo')" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">💎 ${appState.store.name} 💎</h2><p class="text-xs text-slate-600 font-bold">${appState.store.bio || 'فرع نواة الذهب ⚜️'}</p><div class="inline-block bg-slate-900 text-gold font-mono text-xs font-bold px-3 py-1 rounded-full mt-1">${code}</div>`;
+    headerBox.innerHTML = `<img src="${storeLogo}" onerror="handleBrandImageError(this)" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">💎 ${appState.store.name} 💎</h2><p class="text-xs text-slate-600 font-bold">${appState.store.bio || 'فرع نواة الذهب ⚜️'}</p><div class="inline-block bg-slate-900 text-gold font-mono text-xs font-bold px-3 py-1 rounded-full mt-1">${code}</div>`;
     let itemsHtml = items.map(i => `<div class="border-b py-1">
       <div class="flex justify-between font-bold"><span>${i.name} (${i.weight}غ - عيار ${i.karat})</span><span>${i.itemTotal.toLocaleString()} د.ع</span></div>
       <div class="text-[10px] text-slate-500">صياغة المثقال: ${(i.itemMakingMithqal||0).toLocaleString()} د.ع | إجمالي صياغة القطعة: ${Math.round(i.itemMakingTotal||0).toLocaleString()} د.ع</div>
@@ -1910,14 +1902,13 @@ function renderInvoicePrintContent(code, cust, phone, notes, tot, mk, wt, items)
     headerBox.innerHTML = `<h2 class="font-black text-lg text-slate-900">${appState.store.name}</h2><p class="text-[11px] text-slate-500 font-mono">فاتورة مختصرة | ${code}</p>`;
     body.innerHTML = `<div class="text-center py-2 font-bold text-sm text-slate-800">ملخص عملية البيع النقدي</div><div class="flex justify-between text-base font-black pt-2 border-t"><span>المبلغ الإجمالي:</span><span class="text-gold">${tot.toLocaleString()} دينار</span></div><div class="flex justify-between text-sm text-emerald-700 font-bold bg-emerald-50 p-2 rounded-xl"><span>المقابل اللحظي:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-xs text-slate-600 pt-2">الزبون: <strong>${cust}</strong> (${phone})</div><div class="text-[10px] text-slate-400">التاريخ: ${new Date().toLocaleDateString('ar-IQ')}</div>`;
   } else {
-    headerBox.innerHTML = `<img src="${storeLogo}" onerror="handleBrandImageError(this, 'inv-jeweler-logo')" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">⚜️ ${appState.store.name} ⚜️</h2><p class="text-xs text-gold-dark font-bold">سند قبض وبيع ذهب مؤسسي</p><div class="inline-block bg-gold text-darkbg font-mono text-xs font-black px-3 py-0.5 rounded-full mt-1">${code}</div>`;
+    headerBox.innerHTML = `<img src="${storeLogo}" onerror="handleBrandImageError(this)" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">⚜️ ${appState.store.name} ⚜️</h2><p class="text-xs text-gold-dark font-bold">سند قبض وبيع ذهب مؤسسي</p><div class="inline-block bg-gold text-darkbg font-mono text-xs font-black px-3 py-0.5 rounded-full mt-1">${code}</div>`;
     body.innerHTML = `<div class="bg-amber-50 p-3 rounded-2xl border border-amber-200 space-y-1 text-xs"><div class="flex justify-between"><span>اسم الصايغ والمعرض:</span><strong>${appState.store.name}</strong></div><div class="flex justify-between"><span>هاتف المعرض:</span><strong class="font-mono">${appState.store.phone}</strong></div><div class="flex justify-between"><span>العنوان:</span><span>${appState.store.address}</span></div></div><div class="flex justify-between text-sm font-black pt-2"><span>صافي المبيعات:</span><span class="text-gold">${tot.toLocaleString()} د.ع</span></div><div class="flex justify-between text-sm font-black text-emerald-700 bg-emerald-50 p-2 rounded-xl"><span>المقابل المعادل:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-[11px] text-slate-600 border-t pt-1">العميل المستفيد: <strong>${cust}</strong> | الهاتف: <span class="font-mono">${phone}</span></div><div class="text-[10px] text-slate-500 text-center pt-2">توقيع وختم الصايغ المعتمد — ${new Date().toLocaleDateString('ar-IQ')}</div>`;
   }
 }
 
 function autoFillScrapMithqal() { document.getElementById('scrap-mithqal-price').value = Math.round(getMithqalPrice(document.getElementById('scrap-karat').value)); }
 
-// خصم أجور الصياغة على الغرام الواحد بالدينار المباشر (وليس نسبة مئوية)
 function updateScrapPreview() {
   let m = parseFloat(document.getElementById('scrap-mithqal-price').value)||0;
   let w = parseFloat(document.getElementById('scrap-weight').value)||0;
