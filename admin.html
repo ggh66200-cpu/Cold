@@ -59,22 +59,23 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
         </div>
       </div>
       <div class="flex flex-wrap gap-2">
-        <button type="button" onclick="window.location.href='index.html'" class="bg-amber-500/20 border border-amber-400/60 text-amber-300 text-xs px-4 py-2.5 rounded-xl font-bold hover:bg-amber-500/30 transition"><i class="fa-solid fa-arrow-right"></i> العودة للنظام</button>
+        <button type="button" onclick="window.location.href='index_2.html'" class="bg-amber-500/20 border border-amber-400/60 text-amber-300 text-xs px-4 py-2.5 rounded-xl font-bold hover:bg-amber-500/30 transition"><i class="fa-solid fa-arrow-right"></i> العودة للنظام</button>
         <button type="button" onclick="openSupabaseConfigModal()" class="bg-blue-600/20 border border-blue-500/50 text-blue-300 text-xs px-4 py-2.5 rounded-xl font-bold hover:bg-blue-600/30 transition"><i class="fa-solid fa-database"></i> إعدادات Supabase 🔗</button>
         <button type="button" onclick="printAdminReport()" class="bg-emerald-600/20 border border-emerald-500/50 text-emerald-300 text-xs px-4 py-2.5 rounded-xl font-bold hover:bg-emerald-600/30 transition"><i class="fa-solid fa-print"></i> طباعة التقرير 🖨️</button>
         <button type="button" onclick="copyAdminSecretLink()" class="bg-slate-800 border border-amber-500/40 text-amber-300 text-xs px-4 py-2.5 rounded-xl font-bold hover:bg-slate-700 transition"><i class="fa-solid fa-link"></i> نسخ رابط الأدمن</button>
       </div>
     </div>
 
-    <!-- ميزة تميز الأدمن والحساب السيادي -->
+    <!-- ميزة تميز الأدمن والحساب السيادي + نبضة إبقاء الاتصال -->
     <div class="glass p-5 rounded-3xl border border-amber-400/40 bg-gradient-to-l from-amber-500/10 via-slate-900/60 to-slate-900/60">
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div class="space-y-1">
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
             <span class="text-amber-400 font-black text-sm"><i class="fa-solid fa-crown"></i> امتيازات الحساب السيادي للأدمن (Master VIP):</span>
             <span id="sovereign-badge-status" class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">مفعّل ومتصل بالفرع الرئيسي</span>
+            <span id="keepalive-badge-status" class="text-[11px] px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-bold">نبضة تنشيط السيرفر: نشطة</span>
           </div>
-          <p class="text-xs text-slate-300">صلاحية غير محدودة، مزامنة مباشرة مع <span class="font-mono text-amber-300">stores</span> و<span class="font-mono text-amber-300">gold_items</span> و<span class="font-mono text-amber-300">invoices</span> و<span class="font-mono text-amber-300">admin_stores_inventory</span>، توليد يوزرات محمية برقم الهاتف، وطباعة فورية للتقارير والفواتير.</p>
+          <p class="text-xs text-slate-300">صلاحية غير محدودة، مزامنة مباشرة مع Supabase، توليد يوزرات محمية برقم الهاتف وكلمة المرور، وتنشيط دوري للخادم أثناء فتح اللوحة.</p>
         </div>
         <div class="flex flex-wrap gap-2 no-print">
           <button type="button" onclick="activateMasterAccountInSystem()" class="gold-gradient text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl shadow hover:brightness-105 transition"><i class="fa-solid fa-bolt"></i> تثبيت الحساب السيادي في النظام</button>
@@ -91,10 +92,10 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
       <div class="glass p-5 rounded-3xl border border-blue-500/30"><p class="text-xs text-slate-400">الرسائل وإيصالات الصور الواردة</p><h3 id="stat-receipts" class="text-2xl font-black text-blue-400 mt-1">0</h3></div>
     </div>
 
-    <!-- تفعيل صايغ جديد مع توليد يوزر تلقائي أو يدوي وربط رقم الهاتف -->
+    <!-- تفعيل صايغ جديد مع خانات مستقلة: اسم الصايغ / اليوزر / الهاتف / كلمة المرور -->
     <div class="glass p-6 rounded-3xl space-y-4 no-print">
       <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
-        <h3 class="font-bold text-amber-400 text-base"><i class="fa-solid fa-user-plus"></i> تفعيل صايغ جديد أو تجديد اشتراكه (توليد يوزر ذاتي أو يدوي + ربط الهاتف)</h3>
+        <h3 class="font-bold text-amber-400 text-base"><i class="fa-solid fa-user-plus"></i> تسجيل أو تجديد حساب صايغ (اسم المعرض، اليوزر، الهاتف، كلمة المرور)</h3>
         <div class="flex items-center gap-2 bg-slate-900 p-1 rounded-xl border border-slate-700 text-xs">
           <button type="button" id="mode-auto-btn" onclick="setUserMode('auto')" class="px-3 py-1.5 rounded-lg font-bold gold-gradient text-slate-950 transition">توليد يوزر ذاتياً ⚡</button>
           <button type="button" id="mode-manual-btn" onclick="setUserMode('manual')" class="px-3 py-1.5 rounded-lg font-bold text-slate-300 hover:text-white transition">إدخال يوزر يدوياً ✍️</button>
@@ -102,50 +103,67 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-6 gap-3 text-xs">
-        <input type="text" id="adm-name" placeholder="اسم المعرض / الصايغ" class="bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none focus:border-amber-400">
-
-        <div class="flex gap-1.5">
-          <input type="text" id="adm-code" placeholder="اليوزر / الكود (مثال: AR-104)" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-amber-400 uppercase outline-none focus:border-amber-400">
-          <button type="button" id="btn-gen-user" onclick="generateSmartUserFromInputs()" title="توليد يوزر تلقائي مرتبط بالهاتف" class="bg-amber-500/20 border border-amber-400/50 text-amber-300 px-3 rounded-xl font-bold hover:bg-amber-500/30 transition shrink-0">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
-          </button>
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">اسم الصايغ / المعرض</label>
+          <input type="text" id="adm-name" placeholder="مثال: صياغة النور" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none focus:border-amber-400">
         </div>
 
-        <input type="tel" id="adm-phone" oninput="if(userEntryMode==='auto') generateSmartUserFromInputs(true)" placeholder="رقم الهاتف المرتبط (مثال: 07712345678)" class="bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-emerald-400 outline-none focus:border-emerald-400">
+        <div>
+          <label class="text-[11px] text-amber-300 block mb-1">اليوزر (كود الدخول)</label>
+          <div class="flex gap-1.5">
+            <input type="text" id="adm-code" placeholder="مثال: NOOR-1234" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-amber-400 uppercase outline-none focus:border-amber-400">
+            <button type="button" id="btn-gen-user" onclick="generateSmartUserFromInputs()" title="توليد يوزر تلقائي مرتبط بالهاتف" class="bg-amber-500/20 border border-amber-400/50 text-amber-300 px-3 rounded-xl font-bold hover:bg-amber-500/30 transition shrink-0">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </button>
+          </div>
+        </div>
 
-        <input type="password" id="adm-passcode" placeholder="رمز الدخول السري (افتراضي 1234)" class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-amber-400 outline-none focus:border-amber-400">
+        <div>
+          <label class="text-[11px] text-emerald-300 block mb-1">رقم الهاتف المرتبط</label>
+          <input type="tel" id="adm-phone" oninput="if(userEntryMode==='auto') generateSmartUserFromInputs(true)" placeholder="07712345678" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-emerald-400 outline-none focus:border-emerald-400">
+        </div>
 
-        <select id="adm-days" class="bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none text-amber-300 font-bold">
-          <option value="30">شهر واحد (30 يوم)</option>
-          <option value="90">3 أشهر (90 يوم)</option>
-          <option value="365">سنة كاملة (365 يوم)</option>
-        </select>
+        <div>
+          <label class="text-[11px] text-sky-300 block mb-1">كلمة المرور الخاصة بالصايغ</label>
+          <input type="password" id="adm-passcode" placeholder="أدخل كلمة مرور (افتراضي 1234)" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-amber-400 outline-none focus:border-amber-400">
+        </div>
 
-        <button type="button" onclick="createSub()" class="gold-gradient text-slate-950 font-black py-3 px-4 rounded-xl shadow-lg hover:brightness-105 transition">إنشاء وتفعيل 🚀</button>
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">مدة الاشتراك</label>
+          <select id="adm-days" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 outline-none text-amber-300 font-bold">
+            <option value="30">شهر واحد (30 يوم)</option>
+            <option value="90">3 أشهر (90 يوم)</option>
+            <option value="365">سنة كاملة (365 يوم)</option>
+          </select>
+        </div>
+
+        <div class="flex items-end">
+          <button type="button" onclick="createSub()" class="w-full gold-gradient text-slate-950 font-black py-3 px-4 rounded-xl shadow-lg hover:brightness-105 transition">إنشاء وتفعيل 🚀</button>
+        </div>
       </div>
 
       <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 bg-slate-900/70 px-4 py-2.5 rounded-2xl border border-slate-800">
-        <span><i class="fa-solid fa-shield-halved text-emerald-400"></i> وضع اليوزر الحالي: <strong id="user-mode-label" class="text-amber-300">تلقائي ذكي مرتبط بآخر 4 أرقام من الهاتف والاسم</strong></span>
-        <span>يتم ربط اليوزر برقم الهاتف مباشرة لتعزيز الأمان والتحقق من هوية الحساب عند الدخول والمزامنة.</span>
+        <span><i class="fa-solid fa-shield-halved text-emerald-400"></i> وضع اليوزر الحالي: <strong id="user-mode-label" class="text-amber-300">تلقائي ذكي مرتبط برقم الهاتف</strong></span>
+        <span>كل خانة منفصلة: الاسم، اليوزر، رقم الهاتف، وكلمة المرور المطلوبة لتأمين دخول الصايغ.</span>
       </div>
     </div>
 
     <!-- جدول الصاغة المشتركين -->
     <div class="glass p-6 rounded-3xl space-y-3">
       <div class="flex flex-wrap items-center justify-between gap-2">
-        <h3 class="font-bold text-slate-200 text-sm">قائمة الصاغة المشتركين (اليوزر، رقم الهاتف المرتبط، والتحكم الصارم):</h3>
-        <span class="text-[11px] text-slate-400">كل حساب مرتبط برقم هاتف موثق ويحمل شارة أمان</span>
+        <h3 class="font-bold text-slate-200 text-sm">قائمة الصاغة المشتركين (الاسم، اليوزر، كلمة المرور، الهاتف، والتحكم):</h3>
+        <span class="text-[11px] text-slate-400">كل حساب مرتبط برقم هاتف وكلمة مرور</span>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-right text-xs">
           <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
             <tr>
-              <th class="p-3">المعرض</th>
-              <th class="p-3">اليوزر والرمز</th>
+              <th class="p-3">المعرض / الصايغ</th>
+              <th class="p-3">اليوزر وكلمة المرور</th>
               <th class="p-3">الهاتف المرتبط</th>
               <th class="p-3">تاريخ الانتهاء</th>
               <th class="p-3">الحالة</th>
-              <th class="p-3 text-center no-print">الإجراءات والتحكم الصارم</th>
+              <th class="p-3 text-center no-print">الإجراءات والتحكم</th>
             </tr>
           </thead>
           <tbody id="subs-tbody" class="divide-y divide-slate-800"></tbody>
@@ -153,7 +171,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
       </div>
     </div>
 
-    <!-- جرد الصاغة السحابي المباشر من Supabase (admin_stores_inventory / stores / gold_items / invoices) -->
+    <!-- جرد الصاغة السحابي المباشر من Supabase -->
     <div class="glass p-6 rounded-3xl space-y-3">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
         <h3 class="font-bold text-emerald-400 text-sm"><i class="fa-solid fa-boxes-stacked"></i> جرد الصاغة والمثاقيل والفواتير (مزامنة Supabase المباشرة):</h3>
@@ -211,6 +229,7 @@ const MASTER_COMPANY_NAME = 'ARAMKY | أرامكي للحلول الرقمية -
 let logoTapCount = 0;
 let logoTapTimer = null;
 let userEntryMode = 'auto';
+let keepAliveInterval = null;
 
 let subs = JSON.parse(localStorage.getItem('aramky_subscribers_master')) || [
   {
@@ -218,22 +237,34 @@ let subs = JSON.parse(localStorage.getItem('aramky_subscribers_master')) || [
     name: MASTER_COMPANY_NAME,
     phone: "07700000000",
     passcode: "2026",
-    expiresAt: "2028-12-31",
+    expiresAt: "2099-12-31",
     active: true,
     isMaster: true,
     phoneVerified: true
   }
 ];
 
-// تفعيل الحساب السيادي للأدمن وربطه بالنظام
+function startKeepAlivePulse() {
+  if (keepAliveInterval) clearInterval(keepAliveInterval);
+  const ping = async () => {
+    try {
+      await fetch(`${window.location.pathname}?ping=${Date.now()}`, { method: 'HEAD', cache: 'no-store' });
+      const badge = document.getElementById('keepalive-badge-status');
+      if (badge) badge.innerText = `نبضة تنشيط السيرفر: نشطة (${new Date().toLocaleTimeString('ar-IQ', {hour:'2-digit', minute:'2-digit'})})`;
+    } catch (_) {}
+  };
+  ping();
+  keepAliveInterval = setInterval(ping, 240000);
+}
+
 function ensureMasterAccount() {
   const idx = subs.findIndex(s => s.code === 'ARAMKY-01' || s.isMaster);
   const masterRecord = {
     code: "ARAMKY-01",
     name: MASTER_COMPANY_NAME,
     phone: (idx >= 0 && subs[idx].phone) ? subs[idx].phone : "07700000000",
-    passcode: "2026",
-    expiresAt: "2028-12-31",
+    passcode: (idx >= 0 && subs[idx].passcode) ? subs[idx].passcode : "2026",
+    expiresAt: "2099-12-31",
     active: true,
     isMaster: true,
     phoneVerified: true
@@ -250,15 +281,7 @@ function ensureMasterAccount() {
 function activateMasterAccountInSystem() {
   ensureMasterAccount();
   const master = subs.find(s => s.code === 'ARAMKY-01');
-  localStorage.setItem('aramky_active_tenant', JSON.stringify({
-    code: master.code,
-    name: master.name,
-    phone: master.phone,
-    role: 'master_admin',
-    vipBadge: '👑 مالك النظام - نواة الذهب',
-    expiresAt: master.expiresAt,
-    phoneVerified: true
-  }));
+  localStorage.setItem('aramky_active_tenant', master.code);
   localStorage.setItem('aramky_store_profile', JSON.stringify({
     company: MASTER_COMPANY_NAME,
     branch: 'فرع نواة الذهب',
@@ -270,7 +293,6 @@ function activateMasterAccountInSystem() {
   alert('تم تثبيت وربط الحساب السيادي (ARAMKY-01) بنجاح مع ميزة تمييز الأدمن!');
 }
 
-// الضغط المتكرر على الصورة لفتح حقل كلمة المرور
 function handleAdminLogoTap() {
   logoTapCount += 1;
   clearTimeout(logoTapTimer);
@@ -307,6 +329,7 @@ function unlockAdmin() {
     document.getElementById('admin-lock').classList.add('hidden');
     document.getElementById('admin-panel').classList.remove('hidden');
     setUserMode('auto');
+    startKeepAlivePulse();
     renderSubs();
     renderReceipts();
     updateStats();
@@ -316,7 +339,6 @@ function unlockAdmin() {
   }
 }
 
-// التبديل بين توليد اليوزر ذاتياً أو إدخاله يدوياً
 function setUserMode(mode) {
   userEntryMode = mode;
   const autoBtn = document.getElementById('mode-auto-btn');
@@ -329,7 +351,7 @@ function setUserMode(mode) {
     autoBtn.className = 'px-3 py-1.5 rounded-lg font-bold gold-gradient text-slate-950 transition';
     manualBtn.className = 'px-3 py-1.5 rounded-lg font-bold text-slate-300 hover:text-white transition';
     genBtn.classList.remove('hidden');
-    codeInput.placeholder = 'يوزر تلقائي (مثال: AR-7890-1)';
+    codeInput.placeholder = 'يوزر تلقائي (مثال: ARM-7890-02)';
     label.innerText = 'تلقائي ذكي مرتبط برقم الهاتف';
     generateSmartUserFromInputs(true);
   } else {
@@ -394,10 +416,10 @@ function createSub() {
   const days = parseInt(document.getElementById('adm-days').value, 10) || 30;
 
   if (!name || !code || !normalizedPhone) {
-    return alert('يرجى إدخال اسم المعرض، اليوزر/الكود، ورقم الهاتف المرتبط بالحساب!');
+    return alert('يرجى إدخال اسم المعرض/الصايغ، اليوزر، ورقم الهاتف المرتبط بالحساب!');
   }
   if (normalizedPhone.replace(/\D/g, '').length < 8) {
-    return alert('يرجى إدخال رقم هاتف صحيح لربطه باليوزر وتأمين الحساب!');
+    return alert('يرجى إدخال رقم هاتف صحيح (8 أرقام على الأقل) لربطه باليوزر وتأمين الحساب!');
   }
   if (subs.some(s => s.code === code)) {
     return alert('هذا اليوزر/الكود موجود مسبقاً، يرجى اختيار يوزر آخر!');
@@ -422,7 +444,7 @@ function createSub() {
   saveSubs();
   syncSubscriberToSupabase(newSub);
 
-  alert(`تم إنشاء اليوزر (${code}) وربطه بالهاتف (${normalizedPhone}) بنجاح!`);
+  alert(`تم إنشاء الحساب بنجاح!\nالاسم: ${name}\nاليوزر: ${code}\nالهاتف: ${normalizedPhone}\nكلمة المرور: ${passcode}`);
   document.getElementById('adm-name').value = '';
   document.getElementById('adm-code').value = '';
   document.getElementById('adm-phone').value = '';
@@ -444,7 +466,7 @@ function renderSubs() {
 
     tb.innerHTML += `<tr class="border-b border-slate-800 hover:bg-slate-900/40 transition">
       <td class="p-3 font-bold">${s.name}${vipTag}</td>
-      <td class="p-3 font-mono text-amber-400 font-bold">${s.code} <span class="text-[10px] text-slate-400">(${s.passcode || '--'})</span></td>
+      <td class="p-3 font-mono text-amber-400 font-bold">اليوزر: ${s.code} <span class="block text-[10px] text-sky-300">كلمة المرور: ${s.passcode || '1234'}</span></td>
       <td class="p-3">${phoneBadge}</td>
       <td class="p-3 font-mono">${s.expiresAt}</td>
       <td class="p-3"><span class="px-2.5 py-1 rounded-full font-bold text-[10px] ${exp ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}">${exp ? 'متوقف وقفل صارم' : 'نشط ✅'}</span></td>
@@ -459,7 +481,7 @@ function renderSubs() {
 
 function copyActivationLink(i) {
   const s = subs[i];
-  const base = window.location.href.replace(/admin(_2)?\.html.*/i, 'index.html');
+  const base = window.location.href.replace(/admin(_2)?\.html.*/i, 'index_2.html');
   const link = `${base}?activate=${encodeURIComponent(s.code)}&phone=${encodeURIComponent(s.phone || '')}&exp=${encodeURIComponent(s.expiresAt)}&name=${encodeURIComponent(s.name)}`;
   navigator.clipboard.writeText(link);
   alert(`تم نسخ رابط التفعيل المرتبط بالهاتف لـ (${s.name})!`);
