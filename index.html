@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<title>ARAMKY Gold OS v25.0 | نظام إدارة صياغة الذهب</title>
+<title>ARAMKY Gold OS v26.0 | نظام إدارة صياغة الذهب</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script>
@@ -59,7 +59,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <div id="tenant-login-screen" class="fixed inset-0 bg-darkbg/95 backdrop-blur-xl z-[250] flex items-center justify-center p-5 hidden">
   <div class="system-card p-8 rounded-3xl border border-gold/40 max-w-md w-full space-y-4 shadow-2xl text-center">
     <div class="w-20 h-20 rounded-full gold-gradient flex items-center justify-center text-darkbg font-black text-3xl mx-auto shadow-xl overflow-hidden border-2 border-gold">
-      <img src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-contain bg-darkbg">
+      <img src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover bg-darkbg">
     </div>
     <div>
       <h2 class="text-xl font-black text-gold">نظام إدارة صياغة الذهب</h2>
@@ -89,7 +89,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <div id="admin-secret-modal" class="fixed inset-0 modal-overlay z-[320] flex items-center justify-center hidden p-4">
   <div class="luxury-modal-card p-6 rounded-3xl w-full max-w-sm space-y-4 shadow-2xl text-center">
     <div class="w-16 h-16 rounded-full gold-gradient flex items-center justify-center text-darkbg font-black text-2xl mx-auto shadow-lg overflow-hidden border border-gold">
-      <img src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-contain bg-darkbg">
+      <img src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover bg-darkbg">
     </div>
     <div>
       <h3 class="text-lg font-black text-gold">تفعيل وضع الأدمن</h3>
@@ -243,16 +243,16 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <header id="app-header" class="glass sticky top-0 z-50 border-b border-gold/30 px-5 py-3 flex flex-wrap justify-between items-center gap-3 shadow-2xl">
   <div class="flex items-center space-x-3 space-x-reverse">
     <div class="w-12 h-12 rounded-full gold-gradient flex items-center justify-center text-darkbg font-black text-xl shadow-lg overflow-hidden border border-gold">
-      <img id="header-store-logo" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-contain bg-darkbg">
+      <img id="header-store-logo" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover bg-darkbg">
     </div>
     <div>
-      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span id="aramky-install-badge" class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">⚜️ أرامكي v25.0</span></h1>
+      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span id="aramky-install-badge" class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">⚜️ أرامكي v26.0</span></h1>
       <p class="text-xs text-slate-400 flex items-center gap-2"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">ID: ARAMKY-01</span></p>
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-2">
     <button id="pwa-install-btn" onclick="installPWA()" class="bg-emerald-600/20 border border-emerald-500 text-emerald-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-2 font-bold shadow">
-      <img src="icon.png" onerror="handleBrandImageError(this)" class="w-5 h-5 rounded-full object-contain bg-darkbg border border-gold/60"> <span>تثبيت النظام ⚜️</span>
+      <img src="icon.png" onerror="handleBrandImageError(this)" class="w-5 h-5 rounded-full object-cover bg-darkbg border border-gold/60"> <span>تثبيت النظام ⚜️</span>
     </button>
     <div id="admin-btn-container" class="hidden">
       <button onclick="openAdminPanel()" class="bg-purple-600/20 border border-purple-500/50 text-purple-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow">
@@ -431,7 +431,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3 gap-3">
           <div class="flex items-center gap-3">
-            <img id="inventory-secret-img" src="icon.png" onerror="handleBrandImageError(this)" onclick="handleInventoryAdminTrigger()" title="إدارة المخزن" class="w-11 h-11 rounded-full object-contain bg-darkbg border-2 border-gold/70 cursor-pointer shadow-lg">
+            <img id="inventory-secret-img" src="icon.png" onerror="handleBrandImageError(this)" onclick="handleInventoryAdminTrigger()" title="إدارة المخزن" class="w-11 h-11 rounded-full object-cover bg-darkbg border-2 border-gold/70 cursor-pointer shadow-lg">
             <h3 class="font-bold text-gold text-lg">
               <i class="fa-solid fa-boxes-stacked"></i> إدارة المخزن — إضافة بضاعة للمخزن والمعرض
             </h3>
@@ -481,15 +481,15 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
             <label class="text-xs font-bold text-gold">صورة غلاف المعرض (Cover Banner):</label>
             <span class="text-[10px] text-slate-400">تظهر أعلى معرض الزبائن وتصل للأدمن</span>
           </div>
-          <div class="w-full h-40 rounded-2xl bg-cardbg border-2 border-dashed border-gold/40 overflow-hidden relative flex items-center justify-center">
-            <img id="settings-cover-preview" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-contain bg-darkbg">
+          <div class="w-full h-44 rounded-2xl bg-cardbg border-2 border-dashed border-gold/40 overflow-hidden relative flex items-center justify-center">
+            <img id="settings-cover-preview" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover bg-darkbg">
           </div>
           <input type="file" id="store-cover-input" accept="image/*" onchange="handleStoreCoverUpload(event)" class="w-full bg-cardbg border border-slate-700 rounded-xl p-2 text-xs text-slate-300">
         </div>
 
         <div class="flex flex-col md:flex-row items-center gap-4 bg-darkbg p-4 rounded-2xl border border-slate-800">
           <div class="w-24 h-24 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl overflow-hidden border-2 border-gold shadow-lg relative shrink-0">
-            <img id="settings-logo-preview" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-contain bg-darkbg">
+            <img id="settings-logo-preview" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover bg-darkbg">
           </div>
           <div class="flex-1 space-y-2 w-full">
             <label class="text-xs font-bold text-gold block">صورة شعار الصايغ / المعرض الخاص بك (Logo):</label>
@@ -519,36 +519,91 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
     </div>
 
-    <!-- 6. دفتر الديون المرتب والواضح -->
+    <!-- 6. دفتر الديون الفخم المفصول (تطلبهم + ومطلوب منك -) -->
     <div id="view-debts" class="hidden space-y-6">
-      <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
-        <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-3">
+      <div class="system-card p-6 rounded-3xl border border-gold/40 shadow-xl space-y-5">
+        <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-4 gap-3">
           <div>
-            <h3 class="font-bold text-gold text-lg"><i class="fa-solid fa-file-invoice-dollar"></i> دفتر الديون والحسابات المرتب (تطلب ومطلوب)</h3>
-            <p class="text-[11px] text-slate-400">عرض واضح لصافي الحساب، الحركات، والتسديد دون تعقيد</p>
+            <h3 class="font-black text-gold text-xl flex items-center gap-2"><i class="fa-solid fa-crown text-amber-300"></i> دفتر الديون الفخم (تطلبهم + ومطلوب منك -)</h3>
+            <p class="text-[11px] text-slate-400 mt-0.5">كارتات مفصولة بوضوح بين ما تطلبه أنت وما هو مطلوب منك، مع أزرار فاخرة داخل وخارج الكارت</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <button onclick="setDebtFilter('all')" id="debt-filter-all" class="bg-gold text-darkbg px-3.5 py-1.5 rounded-xl text-xs font-bold">الكل</button>
-            <button onclick="setDebtFilter('on_them')" id="debt-filter-them" class="bg-darkbg text-emerald-400 border border-emerald-500/40 px-3.5 py-1.5 rounded-xl text-xs font-bold">لنا عند الناس (+)</button>
-            <button onclick="setDebtFilter('on_us')" id="debt-filter-us" class="bg-darkbg text-rose-400 border border-rose-500/40 px-3.5 py-1.5 rounded-xl text-xs font-bold">علينا للناس (-)</button>
+            <button onclick="setDebtFilter('all')" id="debt-filter-all" class="bg-gold text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow">الكل</button>
+            <button onclick="setDebtFilter('on_them')" id="debt-filter-them" class="bg-darkbg text-emerald-300 border border-emerald-500/50 px-4 py-2 rounded-2xl text-xs font-black">كارتات تطلبهم (+)</button>
+            <button onclick="setDebtFilter('on_us')" id="debt-filter-us" class="bg-darkbg text-rose-300 border border-rose-500/50 px-4 py-2 rounded-2xl text-xs font-black">كارتات مطلوب منك (-)</button>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-darkbg p-4 rounded-2xl border border-slate-800">
-          <input type="text" id="debt-customer" placeholder="اسم الزبون / التاجر" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
-          <input type="tel" id="debt-phone" placeholder="رقم الهاتف" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm text-emerald-400 font-mono outline-none">
-          
-          <button onclick="openLuxuryDebtTypeModal()" class="bg-cardbg border border-gold/40 hover:border-gold rounded-xl p-3 text-sm text-right flex items-center justify-between transition">
-            <span id="selected-debt-type-label" class="text-emerald-400 font-bold">لنا عند الناس — دين لك (+)</span>
-            <i class="fa-solid fa-chevron-down text-gold text-xs"></i>
-          </button>
-          <input type="hidden" id="debt-type" value="تطلبهم (دين لك)">
-
-          <input type="number" id="debt-amount" placeholder="المبلغ أو الوزن (غرام)" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm outline-none">
-          <input type="text" id="debt-notes" placeholder="ملاحظات الحساب..." class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm md:col-span-2 outline-none">
-          <button onclick="addDebtMovement()" class="gold-gradient text-darkbg font-bold py-3 rounded-xl shadow md:col-span-2">إضافة للحساب وتحديث الدفتر 📖</button>
+        <!-- ملخص فخم لإجمالي التطلب والمطلوب -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-emerald-950/35 border border-emerald-500/40 p-4 rounded-2xl shadow-lg">
+            <span class="text-xs text-emerald-300 font-bold block">إجمالي ما تطلبه (لنا عند الناس +)</span>
+            <strong id="debts-summary-them" class="text-xl font-black text-emerald-400 mt-1 block">0 د.ع</strong>
+            <span id="debts-summary-gold-plus" class="text-[11px] text-amber-300 font-mono">ذهب: 0 غرام</span>
+          </div>
+          <div class="bg-rose-950/35 border border-rose-500/40 p-4 rounded-2xl shadow-lg">
+            <span class="text-xs text-rose-300 font-bold block">إجمالي ما هو مطلوب منك (علينا للناس -)</span>
+            <strong id="debts-summary-us" class="text-xl font-black text-rose-400 mt-1 block">0 د.ع</strong>
+            <span id="debts-summary-gold-minus" class="text-[11px] text-amber-300 font-mono">رصيد ذمة الذهب الكلي: 0 غرام</span>
+          </div>
+          <div class="bg-amber-950/30 border border-gold/40 p-4 rounded-2xl shadow-lg">
+            <span class="text-xs text-gold font-bold block">صافي ميزان الديون العام</span>
+            <strong id="debts-summary-net" class="text-xl font-black text-gold mt-1 block">0 د.ع</strong>
+            <span class="text-[11px] text-slate-400">تحديث لحظي مع كل حركة</span>
+          </div>
         </div>
-        <div id="customer-cards-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2"></div>
+
+        <!-- نموذج إضافة حركة جديدة في دفتر الديون -->
+        <div class="bg-darkbg/95 p-5 rounded-3xl border border-gold/30 space-y-4 shadow-inner">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <input type="text" id="debt-customer" placeholder="اسم الزبون / التاجر" class="bg-cardbg border border-slate-700 focus:border-gold rounded-2xl p-3 text-sm outline-none">
+            <input type="tel" id="debt-phone" placeholder="رقم الهاتف (07XXXXXXXXX)" class="bg-cardbg border border-slate-700 focus:border-emerald-400 rounded-2xl p-3 text-sm text-emerald-400 font-mono outline-none">
+            <input type="number" step="0.001" id="debt-amount" placeholder="المبلغ (د.ع) أو الوزن (غرام)" class="bg-cardbg border border-slate-700 focus:border-gold rounded-2xl p-3 text-sm text-gold font-bold outline-none">
+          </div>
+
+          <!-- 4 أزرار فاخرة مباشرة لاختيار نوع الحركة -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
+            <button type="button" id="btn-dmode-plus-money" onclick="selectLuxuryDebtType('تطلبهم (دين لك)', 'إضافة أموال (+ تطلبهم)')" class="bg-emerald-600/25 border-2 border-emerald-400 text-emerald-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-plus-circle"></i> <span>إضافة أموال (+)</span>
+            </button>
+            <button type="button" id="btn-dmode-minus-money" onclick="selectLuxuryDebtType('مطلوب منك (دين عليك)', 'نقصان / مطلوب منك (- عليك)')" class="bg-rose-600/20 border border-rose-500/40 text-rose-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-minus-circle"></i> <span>نقصان أموال (-)</span>
+            </button>
+            <button type="button" id="btn-dmode-plus-gold" onclick="selectLuxuryDebtType('إضافة ذهب (غرام)', 'إضافة ذهب (+ غرام)')" class="bg-amber-600/20 border border-amber-400/40 text-amber-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-coins"></i> <span>إضافة ذهب (+)</span>
+            </button>
+            <button type="button" id="btn-dmode-minus-gold" onclick="selectLuxuryDebtType('نقصان ذهب (غرام)', 'نقصان ذهب (- غرام)')" class="bg-slate-800 border border-gold/30 text-gold font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-scale-balanced"></i> <span>نقصان ذهب (-)</span>
+            </button>
+          </div>
+          <input type="hidden" id="debt-type" value="تطلبهم (دين لك)">
+          <div class="text-[11px] text-slate-300 flex items-center justify-between bg-cardbg/80 px-4 py-2 rounded-xl border border-slate-800">
+            <span>الحركة المحددة حالياً:</span>
+            <strong id="selected-debt-type-label" class="text-emerald-400 font-black">إضافة أموال (+ تطلبهم)</strong>
+          </div>
+
+          <input type="text" id="debt-notes" placeholder="ملاحظات إضافية للحركة أو الحساب..." class="w-full bg-cardbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
+          <button onclick="addDebtMovement()" class="w-full gold-gradient text-darkbg font-black py-3.5 rounded-2xl shadow-xl text-sm">حفظ الحركة وتحديث كارت الديون الفخم 📖</button>
+        </div>
+
+        <!-- عرض كارتات الديون: قسم تطلبهم وحد وقسم مطلوب منك وحد -->
+        <div id="debt-sections-wrapper" class="space-y-6 pt-2">
+          <div id="section-debts-them" class="space-y-3">
+            <div class="flex items-center justify-between border-b border-emerald-500/30 pb-2">
+              <h4 class="font-black text-emerald-400 text-base flex items-center gap-2"><i class="fa-solid fa-hand-holding-dollar"></i> كارتات: تطلبهم (لنا عند الناس +)</h4>
+              <span id="count-debts-them" class="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full font-bold">0 كارت</span>
+            </div>
+            <div id="grid-debts-them" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+          </div>
+
+          <div id="section-debts-us" class="space-y-3">
+            <div class="flex items-center justify-between border-b border-rose-500/30 pb-2">
+              <h4 class="font-black text-rose-400 text-base flex items-center gap-2"><i class="fa-solid fa-file-signature"></i> كارتات: مطلوب منك (علينا للناس -)</h4>
+              <span id="count-debts-us" class="text-xs bg-rose-500/20 text-rose-300 px-3 py-1 rounded-full font-bold">0 كارت</span>
+            </div>
+            <div id="grid-debts-us" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -718,20 +773,20 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl mx-auto shadow-lg"><i class="fa-solid fa-scale-balanced"></i></div>
     <h3 class="text-lg font-bold text-gold">اختر نوع الحركة في دفتر الديون</h3>
     <div class="space-y-2.5 text-right">
-      <button onclick="selectLuxuryDebtType('تطلبهم (دين لك)', 'لنا عند الناس — دين لك (+)')" class="w-full bg-darkbg border border-emerald-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-emerald-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> 1. لنا عند الناس — دين لك (+)</span>
+      <button onclick="selectLuxuryDebtType('تطلبهم (دين لك)', 'إضافة أموال (+ تطلبهم)')" class="w-full bg-darkbg border border-emerald-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-emerald-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> 1. إضافة أموال (+ تطلبهم)</span>
         <i class="fa-solid fa-chevron-left text-slate-500"></i>
       </button>
-      <button onclick="selectLuxuryDebtType('مطلوب منك (دين عليك)', 'علينا للناس — دين عليك (-)')" class="w-full bg-darkbg border border-rose-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-rose-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-down text-rose-400"></i> 2. علينا للناس — دين عليك (-)</span>
+      <button onclick="selectLuxuryDebtType('مطلوب منك (دين عليك)', 'نقصان / مطلوب منك (- عليك)')" class="w-full bg-darkbg border border-rose-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-rose-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-down text-rose-400"></i> 2. نقصان / مطلوب منك (- عليك)</span>
         <i class="fa-solid fa-chevron-left text-slate-500"></i>
       </button>
-      <button onclick="selectLuxuryDebtType('إضافة ذهب (غرام)', 'إضافة ذهب للذمة (غرام)')" class="w-full bg-darkbg border border-amber-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-amber-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-coins text-gold"></i> 3. إضافة ذهب للذمة (غرام)</span>
+      <button onclick="selectLuxuryDebtType('إضافة ذهب (غرام)', 'إضافة ذهب (+ غرام)')" class="w-full bg-darkbg border border-amber-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-amber-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-coins text-gold"></i> 3. إضافة ذهب (+ غرام)</span>
         <i class="fa-solid fa-chevron-left text-slate-500"></i>
       </button>
-      <button onclick="selectLuxuryDebtType('نقصان ذهب (غرام)', 'نقصان ذهب من الذمة (غرام)')" class="w-full bg-darkbg border border-slate-700 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-slate-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-minus-circle text-slate-400"></i> 4. نقصان ذهب من الذمة (غرام)</span>
+      <button onclick="selectLuxuryDebtType('نقصان ذهب (غرام)', 'نقصان ذهب (- غرام)')" class="w-full bg-darkbg border border-slate-700 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-slate-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-minus-circle text-slate-400"></i> 4. نقصان ذهب (- غرام)</span>
         <i class="fa-solid fa-chevron-left text-slate-500"></i>
       </button>
     </div>
@@ -861,13 +916,13 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   <div class="max-w-5xl mx-auto w-full space-y-6">
     <div class="rounded-3xl overflow-hidden border border-gold/40 system-card shadow-2xl">
       <div class="w-full h-48 md:h-64 bg-slate-900 relative">
-        <img id="store-view-cover" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-contain bg-darkbg opacity-90">
+        <img id="store-view-cover" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover bg-darkbg opacity-90">
         <button onclick="closeStorefrontView()" class="absolute top-4 left-4 bg-darkbg/90 border border-gold/50 text-gold px-4 py-2.5 rounded-xl text-xs font-bold shadow-xl">إغلاق المعرض ✕</button>
       </div>
       <div class="p-6 flex flex-col md:flex-row items-center md:items-end justify-between gap-4 -mt-12 relative z-10">
         <div class="flex flex-col md:flex-row items-center gap-4 text-center md:text-right">
-          <div class="w-24 h-24 rounded-3xl gold-gradient p-1 shadow-2xl">
-            <img id="store-view-logo" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-contain rounded-2xl bg-darkbg">
+          <div class="w-24 h-24 rounded-3xl gold-gradient p-1 shadow-2xl overflow-hidden">
+            <img id="store-view-logo" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover rounded-2xl bg-darkbg">
           </div>
           <div class="pt-2 md:pt-8">
             <h2 id="store-view-title" class="text-2xl font-black text-gold">معرض الذهب</h2>
@@ -970,32 +1025,79 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
+<!-- النافذة الداخلية الفخمة لكارت الديون بكل أزراره -->
 <div id="customer-modal" class="fixed inset-0 modal-overlay z-[150] flex items-center justify-center hidden p-4">
-  <div class="system-card p-6 rounded-3xl border border-gold/40 w-full max-w-lg space-y-4 max-h-[90vh] overflow-y-auto">
-    <div class="border-b border-slate-800 pb-2 flex justify-between items-center">
-      <h3 id="modal-cust-name" class="text-lg font-bold text-gold">كارت العميل</h3>
-      <span id="modal-cust-phone" class="text-xs font-mono text-emerald-400">--</span>
+  <div class="luxury-modal-card p-6 rounded-3xl w-full max-w-xl space-y-4 max-h-[92vh] overflow-y-auto">
+    <div class="border-b border-slate-800 pb-3 flex justify-between items-center gap-2">
+      <div>
+        <h3 id="modal-cust-name" class="text-xl font-black text-gold">كارت العميل الفاخر</h3>
+        <span id="modal-cust-badge" class="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-gold/20 text-gold border border-gold/40">حساب نشط</span>
+      </div>
+      <span id="modal-cust-phone" class="text-xs font-mono text-emerald-400 bg-darkbg px-3 py-1.5 rounded-xl border border-slate-800">--</span>
     </div>
-    <div class="grid grid-cols-2 gap-2 text-xs bg-darkbg p-3 rounded-2xl border border-slate-800">
-      <div>تطلبهم (لك / ذمة لك): <span id="modal-cust-debt" class="text-emerald-400 font-bold">0 د.ع</span></div>
-      <div>مطلوب منك (عليك / للناس): <span id="modal-cust-credit" class="text-rose-400 font-bold">0 د.ع</span></div>
-      <div class="col-span-2 pt-1 border-t border-slate-800 flex justify-between">
-        <span>رصيد الذهب: <span id="modal-cust-gold" class="text-gold font-bold">0 غرام</span></span>
-        <span>الصافي: <span id="modal-cust-net" class="font-black">0 د.ع</span></span>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
+      <div class="bg-darkbg/90 p-3 rounded-2xl border border-emerald-500/30">
+        <span class="text-slate-400 block text-[10px]">تطلبهم (+):</span>
+        <strong id="modal-cust-debt" class="text-emerald-400 font-black text-sm">0 د.ع</strong>
+      </div>
+      <div class="bg-darkbg/90 p-3 rounded-2xl border border-rose-500/30">
+        <span class="text-slate-400 block text-[10px]">مطلوب منك (-):</span>
+        <strong id="modal-cust-credit" class="text-rose-400 font-black text-sm">0 د.ع</strong>
+      </div>
+      <div class="bg-darkbg/90 p-3 rounded-2xl border border-gold/30">
+        <span class="text-slate-400 block text-[10px]">ذمة الذهب:</span>
+        <strong id="modal-cust-gold" class="text-gold font-black text-sm">0 غرام</strong>
+      </div>
+      <div class="bg-darkbg/90 p-3 rounded-2xl border border-slate-700">
+        <span class="text-slate-400 block text-[10px]">الصافي المالي:</span>
+        <strong id="modal-cust-net" class="font-black text-sm">0 د.ع</strong>
       </div>
     </div>
-    <div class="bg-darkbg p-4 rounded-2xl space-y-3 border border-slate-800">
-      <select id="modal-action-type" class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 text-xs text-gold font-bold outline-none">
-        <option value="plus_debt">إضافة ما تطلبه أنت (تطلبهم +)</option>
-        <option value="minus_debt">تسديد مما تطلبه أنت (-)</option>
-        <option value="plus_credit">إضافة ما هو مطلوب منك (عليك +)</option>
-        <option value="minus_credit">تسديد مما هو مطلوب منك (-)</option>
+
+    <!-- 4 أزرار فاخرة داخل الكارت نفسه -->
+    <div class="bg-darkbg/95 p-4 rounded-3xl space-y-3 border border-gold/35">
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <button type="button" id="inner-btn-plus-money" onclick="setInnerCardAction('plus_debt')" class="bg-emerald-600/25 border-2 border-emerald-400 text-emerald-200 font-black py-2.5 px-3 rounded-2xl flex items-center justify-center gap-1.5 transition">
+          <i class="fa-solid fa-plus"></i> <span>إضافة أموال (+)</span>
+        </button>
+        <button type="button" id="inner-btn-minus-money" onclick="setInnerCardAction('minus_debt')" class="bg-rose-600/20 border border-rose-500/40 text-rose-200 font-black py-2.5 px-3 rounded-2xl flex items-center justify-center gap-1.5 transition">
+          <i class="fa-solid fa-minus"></i> <span>نقصان أموال (-)</span>
+        </button>
+        <button type="button" id="inner-btn-plus-gold" onclick="setInnerCardAction('plus_gold')" class="bg-amber-600/20 border border-amber-400/40 text-amber-200 font-black py-2.5 px-3 rounded-2xl flex items-center justify-center gap-1.5 transition">
+          <i class="fa-solid fa-coins"></i> <span>إضافة ذهب (+)</span>
+        </button>
+        <button type="button" id="inner-btn-minus-gold" onclick="setInnerCardAction('minus_gold')" class="bg-slate-800 border border-gold/40 text-gold font-black py-2.5 px-3 rounded-2xl flex items-center justify-center gap-1.5 transition">
+          <i class="fa-solid fa-scale-balanced"></i> <span>نقصان ذهب (-)</span>
+        </button>
+      </div>
+      <select id="modal-action-type" onchange="syncInnerActionButtonsVisual()" class="w-full bg-cardbg border border-slate-700 rounded-xl p-2.5 text-xs text-gold font-bold outline-none">
+        <option value="plus_debt">إضافة أموال / تطلبهم (+)</option>
+        <option value="minus_debt">نقصان أموال / تسديد مما تطلبهم (-)</option>
+        <option value="plus_credit">إضافة مطلوب منك / عليك (+)</option>
+        <option value="minus_credit">نقصان / تسديد مما هو مطلوب منك (-)</option>
+        <option value="plus_gold">إضافة ذهب للذمة (+ غرام)</option>
+        <option value="minus_gold">نقصان ذهب من الذمة (- غرام)</option>
       </select>
-      <input type="number" id="cust-custom-amount" placeholder="أدخل المبلغ أو الوزن..." class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 text-sm text-gold font-bold outline-none">
-      <button onclick="custActionSubmitAdvanced()" class="w-full gold-gradient text-darkbg py-3 rounded-xl text-xs font-black shadow">تنفيذ وتحديث كارت العميل</button>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+        <input type="number" step="0.001" id="cust-custom-amount" placeholder="أدخل المبلغ أو الوزن (غرام)..." class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 text-sm text-gold font-bold outline-none">
+        <input type="text" id="cust-custom-note" placeholder="ملاحظة الحركة..." class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 text-xs outline-none">
+      </div>
+      <button onclick="custActionSubmitAdvanced()" class="w-full gold-gradient text-darkbg py-3 rounded-2xl text-xs font-black shadow-lg">تنفيذ الحركة الفاخرة وتحديث الكارت ✅</button>
     </div>
-    <div class="space-y-2 text-xs" id="modal-cust-details"></div>
-    <button onclick="closeCustomerModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-xl text-xs font-bold">إغلاق الكارت</button>
+
+    <!-- أزرار إضافية فاخرة داخل الكارت: كشف واتساب وطباعة كشف -->
+    <div class="grid grid-cols-2 gap-2.5 text-xs">
+      <button type="button" onclick="shareCustomerStatementWhatsapp()" class="bg-emerald-600/25 border border-emerald-500 text-emerald-300 font-black py-2.5 rounded-2xl flex items-center justify-center gap-2">
+        <i class="fa-brands fa-whatsapp text-sm"></i> <span>إرسال كشف واتساب</span>
+      </button>
+      <button type="button" onclick="printCustomerStatementInvoice()" class="bg-gold/20 border border-gold text-gold font-black py-2.5 rounded-2xl flex items-center justify-center gap-2">
+        <i class="fa-solid fa-print"></i> <span>طباعة كشف الحساب</span>
+      </button>
+    </div>
+
+    <div class="space-y-2 text-xs max-h-52 overflow-y-auto" id="modal-cust-details"></div>
+    <button onclick="closeCustomerModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-2xl text-xs font-bold">إغلاق الكارت</button>
   </div>
 </div>
 
@@ -1532,7 +1634,7 @@ function renderSupportTickets() {
   let c = document.getElementById('support-tickets-list'); if (!c) return; c.innerHTML = '';
   if (!appState.supportTickets.length) { c.innerHTML = '<p class="text-xs text-slate-500">لا توجد رسائل أو تحويلات سابقة.</p>'; return; }
   appState.supportTickets.forEach(t => {
-    let imgHtml = t.receipt ? `<img src="${t.receipt}" onclick="openImageLightbox(this.src, '${t.method}')" onerror="this.style.display='none'" class="w-16 h-16 rounded-xl object-contain bg-darkbg border border-gold cursor-pointer">` : '';
+    let imgHtml = t.receipt ? `<img src="${t.receipt}" onclick="openImageLightbox(this.src, '${t.method}')" onerror="this.style.display='none'" class="w-16 h-16 rounded-xl object-cover bg-darkbg border border-gold cursor-pointer">` : '';
     c.innerHTML += `<div class="bg-darkbg p-3 rounded-2xl border border-slate-800 flex justify-between items-center gap-3 text-xs">
       <div class="flex items-center gap-3">${imgHtml}<div><strong class="text-gold">${t.method}</strong> — <span class="font-mono text-emerald-400">${t.ref||'بدون'}</span><p class="text-slate-400 text-[11px]">${t.msg||''} (${t.time})</p></div></div>
       <span class="bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full text-[10px] font-bold">${t.status}</span>
@@ -1578,7 +1680,7 @@ function renderEditModalImagesGallery() {
   }
   gal.innerHTML = editingImagesDraft.map((src, i) => `
     <div class="relative w-20 h-20 rounded-xl overflow-hidden border border-gold/50 bg-darkbg group">
-      <img src="${src}" onclick="openImageLightbox(this.src, 'صورة القطعة')" class="w-full h-full object-contain cursor-pointer">
+      <img src="${src}" onclick="openImageLightbox(this.src, 'صورة القطعة')" class="w-full h-full object-cover cursor-pointer">
       <button type="button" onclick="removeEditImageAt(${i})" title="حذف الصورة" class="absolute top-1 left-1 bg-rose-600 text-white w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center shadow">✕</button>
     </div>
   `).join('');
@@ -1673,7 +1775,7 @@ function loadStoreSettingsToUI() {
   document.getElementById('store-bio').value = appState.store.bio;
   document.getElementById('settings-logo-preview').src = appState.store.logo || 'icon.png';
   document.getElementById('settings-cover-preview').src = appState.store.cover || 'icon.png';
-  document.getElementById('store-share-link').value = window.location.origin + window.location.pathname.replace('index_2.html','') + '?store=' + encodeURIComponent(currentTenantCode);
+  document.getElementById('store-share-link').value = window.location.origin + window.location.pathname.replace('index_3.html','') + '?store=' + encodeURIComponent(currentTenantCode);
 }
 
 function saveStoreSettings() {
@@ -1710,7 +1812,7 @@ function openStorefrontView() {
     let total = Math.round((item.weight * gramPrice) + totalMaking);
     
     let img = (item.images && item.images.length) 
-      ? `<img src="${item.images[0]}" onclick="openImageLightbox(this.src, '${item.name.replace(/'/g, '')}')" onerror="this.outerHTML='<div class=\\'w-full h-80 bg-slate-800 rounded-2xl flex items-center justify-center text-gold text-5xl\\'><i class=\\'fa-solid fa-gem\\'></i></div>'" class="w-full h-72 md:h-80 rounded-2xl object-contain bg-darkbg border border-gold/30 shadow-xl cursor-pointer">` 
+      ? `<img src="${item.images[0]}" onclick="openImageLightbox(this.src, '${item.name.replace(/'/g, '')}')" onerror="this.outerHTML='<div class=\\'w-full h-72 bg-slate-800 rounded-2xl flex items-center justify-center text-gold text-5xl\\'><i class=\\'fa-solid fa-gem\\'></i></div>'" class="w-full h-72 rounded-2xl object-cover bg-darkbg border border-gold/30 shadow-xl cursor-pointer">` 
       : `<div class="w-full h-72 bg-slate-800 rounded-2xl flex items-center justify-center text-gold text-5xl"><i class="fa-solid fa-gem"></i></div>`;
       
     container.innerHTML += `<div class="system-card p-5 rounded-3xl border border-gold/40 space-y-4 shadow-2xl">
@@ -1742,11 +1844,11 @@ function renderPublicCustomerStorefront() {
   document.body.innerHTML = `<div class="min-h-screen bg-darkbg text-slate-100 p-4 md:p-6 flex flex-col items-center"><div class="max-w-5xl w-full space-y-6">
     <div class="rounded-3xl overflow-hidden border border-gold/40 system-card shadow-2xl">
       <div class="w-full h-48 md:h-64 bg-slate-900 relative">
-        <img src="${appState.store.cover || 'icon.png'}" onerror="this.style.display='none'" class="w-full h-full object-contain bg-darkbg opacity-90">
+        <img src="${appState.store.cover || 'icon.png'}" onerror="this.style.display='none'" class="w-full h-full object-cover bg-darkbg opacity-90">
       </div>
       <div class="p-6 flex flex-col md:flex-row justify-between items-center md:items-end gap-4 -mt-12 relative z-10">
         <div class="flex flex-col md:flex-row items-center gap-4 text-center md:text-right">
-          <img src="${appState.store.logo || 'icon.png'}" onerror="this.style.display='none'" class="w-24 h-24 rounded-3xl object-contain border-2 border-gold bg-darkbg shadow-2xl">
+          <img src="${appState.store.logo || 'icon.png'}" onerror="this.style.display='none'" class="w-24 h-24 rounded-3xl object-cover border-2 border-gold bg-darkbg shadow-2xl">
           <div class="pt-2 md:pt-8"><h1 class="text-2xl font-black text-gold">${appState.store.name}</h1><p class="text-xs text-slate-300 mt-1">${appState.store.bio}</p></div>
         </div>
         <div class="bg-darkbg/90 p-3.5 rounded-2xl text-xs space-y-1 border border-slate-800 w-full md:w-auto">
@@ -1763,7 +1865,7 @@ function renderPublicCustomerStorefront() {
     let makingPerMithqal = Math.round(item.makingPerGram * 5);
     let totalMaking = Math.round(item.makingPerGram * item.weight);
     let total = Math.round((item.weight * getGramPrice(item.karat)) + totalMaking);
-    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" onerror="this.outerHTML='<div class=\\'w-full h-72 bg-slate-800 rounded-2xl flex items-center justify-center text-5xl\\'>💎</div>'" class="w-full h-72 rounded-2xl object-contain bg-darkbg border border-gold/30">` : `<div class="w-full h-72 bg-slate-800 rounded-2xl flex items-center justify-center text-5xl">💎</div>`;
+    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" onerror="this.outerHTML='<div class=\\'w-full h-72 bg-slate-800 rounded-2xl flex items-center justify-center text-5xl\\'>💎</div>'" class="w-full h-72 rounded-2xl object-cover bg-darkbg border border-gold/30">` : `<div class="w-full h-72 bg-slate-800 rounded-2xl flex items-center justify-center text-5xl">💎</div>`;
     g.innerHTML += `<div class="system-card p-5 rounded-3xl border border-gold/40 space-y-4 shadow-xl">
       ${img}
       <div class="space-y-2">
@@ -1938,6 +2040,7 @@ function switchTab(id) {
   if (activeBtn) activeBtn.className = "tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 bg-gold text-darkbg font-bold shadow-lg";
   if (id === 'support') renderSupportTickets();
   if (id === 'logs') renderMithqalMakingAudit();
+  if (id === 'debts') renderCustomerCards();
 }
 
 function updateUI() {
@@ -1952,7 +2055,7 @@ function updateUI() {
 
   let tbody = document.getElementById('inventory-table-body'); tbody.innerHTML = '';
   appState.inventory.forEach((item, idx) => {
-    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" onclick="openImageLightbox(this.src, '${item.name.replace(/'/g, '')}')" onerror="this.outerHTML='💎'" class="w-12 h-12 rounded-xl object-contain bg-darkbg border border-gold/40 cursor-pointer">` : '💎';
+    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" onclick="openImageLightbox(this.src, '${item.name.replace(/'/g, '')}')" onerror="this.outerHTML='💎'" class="w-12 h-12 rounded-xl object-cover bg-darkbg border border-gold/40 cursor-pointer">` : '💎';
     let mithqalMaking = Math.round(item.makingPerGram * 5);
     tbody.innerHTML += `<tr class="border-b border-slate-800">
       <td class="p-3">${img}</td><td class="p-3 font-bold">${item.name}${item.notes ? `<span class="block text-[10px] text-slate-400">${item.notes}</span>` : ''}</td><td class="p-3">${item.karat}</td><td class="p-3">${item.weight}غ</td>
@@ -2044,7 +2147,7 @@ function completeSale(mode) {
     let d = appState.debts.find(x => x.customer === cust);
     if (!d) { d = { customer: cust, phone, code: 'CUST-'+Math.floor(1000+Math.random()*9000), debtAmount: 0, creditAmount: 0, goldAmount: 0, movements: [] }; appState.debts.push(d); }
     d.debtAmount += tot; 
-    d.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: 'تطلبهم (مبيعات آجل +)', amount: tot });
+    d.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: 'إضافة أموال (+ تطلبهم)', amount: tot });
     logTransaction('عملية بيع', `آجل (${cust}): ${snap.map(x=>x.name).join(', ')}`, `${tot.toLocaleString()} د.ع`, notes, code, mk);
   }
   
@@ -2061,7 +2164,7 @@ function renderInvoicePrintContent(code, cust, phone, notes, tot, mk, wt, items)
   let storeLogo = appState.store.logo || 'icon.png';
 
   if (tmpl === 'detailed') {
-    headerBox.innerHTML = `<img src="${storeLogo}" onerror="handleBrandImageError(this)" class="w-12 h-12 rounded-xl object-contain mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">💎 ${appState.store.name} 💎</h2><p class="text-xs text-slate-600 font-bold">${appState.store.bio || 'فرع نواة الذهب ⚜️'}</p><div class="inline-block bg-slate-900 text-gold font-mono text-xs font-bold px-3 py-1 rounded-full mt-1">${code}</div>`;
+    headerBox.innerHTML = `<img src="${storeLogo}" onerror="handleBrandImageError(this)" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">💎 ${appState.store.name} 💎</h2><p class="text-xs text-slate-600 font-bold">${appState.store.bio || 'فرع نواة الذهب ⚜️'}</p><div class="inline-block bg-slate-900 text-gold font-mono text-xs font-bold px-3 py-1 rounded-full mt-1">${code}</div>`;
     let itemsHtml = items.map(i => `<div class="border-b py-1">
       <div class="flex justify-between font-bold"><span>${i.name} (${i.weight}غ - عيار ${i.karat})</span><span>${i.itemTotal.toLocaleString()} د.ع</span></div>
       <div class="text-[10px] text-slate-500">صياغة المثقال: ${(i.itemMakingMithqal||0).toLocaleString()} د.ع | إجمالي صياغة القطعة: ${Math.round(i.itemMakingTotal||0).toLocaleString()} د.ع</div>
@@ -2071,7 +2174,7 @@ function renderInvoicePrintContent(code, cust, phone, notes, tot, mk, wt, items)
     headerBox.innerHTML = `<h2 class="font-black text-lg text-slate-900">${appState.store.name}</h2><p class="text-[11px] text-slate-500 font-mono">فاتورة مختصرة | ${code}</p>`;
     body.innerHTML = `<div class="text-center py-2 font-bold text-sm text-slate-800">ملخص عملية البيع النقدي</div><div class="flex justify-between text-base font-black pt-2 border-t"><span>المبلغ الإجمالي:</span><span class="text-gold">${tot.toLocaleString()} دينار</span></div><div class="flex justify-between text-sm text-emerald-700 font-bold bg-emerald-50 p-2 rounded-xl"><span>المقابل اللحظي:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-xs text-slate-600 pt-2">الزبون: <strong>${cust}</strong> (${phone})</div><div class="text-[10px] text-slate-400">التاريخ: ${new Date().toLocaleDateString('ar-IQ')}</div>`;
   } else {
-    headerBox.innerHTML = `<img src="${storeLogo}" onerror="handleBrandImageError(this)" class="w-12 h-12 rounded-xl object-contain mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">⚜️ ${appState.store.name} ⚜️</h2><p class="text-xs text-gold-dark font-bold">سند قبض وبيع ذهب مؤسسي</p><div class="inline-block bg-gold text-darkbg font-mono text-xs font-black px-3 py-0.5 rounded-full mt-1">${code}</div>`;
+    headerBox.innerHTML = `<img src="${storeLogo}" onerror="handleBrandImageError(this)" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">⚜️ ${appState.store.name} ⚜️</h2><p class="text-xs text-gold-dark font-bold">سند قبض وبيع ذهب مؤسسي</p><div class="inline-block bg-gold text-darkbg font-mono text-xs font-black px-3 py-0.5 rounded-full mt-1">${code}</div>`;
     body.innerHTML = `<div class="bg-amber-50 p-3 rounded-2xl border border-amber-200 space-y-1 text-xs"><div class="flex justify-between"><span>اسم الصايغ والمعرض:</span><strong>${appState.store.name}</strong></div><div class="flex justify-between"><span>هاتف المعرض:</span><strong class="font-mono">${appState.store.phone}</strong></div><div class="flex justify-between"><span>العنوان:</span><span>${appState.store.address}</span></div></div><div class="flex justify-between text-sm font-black pt-2"><span>صافي المبيعات:</span><span class="text-gold">${tot.toLocaleString()} د.ع</span></div><div class="flex justify-between text-sm font-black text-emerald-700 bg-emerald-50 p-2 rounded-xl"><span>المقابل المعادل:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-[11px] text-slate-600 border-t pt-1">العميل المستفيد: <strong>${cust}</strong> | الهاتف: <span class="font-mono">${phone}</span></div><div class="text-[10px] text-slate-500 text-center pt-2">توقيع وختم الصايغ المعتمد — ${new Date().toLocaleDateString('ar-IQ')}</div>`;
   }
 }
@@ -2148,20 +2251,46 @@ function processInvoiceReturn() {
   saveState(); closeReturnModal(); showToast('تمت عملية الإرجاع بنجاح!');
 }
 
+function highlightDebtModeButtons(val) {
+  const map = {
+    'تطلبهم (دين لك)': 'btn-dmode-plus-money',
+    'مطلوب منك (دين عليك)': 'btn-dmode-minus-money',
+    'إضافة ذهب (غرام)': 'btn-dmode-plus-gold',
+    'نقصان ذهب (غرام)': 'btn-dmode-minus-gold'
+  };
+  const styles = {
+    'btn-dmode-plus-money': ['bg-emerald-600/25 border-2 border-emerald-400 text-emerald-200', 'bg-emerald-600/15 border border-emerald-500/35 text-emerald-300'],
+    'btn-dmode-minus-money': ['bg-rose-600/25 border-2 border-rose-400 text-rose-200', 'bg-rose-600/15 border border-rose-500/35 text-rose-300'],
+    'btn-dmode-plus-gold': ['bg-amber-600/25 border-2 border-amber-300 text-amber-200', 'bg-amber-600/15 border border-amber-500/35 text-amber-300'],
+    'btn-dmode-minus-gold': ['bg-gold/25 border-2 border-gold text-gold', 'bg-slate-800 border border-gold/30 text-gold']
+  };
+  Object.keys(styles).forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const active = map[val] === id;
+    el.className = `${active ? styles[id][0] : styles[id][1]} font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition`;
+  });
+}
+
 function addDebtMovement() {
   let c = document.getElementById('debt-customer').value.trim(), t = document.getElementById('debt-type').value, a = parseFloat(document.getElementById('debt-amount').value);
   let notes = document.getElementById('debt-notes').value.trim();
+  let phone = document.getElementById('debt-phone').value.trim();
   if (!c || isNaN(a) || a <= 0) return showToast('أدخل اسم الزبون والمبلغ أو الوزن بشكل صحيح!', 'error');
-  let d = appState.debts.find(x => x.customer === c);
-  if (!d) { d = { customer: c, phone: document.getElementById('debt-phone').value, code: 'CUST-'+Math.floor(1000+Math.random()*9000), debtAmount: 0, creditAmount: 0, goldAmount: 0, movements: [] }; appState.debts.push(d); }
+  let d = appState.debts.find(x => x.customer.toLowerCase() === c.toLowerCase());
+  if (!d) { d = { customer: c, phone, code: 'CUST-'+Math.floor(1000+Math.random()*9000), debtAmount: 0, creditAmount: 0, goldAmount: 0, movements: [] }; appState.debts.push(d); }
+  else if (phone && !d.phone) { d.phone = phone; }
   
-  if (t.includes('تطلبهم')) d.debtAmount += a;
-  else if (t.includes('مطلوب منك')) d.creditAmount += a;
-  else if (t.includes('إضافة ذهب')) d.goldAmount += a;
-  else d.goldAmount -= a;
+  let actionLabel = t;
+  if (t.includes('تطلبهم') || t.includes('إضافة أموال')) { d.debtAmount += a; actionLabel = 'إضافة أموال (+ تطلبهم)'; }
+  else if (t.includes('مطلوب منك') || t.includes('نقصان أموال')) { d.creditAmount += a; actionLabel = 'إضافة مطلوب منك (- عليك)'; }
+  else if (t.includes('إضافة ذهب')) { d.goldAmount += a; actionLabel = 'إضافة ذهب (+ غرام)'; }
+  else { d.goldAmount -= a; actionLabel = 'نقصان ذهب (- غرام)'; }
 
-  d.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: t, amount: a, notes });
-  logTransaction('حركة ديون', `${c}: ${t} (${a})`, t, notes); saveState(); showToast('تم تحديث دفتر الديون بنجاح!');
+  d.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: actionLabel, amount: a, notes });
+  logTransaction('حركة ديون', `${c}: ${actionLabel} (${a})`, `${a.toLocaleString()}`, notes);
+  saveState();
+  showToast('تم تحديث دفتر الديون الفخم بنجاح!');
   document.getElementById('debt-customer').value = '';
   document.getElementById('debt-amount').value = '';
   document.getElementById('debt-notes').value = '';
@@ -2169,78 +2298,212 @@ function addDebtMovement() {
 
 function setDebtFilter(f) {
   currentDebtFilter = f;
-  document.getElementById('debt-filter-all').className = f === 'all' ? 'bg-gold text-darkbg px-3.5 py-1.5 rounded-xl text-xs font-bold' : 'bg-darkbg text-slate-300 border border-slate-700 px-3.5 py-1.5 rounded-xl text-xs font-bold';
-  document.getElementById('debt-filter-them').className = f === 'on_them' ? 'bg-emerald-500 text-darkbg px-3.5 py-1.5 rounded-xl text-xs font-bold' : 'bg-darkbg text-emerald-400 border border-emerald-500/40 px-3.5 py-1.5 rounded-xl text-xs font-bold';
-  document.getElementById('debt-filter-us').className = f === 'on_us' ? 'bg-rose-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold' : 'bg-darkbg text-rose-400 border border-rose-500/40 px-3.5 py-1.5 rounded-xl text-xs font-bold';
+  document.getElementById('debt-filter-all').className = f === 'all' ? 'bg-gold text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow' : 'bg-darkbg text-slate-300 border border-slate-700 px-4 py-2 rounded-2xl text-xs font-black';
+  document.getElementById('debt-filter-them').className = f === 'on_them' ? 'bg-emerald-500 text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow' : 'bg-darkbg text-emerald-300 border border-emerald-500/50 px-4 py-2 rounded-2xl text-xs font-black';
+  document.getElementById('debt-filter-us').className = f === 'on_us' ? 'bg-rose-500 text-white px-4 py-2 rounded-2xl text-xs font-black shadow' : 'bg-darkbg text-rose-300 border border-rose-500/50 px-4 py-2 rounded-2xl text-xs font-black';
   renderCustomerCards();
 }
 
+function quickDebtCardAction(e, custIdx, actionType, amountVal) {
+  e.stopPropagation();
+  const amt = parseFloat(amountVal);
+  if (isNaN(amt) || amt <= 0) return showToast('أدخل رقماً صحيحاً داخل الكارت أولاً!', 'error');
+  applyDebtActionToCustomer(custIdx, actionType, amt, 'حركة سريعة من الكارت');
+}
+
+function buildSingleDebtCardHtml(c, originalIdx, sectionSide) {
+  const netVal = (c.debtAmount || 0) - (c.creditAmount || 0);
+  const isThemCard = sectionSide === 'them';
+  const borderClass = isThemCard ? 'border-emerald-500/45 hover:border-emerald-400' : 'border-rose-500/45 hover:border-rose-400';
+  const badgeHtml = isThemCard
+    ? `<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-black">تطلبهم: +${Math.round(c.debtAmount || 0).toLocaleString()}</span>`
+    : `<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-black">مطلوب منك: -${Math.round(c.creditAmount || 0).toLocaleString()}</span>`;
+
+  const plusMoneyType = isThemCard ? 'plus_debt' : 'plus_credit';
+  const minusMoneyType = isThemCard ? 'minus_debt' : 'minus_credit';
+
+  return `<div onclick="openCustomerModal(${originalIdx})" class="luxury-modal-card p-4 rounded-3xl border ${borderClass} cursor-pointer space-y-3 transition">
+    <div class="flex justify-between items-start gap-2">
+      <div>
+        <strong class="text-gold text-base font-black block">${c.customer}</strong>
+        <span class="text-[10px] font-mono text-slate-400">${c.phone || '--'} • ${c.code || ''}</span>
+      </div>
+      ${badgeHtml}
+    </div>
+
+    <div class="grid grid-cols-2 gap-2 text-xs bg-darkbg/90 p-2.5 rounded-2xl border border-slate-800">
+      <div><span class="text-[10px] text-slate-400 block">رصيد الأموال:</span><strong class="${netVal >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-black">${(netVal >= 0 ? '+' : '-') + Math.round(Math.abs(netVal)).toLocaleString()}</strong></div>
+      <div><span class="text-[10px] text-slate-400 block">ذمة الذهب:</span><strong class="text-amber-300 font-black">${(c.goldAmount || 0)} غم</strong></div>
+    </div>
+
+    <div onclick="event.stopPropagation()" class="bg-darkbg/80 p-2.5 rounded-2xl border border-slate-800 space-y-2">
+      <input type="number" step="0.001" id="quick-debt-amt-${sectionSide}-${originalIdx}" placeholder="مبلغ أو غرام سريع..." class="w-full bg-cardbg border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-gold font-bold outline-none">
+      <div class="grid grid-cols-2 gap-1.5 text-[10px]">
+        <button type="button" onclick="quickDebtCardAction(event, ${originalIdx}, '${plusMoneyType}', document.getElementById('quick-debt-amt-${sectionSide}-${originalIdx}').value)" class="bg-emerald-600/25 border border-emerald-500/50 text-emerald-200 font-black py-1.5 px-2 rounded-xl">+ أموال</button>
+        <button type="button" onclick="quickDebtCardAction(event, ${originalIdx}, '${minusMoneyType}', document.getElementById('quick-debt-amt-${sectionSide}-${originalIdx}').value)" class="bg-rose-600/25 border border-rose-500/50 text-rose-200 font-black py-1.5 px-2 rounded-xl">- أموال</button>
+        <button type="button" onclick="quickDebtCardAction(event, ${originalIdx}, 'plus_gold', document.getElementById('quick-debt-amt-${sectionSide}-${originalIdx}').value)" class="bg-amber-600/25 border border-amber-500/50 text-amber-200 font-black py-1.5 px-2 rounded-xl">+ ذهب</button>
+        <button type="button" onclick="quickDebtCardAction(event, ${originalIdx}, 'minus_gold', document.getElementById('quick-debt-amt-${sectionSide}-${originalIdx}').value)" class="bg-slate-800 border border-gold/40 text-gold font-black py-1.5 px-2 rounded-xl">- ذهب</button>
+      </div>
+    </div>
+
+    <div class="text-[10px] text-slate-400 flex justify-between items-center pt-0.5">
+      <span>عدد الحركات: ${(c.movements || []).length}</span>
+      <span class="text-gold font-bold">فتح الكارت الكامل ←</span>
+    </div>
+  </div>`;
+}
+
 function renderCustomerCards() {
-  let g = document.getElementById('customer-cards-grid'); g.innerHTML = '';
-  let filtered = appState.debts.filter(c => {
-    if (currentDebtFilter === 'on_them') return c.debtAmount > 0;
-    if (currentDebtFilter === 'on_us') return c.creditAmount > 0;
-    return true;
+  const themGrid = document.getElementById('grid-debts-them');
+  const usGrid = document.getElementById('grid-debts-us');
+  const themSec = document.getElementById('section-debts-them');
+  const usSec = document.getElementById('section-debts-us');
+  if (!themGrid || !usGrid) return;
+
+  const totalThem = appState.debts.reduce((s, d) => s + (parseFloat(d.debtAmount) || 0), 0);
+  const totalUs = appState.debts.reduce((s, d) => s + (parseFloat(d.creditAmount) || 0), 0);
+  const totalGold = appState.debts.reduce((s, d) => s + (parseFloat(d.goldAmount) || 0), 0);
+  const netGeneral = totalThem - totalUs;
+
+  document.getElementById('debts-summary-them').innerText = `+${Math.round(totalThem).toLocaleString()} د.ع`;
+  document.getElementById('debts-summary-us').innerText = `-${Math.round(totalUs).toLocaleString()} د.ع`;
+  document.getElementById('debts-summary-gold-plus').innerText = `ذهب مسجل: ${totalGold.toFixed(3)} غرام`;
+  document.getElementById('debts-summary-gold-minus').innerText = `إجمالي حسابات الديون: ${appState.debts.length} عميل`;
+  const netSummaryEl = document.getElementById('debts-summary-net');
+  netSummaryEl.innerText = `${netGeneral >= 0 ? '+' : '-'}${Math.round(Math.abs(netGeneral)).toLocaleString()} د.ع`;
+  netSummaryEl.className = `text-xl font-black mt-1 block ${netGeneral >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+  const themItems = appState.debts
+    .map((c, idx) => ({ c, idx }))
+    .filter(({ c }) => (c.debtAmount || 0) > 0 || ((c.debtAmount || 0) === 0 && (c.creditAmount || 0) === 0 && (c.goldAmount || 0) >= 0));
+
+  const usItems = appState.debts
+    .map((c, idx) => ({ c, idx }))
+    .filter(({ c }) => (c.creditAmount || 0) > 0);
+
+  document.getElementById('count-debts-them').innerText = `${themItems.length} كارت`;
+  document.getElementById('count-debts-us').innerText = `${usItems.length} كارت`;
+
+  themSec.classList.toggle('hidden', currentDebtFilter === 'on_us');
+  usSec.classList.toggle('hidden', currentDebtFilter === 'on_them');
+
+  themGrid.innerHTML = themItems.length
+    ? themItems.map(({ c, idx }) => buildSingleDebtCardHtml(c, idx, 'them')).join('')
+    : '<p class="col-span-full text-center text-slate-500 py-5 text-xs bg-darkbg/60 rounded-2xl border border-slate-800">لا توجد كارتات في قسم (تطلبهم +) حالياً.</p>';
+
+  usGrid.innerHTML = usItems.length
+    ? usItems.map(({ c, idx }) => buildSingleDebtCardHtml(c, idx, 'us')).join('')
+    : '<p class="col-span-full text-center text-slate-500 py-5 text-xs bg-darkbg/60 rounded-2xl border border-slate-800">لا توجد كارتات في قسم (مطلوب منك -) حالياً.</p>';
+}
+
+function setInnerCardAction(actionType) {
+  const sel = document.getElementById('modal-action-type');
+  if (sel) sel.value = actionType;
+  syncInnerActionButtonsVisual();
+}
+
+function syncInnerActionButtonsVisual() {
+  const val = document.getElementById('modal-action-type')?.value || 'plus_debt';
+  const btnMap = {
+    'inner-btn-plus-money': ['plus_debt', 'bg-emerald-600/35 border-2 border-emerald-300 text-white', 'bg-emerald-600/15 border border-emerald-500/40 text-emerald-200'],
+    'inner-btn-minus-money': ['minus_debt', 'bg-rose-600/35 border-2 border-rose-300 text-white', 'bg-rose-600/15 border border-rose-500/40 text-rose-200'],
+    'inner-btn-plus-gold': ['plus_gold', 'bg-amber-600/35 border-2 border-amber-200 text-white', 'bg-amber-600/15 border border-amber-400/40 text-amber-200'],
+    'inner-btn-minus-gold': ['minus_gold', 'bg-gold text-darkbg border-2 border-gold-light', 'bg-slate-800 border border-gold/40 text-gold']
+  };
+  Object.keys(btnMap).forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const isSel = btnMap[id][0] === val;
+    el.className = `${isSel ? btnMap[id][1] : btnMap[id][2]} font-black py-2.5 px-3 rounded-2xl flex items-center justify-center gap-1.5 transition`;
   });
+}
 
-  if (!filtered.length) { g.innerHTML = '<p class="col-span-full text-center text-slate-500 py-6 text-xs">لا توجد سجلات ديون مطابقة.</p>'; return; }
+function applyDebtActionToCustomer(custIdx, actionType, amountVal, customNote = '') {
+  let c = appState.debts[custIdx];
+  if (!c) return;
+  let label = '';
+  if (actionType === 'plus_debt') { c.debtAmount = (c.debtAmount || 0) + amountVal; label = 'إضافة أموال (+ تطلبهم)'; }
+  else if (actionType === 'minus_debt') { c.debtAmount = Math.max(0, (c.debtAmount || 0) - amountVal); appState.cash += amountVal; label = 'نقصان / تسديد أموال (- تطلبهم)'; }
+  else if (actionType === 'plus_credit') { c.creditAmount = (c.creditAmount || 0) + amountVal; label = 'إضافة مطلوب منك (- عليك)'; }
+  else if (actionType === 'minus_credit') { c.creditAmount = Math.max(0, (c.creditAmount || 0) - amountVal); appState.cash -= amountVal; label = 'نقصان / تسديد مطلوب منك (-)'; }
+  else if (actionType === 'plus_gold') { c.goldAmount = (c.goldAmount || 0) + amountVal; label = 'إضافة ذهب (+ غرام)'; }
+  else if (actionType === 'minus_gold') { c.goldAmount = (c.goldAmount || 0) - amountVal; label = 'نقصان ذهب (- غرام)'; }
 
-  filtered.forEach((c) => {
-    let originalIdx = appState.debts.indexOf(c);
-    let netVal = (c.debtAmount || 0) - (c.creditAmount || 0);
-    let badgeHtml = netVal >= 0
-      ? `<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-bold">لك صافي: +${Math.round(netVal).toLocaleString()}</span>`
-      : `<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-bold">عليك صافي: -${Math.round(Math.abs(netVal)).toLocaleString()}</span>`;
-
-    g.innerHTML += `<div onclick="openCustomerModal(${originalIdx})" class="system-card p-4 rounded-2xl border border-gold/30 hover:border-gold cursor-pointer space-y-2.5 transition">
-      <div class="flex justify-between items-start gap-2">
-        <div>
-          <strong class="text-gold text-sm block">${c.customer}</strong>
-          <span class="text-[10px] font-mono text-slate-400">${c.phone || '--'}</span>
-        </div>
-        ${badgeHtml}
-      </div>
-      <div class="text-xs flex justify-between bg-darkbg/80 px-3 py-2 rounded-xl border border-slate-800">
-        <span class="text-emerald-400 font-bold">تطلبهم: ${c.debtAmount.toLocaleString()}</span>
-        <span class="text-rose-400 font-bold">مطلوب منك: ${c.creditAmount.toLocaleString()}</span>
-      </div>
-      <div class="text-[11px] text-amber-300 font-bold flex justify-between items-center">
-        <span>ذمة ذهب: ${c.goldAmount} غم</span>
-        <span class="text-slate-400 text-[10px]">اضغط لإدارة الكارت ←</span>
-      </div>
-    </div>`;
-  });
+  c.movements = c.movements || [];
+  c.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: label, amount: amountVal, notes: customNote });
+  logTransaction('حركة ديون', `${c.customer}: ${label}`, `${amountVal.toLocaleString()}`, customNote);
+  saveState();
+  if (selectedCustIdx === custIdx && !document.getElementById('customer-modal').classList.contains('hidden')) {
+    openCustomerModal(custIdx);
+  }
+  showToast(`تم تنفيذ (${label}) بنجاح!`);
 }
 
 function openCustomerModal(i) {
   selectedCustIdx = i; let c = appState.debts[i];
   document.getElementById('modal-cust-name').innerText = c.customer;
   document.getElementById('modal-cust-phone').innerText = c.phone || '--';
-  document.getElementById('modal-cust-debt').innerText = c.debtAmount.toLocaleString() + ' د.ع';
-  document.getElementById('modal-cust-credit').innerText = c.creditAmount.toLocaleString() + ' د.ع';
-  document.getElementById('modal-cust-gold').innerText = c.goldAmount + ' غرام';
+  document.getElementById('modal-cust-debt').innerText = (c.debtAmount || 0).toLocaleString() + ' د.ع';
+  document.getElementById('modal-cust-credit').innerText = (c.creditAmount || 0).toLocaleString() + ' د.ع';
+  document.getElementById('modal-cust-gold').innerText = (c.goldAmount || 0) + ' غرام';
   let netVal = (c.debtAmount || 0) - (c.creditAmount || 0);
   let netEl = document.getElementById('modal-cust-net');
   netEl.innerText = (netVal >= 0 ? '+' : '-') + Math.round(Math.abs(netVal)).toLocaleString() + ' د.ع';
   netEl.className = netVal >= 0 ? 'font-black text-emerald-400' : 'font-black text-rose-400';
 
-  document.getElementById('modal-cust-details').innerHTML = c.movements.map(m => `<div class="bg-darkbg p-2.5 rounded-xl border border-slate-800 flex justify-between items-center"><div><strong class="text-slate-200">${m.type}</strong>${m.notes ? `<span class="block text-[10px] text-slate-400">${m.notes}</span>` : ''}</div><span class="text-gold font-bold">${Number(m.amount).toLocaleString()} (${m.time})</span></div>`).join('');
+  const badgeEl = document.getElementById('modal-cust-badge');
+  if ((c.debtAmount || 0) >= (c.creditAmount || 0)) {
+    badgeEl.innerText = 'حساب: تطلبهم (+)';
+    badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+  } else {
+    badgeEl.innerText = 'حساب: مطلوب منك (-)';
+    badgeEl.className = 'text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40';
+  }
+
+  syncInnerActionButtonsVisual();
+  document.getElementById('modal-cust-details').innerHTML = (c.movements || []).map(m => `<div class="bg-darkbg p-2.5 rounded-xl border border-slate-800 flex justify-between items-center"><div><strong class="text-slate-200">${m.type}</strong>${m.notes ? `<span class="block text-[10px] text-slate-400">${m.notes}</span>` : ''}</div><span class="text-gold font-bold">${Number(m.amount).toLocaleString()} (${m.time})</span></div>`).join('');
   document.getElementById('customer-modal').classList.remove('hidden');
 }
 function closeCustomerModal() { document.getElementById('customer-modal').classList.add('hidden'); }
 
 function custActionSubmitAdvanced() {
-  let c = appState.debts[selectedCustIdx], t = document.getElementById('modal-action-type').value, a = parseFloat(document.getElementById('cust-custom-amount').value);
-  if (isNaN(a) || a <= 0) return showToast('أدخل المبلغ!', 'error');
-  let label = '';
-  if (t === 'plus_debt') { c.debtAmount += a; appState.cash += a; label = 'إضافة تطلبهم (+)'; }
-  else if (t === 'minus_debt') { c.debtAmount = Math.max(0, c.debtAmount - a); appState.cash += a; label = 'تسديد مما تطلبهم (-)'; }
-  else if (t === 'plus_credit') { c.creditAmount += a; label = 'إضافة مطلوب منك (+)'; }
-  else if (t === 'minus_credit') { c.creditAmount = Math.max(0, c.creditAmount - a); appState.cash -= a; label = 'تسديد مما هو مطلوب منك (-)'; }
-  c.movements.unshift({ time: new Date().toLocaleDateString('ar-IQ'), type: label, amount: a });
-  logTransaction('حركة ديون', `${c.customer}: ${label}`, `${a.toLocaleString()} د.ع`);
+  if (selectedCustIdx === null || !appState.debts[selectedCustIdx]) return;
+  let t = document.getElementById('modal-action-type').value;
+  let a = parseFloat(document.getElementById('cust-custom-amount').value);
+  let note = document.getElementById('cust-custom-note')?.value.trim() || '';
+  if (isNaN(a) || a <= 0) return showToast('أدخل المبلغ أو الوزن!', 'error');
   document.getElementById('cust-custom-amount').value = '';
-  saveState(); openCustomerModal(selectedCustIdx); showToast('تم التحديث بنجاح!');
+  if (document.getElementById('cust-custom-note')) document.getElementById('cust-custom-note').value = '';
+  applyDebtActionToCustomer(selectedCustIdx, t, a, note);
+}
+
+function shareCustomerStatementWhatsapp() {
+  const c = appState.debts[selectedCustIdx];
+  if (!c) return;
+  const netVal = (c.debtAmount || 0) - (c.creditAmount || 0);
+  const text = encodeURIComponent(
+    `كشف حساب — ${appState.store.name}\nالعميل: ${c.customer}\nتطلبهم (+): ${(c.debtAmount||0).toLocaleString()} د.ع\nمطلوب منك (-): ${(c.creditAmount||0).toLocaleString()} د.ع\nذمة الذهب: ${(c.goldAmount||0)} غرام\nالصافي: ${(netVal>=0?'+':'-') + Math.round(Math.abs(netVal)).toLocaleString()} د.ع`
+  );
+  const cleanPhone = normalizePhoneDigits(c.phone || '');
+  const waUrl = cleanPhone ? `https://wa.me/${cleanPhone.startsWith('0') ? '964' + cleanPhone.slice(1) : cleanPhone}?text=${text}` : `https://wa.me/?text=${text}`;
+  window.open(waUrl, '_blank');
+}
+
+function printCustomerStatementInvoice() {
+  const c = appState.debts[selectedCustIdx];
+  if (!c) return;
+  const netVal = (c.debtAmount || 0) - (c.creditAmount || 0);
+  renderInvoicePrintContent(
+    c.code || 'STMT-01',
+    c.customer,
+    c.phone || '--',
+    `ذمة الذهب: ${(c.goldAmount||0)} غرام | الصافي: ${netVal.toLocaleString()} د.ع`,
+    Math.abs(netVal),
+    0,
+    c.goldAmount || 0,
+    [{ name: `كشف ديون (${c.customer}) — تطلبهم: ${(c.debtAmount||0).toLocaleString()} | مطلوب منك: ${(c.creditAmount||0).toLocaleString()}`, weight: c.goldAmount || 0, karat: 'حساب', itemTotal: Math.abs(netVal), itemMakingMithqal: 0, itemMakingTotal: 0 }]
+  );
+  document.getElementById('invoice-modal').classList.remove('hidden');
 }
 
 function addExpense() {
@@ -2294,6 +2557,7 @@ function closeLuxuryDebtTypeModal() { document.getElementById('luxury-debt-type-
 function selectLuxuryDebtType(val, label) {
   document.getElementById('debt-type').value = val;
   document.getElementById('selected-debt-type-label').innerText = label;
+  highlightDebtModeButtons(val);
   closeLuxuryDebtTypeModal();
 }
 
@@ -2305,7 +2569,7 @@ function renderLuxuryPreviewList() {
   let availableItems = appState.inventory.map((item, idx) => ({ item, idx })).filter(x => x.item.qty > 0 && (!q || x.item.name.toLowerCase().includes(q) || String(x.item.karat).includes(q)));
   if (!availableItems.length) { c.innerHTML = '<p class="col-span-full text-center text-slate-500 text-xs py-6">لا توجد قطع مطابقة للبحث في المخزن.</p>'; return; }
   availableItems.forEach(({ item, idx }) => {
-    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" onerror="this.style.display='none'" class="w-12 h-12 rounded-xl object-contain bg-darkbg border border-gold/40 shrink-0">` : `<div class="w-12 h-12 rounded-xl bg-darkbg border border-gold/30 flex items-center justify-center text-gold shrink-0"><i class="fa-solid fa-gem"></i></div>`;
+    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" onerror="this.style.display='none'" class="w-12 h-12 rounded-xl object-cover bg-darkbg border border-gold/40 shrink-0">` : `<div class="w-12 h-12 rounded-xl bg-darkbg border border-gold/30 flex items-center justify-center text-gold shrink-0"><i class="fa-solid fa-gem"></i></div>`;
     let makingMithqal = Math.round(item.makingPerGram * 5);
     c.innerHTML += `<button onclick="selectLuxuryPreviewItem(${idx})" class="bg-darkbg border border-slate-700 hover:border-gold p-3 rounded-2xl text-right flex items-center gap-3 transition">
       ${img}
