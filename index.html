@@ -58,7 +58,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <!-- شاشة تسجيل دخول الصايغ / تبديل الحساب -->
 <div id="tenant-login-screen" class="fixed inset-0 bg-darkbg/95 backdrop-blur-xl z-[250] flex items-center justify-center p-5 hidden">
   <div class="system-card p-8 rounded-3xl border border-gold/40 max-w-md w-full space-y-5 shadow-2xl text-center">
-    <div class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl mx-auto shadow-xl overflow-hidden border-2 border-gold">
+    <div class="w-20 h-20 rounded-full gold-gradient flex items-center justify-center text-darkbg font-black text-3xl mx-auto shadow-xl overflow-hidden border-2 border-gold">
       <img src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
     </div>
     <div>
@@ -73,7 +73,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <!-- نافذة كلمة مرور الأدمن (بعد الضغط 5 مرات على صورة إدارة المخزن) -->
 <div id="admin-secret-modal" class="fixed inset-0 modal-overlay z-[320] flex items-center justify-center hidden p-4">
   <div class="luxury-modal-card p-6 rounded-3xl w-full max-w-sm space-y-4 shadow-2xl text-center">
-    <div class="w-16 h-16 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-2xl mx-auto shadow-lg overflow-hidden border border-gold">
+    <div class="w-16 h-16 rounded-full gold-gradient flex items-center justify-center text-darkbg font-black text-2xl mx-auto shadow-lg overflow-hidden border border-gold">
       <img src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
     </div>
     <div>
@@ -125,6 +125,46 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 </div>
 
 <!-- نافذة فخمة لاختبار وجرد المثقال -->
+<!-- نافذة فاخرة لاختيار المثقال في جرد الصياغة -->
+<div id="luxury-mithqal-filter-modal" class="fixed inset-0 modal-overlay z-[270] flex items-center justify-center hidden p-4">
+  <div class="luxury-modal-card p-6 rounded-3xl w-full max-w-md space-y-4 shadow-2xl text-center">
+    <div class="w-16 h-16 rounded-full gold-gradient flex items-center justify-center text-darkbg font-black text-2xl mx-auto shadow-lg">
+      <i class="fa-solid fa-crown"></i>
+    </div>
+    <div>
+      <h3 class="text-lg font-black text-gold">اختر عيار المثقال للجرد</h3>
+      <p class="text-xs text-slate-400 mt-1">قائمة مؤسسية واضحة لفرز جرد الصياغة حسب المثقال (5 غرام)</p>
+    </div>
+    <div class="space-y-2 text-right text-xs">
+      <button type="button" onclick="selectLuxuryMithqalFilter('all', 'جميع المثاقيل (كل العيارات)')" class="w-full bg-darkbg/90 border border-gold/40 hover:border-gold p-3 rounded-2xl font-bold text-gold flex items-center justify-between transition">
+        <span>جميع المثاقيل (كل العيارات)</span>
+        <i class="fa-solid fa-circle-dot text-gold"></i>
+      </button>
+      <button type="button" onclick="selectLuxuryMithqalFilter('24', 'مثقال عيار 24')" class="w-full bg-darkbg/90 border border-slate-700 hover:border-gold p-3 rounded-2xl font-bold text-slate-200 flex items-center justify-between transition">
+        <span>مثقال عيار 24</span>
+        <i class="fa-solid fa-gem text-amber-300"></i>
+      </button>
+      <button type="button" onclick="selectLuxuryMithqalFilter('22', 'مثقال عيار 22')" class="w-full bg-darkbg/90 border border-slate-700 hover:border-gold p-3 rounded-2xl font-bold text-slate-200 flex items-center justify-between transition">
+        <span>مثقال عيار 22</span>
+        <i class="fa-solid fa-gem text-amber-300"></i>
+      </button>
+      <button type="button" onclick="selectLuxuryMithqalFilter('21', 'مثقال عيار 21')" class="w-full bg-darkbg/90 border border-slate-700 hover:border-gold p-3 rounded-2xl font-bold text-slate-200 flex items-center justify-between transition">
+        <span>مثقال عيار 21</span>
+        <i class="fa-solid fa-gem text-amber-300"></i>
+      </button>
+      <button type="button" onclick="selectLuxuryMithqalFilter('18', 'مثقال عيار 18')" class="w-full bg-darkbg/90 border border-slate-700 hover:border-gold p-3 rounded-2xl font-bold text-slate-200 flex items-center justify-between transition">
+        <span>مثقال عيار 18</span>
+        <i class="fa-solid fa-gem text-amber-300"></i>
+      </button>
+      <button type="button" onclick="selectLuxuryMithqalFilter('9', 'مثقال عيار 9')" class="w-full bg-darkbg/90 border border-slate-700 hover:border-gold p-3 rounded-2xl font-bold text-slate-200 flex items-center justify-between transition">
+        <span>مثقال عيار 9</span>
+        <i class="fa-solid fa-gem text-amber-300"></i>
+      </button>
+    </div>
+    <button type="button" onclick="closeLuxuryMithqalFilterModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-2xl text-xs font-bold">إغلاق</button>
+  </div>
+</div>
+
 <div id="luxury-mithqal-test-modal" class="fixed inset-0 modal-overlay z-[270] flex items-center justify-center hidden p-4">
   <div class="luxury-modal-card p-6 rounded-3xl w-full max-w-lg space-y-4 shadow-2xl">
     <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -188,7 +228,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <!-- الهيدر المؤسسي -->
 <header id="app-header" class="glass sticky top-0 z-50 border-b border-gold/30 px-5 py-3 flex flex-wrap justify-between items-center gap-3 shadow-2xl">
   <div class="flex items-center space-x-3 space-x-reverse">
-    <div class="w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-xl shadow-lg overflow-hidden border border-gold">
+    <div class="w-12 h-12 rounded-full gold-gradient flex items-center justify-center text-darkbg font-black text-xl shadow-lg overflow-hidden border border-gold">
       <img id="header-store-logo" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
     </div>
     <div>
@@ -197,8 +237,8 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-2">
-    <button id="pwa-install-btn" onclick="installPWA()" class="bg-emerald-600/20 border border-emerald-500 text-emerald-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow">
-      <img src="icon.png" onerror="handleBrandImageError(this)" class="w-4 h-4 rounded-sm object-cover"> <span>تثبيت التطبيق 📲</span>
+    <button id="pwa-install-btn" onclick="installPWA()" class="bg-emerald-600/20 border border-emerald-500 text-emerald-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-2 font-bold shadow">
+      <img src="icon.png" onerror="handleBrandImageError(this)" class="w-5 h-5 rounded-full object-cover border border-gold/60"> <span>تثبيت النظام ⚜️</span>
     </button>
     <div id="admin-btn-container" class="hidden">
       <button onclick="openAdminPanel()" class="bg-purple-600/20 border border-purple-500/50 text-purple-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow">
@@ -377,7 +417,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3 gap-3">
           <div class="flex items-center gap-3">
-            <img id="inventory-secret-img" src="icon.png" onerror="handleBrandImageError(this)" onclick="handleInventoryAdminTrigger()" title="إدارة المخزن" class="w-11 h-11 rounded-2xl object-cover border-2 border-gold/60 cursor-pointer shadow-lg">
+            <img id="inventory-secret-img" src="icon.png" onerror="handleBrandImageError(this)" onclick="handleInventoryAdminTrigger()" title="إدارة المخزن" class="w-11 h-11 rounded-full object-cover border-2 border-gold/70 cursor-pointer shadow-lg">
             <h3 class="font-bold text-gold text-lg">
               <i class="fa-solid fa-boxes-stacked"></i> إدارة المخزن — إضافة بضاعة للمخزن والمعرض
             </h3>
@@ -472,8 +512,8 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           <h3 class="font-bold text-gold text-lg"><i class="fa-solid fa-file-invoice-dollar"></i> دفتر الديون والحسابات (تطلب ومطلوب)</h3>
           <div class="flex flex-wrap items-center gap-2">
             <button onclick="setDebtFilter('all')" id="debt-filter-all" class="bg-gold text-darkbg px-3.5 py-1.5 rounded-xl text-xs font-bold">الكل</button>
-            <button onclick="setDebtFilter('on_them')" id="debt-filter-them" class="bg-darkbg text-emerald-400 border border-emerald-500/40 px-3.5 py-1.5 rounded-xl text-xs font-bold">أنت تطلبهم (تطلب / لك)</button>
-            <button onclick="setDebtFilter('on_us')" id="debt-filter-us" class="bg-darkbg text-rose-400 border border-rose-500/40 px-3.5 py-1.5 rounded-xl text-xs font-bold">مطلوب منك (عليك / للناس)</button>
+            <button onclick="setDebtFilter('on_them')" id="debt-filter-them" class="bg-darkbg text-emerald-400 border border-emerald-500/40 px-3.5 py-1.5 rounded-xl text-xs font-bold">لنا عند الناس (دين لك +)</button>
+            <button onclick="setDebtFilter('on_us')" id="debt-filter-us" class="bg-darkbg text-rose-400 border border-rose-500/40 px-3.5 py-1.5 rounded-xl text-xs font-bold">علينا للناس (دين عليك -)</button>
           </div>
         </div>
 
@@ -482,7 +522,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           <input type="tel" id="debt-phone" placeholder="رقم الهاتف" class="bg-cardbg border border-slate-700 rounded-xl p-3 text-sm text-emerald-400 font-mono outline-none">
           
           <button onclick="openLuxuryDebtTypeModal()" class="bg-cardbg border border-gold/40 hover:border-gold rounded-xl p-3 text-sm text-right flex items-center justify-between transition">
-            <span id="selected-debt-type-label" class="text-emerald-400 font-bold">تطلبهم (دين لك / ذمة لك) (+)</span>
+            <span id="selected-debt-type-label" class="text-emerald-400 font-bold">لنا عند الناس — دين لك (+)</span>
             <i class="fa-solid fa-chevron-down text-gold text-xs"></i>
           </button>
           <input type="hidden" id="debt-type" value="تطلبهم (دين لك)">
@@ -507,14 +547,12 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
             <button onclick="openLuxuryMithqalTestModal()" class="gold-gradient text-darkbg font-black px-3.5 py-2 rounded-xl text-xs shadow-lg flex items-center gap-1.5">
               <i class="fa-solid fa-flask-vial"></i> <span>اختبار المثقال الفاخر</span>
             </button>
-            <select id="mithqal-audit-karat" onchange="renderMithqalMakingAudit()" class="bg-darkbg border border-gold/50 rounded-xl px-3 py-2 text-gold font-bold outline-none">
-              <option value="all">جميع المثاقيل (كل العيارات)</option>
-              <option value="24">مثقال عيار 24</option>
-              <option value="22">مثقال عيار 22</option>
-              <option value="21">مثقال عيار 21</option>
-              <option value="18">مثقال عيار 18</option>
-              <option value="9">مثقال عيار 9</option>
-            </select>
+            <button type="button" onclick="openLuxuryMithqalFilterModal()" class="bg-darkbg border border-gold/50 hover:border-gold rounded-xl px-3.5 py-2 text-gold font-bold flex items-center gap-2 shadow transition">
+              <i class="fa-solid fa-sliders text-amber-300"></i>
+              <span id="selected-mithqal-filter-label">جميع المثاقيل (كل العيارات)</span>
+              <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+            </button>
+            <input type="hidden" id="mithqal-audit-karat" value="all">
             <input type="number" id="mithqal-audit-custom-price" oninput="renderMithqalMakingAudit()" placeholder="سعر مثقال محدد (اختياري)" class="bg-darkbg border border-slate-700 rounded-xl px-3 py-2 text-emerald-400 font-bold outline-none w-48">
           </div>
         </div>
@@ -663,12 +701,12 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl mx-auto shadow-lg"><i class="fa-solid fa-scale-balanced"></i></div>
     <h3 class="text-lg font-bold text-gold">اختر نوع الحركة في دفتر الديون</h3>
     <div class="space-y-2.5 text-right">
-      <button onclick="selectLuxuryDebtType('تطلبهم (دين لك)', 'تطلبهم (دين لك / ذمة لك) (+)')" class="w-full bg-darkbg border border-emerald-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-emerald-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> 1. تطلبهم (دين لك / ذمة لك) (+)</span>
+      <button onclick="selectLuxuryDebtType('تطلبهم (دين لك)', 'لنا عند الناس — دين لك (+)')" class="w-full bg-darkbg border border-emerald-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-emerald-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> 1. لنا عند الناس — دين لك (+)</span>
         <i class="fa-solid fa-chevron-left text-slate-500"></i>
       </button>
-      <button onclick="selectLuxuryDebtType('مطلوب منك (دين عليك)', 'مطلوب منك (دين عليك / ذمة للناس) (-)')" class="w-full bg-darkbg border border-rose-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-rose-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-down text-rose-400"></i> 2. مطلوب منك (دين عليك / ذمة للناس) (-)</span>
+      <button onclick="selectLuxuryDebtType('مطلوب منك (دين عليك)', 'علينا للناس — دين عليك (-)')" class="w-full bg-darkbg border border-rose-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-rose-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-down text-rose-400"></i> 2. علينا للناس — دين عليك (-)</span>
         <i class="fa-solid fa-chevron-left text-slate-500"></i>
       </button>
       <button onclick="selectLuxuryDebtType('إضافة ذهب (غرام)', 'إضافة ذهب للذمة (غرام)')" class="w-full bg-darkbg border border-amber-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-amber-300 flex items-center justify-between transition">
@@ -782,7 +820,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <input type="text" id="delete-inv-reason" placeholder="سبب الحذف (للجرد)..." class="w-full bg-darkbg border border-slate-700 rounded-xl p-3 text-xs outline-none">
     <div class="flex gap-2">
       <button onclick="confirmDeleteInventoryItem()" class="flex-1 bg-rose-600 text-white font-bold py-3 rounded-xl text-xs">حذف نهائي وتوثيق</button>
-      <button onclick="closeDeleteInventoryModal()" class="flex-1 bg-slate-800 text-slate-300 py-3 rounded-xl text-xs">إلغاء</button>
+      <button onclick="closeDeleteInventoryModal()" class="flex-1 bg-slate-800 text-slate-300 rounded-xl text-xs">إلغاء</button>
     </div>
   </div>
 </div>
@@ -1045,6 +1083,20 @@ function selectLuxuryTransferMethod(val, label) {
   showToast(`تم اختيار: ${label}`);
 }
 
+
+function openLuxuryMithqalFilterModal() {
+  document.getElementById('luxury-mithqal-filter-modal').classList.remove('hidden');
+}
+function closeLuxuryMithqalFilterModal() {
+  document.getElementById('luxury-mithqal-filter-modal').classList.add('hidden');
+}
+function selectLuxuryMithqalFilter(val, label) {
+  document.getElementById('mithqal-audit-karat').value = val;
+  document.getElementById('selected-mithqal-filter-label').innerText = label;
+  closeLuxuryMithqalFilterModal();
+  renderMithqalMakingAudit();
+}
+
 function openLuxuryMithqalTestModal() {
   syncTestMithqalDefault();
   calculateLuxuryMithqalTest();
@@ -1098,7 +1150,7 @@ async function installPWA() {
   if (!deferredPrompt) {
     const reason = collectInstallDiagnosticReason();
     reportDiagnosticsToAdmin();
-    showToast(`تثبيت التطبيق: افتح قائمة المتصفح (⋮) واختر "تثبيت التطبيق" أو "الإضافة إلى الشاشة الرئيسية" (${reason})`, 'info');
+    showToast(`تثبيت النظام: اختر "إضافة إلى الشاشة الرئيسية" من قائمة النظام لتشغيله كواجهة مستقلة`, 'info');
     return;
   }
   deferredPrompt.prompt();
@@ -1505,7 +1557,7 @@ function loadStoreSettingsToUI() {
   document.getElementById('store-bio').value = appState.store.bio;
   document.getElementById('settings-logo-preview').src = appState.store.logo || 'icon.png';
   document.getElementById('settings-cover-preview').src = appState.store.cover || 'icon.png';
-  document.getElementById('store-share-link').value = window.location.origin + window.location.pathname.replace('index.html','') + '?store=' + currentTenantCode;
+  document.getElementById('store-share-link').value = window.location.origin + window.location.pathname.replace('index.html','') + '?store=' + encodeURIComponent(currentTenantCode);
 }
 
 function saveStoreSettings() {
