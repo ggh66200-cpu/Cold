@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aramky-gold-v26.0';
+const CACHE_NAME = 'aramky-gold-v27.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -28,6 +28,17 @@ self.addEventListener('activate', (e) => {
     )
   );
   self.clients.claim();
+});
+
+self.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  if (e.data && e.data.type === 'CLEAR_ALL_CACHES') {
+    e.waitUntil(
+      caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+    );
+  }
 });
 
 self.addEventListener('fetch', (e) => {
