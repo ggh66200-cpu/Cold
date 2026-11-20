@@ -518,7 +518,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
             <div class="md:col-span-2">
               <label class="text-slate-400 block mb-1">ارفق صورة (إيصال، شعار، أو غلاف):</label>
               <input type="file" id="sup-receipt-img" accept="image/*" onchange="previewSupportReceipt(event)" class="w-full bg-cardbg border border-slate-700 rounded-xl p-2.5 text-slate-300">
-              <img id="sup-receipt-preview" class="hidden mt-3 max-h-48 rounded-2xl border-2 border-gold shadow-lg">
+              <img id="sup-receipt-preview" class="hidden mt-3 max-h-48 rounded-2xl border-2 border-gold shadow-lg object-cover">
             </div>
             <div class="md:col-span-2">
               <textarea id="sup-message" rows="3" placeholder="اكتب رسالتك أو تفاصيل طلبك للأدمن هنا..." class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 outline-none"></textarea>
@@ -1633,7 +1633,7 @@ async function addNewInventoryItem() {
   appState.inventory.push({ name, karat, weight, qty, makingPerGram, publish, images: imgs });
   logTransaction('إضافة مخزن', `إدخال ${name}`, `${weight}غ (${qty} قطعة)`);
   
-  if (await saveState()) {
+  if (saveState()) {
     showToast('✅ تمت الإضافة للمخزن والمعرض بنجاح!');
     document.getElementById('inv-name').value = '';
     document.getElementById('inv-weight').value = '';
@@ -1797,12 +1797,12 @@ function printAramkyCalculatorResult() {
   document.getElementById('invoice-modal').classList.remove('hidden');
 }
 
-async function saveState() {
+function saveState() {
   try {
     const storageKey = getStorageKeyForTenant(currentTenantCode);
     const dataString = JSON.stringify(appState);
     localStorage.setItem(storageKey, dataString);
-    await syncToCloudSupabase(currentTenantCode, appState);
+    syncToCloudSupabase(currentTenantCode, appState);
     updateUI();
     return true;
   } catch (e) {
