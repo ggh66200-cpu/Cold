@@ -42,7 +42,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 </head>
 <body class="min-h-screen flex flex-col justify-between" onkeydown="handleGlobalZeroKey(event)">
 
-<!-- شاشة قفل الاشتراك الصارمة -->
+<!-- شاشة قفل الاشتراك الصارمة (لا تنطبق أبداً على حساب الأدمن ARAMKY-01) -->
 <div id="subscription-lock-screen" class="fixed inset-0 bg-darkbg z-[300] flex items-center justify-center p-5 hidden">
   <div class="system-card p-8 rounded-3xl border-2 border-rose-500/60 max-w-md w-full text-center space-y-5 shadow-2xl">
     <div class="w-20 h-20 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto text-4xl"><i class="fa-solid fa-lock"></i></div>
@@ -54,18 +54,36 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
-<!-- شاشة تسجيل دخول الصايغ -->
+<!-- شاشة تسجيل دخول الصايغ / تبديل الحساب -->
 <div id="tenant-login-screen" class="fixed inset-0 bg-darkbg/95 backdrop-blur-xl z-[250] flex items-center justify-center p-5 hidden">
   <div class="system-card p-8 rounded-3xl border border-gold/40 max-w-md w-full space-y-5 shadow-2xl text-center">
     <div class="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl mx-auto shadow-xl overflow-hidden border-2 border-gold">
-      <img src="icon.png" onerror="this.onerror=null; this.parentElement.innerHTML='👑';" class="w-full h-full object-cover">
+      <img src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
     </div>
     <div>
       <h2 class="text-xl font-black text-gold">نظام إدارة صياغة الذهب</h2>
-      <p class="text-xs text-slate-400 mt-1">أدخل كود الاشتراك المؤسسي الخاص بمعرضك</p>
+      <p class="text-xs text-slate-400 mt-1">أدخل كود الاشتراك المؤسسي الخاص بمعرضك أو حساب الأدمن</p>
     </div>
     <input type="text" id="login-tenant-code" placeholder="مثال: ARAMKY-01" class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-2xl p-4 text-center font-mono text-gold font-bold uppercase outline-none">
     <button onclick="loginTenant()" class="w-full gold-gradient text-darkbg font-black py-4 rounded-2xl shadow-xl">دخول إلى النظام 🔓</button>
+  </div>
+</div>
+
+<!-- نافذة كلمة مرور الأدمن (بعد الضغط 5 مرات على إدارة المخزن) -->
+<div id="admin-secret-modal" class="fixed inset-0 modal-overlay z-[320] flex items-center justify-center hidden p-4">
+  <div class="system-card p-6 rounded-3xl border-2 border-gold/60 w-full max-w-sm space-y-4 shadow-2xl text-center">
+    <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-2xl mx-auto shadow-lg">
+      <i class="fa-solid fa-user-shield"></i>
+    </div>
+    <div>
+      <h3 class="text-lg font-black text-gold">تفعيل وضع الأدمن</h3>
+      <p class="text-xs text-slate-400 mt-1">تم رصد 5 ضغطات على إدارة المخزن. أدخل كلمة مرور الأدمن للمتابعة.</p>
+    </div>
+    <input type="password" id="admin-secret-password" placeholder="أدخل كلمة مرور الأدمن..." onkeydown="if(event.key==='Enter') verifyAdminSecretPassword()" class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-2xl p-3.5 text-center text-sm text-gold font-bold outline-none">
+    <div class="flex gap-2">
+      <button onclick="verifyAdminSecretPassword()" class="flex-1 gold-gradient text-darkbg font-black py-3 rounded-xl text-xs shadow-lg">تأكيد الدخول</button>
+      <button onclick="closeAdminSecretModal()" class="px-4 py-3 bg-slate-800 text-slate-300 rounded-xl text-xs font-bold">إلغاء</button>
+    </div>
   </div>
 </div>
 
@@ -75,7 +93,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <header id="app-header" class="glass sticky top-0 z-50 border-b border-gold/30 px-5 py-3 flex flex-wrap justify-between items-center gap-3 shadow-2xl">
   <div class="flex items-center space-x-3 space-x-reverse">
     <div class="w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-xl shadow-lg overflow-hidden border border-gold">
-      <img id="header-store-logo" src="icon.png" onerror="this.onerror=null; this.src='icon.png';" class="w-full h-full object-cover">
+      <img id="header-store-logo" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
     </div>
     <div>
       <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">v25.0</span></h1>
@@ -83,7 +101,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-2">
-    <button id="pwa-install-btn" onclick="installPWA()" class="hidden bg-emerald-600/20 border border-emerald-500 text-emerald-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow animate-pulse">
+    <button id="pwa-install-btn" onclick="installPWA()" class="bg-emerald-600/20 border border-emerald-500 text-emerald-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow">
       <i class="fa-solid fa-download"></i> <span>تثبيت التطبيق 📲</span>
     </button>
     <div id="admin-btn-container" class="hidden">
@@ -259,10 +277,12 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
     </div>
 
-    <!-- 4. المخزن -->
+    <!-- 4. المخزن (إدارة المخزن - ضغط 5 مرات لتفعيل الأدمن بكلمة مرور) -->
     <div id="view-inventory" class="hidden space-y-6">
       <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
-        <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-boxes-stacked"></i> إضافة بضاعة للمخزن والمعرض</h3>
+        <h3 onclick="handleInventoryAdminTrigger()" title="إدارة المخزن" class="font-bold text-gold text-lg border-b border-slate-800 pb-3 cursor-pointer select-none">
+          <i class="fa-solid fa-boxes-stacked"></i> إدارة المخزن — إضافة بضاعة للمخزن والمعرض
+        </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input type="text" id="inv-name" placeholder="اسم الصنف (مثال: محبس ذهب فاخر)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
           <select id="inv-karat" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm text-gold font-bold outline-none">
@@ -309,7 +329,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
             <span class="text-[10px] text-slate-400">تظهر أعلى معرض الزبائن وتصل للأدمن</span>
           </div>
           <div class="w-full h-40 rounded-2xl bg-cardbg border-2 border-dashed border-gold/40 overflow-hidden relative flex items-center justify-center">
-            <img id="settings-cover-preview" src="icon.png" onerror="this.onerror=null; this.src='icon.png';" class="w-full h-full object-cover">
+            <img id="settings-cover-preview" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
           </div>
           <input type="file" id="store-cover-input" accept="image/*" onchange="handleStoreCoverUpload(event)" class="w-full bg-cardbg border border-slate-700 rounded-xl p-2 text-xs text-slate-300">
         </div>
@@ -317,7 +337,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <!-- شعار الصايغ (Logo) -->
         <div class="flex flex-col md:flex-row items-center gap-4 bg-darkbg p-4 rounded-2xl border border-slate-800">
           <div class="w-24 h-24 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-3xl overflow-hidden border-2 border-gold shadow-lg relative shrink-0">
-            <img id="settings-logo-preview" src="icon.png" onerror="this.onerror=null; this.src='icon.png';" class="w-full h-full object-cover">
+            <img id="settings-logo-preview" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover">
           </div>
           <div class="flex-1 space-y-2 w-full">
             <label class="text-xs font-bold text-gold block">صورة شعار الصايغ / المعرض الخاص بك (Logo):</label>
@@ -674,13 +694,13 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   <div class="max-w-5xl mx-auto w-full space-y-6">
     <div class="rounded-3xl overflow-hidden border border-gold/40 system-card shadow-2xl">
       <div class="w-full h-48 md:h-64 bg-slate-900 relative">
-        <img id="store-view-cover" src="icon.png" onerror="this.onerror=null; this.src='icon.png';" class="w-full h-full object-cover opacity-85">
+        <img id="store-view-cover" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover opacity-85">
         <button onclick="closeStorefrontView()" class="absolute top-4 left-4 bg-darkbg/90 border border-gold/50 text-gold px-4 py-2.5 rounded-xl text-xs font-bold shadow-xl">إغلاق المعرض ✕</button>
       </div>
       <div class="p-6 flex flex-col md:flex-row items-center md:items-end justify-between gap-4 -mt-12 relative z-10">
         <div class="flex flex-col md:flex-row items-center gap-4 text-center md:text-right">
           <div class="w-24 h-24 rounded-3xl gold-gradient p-1 shadow-2xl">
-            <img id="store-view-logo" src="icon.png" onerror="this.onerror=null; this.src='icon.png';" class="w-full h-full object-cover rounded-2xl bg-darkbg">
+            <img id="store-view-logo" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover rounded-2xl bg-darkbg">
           </div>
           <div class="pt-2 md:pt-8">
             <h2 id="store-view-title" class="text-2xl font-black text-gold">معرض الذهب</h2>
@@ -799,6 +819,55 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 </div>
 
 <script>
+const ADMIN_TENANT_CODE = "ARAMKY-01";
+const ADMIN_SECRET_PASS = localStorage.getItem('aramky_admin_secret_pass') || "ARAMKY2026";
+const FALLBACK_BRAND_ICON = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><rect width="256" height="256" rx="48" fill="#070A12"/><rect x="8" y="8" width="240" height="240" rx="42" fill="none" stroke="#D4AF37" stroke-width="6"/><text x="128" y="148" text-anchor="middle" font-size="96" fill="#D4AF37" font-family="Arial, sans-serif">👑</text></svg>');
+
+function isAdminTenant(code) {
+  return String(code || '').trim().toUpperCase() === ADMIN_TENANT_CODE;
+}
+
+function handleBrandImageError(imgEl) {
+  if (!imgEl || imgEl.dataset.fallbackApplied === '1') return;
+  imgEl.dataset.fallbackApplied = '1';
+  imgEl.src = FALLBACK_BRAND_ICON;
+}
+
+let invTapCount = 0;
+let invTapTimer = null;
+
+function handleInventoryAdminTrigger() {
+  if (!isAdminTenant(currentTenantCode)) return;
+  invTapCount += 1;
+  clearTimeout(invTapTimer);
+  invTapTimer = setTimeout(() => { invTapCount = 0; }, 2500);
+
+  if (invTapCount >= 5) {
+    invTapCount = 0;
+    clearTimeout(invTapTimer);
+    document.getElementById('admin-secret-password').value = '';
+    document.getElementById('admin-secret-modal').classList.remove('hidden');
+    setTimeout(() => document.getElementById('admin-secret-password')?.focus(), 100);
+  }
+}
+
+function closeAdminSecretModal() {
+  document.getElementById('admin-secret-modal').classList.add('hidden');
+  document.getElementById('admin-secret-password').value = '';
+}
+
+function verifyAdminSecretPassword() {
+  const inputPass = document.getElementById('admin-secret-password').value.trim();
+  if (inputPass === ADMIN_SECRET_PASS) {
+    closeAdminSecretModal();
+    document.getElementById('admin-btn-container').classList.remove('hidden');
+    showToast('تم تفعيل وضع الأدمن بنجاح 👑');
+    openAdminPanel();
+  } else {
+    showToast('كلمة مرور الأدمن غير صحيحة!', 'error');
+  }
+}
+
 // دعم تثبيت التطبيق PWA
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -810,23 +879,22 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 async function installPWA() {
   if (!deferredPrompt) {
-    showToast('لتثبيت التطبيق: اضغط على قائمة المتصفح (⋮) واختر "الإضافة إلى الشاشة الرئيسية"', 'info');
+    showToast('لتثبيت التطبيق كواجهة رسمية: افتح قائمة المتصفح (⋮) واختر "تثبيت التطبيق" أو "الإضافة إلى الشاشة الرئيسية"', 'info');
     return;
   }
   deferredPrompt.prompt();
   const { outcome } = await deferredPrompt.userChoice;
   if (outcome === 'accepted') {
-    document.getElementById('pwa-install-btn').classList.add('hidden');
-    showToast('جاري تثبيت التطبيق على جهازك 📲');
+    showToast('تم تثبيت التطبيق على جهازك بنجاح 📲');
   }
   deferredPrompt = null;
 }
 
 let subscribersDB = JSON.parse(localStorage.getItem('aramky_subscribers_master')) || [
-  { code: "ARAMKY-01", name: "صاغة أرامكي - الفرع الرئيسي", phone: "07700000000", expiresAt: "2027-12-31", active: true }
+  { code: "ARAMKY-01", name: "صاغة أرامكي - الفرع الرئيسي (الأدمن)", phone: "07700000000", expiresAt: "2099-12-31", active: true }
 ];
 function saveSubscribersDB() { localStorage.setItem('aramky_subscribers_master', JSON.stringify(subscribersDB)); }
-let currentTenantCode = localStorage.getItem('aramky_active_tenant') || "ARAMKY-01";
+let currentTenantCode = localStorage.getItem('aramky_active_tenant');
 function getStorageKeyForTenant(code) { return `aramky_gold_data_${code.toUpperCase()}`; }
 
 let appState = {
@@ -847,7 +915,7 @@ function getSupabaseCreds() {
 }
 
 function getNextMediaSeq(folder) {
-  let key = `aramky_media_seq_${currentTenantCode.toUpperCase()}_${folder}`;
+  let key = `aramky_media_seq_${(currentTenantCode || ADMIN_TENANT_CODE).toUpperCase()}_${folder}`;
   let next = (parseInt(localStorage.getItem(key) || '0', 10) || 0) + 1;
   localStorage.setItem(key, String(next));
   return String(next).padStart(4, '0');
@@ -890,7 +958,7 @@ async function uploadImageToIsolatedStorage(file, folder = 'items', bucket = 'go
     return dataUrl;
   }
   const seq = getNextMediaSeq(folder);
-  const objectPath = `${currentTenantCode.toUpperCase()}/${folder}/${seq}_${Date.now()}.webp`;
+  const objectPath = `${(currentTenantCode || ADMIN_TENANT_CODE).toUpperCase()}/${folder}/${seq}_${Date.now()}.webp`;
   try {
     const res = await fetch(`${url}/storage/v1/object/${bucket}/${objectPath}`, {
       method: 'POST',
@@ -929,9 +997,21 @@ window.onload = function() {
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
-  if (!currentTenantCode) { document.getElementById('tenant-login-screen').classList.remove('hidden'); return; }
+  if (!currentTenantCode) {
+    openLoginScreenOnly();
+    return;
+  }
   verifyAndBootTenant(currentTenantCode);
 };
+
+function openLoginScreenOnly() {
+  document.getElementById('subscription-lock-screen').classList.add('hidden');
+  document.getElementById('app-main').style.display = 'none';
+  document.getElementById('app-header').style.display = 'none';
+  document.getElementById('app-ticker').style.display = 'none';
+  document.getElementById('tenant-login-screen').classList.remove('hidden');
+  setTimeout(() => document.getElementById('login-tenant-code')?.focus(), 100);
+}
 
 function openAdminPanel() { window.location.href = 'admin.html'; }
 
@@ -942,28 +1022,42 @@ function loginTenant() {
 }
 
 function switchTenantPrompt() {
+  currentTenantCode = null;
   localStorage.removeItem('aramky_active_tenant');
-  location.reload();
+  document.getElementById('login-tenant-code').value = '';
+  openLoginScreenOnly();
+  showToast('يمكنك الآن إدخال أي كود حساب أو حساب الأدمن', 'info');
 }
 
 function verifyAndBootTenant(code) {
-  let sub = subscribersDB.find(s => s.code.toUpperCase() === code);
+  let normalizedCode = String(code || '').trim().toUpperCase();
+  let sub = subscribersDB.find(s => s.code.toUpperCase() === normalizedCode);
+
+  if (!sub && isAdminTenant(normalizedCode)) {
+    sub = { code: ADMIN_TENANT_CODE, name: "صاغة أرامكي - الفرع الرئيسي (الأدمن)", phone: "07700000000", expiresAt: "2099-12-31", active: true };
+    subscribersDB.unshift(sub);
+    saveSubscribersDB();
+  }
+
   if (!sub) { 
-    showToast('كود الاشتراك غير مسجل!', 'error'); 
-    document.getElementById('tenant-login-screen').classList.remove('hidden'); 
+    showToast('كود الاشتراك غير مسجل!', 'error');
+    openLoginScreenOnly();
     return; 
   }
+
   let today = new Date().toISOString().split('T')[0];
   currentTenantCode = sub.code.toUpperCase();
   localStorage.setItem('aramky_active_tenant', currentTenantCode);
   loadTenantData(currentTenantCode);
 
-  if (!sub.active || sub.expiresAt < today) {
+  const adminBypass = isAdminTenant(currentTenantCode);
+  if (!adminBypass && (!sub.active || sub.expiresAt < today)) {
     document.getElementById('locked-tenant-info').innerText = `المحل: ${sub.name} | الكود: ${sub.code} | انتهى: ${sub.expiresAt}`;
     document.getElementById('subscription-lock-screen').classList.remove('hidden');
     document.getElementById('app-main').style.display = 'none';
     document.getElementById('app-header').style.display = 'none';
     document.getElementById('app-ticker').style.display = 'none';
+    document.getElementById('tenant-login-screen').classList.add('hidden');
     return;
   }
   
@@ -974,12 +1068,14 @@ function verifyAndBootTenant(code) {
   document.getElementById('subscription-lock-screen').classList.add('hidden');
   document.getElementById('header-tenant-id').innerText = `ID: ${currentTenantCode}`;
   document.getElementById('sup-tenant-badge').innerText = `كودك: ${currentTenantCode}`;
-  document.getElementById('header-sub-status').innerText = `نشط حتى ${sub.expiresAt}`;
+  document.getElementById('header-sub-status').innerText = adminBypass ? 'حساب الأدمن (حر / غير متوقف)' : `نشط حتى ${sub.expiresAt}`;
   document.getElementById('header-store-name').innerText = appState.store.name;
   document.getElementById('header-store-logo').src = appState.store.logo || 'icon.png';
   
-  if (currentTenantCode === "ARAMKY-01") {
+  if (adminBypass) {
     document.getElementById('admin-btn-container').classList.remove('hidden');
+  } else {
+    document.getElementById('admin-btn-container').classList.add('hidden');
   }
 
   updatePricesDerived(); autoFillScrapMithqal(); loadStoreSettingsToUI(); updateUI();
@@ -990,7 +1086,7 @@ function openSupportFromLock() {
   document.getElementById('app-main').style.display = 'grid';
   document.getElementById('app-header').style.display = 'flex';
   document.getElementById('app-ticker').style.display = 'block';
-  document.getElementById('sup-tenant-badge').innerText = `كودك: ${currentTenantCode}`;
+  document.getElementById('sup-tenant-badge').innerText = `كودك: ${currentTenantCode || '--'}`;
   switchTab('support');
 }
 
@@ -1580,7 +1676,7 @@ function renderInvoicePrintContent(code, cust, phone, notes, tot, mk, wt, items)
   let storeLogo = appState.store.logo || 'icon.png';
 
   if (tmpl === 'detailed') {
-    headerBox.innerHTML = `<img src="${storeLogo}" onerror="this.style.display='none'" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">💎 ${appState.store.name} 💎</h2><p class="text-xs text-slate-600 font-bold">${appState.store.bio || 'فرع نواة الذهب ⚜️'}</p><div class="inline-block bg-slate-900 text-gold font-mono text-xs font-bold px-3 py-1 rounded-full mt-1">${code}</div>`;
+    headerBox.innerHTML = `<img src="${storeLogo}" onerror="handleBrandImageError(this)" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">💎 ${appState.store.name} 💎</h2><p class="text-xs text-slate-600 font-bold">${appState.store.bio || 'فرع نواة الذهب ⚜️'}</p><div class="inline-block bg-slate-900 text-gold font-mono text-xs font-bold px-3 py-1 rounded-full mt-1">${code}</div>`;
     let itemsHtml = items.map(i => `<div class="border-b py-1">
       <div class="flex justify-between font-bold"><span>${i.name} (${i.weight}غ - عيار ${i.karat})</span><span>${i.itemTotal.toLocaleString()} د.ع</span></div>
       <div class="text-[10px] text-slate-500">صياغة المثقال: ${(i.itemMakingMithqal||0).toLocaleString()} د.ع | إجمالي صياغة القطعة: ${Math.round(i.itemMakingTotal||0).toLocaleString()} د.ع</div>
@@ -1590,7 +1686,7 @@ function renderInvoicePrintContent(code, cust, phone, notes, tot, mk, wt, items)
     headerBox.innerHTML = `<h2 class="font-black text-lg text-slate-900">${appState.store.name}</h2><p class="text-[11px] text-slate-500 font-mono">فاتورة مختصرة | ${code}</p>`;
     body.innerHTML = `<div class="text-center py-2 font-bold text-sm text-slate-800">ملخص عملية البيع النقدي</div><div class="flex justify-between text-base font-black pt-2 border-t"><span>المبلغ الإجمالي:</span><span class="text-gold">${tot.toLocaleString()} دينار</span></div><div class="flex justify-between text-sm text-emerald-700 font-bold bg-emerald-50 p-2 rounded-xl"><span>المقابل اللحظي:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-xs text-slate-600 pt-2">الزبون: <strong>${cust}</strong> (${phone})</div><div class="text-[10px] text-slate-400">التاريخ: ${new Date().toLocaleDateString('ar-IQ')}</div>`;
   } else {
-    headerBox.innerHTML = `<img src="${storeLogo}" onerror="this.style.display='none'" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">⚜️ ${appState.store.name} ⚜️</h2><p class="text-xs text-gold-dark font-bold">سند قبض وبيع ذهب مؤسسي</p><div class="inline-block bg-gold text-darkbg font-mono text-xs font-black px-3 py-0.5 rounded-full mt-1">${code}</div>`;
+    headerBox.innerHTML = `<img src="${storeLogo}" onerror="handleBrandImageError(this)" class="w-12 h-12 rounded-xl object-cover mx-auto mb-1 border border-gold"><h2 class="font-black text-xl text-slate-900">⚜️ ${appState.store.name} ⚜️</h2><p class="text-xs text-gold-dark font-bold">سند قبض وبيع ذهب مؤسسي</p><div class="inline-block bg-gold text-darkbg font-mono text-xs font-black px-3 py-0.5 rounded-full mt-1">${code}</div>`;
     body.innerHTML = `<div class="bg-amber-50 p-3 rounded-2xl border border-amber-200 space-y-1 text-xs"><div class="flex justify-between"><span>اسم الصايغ والمعرض:</span><strong>${appState.store.name}</strong></div><div class="flex justify-between"><span>هاتف المعرض:</span><strong class="font-mono">${appState.store.phone}</strong></div><div class="flex justify-between"><span>العنوان:</span><span>${appState.store.address}</span></div></div><div class="flex justify-between text-sm font-black pt-2"><span>صافي المبيعات:</span><span class="text-gold">${tot.toLocaleString()} د.ع</span></div><div class="flex justify-between text-sm font-black text-emerald-700 bg-emerald-50 p-2 rounded-xl"><span>المقابل المعادل:</span><span>${formatAltCurrency(tot)}</span></div><div class="text-[11px] text-slate-600 border-t pt-1">العميل المستفيد: <strong>${cust}</strong> | الهاتف: <span class="font-mono">${phone}</span></div><div class="text-[10px] text-slate-500 text-center pt-2">توقيع وختم الصايغ المعتمد — ${new Date().toLocaleDateString('ar-IQ')}</div>`;
   }
 }
@@ -1799,10 +1895,11 @@ function printAramkyCalculatorResult() {
 
 function saveState() {
   try {
-    const storageKey = getStorageKeyForTenant(currentTenantCode);
+    const activeCode = (currentTenantCode || ADMIN_TENANT_CODE).toUpperCase();
+    const storageKey = getStorageKeyForTenant(activeCode);
     const dataString = JSON.stringify(appState);
     localStorage.setItem(storageKey, dataString);
-    syncToCloudSupabase(currentTenantCode, appState);
+    syncToCloudSupabase(activeCode, appState);
     updateUI();
     return true;
   } catch (e) {
