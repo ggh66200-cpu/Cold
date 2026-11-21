@@ -1,8 +1,7 @@
-const CACHE_NAME = 'aramky-gold-v27.0';
+const CACHE_NAME = 'aramky-gold-v28.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './index_3.html',
   './admin.html',
   './manifest.json',
   './icon.png'
