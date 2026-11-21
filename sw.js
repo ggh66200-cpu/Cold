@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aramky-gold-os-v28-0';
+const CACHE_NAME = 'aramky-gold-os-v28-1';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -41,12 +41,7 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  // عدم تخزين طلبات Supabase أو نقاط الإعداد الديناميكية في الكاش حتى لا تتعارض مع المزامنة الحية
-  if (
-    url.hostname.includes('supabase.co') ||
-    url.pathname.startsWith('/api/') ||
-    url.pathname.endsWith('/supabase-config.json')
-  ) {
+  if (url.hostname.includes('supabase.co')) {
     event.respondWith(
       fetch(event.request).catch(() => new Response(JSON.stringify({ offline: true }), {
         status: 503,
@@ -56,7 +51,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // استراتيجية الكاش أولاً مع تحديث بالخلفية للملفات الثابتة لدعم العمل الفوري بدون إنترنت
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const networkFetch = fetch(event.request)
