@@ -72,10 +72,10 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
   <div class="relative z-10 pb-3 space-y-1">
     <p class="text-sm sm:text-base font-black tracking-wide text-amber-200">
-      أرامكي للحلول الرقمية | ARAMKY
+      ARAMKY | نظام إدارة صياغة الذهب
     </p>
     <p class="text-[11px] text-amber-400/75">
-      فرع نواة الذهب • جاري تهيئة النظام وتحديث النسخة
+      تهيئة المسار والبيانات المحلية والسحابية
     </p>
   </div>
 </div>
@@ -83,10 +83,10 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <div id="subscription-lock-screen" class="fixed inset-0 bg-darkbg z-[300] flex items-center justify-center p-5 hidden">
   <div class="system-card p-8 rounded-3xl border-2 border-rose-500/60 max-w-md w-full text-center space-y-5 shadow-2xl">
     <div class="w-20 h-20 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto text-4xl"><i class="fa-solid fa-lock"></i></div>
-    <h2 class="text-2xl font-black text-rose-400">الاشتراك متوقف!</h2>
-    <p class="text-sm text-slate-300">انتهت فترة اشتراكك في نظام <strong>ARAMKY Gold OS</strong>.</p>
-    <div class="bg-darkbg p-3 rounded-2xl border border-slate-800 text-xs text-gold font-mono" id="locked-tenant-info">كود المعرض: --</div>
-    <button onclick="openSupportFromLock()" class="w-full gold-gradient text-darkbg font-black py-3.5 rounded-2xl shadow-lg">إرسال إيصال التجديد 💳</button>
+    <h2 class="text-2xl font-black text-rose-400">الاشتراك متوقف</h2>
+    <p class="text-sm text-slate-300">انتهت فترة اشتراك هذا الحساب في نظام <strong>ARAMKY Gold OS</strong>.</p>
+    <div class="bg-darkbg p-3 rounded-2xl border border-slate-800 text-xs text-gold font-mono" id="locked-tenant-info">الحساب: --</div>
+    <button onclick="openSupportFromLock()" class="w-full gold-gradient text-darkbg font-black py-3.5 rounded-2xl shadow-lg">إرسال طلب تجديد / مراسلة الإدارة 💳</button>
     <button onclick="switchTenantPrompt()" class="w-full bg-slate-800 text-amber-300 font-bold py-2.5 rounded-xl text-xs">تبديل الحساب / تسجيل الخروج 🔄</button>
   </div>
 </div>
@@ -98,17 +98,17 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     </div>
     <div>
       <h2 class="text-xl font-black text-gold">نظام إدارة صياغة الذهب</h2>
-      <p class="text-xs text-slate-400 mt-1">أدخل اليوزر، رقم الهاتف المرتبط، وكلمة المرور في خاناتهم المخصصة</p>
+      <p class="text-xs text-slate-400 mt-1">أدخل اليوزر، رقم الهاتف المرتبط، وكلمة المرور للدخول إلى مسار حسابك</p>
     </div>
 
     <div class="space-y-3 text-right text-xs">
       <div>
         <label class="text-amber-300 font-bold block mb-1">اليوزر / الكود</label>
-        <input type="text" id="login-tenant-code" placeholder="مثال: ARAMKY-01" class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-2xl p-3.5 text-center font-mono text-gold font-bold uppercase outline-none">
+        <input type="text" id="login-tenant-code" placeholder="أدخل اليوزر أو الكود" class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-2xl p-3.5 text-center font-mono text-gold font-bold uppercase outline-none">
       </div>
       <div>
         <label class="text-emerald-300 font-bold block mb-1">رقم الهاتف المرتبط بالحساب</label>
-        <input type="tel" id="login-tenant-phone" placeholder="مثال: 07801103129" class="w-full bg-darkbg border border-slate-700 focus:border-emerald-400 rounded-2xl p-3.5 text-center font-mono text-emerald-400 font-bold outline-none">
+        <input type="tel" id="login-tenant-phone" placeholder="أدخل رقم الهاتف" class="w-full bg-darkbg border border-slate-700 focus:border-emerald-400 rounded-2xl p-3.5 text-center font-mono text-emerald-400 font-bold outline-none">
       </div>
       <div>
         <label class="text-cyan-300 font-bold block mb-1">كلمة المرور</label>
@@ -126,10 +126,10 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <img src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover bg-darkbg">
     </div>
     <div>
-      <h3 class="text-lg font-black text-gold">تفعيل وضع الأدمن</h3>
-      <p class="text-xs text-slate-400 mt-1">تم رصد 5 ضغطات على صورة إدارة المخزن. أدخل كلمة مرور الأدمن للمتابعة.</p>
+      <h3 class="text-lg font-black text-gold">تأكيد صلاحية الأدمن</h3>
+      <p class="text-xs text-slate-400 mt-1">أدخل كلمة مرور الأدمن لفتح لوحة الإدارة.</p>
     </div>
-    <input type="password" id="admin-secret-password" placeholder="أدخل كلمة مرور الأدمن..." onkeydown="if(event.key==='Enter') verifyAdminSecretPassword()" class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-2xl p-3.5 text-center text-sm text-gold font-bold outline-none">
+    <input type="password" id="admin-secret-password" placeholder="أدخل كلمة مرور الأدمن" onkeydown="if(event.key==='Enter') verifyAdminSecretPassword()" class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-2xl p-3.5 text-center text-sm text-gold font-bold outline-none">
     <div class="flex gap-2">
       <button onclick="verifyAdminSecretPassword()" class="flex-1 gold-gradient text-darkbg font-black py-3 rounded-xl text-xs shadow-lg">تأكيد الدخول</button>
       <button onclick="closeAdminSecretModal()" class="px-4 py-3 bg-slate-800 text-slate-300 rounded-xl text-xs font-bold">إلغاء</button>
@@ -143,7 +143,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <i class="fa-solid fa-building-columns"></i>
     </div>
     <div>
-      <h3 class="text-lg font-black text-gold">اختر طريقة التحويل الفاخرة</h3>
+      <h3 class="text-lg font-black text-gold">اختر طريقة التحويل أو المراسلة</h3>
       <p class="text-xs text-slate-400 mt-1">حدد القناة المعتمدة لإرسال الرسالة أو إيصال التجديد أو طلب الصورة</p>
     </div>
     <div class="space-y-2.5 text-right">
@@ -179,7 +179,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     </div>
     <div>
       <h3 class="text-lg font-black text-gold">اختر عيار المثقال للجرد</h3>
-      <p class="text-xs text-slate-400 mt-1">قائمة مؤسسية واضحة لفرز جرد الصياغة حسب المثقال (5 غرام)</p>
+      <p class="text-xs text-slate-400 mt-1">قائمة واضحة لفرز جرد الصياغة حسب المثقال (5 غرام)</p>
     </div>
     <div class="space-y-2 text-right text-xs">
       <button type="button" onclick="selectLuxuryMithqalFilter('all', 'جميع المثاقيل (كل العيارات)')" class="w-full bg-darkbg/90 border border-gold/40 hover:border-gold p-3 rounded-2xl font-bold text-gold flex items-center justify-between transition">
@@ -219,7 +219,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           <i class="fa-solid fa-scale-balanced"></i>
         </div>
         <div>
-          <h3 class="text-base font-black text-gold">مختبر وجرد المثقال الفاخر (المثقال = 5 غرام)</h3>
+          <h3 class="text-base font-black text-gold">مختبر وجرد المثقال (المثقال = 5 غرام)</h3>
           <p class="text-[11px] text-slate-400">اختبر أسعار العيارات وخصم أجور الصياغة على الغرام الواحد واحسب المثقال</p>
         </div>
       </div>
@@ -278,14 +278,14 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     </div>
     <div>
       <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span id="aramky-install-badge" class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">⚜️ أرامكي v28.0</span></h1>
-      <p class="text-xs text-slate-400 flex items-center gap-2 flex-wrap"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">ID: ARAMKY-01</span> | <span id="cloud-sync-status" class="text-[11px] text-sky-300 font-bold">سحابي: جاري الفحص...</span></p>
+      <p class="text-xs text-slate-400 flex items-center gap-2 flex-wrap"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">المسار: --</span> | <span id="cloud-sync-status" class="text-[11px] text-sky-300 font-bold">حالة الاتصال: جاري الفحص...</span></p>
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-2">
     <button id="pwa-install-btn" onclick="installPWA()" class="bg-emerald-600/20 border border-emerald-500 text-emerald-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-2 font-bold shadow">
       <img src="icon.png" onerror="handleBrandImageError(this)" class="w-5 h-5 rounded-full object-cover bg-darkbg border border-gold/60"> <span>تثبيت النظام ⚜️</span>
     </button>
-    <button onclick="refreshAppAndClearCache()" class="bg-cyan-600/20 border border-cyan-500/50 text-cyan-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow" title="مزامنة السحابة وتحديث التطبيق وتفريغ الكاش">
+    <button onclick="refreshAppAndClearCache()" class="bg-cyan-600/20 border border-cyan-500/50 text-cyan-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow" title="مزامنة البيانات وتحديث التطبيق">
       <i class="fa-solid fa-rotate"></i> <span>تحديث ومزامنة</span>
     </button>
     <div id="admin-btn-container" class="hidden">
@@ -324,7 +324,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <button onclick="switchTab('scrap')" id="btn-tab-scrap" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-scale-balanced w-5"></i> <span>شراء ذهب كسر</span></button>
     <button onclick="switchTab('inventory')" id="btn-tab-inventory" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-boxes-stacked w-5"></i> <span>المخزن (تعديل وحذف)</span></button>
     <button onclick="switchTab('store-settings')" id="btn-tab-store-settings" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-store w-5"></i> <span>إعدادات المعرض والشعار</span></button>
-    <button onclick="switchTab('debts')" id="btn-tab-debts" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-file-invoice-dollar w-5"></i> <span>دفتر الديون (تطلب ومطلوب)</span></button>
+    <button onclick="switchTab('debts')" id="btn-tab-debts" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-file-invoice-dollar w-5"></i> <span>دفتر الديون (تطلبهم ويطلبونك)</span></button>
     <button onclick="switchTab('logs')" id="btn-tab-logs" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-chart-pie w-5"></i> <span>الأرباح وجرد Excel</span></button>
     <button onclick="switchTab('support')" id="btn-tab-support" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-blue-300 hover:bg-slate-800 border border-blue-500/30"><i class="fa-solid fa-headset w-5"></i> <span>الدعم ومراسلة الأدمن</span></button>
   </aside>
@@ -396,7 +396,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <div class="border-t border-slate-800 pt-4 space-y-3">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <input type="text" id="pos-customer" placeholder="اسم الزبون (مطلوب للآجل)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
-            <input type="tel" id="pos-phone" placeholder="رقم الهاتف (07XXXXXXXXX)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm text-emerald-400 font-mono outline-none">
+            <input type="tel" id="pos-phone" placeholder="رقم الهاتف" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm text-emerald-400 font-mono outline-none">
             <input type="text" id="pos-notes" placeholder="ملاحظات الفاتورة..." class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
           </div>
 
@@ -442,7 +442,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div><label class="text-xs text-slate-400 block mb-1">سعر المثقال:</label><input type="number" id="scrap-mithqal-price" oninput="updateScrapPreview()" class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm text-gold font-bold outline-none"></div>
           <div><label class="text-xs text-slate-400 block mb-1">الوزن (غرام):</label><input type="number" step="0.001" id="scrap-weight" oninput="updateScrapPreview()" class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none"></div>
-          <div><label class="text-xs text-amber-300 block mb-1">خصم أجور الصياغة على الغرام الواحد (د.ع):</label><input type="number" placeholder="مثال: 5000" id="scrap-deduct" oninput="updateScrapPreview()" class="w-full bg-darkbg border border-amber-500/50 rounded-2xl p-3 text-sm text-amber-300 font-bold outline-none"></div>
+          <div><label class="text-xs text-amber-300 block mb-1">خصم أجور الصياغة على الغرام الواحد (د.ع):</label><input type="number" placeholder="0" id="scrap-deduct" oninput="updateScrapPreview()" class="w-full bg-darkbg border border-amber-500/50 rounded-2xl p-3 text-sm text-amber-300 font-bold outline-none"></div>
         </div>
         <input type="text" id="scrap-notes" placeholder="ملاحظات..." class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-darkbg p-4 rounded-2xl border border-gold/40 text-xs">
@@ -466,7 +466,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="text" id="inv-name" placeholder="اسم الصنف (مثال: محبس ذهب فاخر)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
+          <input type="text" id="inv-name" placeholder="اسم الصنف (مثال: محبس ذهب)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
           <select id="inv-karat" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm text-gold font-bold outline-none">
             <option value="24">عيار 24</option><option value="22">عيار 22</option><option value="21" selected>عيار 21</option><option value="18">عيار 18</option><option value="9">عيار 9</option>
           </select>
@@ -506,7 +506,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <div class="bg-darkbg p-4 rounded-2xl border border-slate-800 space-y-3">
           <div class="flex justify-between items-center">
             <label class="text-xs font-bold text-gold">صورة غلاف المعرض (Cover Banner):</label>
-            <span class="text-[10px] text-slate-400">تظهر أعلى معرض الزبائن وتصل للأدمن</span>
+            <span class="text-[10px] text-slate-400">تظهر أعلى معرض الزبائن</span>
           </div>
           <div class="w-full h-44 rounded-2xl bg-cardbg border-2 border-dashed border-gold/40 overflow-hidden relative flex items-center justify-center">
             <img id="settings-cover-preview" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover bg-darkbg">
@@ -550,59 +550,71 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <div class="system-card p-6 rounded-3xl border border-gold/40 shadow-xl space-y-5">
         <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-4 gap-3">
           <div>
-            <h3 class="font-black text-gold text-xl flex items-center gap-2"><i class="fa-solid fa-crown text-amber-300"></i> دفتر الديون الفخم (تطلبهم + ومطلوب منك -)</h3>
-            <p class="text-[11px] text-slate-400 mt-0.5">كارتات مفصولة بوضوح بين ما تطلبه أنت وما هو مطلوب منك، مع أزرار فاخرة داخل وخارج الكارت</p>
+            <h3 class="font-black text-gold text-xl flex items-center gap-2"><i class="fa-solid fa-crown text-amber-300"></i> دفتر الديون الفخم (تطلبهم + ويطلبونك -)</h3>
+            <p class="text-[11px] text-slate-400 mt-0.5">إدارة الأموال والذهب (زيادة ونقصان الذهب في تطلبهم وفي يطلبونك) مع كارتات واضحة وأزرار سريعة</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button onclick="setDebtFilter('all')" id="debt-filter-all" class="bg-gold text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow">الكل</button>
             <button onclick="setDebtFilter('on_them')" id="debt-filter-them" class="bg-darkbg text-emerald-300 border border-emerald-500/50 px-4 py-2 rounded-2xl text-xs font-black">كارتات تطلبهم (+)</button>
-            <button onclick="setDebtFilter('on_us')" id="debt-filter-us" class="bg-darkbg text-rose-300 border border-rose-500/50 px-4 py-2 rounded-2xl text-xs font-black">كارتات مطلوب منك (-)</button>
+            <button onclick="setDebtFilter('on_us')" id="debt-filter-us" class="bg-darkbg text-rose-300 border border-rose-500/50 px-4 py-2 rounded-2xl text-xs font-black">كارتات يطلبونك (-)</button>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="bg-emerald-950/35 border border-emerald-500/40 p-4 rounded-2xl shadow-lg">
-            <span class="text-xs text-emerald-300 font-bold block">إجمالي ما تطلبه (لنا عند الناس +)</span>
-            <strong id="debts-summary-them" class="text-xl font-black text-emerald-400 mt-1 block">0 د.ع</strong>
-            <span id="debts-summary-gold-plus" class="text-[11px] text-amber-300 font-mono">ذهب: 0 غرام</span>
+          <div class="bg-emerald-950/35 border border-emerald-500/40 p-4 rounded-2xl shadow-lg space-y-1">
+            <span class="text-xs text-emerald-300 font-bold block">تطلبهم (لنا عند الناس +)</span>
+            <strong id="debts-summary-them" class="text-xl font-black text-emerald-400 block">0 د.ع</strong>
+            <span id="debts-summary-gold-plus" class="text-[11px] text-amber-300 font-mono block">ذهب تطلبهم: 0 غرام</span>
           </div>
-          <div class="bg-rose-950/35 border border-rose-500/40 p-4 rounded-2xl shadow-lg">
-            <span class="text-xs text-rose-300 font-bold block">إجمالي ما هو مطلوب منك (علينا للناس -)</span>
-            <strong id="debts-summary-us" class="text-xl font-black text-rose-400 mt-1 block">0 د.ع</strong>
-            <span id="debts-summary-gold-minus" class="text-[11px] text-amber-300 font-mono">رصيد ذمة الذهب الكلي: 0 غرام</span>
+          <div class="bg-rose-950/35 border border-rose-500/40 p-4 rounded-2xl shadow-lg space-y-1">
+            <span class="text-xs text-rose-300 font-bold block">يطلبونك (علينا للناس -)</span>
+            <strong id="debts-summary-us" class="text-xl font-black text-rose-400 block">0 د.ع</strong>
+            <span id="debts-summary-gold-minus" class="text-[11px] text-rose-200 font-mono block">ذهب يطلبونك: 0 غرام</span>
           </div>
-          <div class="bg-amber-950/30 border border-gold/40 p-4 rounded-2xl shadow-lg">
-            <span class="text-xs text-gold font-bold block">صافي ميزان الديون العام</span>
-            <strong id="debts-summary-net" class="text-xl font-black text-gold mt-1 block">0 د.ع</strong>
-            <span class="text-[11px] text-slate-400">تحديث لحظي مع كل حركة</span>
+          <div class="bg-amber-950/30 border border-gold/40 p-4 rounded-2xl shadow-lg space-y-1">
+            <span class="text-xs text-gold font-bold block">صافي الميزان المالي والذهبي</span>
+            <strong id="debts-summary-net" class="text-xl font-black text-gold block">0 د.ع</strong>
+            <span id="debts-summary-gold-net" class="text-[11px] text-amber-300 font-mono block">صافي الذهب: 0 غرام</span>
           </div>
         </div>
 
         <div class="bg-darkbg/95 p-5 rounded-3xl border border-gold/30 space-y-4 shadow-inner">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <input type="text" id="debt-customer" placeholder="اسم الزبون / التاجر" class="bg-cardbg border border-slate-700 focus:border-gold rounded-2xl p-3 text-sm outline-none">
-            <input type="tel" id="debt-phone" placeholder="رقم الهاتف (07XXXXXXXXX)" class="bg-cardbg border border-slate-700 focus:border-emerald-400 rounded-2xl p-3 text-sm text-emerald-400 font-mono outline-none">
+            <input type="tel" id="debt-phone" placeholder="رقم الهاتف" class="bg-cardbg border border-slate-700 focus:border-emerald-400 rounded-2xl p-3 text-sm text-emerald-400 font-mono outline-none">
             <input type="number" step="0.001" id="debt-amount" placeholder="المبلغ (د.ع) أو الوزن (غرام)" class="bg-cardbg border border-slate-700 focus:border-gold rounded-2xl p-3 text-sm text-gold font-bold outline-none">
           </div>
 
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
-            <button type="button" id="btn-dmode-plus-money" onclick="selectLuxuryDebtType('تطلبهم (دين لك)', 'إضافة أموال (+ تطلبهم)')" class="bg-emerald-600/25 border-2 border-emerald-400 text-emerald-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
-              <i class="fa-solid fa-plus-circle"></i> <span>إضافة أموال (+)</span>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
+            <button type="button" id="btn-dmode-plus-money" onclick="selectLuxuryDebtType('تطلبهم (دين لك)', 'زيادة أموال تطلبهم (+ مال لنا)')" class="bg-emerald-600/25 border-2 border-emerald-400 text-emerald-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-plus-circle"></i> <span>+ أموال تطلبهم</span>
             </button>
-            <button type="button" id="btn-dmode-minus-money" onclick="selectLuxuryDebtType('مطلوب منك (دين عليك)', 'نقصان / مطلوب منك (- عليك)')" class="bg-rose-600/20 border border-rose-500/40 text-rose-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
-              <i class="fa-solid fa-minus-circle"></i> <span>نقصان أموال (-)</span>
+            <button type="button" id="btn-dmode-minus-money" onclick="selectLuxuryDebtType('نقصان أموال تطلبهم', 'نقصان / تسديد أموال تطلبهم (- مال لنا)')" class="bg-emerald-950/50 border border-emerald-500/40 text-emerald-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-minus-circle"></i> <span>- أموال تطلبهم</span>
             </button>
-            <button type="button" id="btn-dmode-plus-gold" onclick="selectLuxuryDebtType('إضافة ذهب (غرام)', 'إضافة ذهب (+ غرام)')" class="bg-amber-600/20 border border-amber-400/40 text-amber-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
-              <i class="fa-solid fa-coins"></i> <span>إضافة ذهب (+)</span>
+            <button type="button" id="btn-dmode-plus-credit" onclick="selectLuxuryDebtType('مطلوب منك (دين عليك)', 'زيادة أموال يطلبونك (+ مال علينا)')" class="bg-rose-600/20 border border-rose-500/40 text-rose-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-circle-plus"></i> <span>+ أموال يطلبونك</span>
             </button>
-            <button type="button" id="btn-dmode-minus-gold" onclick="selectLuxuryDebtType('نقصان ذهب (غرام)', 'نقصان ذهب (- غرام)')" class="bg-slate-800 border border-gold/30 text-gold font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
-              <i class="fa-solid fa-scale-balanced"></i> <span>نقصان ذهب (-)</span>
+            <button type="button" id="btn-dmode-minus-credit" onclick="selectLuxuryDebtType('نقصان أموال يطلبونك', 'نقصان / وفاء أموال يطلبونك (- مال علينا)')" class="bg-rose-950/50 border border-rose-500/40 text-rose-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-circle-minus"></i> <span>- أموال يطلبونك</span>
+            </button>
+            <button type="button" id="btn-dmode-plus-gold-them" onclick="selectLuxuryDebtType('إضافة ذهب تطلبهم (غرام)', 'زيادة ذهب تطلبهم (+ غرام لنا عندهم)')" class="bg-amber-600/25 border border-amber-400/50 text-amber-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-coins"></i> <span>+ ذهب تطلبهم</span>
+            </button>
+            <button type="button" id="btn-dmode-minus-gold-them" onclick="selectLuxuryDebtType('نقصان ذهب تطلبهم (غرام)', 'نقصان ذهب تطلبهم (- غرام لنا عندهم)')" class="bg-amber-950/50 border border-amber-400/40 text-amber-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-scale-balanced"></i> <span>- ذهب تطلبهم</span>
+            </button>
+            <button type="button" id="btn-dmode-plus-gold-us" onclick="selectLuxuryDebtType('إضافة ذهب يطلبونك (غرام)', 'زيادة ذهب يطلبونك (+ غرام علينا لهم)')" class="bg-purple-600/20 border border-purple-400/40 text-purple-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-gem"></i> <span>+ ذهب يطلبونك</span>
+            </button>
+            <button type="button" id="btn-dmode-minus-gold-us" onclick="selectLuxuryDebtType('نقصان ذهب يطلبونك (غرام)', 'نقصان ذهب يطلبونك (- غرام علينا لهم)')" class="bg-slate-800 border border-gold/40 text-gold font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-arrow-down-short-wide"></i> <span>- ذهب يطلبونك</span>
             </button>
           </div>
           <input type="hidden" id="debt-type" value="تطلبهم (دين لك)">
           <div class="text-[11px] text-slate-300 flex items-center justify-between bg-cardbg/80 px-4 py-2 rounded-xl border border-slate-800">
             <span>الحركة المحددة حالياً:</span>
-            <strong id="selected-debt-type-label" class="text-emerald-400 font-black">إضافة أموال (+ تطلبهم)</strong>
+            <strong id="selected-debt-type-label" class="text-emerald-400 font-black">زيادة أموال تطلبهم (+ مال لنا)</strong>
           </div>
 
           <input type="text" id="debt-notes" placeholder="ملاحظات إضافية للحركة أو الحساب..." class="w-full bg-cardbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
@@ -612,7 +624,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <div id="debt-sections-wrapper" class="space-y-6 pt-2">
           <div id="section-debts-them" class="space-y-3">
             <div class="flex items-center justify-between border-b border-emerald-500/30 pb-2">
-              <h4 class="font-black text-emerald-400 text-base flex items-center gap-2"><i class="fa-solid fa-hand-holding-dollar"></i> كارتات: تطلبهم (لنا عند الناس +)</h4>
+              <h4 class="font-black text-emerald-400 text-base flex items-center gap-2"><i class="fa-solid fa-hand-holding-dollar"></i> كارتات: تطلبهم (لنا عند الناس + أموال وذهب)</h4>
               <span id="count-debts-them" class="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full font-bold">0 كارت</span>
             </div>
             <div id="grid-debts-them" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
@@ -620,7 +632,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
           <div id="section-debts-us" class="space-y-3">
             <div class="flex items-center justify-between border-b border-rose-500/30 pb-2">
-              <h4 class="font-black text-rose-400 text-base flex items-center gap-2"><i class="fa-solid fa-file-signature"></i> كارتات: مطلوب منك (علينا للناس -)</h4>
+              <h4 class="font-black text-rose-400 text-base flex items-center gap-2"><i class="fa-solid fa-file-signature"></i> كارتات: يطلبونك (علينا للناس - أموال وذهب)</h4>
               <span id="count-debts-us" class="text-xs bg-rose-500/20 text-rose-300 px-3 py-1 rounded-full font-bold">0 كارت</span>
             </div>
             <div id="grid-debts-us" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
@@ -743,11 +755,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           <span class="text-xs bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full font-mono" id="sup-tenant-badge">--</span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-darkbg p-4 rounded-2xl border border-gold/30 text-xs">
-          <div><span class="text-slate-400 block">رقم الماستر / سوبر كي:</span><strong class="text-gold font-mono text-base select-all">910400201646</strong></div>
-          <div><span class="text-slate-400 block">رقم الدعم / واتساب:</span><strong class="text-emerald-400 font-mono text-base select-all">07766083622</strong></div>
-        </div>
-
         <div class="bg-darkbg p-5 rounded-2xl border border-slate-800 space-y-4">
           <h4 class="text-sm font-bold text-gold"><i class="fa-solid fa-paper-plane"></i> إرسال رسالة أو إيصال تحويل أو طلب صورة/غلاف للإدارة:</h4>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
@@ -761,7 +768,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
             </div>
             <div>
               <label class="text-slate-400 block mb-1">عنوان الرسالة / رقم العملية:</label>
-              <input type="text" id="sup-trans-ref" placeholder="مثال: تحديث غلاف المعرض أو رقم العملية 84920" class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 outline-none">
+              <input type="text" id="sup-trans-ref" placeholder="عنوان الرسالة أو رقم العملية" class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 outline-none">
             </div>
             <div class="md:col-span-2">
               <label class="text-slate-400 block mb-1">ارفق صورة (إيصال، شعار، أو غلاف):</label>
@@ -769,13 +776,10 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
               <img id="sup-receipt-preview" class="hidden mt-3 max-h-48 rounded-2xl border-2 border-gold shadow-lg object-contain bg-darkbg">
             </div>
             <div class="md:col-span-2">
-              <textarea id="sup-message" rows="3" placeholder="اكتب رسالتك أو تفاصيل طلبك للأدمن هنا..." class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 outline-none"></textarea>
+              <textarea id="sup-message" rows="3" placeholder="اكتب رسالتك أو تفاصيل طلبك للإدارة هنا..." class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 outline-none"></textarea>
             </div>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <button onclick="submitSupportTransfer()" class="gold-gradient text-darkbg font-black py-3.5 rounded-2xl text-xs shadow-lg"><i class="fa-solid fa-paper-plane"></i> إرسال مباشر إلى لوحة الأدمن</button>
-            <a id="sup-whatsapp-btn" href="https://wa.me/9647766083622" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg"><i class="fa-brands fa-whatsapp text-base"></i> إرسال عبر واتساب</a>
-          </div>
+          <button onclick="submitSupportTransfer()" class="w-full gold-gradient text-darkbg font-black py-3.5 rounded-2xl text-xs shadow-lg"><i class="fa-solid fa-paper-plane"></i> إرسال مباشر إلى لوحة الأدمن</button>
         </div>
 
         <div class="space-y-2">
@@ -786,32 +790,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     </div>
   </section>
 </main>
-
-<div id="luxury-debt-type-modal" class="fixed inset-0 modal-overlay z-[260] flex items-center justify-center hidden p-4">
-  <div class="system-card p-6 rounded-3xl border border-gold/50 w-full max-w-md space-y-4 shadow-2xl text-center">
-    <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl mx-auto shadow-lg"><i class="fa-solid fa-scale-balanced"></i></div>
-    <h3 class="text-lg font-bold text-gold">اختر نوع الحركة في دفتر الديون</h3>
-    <div class="space-y-2.5 text-right">
-      <button onclick="selectLuxuryDebtType('تطلبهم (دين لك)', 'إضافة أموال (+ تطلبهم)')" class="w-full bg-darkbg border border-emerald-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-emerald-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> 1. إضافة أموال (+ تطلبهم)</span>
-        <i class="fa-solid fa-chevron-left text-slate-500"></i>
-      </button>
-      <button onclick="selectLuxuryDebtType('مطلوب منك (دين عليك)', 'نقصان / مطلوب منك (- عليك)')" class="w-full bg-darkbg border border-rose-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-rose-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-down text-rose-400"></i> 2. نقصان / مطلوب منك (- عليك)</span>
-        <i class="fa-solid fa-chevron-left text-slate-500"></i>
-      </button>
-      <button onclick="selectLuxuryDebtType('إضافة ذهب (غرام)', 'إضافة ذهب (+ غرام)')" class="w-full bg-darkbg border border-amber-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-amber-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-coins text-gold"></i> 3. إضافة ذهب (+ غرام)</span>
-        <i class="fa-solid fa-chevron-left text-slate-500"></i>
-      </button>
-      <button onclick="selectLuxuryDebtType('نقصان ذهب (غرام)', 'نقصان ذهب (- غرام)')" class="w-full bg-darkbg border border-slate-700 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-slate-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-minus-circle text-slate-400"></i> 4. نقصان ذهب (- غرام)</span>
-        <i class="fa-solid fa-chevron-left text-slate-500"></i>
-      </button>
-    </div>
-    <button onclick="closeLuxuryDebtTypeModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-2xl text-xs font-bold">إلغاء</button>
-  </div>
-</div>
 
 <div id="luxury-preview-modal" class="fixed inset-0 modal-overlay z-[260] flex items-center justify-center hidden p-4">
   <div class="system-card p-6 rounded-3xl border border-gold/50 w-full max-w-2xl space-y-4 max-h-[85vh] flex flex-col shadow-2xl">
@@ -1051,22 +1029,30 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <span id="modal-cust-phone" class="text-xs font-mono text-emerald-400 bg-darkbg px-3 py-1.5 rounded-xl border border-slate-800">--</span>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
       <div class="bg-darkbg/90 p-3 rounded-2xl border border-emerald-500/30">
-        <span class="text-slate-400 block text-[10px]">تطلبهم (+):</span>
+        <span class="text-slate-400 block text-[10px]">أموال تطلبهم (+):</span>
         <strong id="modal-cust-debt" class="text-emerald-400 font-black text-sm">0 د.ع</strong>
       </div>
       <div class="bg-darkbg/90 p-3 rounded-2xl border border-rose-500/30">
-        <span class="text-slate-400 block text-[10px]">مطلوب منك (-):</span>
+        <span class="text-slate-400 block text-[10px]">أموال يطلبونك (-):</span>
         <strong id="modal-cust-credit" class="text-rose-400 font-black text-sm">0 د.ع</strong>
       </div>
-      <div class="bg-darkbg/90 p-3 rounded-2xl border border-gold/30">
-        <span class="text-slate-400 block text-[10px]">ذمة الذهب:</span>
-        <strong id="modal-cust-gold" class="text-gold font-black text-sm">0 غرام</strong>
-      </div>
       <div class="bg-darkbg/90 p-3 rounded-2xl border border-slate-700">
-        <span class="text-slate-400 block text-[10px]">الصافي المالي:</span>
+        <span class="text-slate-400 block text-[10px]">صافي الأموال:</span>
         <strong id="modal-cust-net" class="font-black text-sm">0 د.ع</strong>
+      </div>
+      <div class="bg-darkbg/90 p-3 rounded-2xl border border-amber-400/30">
+        <span class="text-slate-400 block text-[10px]">ذهب تطلبهم (+):</span>
+        <strong id="modal-cust-gold-them" class="text-amber-300 font-black text-sm">0 غرام</strong>
+      </div>
+      <div class="bg-darkbg/90 p-3 rounded-2xl border border-purple-400/30">
+        <span class="text-slate-400 block text-[10px]">ذهب يطلبونك (-):</span>
+        <strong id="modal-cust-gold-us" class="text-purple-300 font-black text-sm">0 غرام</strong>
+      </div>
+      <div class="bg-darkbg/90 p-3 rounded-2xl border border-gold/30">
+        <span class="text-slate-400 block text-[10px]">صافي الذمة الذهبية:</span>
+        <strong id="modal-cust-gold-net" class="text-gold font-black text-sm">0 غرام</strong>
       </div>
     </div>
 
@@ -1076,39 +1062,53 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <div class="grid grid-cols-2 gap-2 text-xs">
           <button type="button" id="inner-btn-plus-debt" onclick="setInnerCardAction('plus_debt')" class="bg-emerald-600/30 border-2 border-emerald-400 text-white font-black py-2.5 px-3 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition">
             <span><i class="fa-solid fa-plus"></i> زيادة تطلبهم (+)</span>
-            <span class="text-[10px] font-normal text-emerald-200">أخذ دين جديد منك</span>
+            <span class="text-[10px] font-normal text-emerald-200">إضافة مال لنا عنده</span>
           </button>
           <button type="button" id="inner-btn-minus-debt" onclick="setInnerCardAction('minus_debt')" class="bg-emerald-950/50 border border-emerald-500/40 text-emerald-200 font-black py-2.5 px-3 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition">
-            <span><i class="fa-solid fa-minus"></i> تنقيص / تسديد تطلبهم (-)</span>
-            <span class="text-[10px] font-normal text-emerald-300/80">سدد لك من دينه (+ للكاش)</span>
+            <span><i class="fa-solid fa-minus"></i> نقصان تطلبهم (-)</span>
+            <span class="text-[10px] font-normal text-emerald-300/80">تسديد / خصم من دينه</span>
           </button>
         </div>
       </div>
 
       <div class="space-y-1.5">
-        <span class="text-[11px] font-black text-rose-300 block"><i class="fa-solid fa-file-signature"></i> ثانياً: أموال مطلوب منك (علينا له):</span>
+        <span class="text-[11px] font-black text-rose-300 block"><i class="fa-solid fa-file-signature"></i> ثانياً: أموال يطلبونك (علينا له):</span>
         <div class="grid grid-cols-2 gap-2 text-xs">
           <button type="button" id="inner-btn-plus-credit" onclick="setInnerCardAction('plus_credit')" class="bg-rose-950/50 border border-rose-500/40 text-rose-200 font-black py-2.5 px-3 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition">
-            <span><i class="fa-solid fa-plus"></i> زيادة مطلوب منك (+)</span>
-            <span class="text-[10px] font-normal text-rose-300/80">صار يطلبك مبلغ إضافي</span>
+            <span><i class="fa-solid fa-plus"></i> زيادة يطلبونك (+)</span>
+            <span class="text-[10px] font-normal text-rose-300/80">إضافة مال علينا له</span>
           </button>
           <button type="button" id="inner-btn-minus-credit" onclick="setInnerCardAction('minus_credit')" class="bg-rose-950/50 border border-rose-500/40 text-rose-200 font-black py-2.5 px-3 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition">
-            <span><i class="fa-solid fa-minus"></i> تنقيص / وفاء مطلوب منك (-)</span>
-            <span class="text-[10px] font-normal text-rose-300/80">دفعت له من حسابه (- للكاش)</span>
+            <span><i class="fa-solid fa-minus"></i> نقصان يطلبونك (-)</span>
+            <span class="text-[10px] font-normal text-rose-300/80">دفع / خصم مما علينا له</span>
           </button>
         </div>
       </div>
 
       <div class="space-y-1.5">
-        <span class="text-[11px] font-black text-amber-300 block"><i class="fa-solid fa-coins"></i> ثالثاً: ذمة الذهب (بالغرام):</span>
+        <span class="text-[11px] font-black text-amber-300 block"><i class="fa-solid fa-coins"></i> ثالثاً: ذهب تطلبهم (+ غرام لنا عنده):</span>
         <div class="grid grid-cols-2 gap-2 text-xs">
-          <button type="button" id="inner-btn-plus-gold" onclick="setInnerCardAction('plus_gold')" class="bg-amber-950/50 border border-amber-400/40 text-amber-200 font-black py-2.5 px-3 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition">
-            <span><i class="fa-solid fa-plus"></i> زيادة ذهب (+ غرام)</span>
-            <span class="text-[10px] font-normal text-amber-300/80">إضافة وزن ذهب للذمة</span>
+          <button type="button" id="inner-btn-plus-gold-them" onclick="setInnerCardAction('plus_gold_them')" class="bg-amber-950/50 border border-amber-400/40 text-amber-200 font-black py-2.5 px-3 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition">
+            <span><i class="fa-solid fa-plus"></i> زيادة ذهب تطلبهم (+)</span>
+            <span class="text-[10px] font-normal text-amber-300/80">إضافة غرام لنا عنده</span>
           </button>
-          <button type="button" id="inner-btn-minus-gold" onclick="setInnerCardAction('minus_gold')" class="bg-slate-800 border border-gold/40 text-gold font-black py-2.5 px-3 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition">
-            <span><i class="fa-solid fa-minus"></i> تنقيص ذهب (- غرام)</span>
-            <span class="text-[10px] font-normal text-amber-200/80">تسليم / خصم وزن ذهب</span>
+          <button type="button" id="inner-btn-minus-gold-them" onclick="setInnerCardAction('minus_gold_them')" class="bg-amber-950/30 border border-amber-400/30 text-amber-200 font-black py-2.5 px-3 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition">
+            <span><i class="fa-solid fa-minus"></i> نقصان ذهب تطلبهم (-)</span>
+            <span class="text-[10px] font-normal text-amber-200/80">استلام / خصم غرام لنا</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <span class="text-[11px] font-black text-purple-300 block"><i class="fa-solid fa-gem"></i> رابعاً: ذهب يطلبونك (- غرام علينا له):</span>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <button type="button" id="inner-btn-plus-gold-us" onclick="setInnerCardAction('plus_gold_us')" class="bg-purple-950/50 border border-purple-400/40 text-purple-200 font-black py-2.5 px-3 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition">
+            <span><i class="fa-solid fa-plus"></i> زيادة ذهب يطلبونك (+)</span>
+            <span class="text-[10px] font-normal text-purple-300/80">إضافة غرام علينا له</span>
+          </button>
+          <button type="button" id="inner-btn-minus-gold-us" onclick="setInnerCardAction('minus_gold_us')" class="bg-slate-800 border border-gold/40 text-gold font-black py-2.5 px-3 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition">
+            <span><i class="fa-solid fa-minus"></i> نقصان ذهب يطلبونك (-)</span>
+            <span class="text-[10px] font-normal text-amber-200/80">تسليم / خصم غرام علينا</span>
           </button>
         </div>
       </div>
@@ -1116,14 +1116,14 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <input type="hidden" id="modal-action-type" value="plus_debt">
       <div class="bg-cardbg/90 border border-gold/30 rounded-2xl px-3.5 py-2.5 flex items-center justify-between text-xs">
         <span class="text-slate-400">العملية المختارة الآن:</span>
-        <strong id="inner-selected-action-banner" class="text-emerald-300 font-black">زيادة تطلبهم (+ أموال لنا عنده)</strong>
+        <strong id="inner-selected-action-banner" class="text-emerald-300 font-black">زيادة أموال تطلبهم (+ مال لنا)</strong>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
         <input type="number" step="0.001" id="cust-custom-amount" placeholder="أدخل المبلغ (د.ع) أو الوزن (غرام)..." class="w-full bg-cardbg border border-gold/40 focus:border-gold rounded-xl p-3 text-sm text-gold font-bold outline-none">
         <input type="text" id="cust-custom-note" placeholder="ملاحظة الحركة (اختياري)..." class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 text-xs outline-none">
       </div>
-      <button onclick="custActionSubmitAdvanced()" id="inner-submit-action-btn" class="w-full gold-gradient text-darkbg py-3.5 rounded-2xl text-xs font-black shadow-lg">تأكيد وتنفيذ: زيادة تطلبهم (+) ✅</button>
+      <button onclick="custActionSubmitAdvanced()" id="inner-submit-action-btn" class="w-full gold-gradient text-darkbg py-3.5 rounded-2xl text-xs font-black shadow-lg">تأكيد وتنفيذ الحركة ✅</button>
     </div>
 
     <div class="grid grid-cols-2 gap-2.5 text-xs">
@@ -1142,28 +1142,36 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
 <script>
 const ADMIN_TENANT_CODE = "ARAMKY-01";
-const DEFAULT_ADMIN_PHONE = "07801103129";
-const DEFAULT_ADMIN_PASS = "waadsdsd";
-const DEFAULT_ADMIN_NAME = "ARAMKY | أرامكي للحلول الرقمية - فرع نواة الذهب";
+const CONFIGURED_ADMIN_PHONE = "";
+const CONFIGURED_ADMIN_PASS = "";
+const DEFAULT_ADMIN_NAME = "ARAMKY | نظام إدارة صياغة الذهب";
 const FALLBACK_BRAND_ICON = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><rect width="256" height="256" rx="48" fill="#070A12"/><rect x="8" y="8" width="240" height="240" rx="42" fill="none" stroke="#D4AF37" stroke-width="6"/><text x="128" y="148" text-anchor="middle" font-size="96" fill="#D4AF37" font-family="Arial, sans-serif">👑</text></svg>');
 
+let deferredPrompt;
 let pwaDiagnosticsReason = "";
 let swRegisteredOk = false;
 let editingImagesDraft = [];
 let splashDismissed = false;
 let isSyncingCloud = false;
+let currentTenantCode = localStorage.getItem('aramky_active_tenant');
 
 function getAdminSecretPass() {
-  return localStorage.getItem('aramky_admin_secret_pass') || "ARAMKY2026";
+  return localStorage.getItem('aramky_admin_secret_pass') || CONFIGURED_ADMIN_PASS || "ARAMKY2026";
+}
+
+function normalizePhoneDigits(p) {
+  return String(p || '').replace(/\D/g, '');
 }
 
 function getMasterAccountDefault() {
   const savedAdm = JSON.parse(localStorage.getItem('aramky_admin_account')) || {};
+  const phone = CONFIGURED_ADMIN_PHONE.trim() || String(savedAdm.phone || '').trim();
+  const passcode = CONFIGURED_ADMIN_PASS.trim() || String(savedAdm.passcode || '').trim();
   return {
     code: ADMIN_TENANT_CODE,
     name: savedAdm.name || DEFAULT_ADMIN_NAME,
-    phone: savedAdm.phone || DEFAULT_ADMIN_PHONE,
-    passcode: String(savedAdm.passcode || DEFAULT_ADMIN_PASS),
+    phone,
+    passcode,
     expiresAt: "2099-12-31",
     active: true,
     isMaster: true,
@@ -1188,9 +1196,7 @@ function dismissAramkySplash() {
   const el = document.getElementById('aramky-splash-screen');
   if (!el) return;
   el.style.opacity = '0';
-  setTimeout(() => {
-    el.remove();
-  }, 700);
+  setTimeout(() => { el.remove(); }, 700);
 }
 
 (function initSmartSplashLifecycle() {
@@ -1199,7 +1205,7 @@ function dismissAramkySplash() {
 
   function tryCloseWhenReady() {
     if (loadDone && swSettled) {
-      setTimeout(dismissAramkySplash, 850);
+      setTimeout(dismissAramkySplash, 750);
     }
   }
 
@@ -1220,11 +1226,25 @@ function dismissAramkySplash() {
     });
   }
 
-  setTimeout(dismissAramkySplash, 2600);
+  setTimeout(dismissAramkySplash, 2200);
 })();
 
 function isAdminTenant(code) {
   return String(code || '').trim().toUpperCase() === ADMIN_TENANT_CODE;
+}
+
+function isAdminSessionUnlocked() {
+  return isAdminTenant(currentTenantCode) && sessionStorage.getItem('aramky_admin_auth') === '1';
+}
+
+function syncAdminButtonVisibility() {
+  const container = document.getElementById('admin-btn-container');
+  if (!container) return;
+  if (isAdminSessionUnlocked()) {
+    container.classList.remove('hidden');
+  } else {
+    container.classList.add('hidden');
+  }
 }
 
 function handleBrandImageError(imgEl) {
@@ -1247,21 +1267,21 @@ function closeImageLightbox() {
 function sendNotificationToAdmin(method, ref, msg, imageBase64 = "") {
   const activeCode = (currentTenantCode || localStorage.getItem('aramky_active_tenant') || 'GUEST').toUpperCase();
   const activeStore = (appState && appState.store && appState.store.name) ? appState.store.name : activeCode;
-  let ticket = {
+  const ticket = {
     id: 'MSG-' + Math.floor(1000 + Math.random() * 9000),
     time: new Date().toLocaleDateString('ar-IQ') + ' ' + new Date().toLocaleTimeString('ar-IQ', {hour:'2-digit',minute:'2-digit'}),
     tenant: activeCode,
     storeName: activeStore,
-    method: method,
-    ref: ref,
-    msg: msg,
+    method,
+    ref,
+    msg,
     receipt: imageBase64,
     status: 'جديد'
   };
   if (appState && Array.isArray(appState.supportTickets)) {
     appState.supportTickets.unshift(ticket);
   }
-  let masterTickets = JSON.parse(localStorage.getItem('aramky_global_support_tickets')) || [];
+  const masterTickets = JSON.parse(localStorage.getItem('aramky_global_support_tickets')) || [];
   masterTickets.unshift(ticket);
   localStorage.setItem('aramky_global_support_tickets', JSON.stringify(masterTickets));
   enqueueCloudSync(activeCode);
@@ -1270,9 +1290,7 @@ function sendNotificationToAdmin(method, ref, msg, imageBase64 = "") {
 let diagTimer = null;
 function scheduleDiagnosticsToAdmin() {
   clearTimeout(diagTimer);
-  diagTimer = setTimeout(() => {
-    reportDiagnosticsToAdmin();
-  }, 1800);
+  diagTimer = setTimeout(() => { reportDiagnosticsToAdmin(); }, 1800);
 }
 
 function collectInstallDiagnosticReason() {
@@ -1283,7 +1301,7 @@ function collectInstallDiagnosticReason() {
   }
   const reasons = [];
   if (!deferredPrompt) reasons.push("المتصفح لم يطلق حدث beforeinstallprompt بعد");
-  if (!swRegisteredOk) reasons.push("لم يتم تأكيد تسجيل Service Worker (sw.js)");
+  if (!swRegisteredOk) reasons.push("لم يتم تأكيد تسجيل Service Worker");
   if (!window.isSecureContext && location.hostname !== 'localhost') reasons.push("الاتصال ليس HTTPS آمن");
   pwaDiagnosticsReason = reasons.join(" | ") || "جاهز للتثبيت";
   return pwaDiagnosticsReason;
@@ -1294,35 +1312,16 @@ function reportDiagnosticsToAdmin() {
   if (isStandalone) return;
   const installReason = collectInstallDiagnosticReason();
   if (deferredPrompt && swRegisteredOk) return;
-
   const signature = `${currentTenantCode || 'NONE'}::${installReason}`;
-  const lastSig = localStorage.getItem('aramky_last_diag_signature');
-  if (signature === lastSig) return;
+  if (localStorage.getItem('aramky_last_diag_signature') === signature) return;
   localStorage.setItem('aramky_last_diag_signature', signature);
-
-  sendNotificationToAdmin(
-    "تشخيص تلقائي: تثبيت التطبيق 🛠️",
-    `التطبيق: ${installReason.slice(0, 35)}`,
-    `سبب عدم تثبيت التطبيق: ${installReason}`
-  );
 }
-
-let invTapCount = 0;
-let invTapTimer = null;
 
 function handleInventoryAdminTrigger() {
   if (!isAdminTenant(currentTenantCode)) return;
-  invTapCount += 1;
-  clearTimeout(invTapTimer);
-  invTapTimer = setTimeout(() => { invTapCount = 0; }, 2500);
-
-  if (invTapCount >= 5) {
-    invTapCount = 0;
-    clearTimeout(invTapTimer);
-    document.getElementById('admin-secret-password').value = '';
-    document.getElementById('admin-secret-modal').classList.remove('hidden');
-    setTimeout(() => document.getElementById('admin-secret-password')?.focus(), 100);
-  }
+  document.getElementById('admin-secret-password').value = '';
+  document.getElementById('admin-secret-modal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('admin-secret-password')?.focus(), 100);
 }
 
 function closeAdminSecretModal() {
@@ -1331,10 +1330,14 @@ function closeAdminSecretModal() {
 }
 
 function verifyAdminSecretPassword() {
+  if (!isAdminTenant(currentTenantCode)) return showToast('غير مسموح لهذا الحساب', 'error');
   const inputPass = document.getElementById('admin-secret-password').value.trim();
-  if (inputPass === getAdminSecretPass()) {
+  const master = getMasterAccountDefault();
+  const validPass = master.passcode || getAdminSecretPass();
+  if (inputPass && inputPass === validPass) {
+    sessionStorage.setItem('aramky_admin_auth', '1');
+    syncAdminButtonVisibility();
     closeAdminSecretModal();
-    document.getElementById('admin-btn-container').classList.remove('hidden');
     showToast('تم تفعيل وضع الأدمن بنجاح 👑');
     openAdminPanel();
   } else {
@@ -1374,13 +1377,11 @@ function calculateLuxuryMithqalTest() {
   const mqPrice = parseFloat(document.getElementById('test-mq-price')?.value) || 0;
   const weight = parseFloat(document.getElementById('test-mq-weight')?.value) || 0;
   const gramAdj = parseFloat(document.getElementById('test-mq-gram-adj')?.value) || 0;
-
   const baseGram = mqPrice / 5;
   const adjGram = baseGram - gramAdj;
   const mithqalCount = weight / 5;
   const totalAdj = gramAdj * weight;
   const grandTotal = Math.round(weight * adjGram);
-
   document.getElementById('test-mq-base-gram').innerText = `${Math.round(baseGram).toLocaleString()} د.ع`;
   document.getElementById('test-mq-adj-gram').innerText = `${Math.round(adjGram).toLocaleString()} د.ع`;
   document.getElementById('test-mq-count').innerText = `${mithqalCount.toFixed(3)} مثقال`;
@@ -1390,16 +1391,13 @@ function calculateLuxuryMithqalTest() {
 function applyTestMithqalToAudit() {
   const k = document.getElementById('test-mq-karat')?.value || '21';
   const mqPrice = parseFloat(document.getElementById('test-mq-price')?.value) || 0;
-  const karatSelect = document.getElementById('mithqal-audit-karat');
-  const customPriceInput = document.getElementById('mithqal-audit-custom-price');
-  if (karatSelect) karatSelect.value = k;
-  if (customPriceInput && mqPrice > 0) customPriceInput.value = Math.round(mqPrice);
+  if (document.getElementById('mithqal-audit-karat')) document.getElementById('mithqal-audit-karat').value = k;
+  if (document.getElementById('mithqal-audit-custom-price') && mqPrice > 0) document.getElementById('mithqal-audit-custom-price').value = Math.round(mqPrice);
   renderMithqalMakingAudit();
   closeLuxuryMithqalTestModal();
   showToast(`تم تطبيق اختبار مثقال عيار ${k} على الجرد`);
 }
 
-let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
@@ -1410,13 +1408,13 @@ window.addEventListener('beforeinstallprompt', (e) => {
 async function installPWA() {
   if (!deferredPrompt) {
     reportDiagnosticsToAdmin();
-    showToast(`تثبيت النظام: اختر "إضافة إلى الشاشة الرئيسية" من قائمة المتصفح`, 'info');
+    showToast('تثبيت النظام: اختر "إضافة إلى الشاشة الرئيسية" من قائمة المتصفح', 'info');
     return;
   }
   deferredPrompt.prompt();
   const { outcome } = await deferredPrompt.userChoice;
   if (outcome === 'accepted') {
-    showToast('تم تثبيت التطبيق وظهرت علامة أرامكي ⚜️ بنجاح');
+    showToast('تم تثبيت التطبيق بنجاح ⚜️');
   } else {
     pwaDiagnosticsReason = "تم إلغاء نافذة التثبيت من قبل المستخدم";
     reportDiagnosticsToAdmin();
@@ -1429,8 +1427,19 @@ function getInitialSubscribers() {
   const saved = JSON.parse(localStorage.getItem('aramky_subscribers_master'));
   if (!Array.isArray(saved) || !saved.length) return [master];
   const idx = saved.findIndex(s => String(s.code || '').toUpperCase() === ADMIN_TENANT_CODE || s.isMaster);
-  if (idx >= 0) saved[idx] = { ...saved[idx], ...master };
-  else saved.unshift(master);
+  if (idx >= 0) {
+    saved[idx] = {
+      ...saved[idx],
+      code: ADMIN_TENANT_CODE,
+      name: master.name,
+      phone: master.phone || saved[idx].phone || '',
+      passcode: master.passcode || saved[idx].passcode || '',
+      active: true,
+      isMaster: true
+    };
+  } else {
+    saved.unshift(master);
+  }
   return saved;
 }
 
@@ -1441,22 +1450,22 @@ function saveSubscribersDB() {
   if (master) localStorage.setItem('aramky_admin_account', JSON.stringify(master));
 }
 
-let currentTenantCode = localStorage.getItem('aramky_active_tenant');
 function getStorageKeyForTenant(code) { return `aramky_gold_data_${code.toUpperCase()}`; }
 
 let appState = {
-  store: { name: "صاغة أرامكي - فرع نواة الذهب", logo: "icon.png", cover: "icon.png", phone: DEFAULT_ADMIN_PHONE, address: "بغداد - الكاظمية", openTime: "09:00 ص", closeTime: "10:00 م", bio: "أفضل تشكيلة ذهب" },
+  store: { name: "ARAMKY | نظام إدارة صياغة الذهب", logo: "icon.png", cover: "icon.png", phone: "", address: "", openTime: "09:00 ص", closeTime: "10:00 م", bio: "" },
   prices: { usd: 153000, m24: 628571, m22: 576190, m21: 550000, m18: 471428, m9: 235714 },
   cash: 0, usdCash: 0, zainCash: 0, makingProfit: 0,
   inventory: [], cart: [], logs: [], debts: [], invoices: [], supportTickets: [],
   currencyMode: 'iraqi', invoiceTemplate: 'detailed', updatedAt: new Date().toISOString()
 };
+
 let currentCategoryFilter = 'all', currentDayFilter = 'الكل', currentDebtFilter = 'all', selectedCustIdx = null, tempReceiptBase64 = "";
 
 function getSupabaseCreds() {
-  let cfg = JSON.parse(localStorage.getItem('aramky_supabase_config')) || {};
-  let url = (cfg.url || localStorage.getItem('aramky_supabase_url') || '').trim().replace(/\/+$/, '');
-  let key = (cfg.key || localStorage.getItem('aramky_supabase_key') || '').trim();
+  const cfg = JSON.parse(localStorage.getItem('aramky_supabase_config')) || {};
+  const url = (cfg.url || localStorage.getItem('aramky_supabase_url') || '').trim().replace(/\/+$/, '');
+  const key = (cfg.key || localStorage.getItem('aramky_supabase_key') || '').trim();
   return { url, key };
 }
 
@@ -1467,33 +1476,7 @@ function updateCloudSyncBadge(text, isOnline = navigator.onLine) {
   el.className = `text-[11px] font-bold ${isOnline ? 'text-emerald-300' : 'text-amber-400'}`;
 }
 
-async function hydrateSupabaseConfigFromHost() {
-  const existing = getSupabaseCreds();
-  if (existing.url && existing.key && !existing.url.includes('YOUR_PROJECT_ID')) {
-    return existing;
-  }
-  const endpoints = ['/api/supabase-config', 'supabase-config.json'];
-  for (const ep of endpoints) {
-    try {
-      const res = await fetch(ep, { cache: 'no-store' });
-      if (!res.ok) continue;
-      const data = await res.json();
-      const url = String(data.url || data.supabaseUrl || data.SUPABASE_URL || '').trim().replace(/\/+$/, '');
-      const key = String(data.key || data.anonKey || data.supabaseKey || data.SUPABASE_ANON_KEY || '').trim();
-      if (url && key && !url.includes('YOUR_PROJECT_ID')) {
-        localStorage.setItem('aramky_supabase_config', JSON.stringify({ url, key }));
-        localStorage.setItem('aramky_supabase_url', url);
-        localStorage.setItem('aramky_supabase_key', key);
-        return { url, key };
-      }
-    } catch (_) {}
-  }
-  return existing;
-}
-
-function getOutboxKey() {
-  return 'aramky_cloud_outbox_v1';
-}
+function getOutboxKey() { return 'aramky_cloud_outbox_v1'; }
 
 function enqueueCloudSync(tenantCode) {
   const code = String(tenantCode || currentTenantCode || '').trim().toUpperCase();
@@ -1513,16 +1496,14 @@ function enqueueCloudSync(tenantCode) {
 async function pushTenantToSupabase(code) {
   const cleanCode = String(code || '').trim().toUpperCase();
   if (!cleanCode || !navigator.onLine) return false;
-  const { url, key } = await hydrateSupabaseConfigFromHost();
-  if (!url || !key || url.includes('YOUR_PROJECT_ID')) {
-    updateCloudSyncBadge('وضع محلي / أوفلاين نشط', navigator.onLine);
+  const { url, key } = getSupabaseCreds();
+  if (!url || !key) {
+    updateCloudSyncBadge('محلي نشط (أوفلاين / غير مربوط)', navigator.onLine);
     return false;
   }
-
   const sub = subscribersDB.find(s => String(s.code || '').toUpperCase() === cleanCode) || getMasterAccountDefault();
   const rawState = JSON.parse(localStorage.getItem(getStorageKeyForTenant(cleanCode)) || 'null') || appState;
   const nowIso = new Date().toISOString();
-
   try {
     await fetch(`${url}/rest/v1/stores`, {
       method: 'POST',
@@ -1536,14 +1517,13 @@ async function pushTenantToSupabase(code) {
         store_code: cleanCode,
         store_name: sub.name || rawState.store?.name || cleanCode,
         phone: sub.phone || rawState.store?.phone || '',
-        passcode: sub.passcode || '1234',
+        passcode: sub.passcode || '',
         expires_at: sub.expiresAt || '2099-12-31',
         is_active: sub.active !== false,
         is_master: cleanCode === ADMIN_TENANT_CODE || !!sub.isMaster,
         updated_at: nowIso
       })
     });
-
     const stateRes = await fetch(`${url}/rest/v1/store_states`, {
       method: 'POST',
       headers: {
@@ -1558,26 +1538,23 @@ async function pushTenantToSupabase(code) {
         updated_at: nowIso
       })
     });
-
     if (stateRes.ok) {
-      updateCloudSyncBadge('Supabase: متزامن ومؤمّن ✅', true);
+      updateCloudSyncBadge('متزامن مع السحابة ✅', true);
       return true;
     }
   } catch (_) {}
-
-  updateCloudSyncBadge('بانتظار مزامنة Supabase...', navigator.onLine);
+  updateCloudSyncBadge('بانتظار المزامنة...', navigator.onLine);
   return false;
 }
 
 async function pullTenantFromSupabase(code) {
   const cleanCode = String(code || '').trim().toUpperCase();
   if (!cleanCode || !navigator.onLine) return false;
-  const { url, key } = await hydrateSupabaseConfigFromHost();
-  if (!url || !key || url.includes('YOUR_PROJECT_ID')) {
-    updateCloudSyncBadge('وضع محلي / أوفلاين نشط', navigator.onLine);
+  const { url, key } = getSupabaseCreds();
+  if (!url || !key) {
+    updateCloudSyncBadge('محلي نشط (أوفلاين / غير مربوط)', navigator.onLine);
     return false;
   }
-
   let updated = false;
   try {
     const storeRes = await fetch(`${url}/rest/v1/stores?store_code=eq.${encodeURIComponent(cleanCode)}&select=*`, {
@@ -1592,7 +1569,7 @@ async function pullTenantFromSupabase(code) {
           code: cleanCode,
           name: r.store_name || cleanCode,
           phone: r.phone || (idx >= 0 ? subscribersDB[idx].phone : ''),
-          passcode: r.passcode || (idx >= 0 ? subscribersDB[idx].passcode : '1234'),
+          passcode: r.passcode || (idx >= 0 ? subscribersDB[idx].passcode : ''),
           expiresAt: r.expires_at || '2099-12-31',
           active: r.is_active !== false,
           isMaster: cleanCode === ADMIN_TENANT_CODE || !!r.is_master,
@@ -1604,7 +1581,6 @@ async function pullTenantFromSupabase(code) {
         updated = true;
       }
     }
-
     const stateRes = await fetch(`${url}/rest/v1/store_states?store_code=eq.${encodeURIComponent(cleanCode)}&select=*`, {
       headers: { 'apikey': key, 'Authorization': `Bearer ${key}` }
     });
@@ -1622,14 +1598,9 @@ async function pullTenantFromSupabase(code) {
         }
       }
     }
-
-    if (updated) {
-      updateCloudSyncBadge('Supabase: محدث من السحابة ✅', true);
-    } else {
-      updateCloudSyncBadge('Supabase: متصل ✅', true);
-    }
+    updateCloudSyncBadge(updated ? 'محدث من السحابة ✅' : 'متصل بالسحابة ✅', true);
   } catch (_) {
-    updateCloudSyncBadge('تعذر الوصول لـ Supabase حالياً', navigator.onLine);
+    updateCloudSyncBadge('يعمل بالبيانات المحلية', navigator.onLine);
   }
   return updated;
 }
@@ -1662,25 +1633,21 @@ async function refreshAppAndClearCache() {
     if ('serviceWorker' in navigator) {
       const regs = await navigator.serviceWorker.getRegistrations();
       for (const reg of regs) {
-        if (reg.waiting) {
-          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-        }
+        if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
         await reg.update();
       }
     }
     localStorage.removeItem('aramky_last_diag_signature');
-    showToast('تمت المزامنة وتفريغ الكاش القديم، جاري التحديث...', 'info');
-    setTimeout(() => {
-      window.location.reload();
-    }, 550);
+    showToast('تم التحديث والمزامنة بنجاح', 'info');
+    setTimeout(() => { window.location.reload(); }, 450);
   } catch (_) {
     window.location.reload();
   }
 }
 
 function getNextMediaSeq(folder) {
-  let key = `aramky_media_seq_${(currentTenantCode || ADMIN_TENANT_CODE).toUpperCase()}_${folder}`;
-  let next = (parseInt(localStorage.getItem(key) || '0', 10) || 0) + 1;
+  const key = `aramky_media_seq_${(currentTenantCode || ADMIN_TENANT_CODE).toUpperCase()}_${folder}`;
+  const next = (parseInt(localStorage.getItem(key) || '0', 10) || 0) + 1;
   localStorage.setItem(key, String(next));
   return String(next).padStart(4, '0');
 }
@@ -1717,10 +1684,8 @@ function compressImageFileToWebP(file, maxSize = 1000, quality = 0.78) {
 
 async function uploadImageToIsolatedStorage(file, folder = 'items', bucket = 'gold-media') {
   const { blob, dataUrl } = await compressImageFileToWebP(file);
-  const { url, key } = await hydrateSupabaseConfigFromHost();
-  if (!url || !key || url.includes('YOUR_PROJECT_ID') || !navigator.onLine) {
-    return dataUrl;
-  }
+  const { url, key } = getSupabaseCreds();
+  if (!url || !key || !navigator.onLine) return dataUrl;
   const seq = getNextMediaSeq(folder);
   const objectPath = `${(currentTenantCode || ADMIN_TENANT_CODE).toUpperCase()}/${folder}/${seq}_${Date.now()}.webp`;
   try {
@@ -1734,9 +1699,7 @@ async function uploadImageToIsolatedStorage(file, folder = 'items', bucket = 'go
       },
       body: blob
     });
-    if (res.ok) {
-      return `${url}/storage/v1/object/public/${bucket}/${objectPath}`;
-    }
+    if (res.ok) return `${url}/storage/v1/object/public/${bucket}/${objectPath}`;
     return dataUrl;
   } catch (_) {
     return dataUrl;
@@ -1746,9 +1709,7 @@ async function uploadImageToIsolatedStorage(file, folder = 'items', bucket = 'go
 window.addEventListener('online', () => {
   updateCloudSyncBadge('عاد الإنترنت: جاري المزامنة...', true);
   flushCloudOutbox().then(() => {
-    if (currentTenantCode) {
-      pullTenantFromSupabase(currentTenantCode).then(() => updateUI());
-    }
+    if (currentTenantCode) pullTenantFromSupabase(currentTenantCode).then(() => updateUI());
   });
 });
 
@@ -1756,12 +1717,18 @@ window.addEventListener('offline', () => {
   updateCloudSyncBadge('وضع بدون إنترنت (أوفلاين نشط)', false);
 });
 
+setInterval(() => {
+  if (currentTenantCode && localStorage.getItem(getStorageKeyForTenant(currentTenantCode))) {
+    if (navigator.onLine) flushCloudOutbox();
+  }
+}, 45000);
+
 window.onload = async function() {
-  await hydrateSupabaseConfigFromHost();
-  if (navigator.onLine) {
-    await flushCloudOutbox();
-  } else {
+  syncAdminButtonVisibility();
+  if (!navigator.onLine) {
     updateCloudSyncBadge('وضع بدون إنترنت (أوفلاين نشط)', false);
+  } else {
+    await flushCloudOutbox();
   }
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -1782,16 +1749,15 @@ window.onload = async function() {
   if (activateCode) {
     const cleanCode = activateCode.trim().toUpperCase();
     const futureExp = activateExp || new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
-    let idx = subscribersDB.findIndex(s => s.code.toUpperCase() === cleanCode);
+    const idx = subscribersDB.findIndex(s => s.code.toUpperCase() === cleanCode);
     if (idx > -1) {
       subscribersDB[idx].expiresAt = futureExp;
       subscribersDB[idx].active = true;
       if (activatePhone) subscribersDB[idx].phone = decodeURIComponent(activatePhone);
     } else {
-      subscribersDB.push({ code: cleanCode, name: decodeURIComponent(activateName || cleanCode), phone: decodeURIComponent(activatePhone || ""), passcode: "1234", expiresAt: futureExp, active: true });
+      subscribersDB.push({ code: cleanCode, name: decodeURIComponent(activateName || cleanCode), phone: decodeURIComponent(activatePhone || ""), passcode: "", expiresAt: futureExp, active: true });
     }
     saveSubscribersDB();
-    localStorage.removeItem('aramky_last_diag_signature');
     currentTenantCode = cleanCode;
     localStorage.setItem('aramky_active_tenant', currentTenantCode);
     enqueueCloudSync(currentTenantCode);
@@ -1808,6 +1774,7 @@ window.onload = async function() {
 };
 
 function openLoginScreenOnly() {
+  syncAdminButtonVisibility();
   document.getElementById('subscription-lock-screen').classList.add('hidden');
   document.getElementById('app-main').style.display = 'none';
   document.getElementById('app-header').style.display = 'none';
@@ -1816,25 +1783,22 @@ function openLoginScreenOnly() {
   setTimeout(() => document.getElementById('login-tenant-code')?.focus(), 100);
 }
 
-function openAdminPanel() { window.location.href = 'admin.html'; }
-
-function normalizePhoneDigits(p) {
-  return String(p || '').replace(/\D/g, '');
+function openAdminPanel() {
+  if (!isAdminSessionUnlocked()) return showToast('غير مسموح', 'error');
+  window.location.href = 'admin.html';
 }
 
 async function loginTenant() {
   subscribersDB = getInitialSubscribers();
-  let code = document.getElementById('login-tenant-code').value.trim().toUpperCase();
-  let phone = document.getElementById('login-tenant-phone').value.trim();
-  let pass = document.getElementById('login-tenant-pass').value.trim();
+  const code = document.getElementById('login-tenant-code').value.trim().toUpperCase();
+  const phone = document.getElementById('login-tenant-phone').value.trim();
+  const pass = document.getElementById('login-tenant-pass').value.trim();
 
   if (!code) return showToast('أدخل اليوزر / الكود!', 'error');
   if (!phone) return showToast('أدخل رقم الهاتف المرتبط بالحساب!', 'error');
   if (!pass) return showToast('أدخل كلمة المرور!', 'error');
 
-  if (navigator.onLine) {
-    await pullTenantFromSupabase(code);
-  }
+  if (navigator.onLine) await pullTenantFromSupabase(code);
 
   let sub = subscribersDB.find(s => s.code.toUpperCase() === code);
   if (!sub && isAdminTenant(code)) {
@@ -1845,11 +1809,26 @@ async function loginTenant() {
 
   if (!sub) return showToast('اليوزر غير مسجل في النظام!', 'error');
 
-  if (sub.phone && normalizePhoneDigits(sub.phone) !== normalizePhoneDigits(phone)) {
-    return showToast('رقم الهاتف غير مطابق لرقم الهاتف المسجل لهذا اليوزر!', 'error');
-  }
-  if (sub.passcode && String(sub.passcode) !== pass) {
-    return showToast('كلمة المرور غير صحيحة!', 'error');
+  if (isAdminTenant(code)) {
+    if (sub.phone && normalizePhoneDigits(sub.phone) !== normalizePhoneDigits(phone)) {
+      return showToast('رقم الهاتف غير مطابق لحساب الأدمن!', 'error');
+    }
+    if (sub.passcode && String(sub.passcode) !== pass) {
+      return showToast('كلمة المرور غير صحيحة!', 'error');
+    }
+    const updatedMaster = { ...sub, phone, passcode: pass, active: true, isMaster: true };
+    localStorage.setItem('aramky_admin_account', JSON.stringify(updatedMaster));
+    sessionStorage.setItem('aramky_admin_auth', '1');
+    subscribersDB = getInitialSubscribers();
+    saveSubscribersDB();
+  } else {
+    sessionStorage.removeItem('aramky_admin_auth');
+    if (sub.phone && normalizePhoneDigits(sub.phone) !== normalizePhoneDigits(phone)) {
+      return showToast('رقم الهاتف غير مطابق لرقم الهاتف المسجل لهذا الحساب!', 'error');
+    }
+    if (sub.passcode && String(sub.passcode) !== pass) {
+      return showToast('كلمة المرور غير صحيحة!', 'error');
+    }
   }
 
   await verifyAndBootTenant(sub.code);
@@ -1857,49 +1836,47 @@ async function loginTenant() {
 
 function switchTenantPrompt() {
   currentTenantCode = null;
+  sessionStorage.removeItem('aramky_admin_auth');
+  syncAdminButtonVisibility();
   localStorage.removeItem('aramky_active_tenant');
   document.getElementById('login-tenant-code').value = '';
   document.getElementById('login-tenant-phone').value = '';
   document.getElementById('login-tenant-pass').value = '';
   openLoginScreenOnly();
-  showToast('أدخل اليوزر ورقم الهاتف وكلمة المرور للدخول', 'info');
+  showToast('أدخل بيانات الحساب للدخول إلى مساره', 'info');
 }
 
 async function verifyAndBootTenant(code) {
   subscribersDB = getInitialSubscribers();
-  let normalizedCode = String(code || '').trim().toUpperCase();
-
-  if (navigator.onLine) {
-    await pullTenantFromSupabase(normalizedCode);
+  const normalizedCode = String(code || '').trim().toUpperCase();
+  if (!isAdminTenant(normalizedCode)) {
+    sessionStorage.removeItem('aramky_admin_auth');
   }
 
-  let sub = subscribersDB.find(s => s.code.toUpperCase() === normalizedCode);
+  if (navigator.onLine) await pullTenantFromSupabase(normalizedCode);
 
+  let sub = subscribersDB.find(s => s.code.toUpperCase() === normalizedCode);
   if (!sub && isAdminTenant(normalizedCode)) {
     sub = getMasterAccountDefault();
     subscribersDB.unshift(sub);
     saveSubscribersDB();
   }
 
-  if (!sub) { 
-    showToast('كود الاشتراك غير مسجل!', 'error');
+  if (!sub) {
+    showToast('الحساب غير مسجل في النظام!', 'error');
     openLoginScreenOnly();
-    return; 
+    return;
   }
 
-  let today = new Date().toISOString().split('T')[0];
-  if (sub.active === true && sub.expiresAt && sub.expiresAt < today && !isAdminTenant(sub.code)) {
-    sub.expiresAt = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
-    saveSubscribersDB();
-  }
-
+  const today = new Date().toISOString().split('T')[0];
   currentTenantCode = sub.code.toUpperCase();
   localStorage.setItem('aramky_active_tenant', currentTenantCode);
   loadTenantData(currentTenantCode);
+  syncAdminButtonVisibility();
 
   const adminBypass = isAdminTenant(currentTenantCode);
-  if (!adminBypass && (!sub.active || !sub.expiresAt || sub.expiresAt < today)) {
-    document.getElementById('locked-tenant-info').innerText = `المحل: ${sub.name} | الكود: ${sub.code} | انتهى: ${sub.expiresAt || '--'}`;
+  if (!adminBypass && (!sub.active || (sub.expiresAt && sub.expiresAt < today))) {
+    document.getElementById('locked-tenant-info').innerText = `الحساب: ${sub.name} | المسار: ${currentTenantCode} | الانتهاء: ${sub.expiresAt || '--'}`;
     document.getElementById('subscription-lock-screen').classList.remove('hidden');
     document.getElementById('app-main').style.display = 'none';
     document.getElementById('app-header').style.display = 'none';
@@ -1907,28 +1884,20 @@ async function verifyAndBootTenant(code) {
     document.getElementById('tenant-login-screen').classList.add('hidden');
     return;
   }
-  
+
   document.getElementById('app-main').style.display = 'grid';
   document.getElementById('app-header').style.display = 'flex';
   document.getElementById('app-ticker').style.display = 'block';
   document.getElementById('tenant-login-screen').classList.add('hidden');
   document.getElementById('subscription-lock-screen').classList.add('hidden');
-  document.getElementById('header-tenant-id').innerText = `ID: ${currentTenantCode}`;
-  document.getElementById('sup-tenant-badge').innerText = `كودك: ${currentTenantCode}`;
-  document.getElementById('header-sub-status').innerText = adminBypass ? 'حساب الأدمن (حر / غير متوقف)' : `نشط حتى ${sub.expiresAt}`;
+  document.getElementById('header-tenant-id').innerText = `المسار: ${currentTenantCode}`;
+  document.getElementById('sup-tenant-badge').innerText = `المسار: ${currentTenantCode}`;
+  document.getElementById('header-sub-status').innerText = adminBypass ? 'حساب الأدمن نشط' : (sub.expiresAt ? `نشط حتى ${sub.expiresAt}` : 'نشط');
   document.getElementById('header-store-name').innerText = appState.store.name;
   document.getElementById('header-store-logo').src = appState.store.logo || 'icon.png';
-  
-  if (adminBypass) {
-    document.getElementById('admin-btn-container').classList.remove('hidden');
-  } else {
-    document.getElementById('admin-btn-container').classList.add('hidden');
-  }
 
   updatePricesDerived(); autoFillScrapMithqal(); loadStoreSettingsToUI(); updateUI();
-  if (navigator.onLine) {
-    pushTenantToSupabase(currentTenantCode);
-  }
+  if (navigator.onLine) pushTenantToSupabase(currentTenantCode);
 }
 
 function openSupportFromLock() {
@@ -1936,14 +1905,18 @@ function openSupportFromLock() {
   document.getElementById('app-main').style.display = 'grid';
   document.getElementById('app-header').style.display = 'flex';
   document.getElementById('app-ticker').style.display = 'block';
-  document.getElementById('sup-tenant-badge').innerText = `كودك: ${currentTenantCode || '--'}`;
+  document.getElementById('sup-tenant-badge').innerText = `المسار: ${currentTenantCode || '--'}`;
   switchTab('support');
 }
 
 function loadTenantData(code) {
   const saved = localStorage.getItem(getStorageKeyForTenant(code));
-  if (saved) { try { appState = { ...appState, ...JSON.parse(saved) }; } catch(e) {} }
-  else { let sub = subscribersDB.find(s => s.code.toUpperCase() === code); if (sub) appState.store.name = sub.name; }
+  if (saved) {
+    try { appState = { ...appState, ...JSON.parse(saved) }; } catch (_) {}
+  } else {
+    const sub = subscribersDB.find(s => s.code.toUpperCase() === code);
+    if (sub) appState.store.name = sub.name;
+  }
 }
 
 function openResetSystemModal() { document.getElementById('reset-system-modal').classList.remove('hidden'); }
@@ -1985,10 +1958,10 @@ function selectInvoiceTemplate(tmpl) {
 }
 
 async function previewSupportReceipt(e) {
-  let file = e.target.files[0]; if (!file) return;
+  const file = e.target.files[0]; if (!file) return;
   try {
     tempReceiptBase64 = await uploadImageToIsolatedStorage(file, 'support');
-    let img = document.getElementById('sup-receipt-preview');
+    const img = document.getElementById('sup-receipt-preview');
     img.src = tempReceiptBase64; img.classList.remove('hidden');
   } catch (_) {
     showToast('تعذر قراءة الصورة!', 'error');
@@ -1996,16 +1969,11 @@ async function previewSupportReceipt(e) {
 }
 
 function submitSupportTransfer() {
-  let method = document.getElementById('sup-pay-method').value;
-  let ref = document.getElementById('sup-trans-ref').value.trim();
-  let msg = document.getElementById('sup-message').value.trim();
+  const method = document.getElementById('sup-pay-method').value;
+  const ref = document.getElementById('sup-trans-ref').value.trim();
+  const msg = document.getElementById('sup-message').value.trim();
   if (!ref && !msg && !tempReceiptBase64) return showToast('أدخل البيانات أو ارفق الصورة!', 'error');
-
   sendNotificationToAdmin(method, ref, msg, tempReceiptBase64);
-
-  let waText = encodeURIComponent(`مرحباً إدارة أرامكي 💎\nكود المعرض: ${currentTenantCode}\nاسم المعرض: ${appState.store.name}\nالموضوع: ${method}\nالتفاصيل: ${ref} - ${msg}`);
-  document.getElementById('sup-whatsapp-btn').href = `https://wa.me/9647766083622?text=${waText}`;
-
   document.getElementById('sup-trans-ref').value = '';
   document.getElementById('sup-message').value = '';
   tempReceiptBase64 = "";
@@ -2016,10 +1984,10 @@ function submitSupportTransfer() {
 }
 
 function renderSupportTickets() {
-  let c = document.getElementById('support-tickets-list'); if (!c) return; c.innerHTML = '';
+  const c = document.getElementById('support-tickets-list'); if (!c) return; c.innerHTML = '';
   if (!appState.supportTickets.length) { c.innerHTML = '<p class="text-xs text-slate-500">لا توجد رسائل أو تحويلات سابقة.</p>'; return; }
   appState.supportTickets.forEach(t => {
-    let imgHtml = t.receipt ? `<img src="${t.receipt}" onclick="openImageLightbox(this.src, '${t.method}')" onerror="this.style.display='none'" class="w-16 h-16 rounded-xl object-cover bg-darkbg border border-gold cursor-pointer">` : '';
+    const imgHtml = t.receipt ? `<img src="${t.receipt}" onclick="openImageLightbox(this.src, '${t.method}')" onerror="this.style.display='none'" class="w-16 h-16 rounded-xl object-cover bg-darkbg border border-gold cursor-pointer">` : '';
     c.innerHTML += `<div class="bg-darkbg p-3 rounded-2xl border border-slate-800 flex justify-between items-center gap-3 text-xs">
       <div class="flex items-center gap-3">${imgHtml}<div><strong class="text-gold">${t.method}</strong> — <span class="font-mono text-emerald-400">${t.ref||'بدون'}</span><p class="text-slate-400 text-[11px]">${t.msg||''} (${t.time})</p></div></div>
       <span class="bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full text-[10px] font-bold">${t.status}</span>
@@ -2028,29 +1996,29 @@ function renderSupportTickets() {
 }
 
 async function handleStoreLogoUpload(e) {
-  let file = e.target.files[0]; if (!file) return;
+  const file = e.target.files[0]; if (!file) return;
   try {
     const uploaded = await uploadImageToIsolatedStorage(file, 'logo');
     appState.store.logo = uploaded;
     document.getElementById('settings-logo-preview').src = appState.store.logo;
     document.getElementById('header-store-logo').src = appState.store.logo;
-    sendNotificationToAdmin('تحديث شعار الصايغ 🖼️', appState.store.name, 'قام الصايغ برفع صورة شعار جديدة لمعرضه', appState.store.logo);
+    sendNotificationToAdmin('تحديث شعار الصايغ 🖼️', appState.store.name, 'تم رفع صورة شعار جديدة للمعرض', appState.store.logo);
     saveState();
-    showToast('تم تحديث شعارك وإرسال نسخة للإدارة بنجاح!');
+    showToast('تم تحديث شعار المعرض بنجاح!');
   } catch (_) {
     showToast('تعذر رفع الشعار!', 'error');
   }
 }
 
 async function handleStoreCoverUpload(e) {
-  let file = e.target.files[0]; if (!file) return;
+  const file = e.target.files[0]; if (!file) return;
   try {
     const uploaded = await uploadImageToIsolatedStorage(file, 'cover');
     appState.store.cover = uploaded;
     document.getElementById('settings-cover-preview').src = appState.store.cover;
-    sendNotificationToAdmin('تحديث غلاف المعرض 🏞️', appState.store.name, 'قام الصايغ بتحديث صورة غلاف المعرض', appState.store.cover);
+    sendNotificationToAdmin('تحديث غلاف المعرض 🏞️', appState.store.name, 'تم تحديث صورة غلاف المعرض', appState.store.cover);
     saveState();
-    showToast('تم تحديث غلاف المعرض وإشعار الإدارة بنجاح!');
+    showToast('تم تحديث غلاف المعرض بنجاح!');
   } catch (_) {
     showToast('تعذر رفع الغلاف!', 'error');
   }
@@ -2071,15 +2039,8 @@ function renderEditModalImagesGallery() {
   `).join('');
 }
 
-function removeEditImageAt(imgIdx) {
-  editingImagesDraft.splice(imgIdx, 1);
-  renderEditModalImagesGallery();
-}
-
-function clearEditItemImages() {
-  editingImagesDraft = [];
-  renderEditModalImagesGallery();
-}
+function removeEditImageAt(imgIdx) { editingImagesDraft.splice(imgIdx, 1); renderEditModalImagesGallery(); }
+function clearEditItemImages() { editingImagesDraft = []; renderEditModalImagesGallery(); }
 
 async function handleEditModalImagesUpload(e) {
   const files = e.target.files;
@@ -2094,7 +2055,7 @@ async function handleEditModalImagesUpload(e) {
 }
 
 function openEditInventoryModal(idx) {
-  let item = appState.inventory[idx]; if (!item) return;
+  const item = appState.inventory[idx]; if (!item) return;
   document.getElementById('edit-inv-index').value = idx;
   document.getElementById('edit-inv-name').value = item.name;
   document.getElementById('edit-inv-karat').value = item.karat;
@@ -2111,20 +2072,18 @@ function openEditInventoryModal(idx) {
 function closeEditInventoryModal() { document.getElementById('edit-inventory-modal').classList.add('hidden'); }
 
 function saveEditedInventoryItem() {
-  let idx = parseInt(document.getElementById('edit-inv-index').value);
-  let oldItem = appState.inventory[idx]; if (!oldItem) return;
-  let newName = document.getElementById('edit-inv-name').value.trim();
-  let newKarat = document.getElementById('edit-inv-karat').value;
-  let newWeight = parseFloat(document.getElementById('edit-inv-weight').value);
-  let newQty = parseInt(document.getElementById('edit-inv-qty').value);
-  let newMaking = parseFloat(document.getElementById('edit-inv-making').value) || 0;
-  let newNotes = document.getElementById('edit-inv-notes').value.trim();
-  let newPublish = document.getElementById('edit-inv-publish').checked;
-  let reason = document.getElementById('edit-inv-reason').value.trim() || 'تعديل مخزن';
-
+  const idx = parseInt(document.getElementById('edit-inv-index').value);
+  const oldItem = appState.inventory[idx]; if (!oldItem) return;
+  const newName = document.getElementById('edit-inv-name').value.trim();
+  const newKarat = document.getElementById('edit-inv-karat').value;
+  const newWeight = parseFloat(document.getElementById('edit-inv-weight').value);
+  const newQty = parseInt(document.getElementById('edit-inv-qty').value);
+  const newMaking = parseFloat(document.getElementById('edit-inv-making').value) || 0;
+  const newNotes = document.getElementById('edit-inv-notes').value.trim();
+  const newPublish = document.getElementById('edit-inv-publish').checked;
+  const reason = document.getElementById('edit-inv-reason').value.trim() || 'تعديل مخزن';
   if (!newName || isNaN(newWeight) || newWeight <= 0 || isNaN(newQty) || newQty < 0) return showToast('بيانات غير صحيحة!', 'error');
-
-  let editCode = 'EDT-' + Math.floor(1000 + Math.random() * 9000);
+  const editCode = 'EDT-' + Math.floor(1000 + Math.random() * 9000);
   logTransaction('تعديل مخزن', `تعديل (${oldItem.name}) ⬅️ (${newName})`, `${newWeight}غ`, reason, editCode);
   appState.inventory[idx] = { ...oldItem, name: newName, karat: newKarat, weight: newWeight, qty: newQty, makingPerGram: newMaking, notes: newNotes, publish: newPublish, images: [...editingImagesDraft] };
   saveState(); closeEditInventoryModal();
@@ -2132,7 +2091,7 @@ function saveEditedInventoryItem() {
 }
 
 function openDeleteInventoryModal(idx) {
-  let item = appState.inventory[idx]; if (!item) return;
+  const item = appState.inventory[idx]; if (!item) return;
   document.getElementById('delete-inv-index').value = idx;
   document.getElementById('delete-inv-summary').innerText = `حذف (${item.name}) عيار ${item.karat} — وزن ${item.weight}غ؟`;
   document.getElementById('delete-inv-reason').value = '';
@@ -2141,10 +2100,10 @@ function openDeleteInventoryModal(idx) {
 function closeDeleteInventoryModal() { document.getElementById('delete-inventory-modal').classList.add('hidden'); }
 
 function confirmDeleteInventoryItem() {
-  let idx = parseInt(document.getElementById('delete-inv-index').value);
-  let item = appState.inventory[idx]; if (!item) return;
-  let reason = document.getElementById('delete-inv-reason').value.trim() || 'حذف مخزن';
-  let delCode = 'DEL-' + Math.floor(1000 + Math.random() * 9000);
+  const idx = parseInt(document.getElementById('delete-inv-index').value);
+  const item = appState.inventory[idx]; if (!item) return;
+  const reason = document.getElementById('delete-inv-reason').value.trim() || 'حذف مخزن';
+  const delCode = 'DEL-' + Math.floor(1000 + Math.random() * 9000);
   logTransaction('حذف مخزن', `حذف (${item.name}) عيار ${item.karat}`, `${item.weight}غ`, reason, delCode);
   appState.inventory.splice(idx, 1);
   saveState(); closeDeleteInventoryModal();
@@ -2164,7 +2123,7 @@ function loadStoreSettingsToUI() {
 }
 
 function saveStoreSettings() {
-  appState.store.name = document.getElementById('store-name').value || "صاغة أرامكي";
+  appState.store.name = document.getElementById('store-name').value || DEFAULT_ADMIN_NAME;
   appState.store.phone = document.getElementById('store-phone').value || "";
   appState.store.address = document.getElementById('store-address').value || "";
   appState.store.openTime = document.getElementById('store-open-time').value || "";
@@ -2172,10 +2131,15 @@ function saveStoreSettings() {
   appState.store.bio = document.getElementById('store-bio').value || "";
   document.getElementById('header-store-name').innerText = appState.store.name;
   sendNotificationToAdmin('تحديث بيانات المعرض 🏪', appState.store.name, `العنوان: ${appState.store.address} | الهاتف: ${appState.store.phone}`);
-  if (saveState()) showToast('تم حفظ إعدادات المعرض وإشعار الإدارة بنجاح!');
+  if (saveState()) showToast('تم حفظ إعدادات المعرض بنجاح!');
 }
 
-function copyStoreLink() { let el = document.getElementById('store-share-link'); el.select(); navigator.clipboard.writeText(el.value); showToast('تم نسخ الرابط!'); }
+function copyStoreLink() {
+  const el = document.getElementById('store-share-link');
+  el.select();
+  navigator.clipboard.writeText(el.value);
+  showToast('تم نسخ الرابط (بدون يوزر)');
+}
 
 function openStorefrontView() {
   document.getElementById('store-view-title').innerText = appState.store.name;
@@ -2185,28 +2149,21 @@ function openStorefrontView() {
   document.getElementById('store-view-phone').innerText = appState.store.phone || '--';
   document.getElementById('store-view-logo').src = appState.store.logo || 'icon.png';
   document.getElementById('store-view-cover').src = appState.store.cover || 'icon.png';
-  
-  let container = document.getElementById('storefront-grid'); container.innerHTML = '';
-  let items = appState.inventory.filter(i => i.qty > 0 && i.publish);
+  const container = document.getElementById('storefront-grid'); container.innerHTML = '';
+  const items = appState.inventory.filter(i => i.qty > 0 && i.publish);
   if (!items.length) container.innerHTML = `<p class="col-span-full text-center text-slate-500 py-10">لا توجد قطع منشورة حالياً.</p>`;
-  
   items.forEach(item => {
-    let gramPrice = getGramPrice(item.karat);
-    let makingPerMithqal = Math.round(item.makingPerGram * 5);
-    let totalMaking = Math.round(item.makingPerGram * item.weight);
-    let total = Math.round((item.weight * gramPrice) + totalMaking);
-    
-    let img = (item.images && item.images.length) 
-      ? `<img src="${item.images[0]}" onclick="openImageLightbox(this.src, '${item.name.replace(/'/g, '')}')" onerror="this.outerHTML='<div class=\\'w-full h-72 bg-slate-800 rounded-2xl flex items-center justify-center text-gold text-5xl\\'><i class=\\'fa-solid fa-gem\\'></i></div>'" class="w-full h-72 rounded-2xl object-cover bg-darkbg border border-gold/30 shadow-xl cursor-pointer">` 
+    const gramPrice = getGramPrice(item.karat);
+    const makingPerMithqal = Math.round(item.makingPerGram * 5);
+    const totalMaking = Math.round(item.makingPerGram * item.weight);
+    const total = Math.round((item.weight * gramPrice) + totalMaking);
+    const img = (item.images && item.images.length)
+      ? `<img src="${item.images[0]}" onclick="openImageLightbox(this.src, '${item.name.replace(/'/g, '')}')" onerror="this.outerHTML='<div class=\\'w-full h-72 bg-slate-800 rounded-2xl flex items-center justify-center text-gold text-5xl\\'><i class=\\'fa-solid fa-gem\\'></i></div>'" class="w-full h-72 rounded-2xl object-cover bg-darkbg border border-gold/30 shadow-xl cursor-pointer">`
       : `<div class="w-full h-72 bg-slate-800 rounded-2xl flex items-center justify-center text-gold text-5xl"><i class="fa-solid fa-gem"></i></div>`;
-      
     container.innerHTML += `<div class="system-card p-5 rounded-3xl border border-gold/40 space-y-4 shadow-2xl">
       ${img}
       <div class="space-y-2">
-        <div class="flex justify-between items-center">
-          <h4 class="font-black text-gold text-lg">${item.name}</h4>
-          <span class="bg-gold/20 text-gold px-3 py-1 rounded-full text-xs font-bold border border-gold/40">عيار ${item.karat}</span>
-        </div>
+        <div class="flex justify-between items-center"><h4 class="font-black text-gold text-lg">${item.name}</h4><span class="bg-gold/20 text-gold px-3 py-1 rounded-full text-xs font-bold border border-gold/40">عيار ${item.karat}</span></div>
         <div class="grid grid-cols-2 gap-2 text-xs bg-darkbg p-3 rounded-2xl border border-slate-800">
           <div>الوزن الصافي: <strong class="text-white">${item.weight} غرام</strong></div>
           <div>المتوفر: <strong class="text-emerald-400">${item.qty} قطعة</strong></div>
@@ -2214,10 +2171,7 @@ function openStorefrontView() {
           <div>إجمالي الصياغة: <strong class="text-amber-400">${totalMaking.toLocaleString()} د.ع</strong></div>
         </div>
         ${item.notes ? `<p class="text-[11px] text-slate-400 bg-darkbg/70 px-3 py-2 rounded-xl border border-slate-800">${item.notes}</p>` : ''}
-        <div class="bg-gold/10 p-3.5 rounded-2xl border border-gold/30 flex justify-between items-center">
-          <span class="text-xs text-slate-300 font-bold">السعر النهائي للقطعة:</span>
-          <span class="font-black text-emerald-400 text-lg">${total.toLocaleString()} د.ع</span>
-        </div>
+        <div class="bg-gold/10 p-3.5 rounded-2xl border border-gold/30 flex justify-between items-center"><span class="text-xs text-slate-300 font-bold">السعر النهائي للقطعة:</span><span class="font-black text-emerald-400 text-lg">${total.toLocaleString()} د.ع</span></div>
       </div>
     </div>`;
   });
@@ -2228,54 +2182,43 @@ function closeStorefrontView() { document.getElementById('storefront-modal').cla
 function renderPublicCustomerStorefront() {
   document.body.innerHTML = `<div class="min-h-screen bg-darkbg text-slate-100 p-4 md:p-6 flex flex-col items-center"><div class="max-w-5xl w-full space-y-6">
     <div class="rounded-3xl overflow-hidden border border-gold/40 system-card shadow-2xl">
-      <div class="w-full h-48 md:h-64 bg-slate-900 relative">
-        <img src="${appState.store.cover || 'icon.png'}" onerror="this.style.display='none'" class="w-full h-full object-cover bg-darkbg opacity-90">
-      </div>
+      <div class="w-full h-48 md:h-64 bg-slate-900 relative"><img src="${appState.store.cover || 'icon.png'}" onerror="this.style.display='none'" class="w-full h-full object-cover bg-darkbg opacity-90"></div>
       <div class="p-6 flex flex-col md:flex-row justify-between items-center md:items-end gap-4 -mt-12 relative z-10">
         <div class="flex flex-col md:flex-row items-center gap-4 text-center md:text-right">
           <img src="${appState.store.logo || 'icon.png'}" onerror="this.style.display='none'" class="w-24 h-24 rounded-3xl object-cover border-2 border-gold bg-darkbg shadow-2xl">
           <div class="pt-2 md:pt-8"><h1 class="text-2xl font-black text-gold">${appState.store.name}</h1><p class="text-xs text-slate-300 mt-1">${appState.store.bio}</p></div>
         </div>
         <div class="bg-darkbg/90 p-3.5 rounded-2xl text-xs space-y-1 border border-slate-800 w-full md:w-auto">
-          <div>📍 ${appState.store.address}</div>
-          <div>⏰ ${appState.store.openTime} - ${appState.store.closeTime}</div>
-          <div>📞 <span class="text-gold font-mono">${appState.store.phone}</span></div>
+          <div>📍 ${appState.store.address}</div><div>⏰ ${appState.store.openTime} - ${appState.store.closeTime}</div><div>📞 <span class="text-gold font-mono">${appState.store.phone}</span></div>
         </div>
       </div>
     </div>
     <div id="pub-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div></div></div>`;
-    
-  let g = document.getElementById('pub-grid');
+  const g = document.getElementById('pub-grid');
   appState.inventory.filter(i => i.qty > 0 && i.publish).forEach(item => {
-    let makingPerMithqal = Math.round(item.makingPerGram * 5);
-    let totalMaking = Math.round(item.makingPerGram * item.weight);
-    let total = Math.round((item.weight * getGramPrice(item.karat)) + totalMaking);
-    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" onerror="this.outerHTML='<div class=\\'w-full h-72 bg-slate-800 rounded-2xl flex items-center justify-center text-5xl\\'>💎</div>'" class="w-full h-72 rounded-2xl object-cover bg-darkbg border border-gold/30">` : `<div class="w-full h-72 bg-slate-800 rounded-2xl flex items-center justify-center text-5xl">💎</div>`;
+    const makingPerMithqal = Math.round(item.makingPerGram * 5);
+    const totalMaking = Math.round(item.makingPerGram * item.weight);
+    const total = Math.round((item.weight * getGramPrice(item.karat)) + totalMaking);
+    const img = (item.images && item.images.length) ? `<img src="${item.images[0]}" onerror="this.outerHTML='<div class=\\'w-full h-72 bg-slate-800 rounded-2xl flex items-center justify-center text-5xl\\'>💎</div>'" class="w-full h-72 rounded-2xl object-cover bg-darkbg border border-gold/30">` : `<div class="w-full h-72 bg-slate-800 rounded-2xl flex items-center justify-center text-5xl">💎</div>`;
     g.innerHTML += `<div class="system-card p-5 rounded-3xl border border-gold/40 space-y-4 shadow-xl">
       ${img}
       <div class="space-y-2">
         <div class="flex justify-between items-center"><h4 class="font-black text-gold text-lg">${item.name}</h4><span class="bg-gold/20 text-gold px-3 py-1 rounded-full text-xs font-bold">عيار ${item.karat}</span></div>
         <div class="grid grid-cols-2 gap-2 text-xs bg-darkbg p-3 rounded-2xl border border-slate-800">
-          <div>الوزن: <strong>${item.weight}غ</strong></div>
-          <div>صياغة المثقال: <strong class="text-amber-300">${makingPerMithqal.toLocaleString()} د.ع</strong></div>
+          <div>الوزن: <strong>${item.weight}غ</strong></div><div>صياغة المثقال: <strong class="text-amber-300">${makingPerMithqal.toLocaleString()} د.ع</strong></div>
           <div class="col-span-2">إجمالي أجور الصياغة: <strong class="text-amber-400">${totalMaking.toLocaleString()} د.ع</strong></div>
         </div>
-        <div class="bg-gold/10 p-3.5 rounded-2xl border border-gold/30 flex justify-between items-center">
-          <span class="text-xs text-slate-300 font-bold">السعر النهائي:</span>
-          <span class="font-black text-emerald-400 text-lg">${total.toLocaleString()} د.ع</span>
-        </div>
+        <div class="bg-gold/10 p-3.5 rounded-2xl border border-gold/30 flex justify-between items-center"><span class="text-xs text-slate-300 font-bold">السعر النهائي:</span><span class="font-black text-emerald-400 text-lg">${total.toLocaleString()} د.ع</span></div>
       </div>
     </div>`;
   });
 }
 
 function renderMithqalMakingAudit() {
-  const tbody = document.getElementById('mithqal-audit-tbody');
-  if (!tbody) return;
+  const tbody = document.getElementById('mithqal-audit-tbody'); if (!tbody) return;
   const selectedKarat = document.getElementById('mithqal-audit-karat')?.value || 'all';
   const customPriceVal = parseFloat(document.getElementById('mithqal-audit-custom-price')?.value || '');
   const hasCustomPrice = !isNaN(customPriceVal) && customPriceVal > 0;
-
   let rows = [];
   (appState.invoices || []).forEach((inv) => {
     if (inv.returned) return;
@@ -2284,46 +2227,29 @@ function renderMithqalMakingAudit() {
       if (selectedKarat !== 'all' && k !== selectedKarat) return;
       const itemMithqalPrice = Math.round(getMithqalPrice(k));
       if (hasCustomPrice && itemMithqalPrice !== Math.round(customPriceVal)) return;
-
       const weight = parseFloat(it.weight) || 0;
       const mithqals = weight / 5.0;
       const makingTotal = (parseFloat(it.itemMakingTotal) || ((parseFloat(it.makingPerGram) || 0) * weight));
       const makingPerMithqal = mithqals > 0 ? Math.round(makingTotal / mithqals) : Math.round((parseFloat(it.makingPerGram) || 0) * 5);
-
-      rows.push({
-        label: `${it.name} (${inv.code})`,
-        karat: k,
-        weight,
-        mithqals,
-        makingPerMithqal,
-        makingTotal
-      });
+      rows.push({ label: `${it.name} (${inv.code})`, karat: k, weight, mithqals, makingPerMithqal, makingTotal });
     });
   });
-
   const totalCount = rows.length;
   const totalWeight = rows.reduce((s, r) => s + r.weight, 0);
   const totalMithqals = rows.reduce((s, r) => s + r.mithqals, 0);
   const totalMaking = rows.reduce((s, r) => s + r.makingTotal, 0);
   const avgMakingPerMithqal = totalMithqals > 0 ? Math.round(totalMaking / totalMithqals) : 0;
-
   document.getElementById('audit-sold-count').innerText = `${totalCount} قطعة`;
   document.getElementById('audit-sold-weight').innerText = `${totalWeight.toFixed(3)} غ (${totalMithqals.toFixed(3)} مثقال)`;
   document.getElementById('audit-making-total').innerText = `${Math.round(totalMaking).toLocaleString()} د.ع`;
   document.getElementById('audit-making-per-mithqal').innerText = `${avgMakingPerMithqal.toLocaleString()} د.ع`;
-
   if (!rows.length) {
     tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">لا توجد مبيعات مطابقة للمثقال المحدد.</td></tr>`;
     return;
   }
-
   tbody.innerHTML = rows.map(r => `<tr class="border-b border-slate-800">
-    <td class="p-2.5 font-bold text-white">${r.label}</td>
-    <td class="p-2.5 text-gold font-bold">عيار ${r.karat}</td>
-    <td class="p-2.5">${r.weight.toFixed(3)} غ</td>
-    <td class="p-2.5 text-emerald-300 font-mono">${r.mithqals.toFixed(3)}</td>
-    <td class="p-2.5 text-amber-300 font-bold">${r.makingPerMithqal.toLocaleString()} د.ع</td>
-    <td class="p-2.5 text-emerald-400 font-black">${Math.round(r.makingTotal).toLocaleString()} د.ع</td>
+    <td class="p-2.5 font-bold text-white">${r.label}</td><td class="p-2.5 text-gold font-bold">عيار ${r.karat}</td><td class="p-2.5">${r.weight.toFixed(3)} غ</td>
+    <td class="p-2.5 text-emerald-300 font-mono">${r.mithqals.toFixed(3)}</td><td class="p-2.5 text-amber-300 font-bold">${r.makingPerMithqal.toLocaleString()} د.ع</td><td class="p-2.5 text-emerald-400 font-black">${Math.round(r.makingTotal).toLocaleString()} د.ع</td>
   </tr>`).join('');
 }
 
@@ -2338,28 +2264,17 @@ function setCustomDateFilter() { currentDayFilter = 'custom'; filterLogs(); }
 
 function switchLogCategory(cat) {
   currentCategoryFilter = cat;
-  document.querySelectorAll('.cat-btn').forEach(b => {
-    b.className = b.className.replace('bg-gold text-darkbg font-bold', 'bg-darkbg text-slate-300 border border-slate-700');
-  });
-  const activeIdMap = {
-    'all': 'log-cat-all',
-    'عملية بيع': 'log-cat-sales',
-    'شراء كسر': 'log-cat-scrap',
-    'تعديل مخزن': 'log-cat-inv-edit',
-    'حذف مخزن': 'log-cat-inv-del',
-    'إرجاع فاتورة': 'log-cat-return',
-    'حركة ديون': 'log-cat-debts',
-    'صرف مصروف': 'log-cat-exp'
-  };
+  document.querySelectorAll('.cat-btn').forEach(b => b.className = b.className.replace('bg-gold text-darkbg font-bold', 'bg-darkbg text-slate-300 border border-slate-700'));
+  const activeIdMap = { 'all': 'log-cat-all', 'عملية بيع': 'log-cat-sales', 'شراء كسر': 'log-cat-scrap', 'تعديل مخزن': 'log-cat-inv-edit', 'حذف مخزن': 'log-cat-inv-del', 'إرجاع فاتورة': 'log-cat-return', 'حركة ديون': 'log-cat-debts', 'صرف مصروف': 'log-cat-exp' };
   const btn = document.getElementById(activeIdMap[cat]);
   if (btn) btn.className = "cat-btn bg-gold text-darkbg px-3.5 py-1.5 rounded-xl font-bold";
   filterLogs();
 }
 
 function getFilteredLogsList() {
-  let q = (document.getElementById('search-input').value || '').toLowerCase();
-  let dq = document.getElementById('search-date').value;
-  let today = new Date().setHours(0,0,0,0), dayMs = 86400000;
+  const q = (document.getElementById('search-input').value || '').toLowerCase();
+  const dq = document.getElementById('search-date').value;
+  const today = new Date().setHours(0,0,0,0), dayMs = 86400000;
   return appState.logs.filter(l => {
     if (currentCategoryFilter !== 'all' && l.type !== currentCategoryFilter) return false;
     if (!(l.details.toLowerCase().includes(q) || l.code.toLowerCase().includes(q))) return false;
@@ -2373,14 +2288,14 @@ function getFilteredLogsList() {
 }
 
 function filterLogs() {
-  let list = getFilteredLogsList(), tbody = document.getElementById('logs-table-body'); tbody.innerHTML = '';
+  const list = getFilteredLogsList(), tbody = document.getElementById('logs-table-body'); tbody.innerHTML = '';
   let s = 0, p = 0, sc = 0, ex = 0;
   list.forEach(l => {
-    let val = Math.abs(parseFloat(String(l.amount).replace(/[^0-9.-]+/g, "")) || 0);
+    const val = Math.abs(parseFloat(String(l.amount).replace(/[^0-9.-]+/g, "")) || 0);
     if (l.type === 'عملية بيع') { s += val; p += (l.profit || 0); }
     else if (l.type === 'شراء كسر') sc += val;
     else if (l.type === 'صرف مصروف') ex += val;
-    let c = (l.type === 'إرجاع فاتورة' || l.type === 'حذف مخزن') ? 'text-rose-400' : (l.type === 'تعديل مخزن' ? 'text-amber-400' : 'text-gold');
+    const c = (l.type === 'إرجاع فاتورة' || l.type === 'حذف مخزن') ? 'text-rose-400' : (l.type === 'تعديل مخزن' ? 'text-amber-400' : 'text-gold');
     tbody.innerHTML += `<tr class="border-b border-slate-800"><td class="p-3 text-slate-400">${l.time}</td><td class="p-3 font-mono font-bold ${c}">${l.code}</td><td class="p-3 font-bold">${l.type}</td><td class="p-3">${l.details}<br><span class="text-[10px] text-slate-500">${l.notes||''}</span></td><td class="p-3 font-bold text-emerald-400">${l.amount}</td></tr>`;
   });
   document.getElementById('period-sales-total').innerText = `${Math.round(s).toLocaleString()} د.ع`;
@@ -2391,17 +2306,15 @@ function filterLogs() {
 }
 
 function exportLogsToExcel() {
-  let list = getFilteredLogsList(); if (!list.length) return showToast('لا توجد بيانات للتصدير!', 'error');
+  const list = getFilteredLogsList(); if (!list.length) return showToast('لا توجد بيانات للتصدير!', 'error');
   let csv = "\uFEFFنظام إدارة صياغة الذهب - تقرير الجرد المالي والحركات\n";
-  csv += `معرض: ${appState.store.name} (كود الفرع: ${currentTenantCode})\n`;
+  csv += `معرض: ${appState.store.name} (المسار: ${currentTenantCode})\n`;
   csv += `تاريخ التصدير: ${new Date().toLocaleDateString('ar-IQ')}\n\n`;
   csv += "التاريخ والوقت,رمز الحركة,نوع العملية,التفاصيل الكاملة,المبلغ أو الوزن,صافي أرباح الصياغة,ملاحظات الجرد\n";
-  
   list.forEach(l => {
     csv += `"${l.time}","${l.code}","${l.type}","${l.details.replace(/"/g,'""')}","${l.amount}","${l.profit||0}","${(l.notes||'').replace(/"/g,'""')}"\n`;
   });
-
-  let a = document.createElement("a");
+  const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
   a.download = `ARAMKY_Gold_Report_${currentTenantCode}_${new Date().toISOString().split('T')[0]}.csv`;
   a.click();
@@ -2417,23 +2330,23 @@ function getGramPrice(k) { return appState.prices['g'+k] || appState.prices.g21;
 function getMithqalPrice(k) { return appState.prices['m'+k] || appState.prices.m21; }
 
 function showToast(msg, type = 'success') {
-  let t = document.createElement('div');
-  let bg = type === 'error' ? 'bg-rose-600 border-rose-400' : (type === 'info' ? 'bg-blue-600 border-blue-400' : 'bg-emerald-600 border-emerald-400');
+  const t = document.createElement('div');
+  const bg = type === 'error' ? 'bg-rose-600 border-rose-400' : (type === 'info' ? 'bg-blue-600 border-blue-400' : 'bg-emerald-600 border-emerald-400');
   t.className = `pointer-events-auto px-5 py-3.5 rounded-2xl text-xs font-bold text-white shadow-2xl border ${bg}`;
   t.innerText = msg; document.getElementById('toast-container').appendChild(t);
   setTimeout(() => t.remove(), 4000);
 }
 
 function formatAltCurrency(amt) {
-  let mode = appState.currencyMode || 'iraqi';
-  let usd = appState.prices.usd || 153000;
+  const mode = appState.currencyMode || 'iraqi';
+  const usd = appState.prices.usd || 153000;
   if (mode === 'global') return `$${(amt / (usd / 100)).toFixed(2)}`;
-  let p = Math.floor(amt / usd), r = Math.round(amt % usd);
+  const p = Math.floor(amt / usd), r = Math.round(amt % usd);
   return p > 0 ? `${p} ورقة و ${r.toLocaleString()} د.ع` : `${Math.round(amt).toLocaleString()} د.ع`;
 }
 
 function logTransaction(type, details, amount, notes = "", code = null, profit = 0) {
-  let now = new Date();
+  const now = new Date();
   appState.logs.unshift({ time: now.toLocaleDateString('ar-IQ') + ' ' + now.toLocaleTimeString('ar-IQ', {hour:'2-digit',minute:'2-digit'}), date: now.toISOString().split('T')[0], code: code || ('OP-' + Math.floor(1000+Math.random()*9000)), type, details, amount, notes, profit, rawDate: now.getTime() });
 }
 
@@ -2441,7 +2354,7 @@ function switchTab(id) {
   document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
   document.getElementById('view-' + id).classList.remove('hidden');
   document.querySelectorAll('.tab-btn').forEach(b => b.className = "tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800");
-  let activeBtn = document.getElementById('btn-tab-' + id);
+  const activeBtn = document.getElementById('btn-tab-' + id);
   if (activeBtn) activeBtn.className = "tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 bg-gold text-darkbg font-bold shadow-lg";
   if (id === 'support') renderSupportTickets();
   if (id === 'logs') renderMithqalMakingAudit();
@@ -2450,6 +2363,7 @@ function switchTab(id) {
 
 function updateUI() {
   updatePricesDerived();
+  syncAdminButtonVisibility();
   document.getElementById('ticker-usd').innerText = appState.prices.usd.toLocaleString();
   ['24','22','21','18','9'].forEach(k => document.getElementById('ticker-g'+k).innerText = Math.round(appState.prices['g'+k]).toLocaleString());
   document.getElementById('current-usd-rate').innerText = appState.prices.usd.toLocaleString();
@@ -2457,11 +2371,10 @@ function updateUI() {
   document.getElementById('dash-usd').innerText = '$' + appState.usdCash.toLocaleString();
   document.getElementById('dash-zain').innerText = Math.round(appState.zainCash).toLocaleString() + ' د.ع';
   document.getElementById('dash-making-profit').innerText = Math.round(appState.makingProfit).toLocaleString() + ' د.ع';
-
-  let tbody = document.getElementById('inventory-table-body'); tbody.innerHTML = '';
+  const tbody = document.getElementById('inventory-table-body'); tbody.innerHTML = '';
   appState.inventory.forEach((item, idx) => {
-    let img = (item.images && item.images.length) ? `<img src="${item.images[0]}" onclick="openImageLightbox(this.src, '${item.name.replace(/'/g, '')}')" onerror="this.outerHTML='💎'" class="w-12 h-12 rounded-xl object-cover bg-darkbg border border-gold/40 cursor-pointer">` : '💎';
-    let mithqalMaking = Math.round(item.makingPerGram * 5);
+    const img = (item.images && item.images.length) ? `<img src="${item.images[0]}" onclick="openImageLightbox(this.src, '${item.name.replace(/'/g, '')}')" onerror="this.outerHTML='💎'" class="w-12 h-12 rounded-xl object-cover bg-darkbg border border-gold/40 cursor-pointer">` : '💎';
+    const mithqalMaking = Math.round(item.makingPerGram * 5);
     tbody.innerHTML += `<tr class="border-b border-slate-800">
       <td class="p-3">${img}</td><td class="p-3 font-bold">${item.name}${item.notes ? `<span class="block text-[10px] text-slate-400">${item.notes}</span>` : ''}</td><td class="p-3">${item.karat}</td><td class="p-3">${item.weight}غ</td>
       <td class="p-3 text-amber-400">الغرام: ${item.makingPerGram.toLocaleString()}<br><span class="text-[10px] text-amber-200">المثقال: ${mithqalMaking.toLocaleString()}</span></td>
@@ -2475,13 +2388,12 @@ function updateUI() {
 }
 
 function updateCartPreview() {
-  let idx = document.getElementById('selected-preview-index').value;
+  const idx = document.getElementById('selected-preview-index').value;
   if (idx === "" || !appState.inventory[idx]) return;
-  let item = appState.inventory[idx], gp = getGramPrice(item.karat);
-  let makingMithqal = Math.round(item.makingPerGram * 5);
-  let mt = item.makingPerGram * item.weight;
-  let tot = Math.round((item.weight * gp) + mt);
-  
+  const item = appState.inventory[idx], gp = getGramPrice(item.karat);
+  const makingMithqal = Math.round(item.makingPerGram * 5);
+  const mt = item.makingPerGram * item.weight;
+  const tot = Math.round((item.weight * gp) + mt);
   document.getElementById('prev-gram-net').innerText = Math.round(gp).toLocaleString() + ' د.ع';
   document.getElementById('prev-making-mithqal').innerText = makingMithqal.toLocaleString() + ' د.ع';
   document.getElementById('prev-making-total').innerText = Math.round(mt).toLocaleString() + ' د.ع';
@@ -2490,33 +2402,26 @@ function updateCartPreview() {
 }
 
 function addQuickSelectedToCart() {
-  let idx = document.getElementById('selected-preview-index').value;
+  const idx = document.getElementById('selected-preview-index').value;
   if (idx === "") return showToast('يرجى اختيار قطعة للمعاينة أولاً!', 'error');
   addItemToCartFromIndex(parseInt(idx));
 }
 function addItemToCartFromIndex(idx) {
-  let item = appState.inventory[idx], mt = item.makingPerGram * item.weight, tot = Math.round((item.weight * getGramPrice(item.karat)) + mt);
+  const item = appState.inventory[idx], mt = item.makingPerGram * item.weight, tot = Math.round((item.weight * getGramPrice(item.karat)) + mt);
   appState.cart.push({ ...item, invIdx: idx, itemMakingMithqal: Math.round(item.makingPerGram * 5), itemMakingTotal: mt, itemTotal: tot }); renderCart(); showToast(`أضيفت (${item.name}) إلى السلة`);
 }
 
 function renderCart() {
-  let c = document.getElementById('cart-items-container'); c.innerHTML = '';
-  let q = (document.getElementById('cart-search-input')?.value || '').toLowerCase();
-  let tot = appState.cart.reduce((s, i) => s + i.itemTotal, 0);
-  
-  let filteredCart = appState.cart.map((item, idx) => ({ ...item, cartIdx: idx })).filter(i => i.name.toLowerCase().includes(q) || String(i.karat).includes(q));
-
-  if (!appState.cart.length) {
-    c.innerHTML = '<p class="text-center text-slate-500 text-xs p-3">السلة فارغة.</p>';
-  } else if (!filteredCart.length) {
-    c.innerHTML = '<p class="text-center text-amber-400 text-xs p-3">لا توجد قطعة مطابقة لبحثك داخل السلة.</p>';
-  } else {
+  const c = document.getElementById('cart-items-container'); c.innerHTML = '';
+  const q = (document.getElementById('cart-search-input')?.value || '').toLowerCase();
+  const tot = appState.cart.reduce((s, i) => s + i.itemTotal, 0);
+  const filteredCart = appState.cart.map((item, idx) => ({ ...item, cartIdx: idx })).filter(i => i.name.toLowerCase().includes(q) || String(i.karat).includes(q));
+  if (!appState.cart.length) c.innerHTML = '<p class="text-center text-slate-500 text-xs p-3">السلة فارغة.</p>';
+  else if (!filteredCart.length) c.innerHTML = '<p class="text-center text-amber-400 text-xs p-3">لا توجد قطعة مطابقة لبحثك داخل السلة.</p>';
+  else {
     filteredCart.forEach(item => {
       c.innerHTML += `<div class="bg-darkbg p-3 rounded-2xl border border-gold/30 flex justify-between items-center text-xs">
-        <div>
-          <strong class="text-gold">${item.name}</strong> (${item.weight}غ - عيار ${item.karat})
-          <span class="block text-[10px] text-amber-300">صياغة المثقال: ${(item.itemMakingMithqal||0).toLocaleString()} د.ع | إجمالي الصياغة: ${Math.round(item.itemMakingTotal).toLocaleString()} د.ع</span>
-        </div>
+        <div><strong class="text-gold">${item.name}</strong> (${item.weight}غ - عيار ${item.karat})<span class="block text-[10px] text-amber-300">صياغة المثقال: ${(item.itemMakingMithqal||0).toLocaleString()} د.ع | إجمالي الصياغة: ${Math.round(item.itemMakingTotal).toLocaleString()} د.ع</span></div>
         <div class="flex items-center gap-2"><span class="text-emerald-400 font-bold">${item.itemTotal.toLocaleString()} د.ع</span><button onclick="appState.cart.splice(${item.cartIdx},1);renderCart();" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-solid fa-trash"></i></button></div>
       </div>`;
     });
@@ -2526,7 +2431,7 @@ function renderCart() {
 }
 
 function payFullAction(t) {
-  let tot = appState.cart.reduce((s, i) => s + i.itemTotal, 0); if (!tot) return;
+  const tot = appState.cart.reduce((s, i) => s + i.itemTotal, 0); if (!tot) return;
   document.getElementById('pay-iqd').value = t==='iqd'?tot:0;
   document.getElementById('pay-usd').value = t==='usd'?(tot/(appState.prices.usd/100)).toFixed(2):0;
   document.getElementById('pay-card').value = t==='card'?tot:0;
@@ -2534,23 +2439,21 @@ function payFullAction(t) {
 
 function completeSale(mode) {
   if (!appState.cart.length) return showToast('السلة فارغة!', 'error');
-  let cust = document.getElementById('pos-customer').value.trim() || (mode==='debt'?'':'زبون نقدي');
+  const cust = document.getElementById('pos-customer').value.trim() || (mode==='debt'?'':'زبون نقدي');
   if (mode === 'debt' && !cust) return showToast('اكتب اسم الزبون!', 'error');
-  let phone = document.getElementById('pos-phone').value.trim() || '--', notes = document.getElementById('pos-notes').value;
+  const phone = document.getElementById('pos-phone').value.trim() || '--', notes = document.getElementById('pos-notes').value;
   let iqd = parseFloat(document.getElementById('pay-iqd').value)||0, usd = parseFloat(document.getElementById('pay-usd').value)||0, card = parseFloat(document.getElementById('pay-card').value)||0;
-  let tot = appState.cart.reduce((s,i)=>s+i.itemTotal,0), mk = appState.cart.reduce((s,i)=>s+i.itemMakingTotal,0), wt = appState.cart.reduce((s,i)=>s+i.weight,0);
-  let code = 'INV-' + Math.floor(1000 + Math.random()*9000), snap = JSON.parse(JSON.stringify(appState.cart));
-  
+  const tot = appState.cart.reduce((s,i)=>s+i.itemTotal,0), mk = appState.cart.reduce((s,i)=>s+i.itemMakingTotal,0), wt = appState.cart.reduce((s,i)=>s+i.weight,0);
+  const code = 'INV-' + Math.floor(1000 + Math.random()*9000), snap = JSON.parse(JSON.stringify(appState.cart));
   appState.cart.forEach(ci => { if (appState.inventory[ci.invIdx]) { appState.inventory[ci.invIdx].qty -= 1; if (appState.inventory[ci.invIdx].qty <= 0) appState.inventory[ci.invIdx].publish = false; } });
-  
   if (mode === 'cash') {
     if (!iqd && !usd && !card) iqd = tot;
     appState.cash += iqd; appState.usdCash += usd; appState.zainCash += card; appState.makingProfit += mk;
     logTransaction('عملية بيع', `بيع ${snap.length} قطعة (${wt}غ) للزبون (${cust})`, `${tot.toLocaleString()} د.ع`, notes, code, mk);
   } else {
-    let paid = iqd + (usd*(appState.prices.usd/100)) + card, rem = Math.max(0, tot - paid);
+    const paid = iqd + (usd*(appState.prices.usd/100)) + card, rem = Math.max(0, tot - paid);
     appState.cash += iqd; appState.usdCash += usd; appState.zainCash += card; appState.makingProfit += mk;
-    let cObj = getOrCreateCustomer(cust, phone); cObj.debt += rem; cObj.history.push({ time: new Date().toLocaleDateString('ar-IQ'), type: 'بيع آجل', details: `فاتورة ${code} (المتبقي: ${rem.toLocaleString()})`, amount: `${rem.toLocaleString()} د.ع` });
+    const cObj = getOrCreateCustomer(cust, phone); cObj.debt += rem; cObj.history.push({ time: new Date().toLocaleDateString('ar-IQ'), type: 'بيع آجل', details: `فاتورة ${code} (المتبقي: ${rem.toLocaleString()})`, amount: `${rem.toLocaleString()} د.ع` });
     logTransaction('عملية بيع', `بيع آجل (${cust}) - متبقي ${rem.toLocaleString()}`, `${tot.toLocaleString()} د.ع`, notes, code, mk);
   }
   appState.invoices.unshift({ code, type:'بيع', customer:cust, phone, items:snap, total:tot, weight:wt, making:mk, paid:{iqd,usd,card}, notes, time:new Date().toLocaleString('ar-IQ'), returned:false });
@@ -2559,22 +2462,20 @@ function completeSale(mode) {
 }
 
 function autoFillScrapMithqal() {
-  let k = document.getElementById('scrap-karat').value;
+  const k = document.getElementById('scrap-karat').value;
   document.getElementById('scrap-mithqal-price').value = Math.round(getMithqalPrice(k));
   updateScrapPreview();
 }
 
 function updateScrapPreview() {
-  let mp = parseFloat(document.getElementById('scrap-mithqal-price').value)||0;
-  let w = parseFloat(document.getElementById('scrap-weight').value)||0;
-  let deductPerGram = parseFloat(document.getElementById('scrap-deduct').value)||0;
-
-  let baseGramPrice = mp / 5;
-  let finalGramPrice = Math.max(0, baseGramPrice - deductPerGram);
-  let total = Math.round(w * finalGramPrice);
-  let usdRate = appState.prices.usd || 153000;
-  let usdVal = (total / (usdRate / 100)).toFixed(2);
-
+  const mp = parseFloat(document.getElementById('scrap-mithqal-price').value)||0;
+  const w = parseFloat(document.getElementById('scrap-weight').value)||0;
+  const deductPerGram = parseFloat(document.getElementById('scrap-deduct').value)||0;
+  const baseGramPrice = mp / 5;
+  const finalGramPrice = Math.max(0, baseGramPrice - deductPerGram);
+  const total = Math.round(w * finalGramPrice);
+  const usdRate = appState.prices.usd || 153000;
+  const usdVal = (total / (usdRate / 100)).toFixed(2);
   document.getElementById('scrap-prev-gram').innerText = Math.round(finalGramPrice).toLocaleString() + ' د.ع';
   document.getElementById('scrap-prev-net-weight').innerText = w.toFixed(3) + ' غرام';
   document.getElementById('scrap-prev-iqd').innerText = total.toLocaleString() + ' د.ع';
@@ -2582,17 +2483,15 @@ function updateScrapPreview() {
 }
 
 function buyScrapGold() {
-  let cust = document.getElementById('scrap-customer').value.trim() || 'بائع كسر', phone = document.getElementById('scrap-phone').value.trim() || '--';
-  let k = document.getElementById('scrap-karat').value, mp = parseFloat(document.getElementById('scrap-mithqal-price').value)||0;
-  let w = parseFloat(document.getElementById('scrap-weight').value)||0, deductPerGram = parseFloat(document.getElementById('scrap-deduct').value)||0;
-  let notes = document.getElementById('scrap-notes').value;
+  const cust = document.getElementById('scrap-customer').value.trim() || 'بائع كسر', phone = document.getElementById('scrap-phone').value.trim() || '--';
+  const k = document.getElementById('scrap-karat').value, mp = parseFloat(document.getElementById('scrap-mithqal-price').value)||0;
+  const w = parseFloat(document.getElementById('scrap-weight').value)||0, deductPerGram = parseFloat(document.getElementById('scrap-deduct').value)||0;
+  const notes = document.getElementById('scrap-notes').value;
   if (w <= 0 || mp <= 0) return showToast('أدخل الوزن وسعر المثقال!', 'error');
-
-  let baseGramPrice = mp / 5;
-  let finalGramPrice = Math.max(0, baseGramPrice - deductPerGram);
-  let total = Math.round(w * finalGramPrice);
-  let code = 'SCR-' + Math.floor(1000 + Math.random()*9000);
-
+  const baseGramPrice = mp / 5;
+  const finalGramPrice = Math.max(0, baseGramPrice - deductPerGram);
+  const total = Math.round(w * finalGramPrice);
+  const code = 'SCR-' + Math.floor(1000 + Math.random()*9000);
   appState.cash -= total;
   appState.invoices.unshift({ code, type:'شراء كسر', customer:cust, phone, items:[{name:`ذهب كسر عيار ${k}`, karat:k, weight:w, itemTotal:total}], total, weight:w, making:0, paid:{iqd:total,usd:0,card:0}, notes, time:new Date().toLocaleString('ar-IQ'), returned:false });
   logTransaction('شراء كسر', `شراء كسر عيار ${k} (${w}غ) من (${cust}) [خصم صياغة الغرام: ${deductPerGram.toLocaleString()}]`, `-${total.toLocaleString()} د.ع`, notes, code);
@@ -2603,8 +2502,8 @@ function buyScrapGold() {
 function openReturnModal() { document.getElementById('return-modal').classList.remove('hidden'); }
 function closeReturnModal() { document.getElementById('return-modal').classList.add('hidden'); }
 function processInvoiceReturn() {
-  let code = document.getElementById('return-inv-code').value.trim().toUpperCase(), reason = document.getElementById('return-reason').value.trim() || 'إرجاع';
-  let inv = appState.invoices.find(i => i.code.toUpperCase() === code);
+  const code = document.getElementById('return-inv-code').value.trim().toUpperCase(), reason = document.getElementById('return-reason').value.trim() || 'إرجاع';
+  const inv = appState.invoices.find(i => i.code.toUpperCase() === code);
   if (!inv) return showToast('رمز الفاتورة غير موجود!', 'error');
   if (inv.returned) return showToast('مرتجعة مسبقاً!', 'error');
   inv.returned = true;
@@ -2618,10 +2517,10 @@ function processInvoiceReturn() {
 }
 
 async function addNewInventoryItem() {
-  let name = document.getElementById('inv-name').value.trim(), karat = document.getElementById('inv-karat').value;
-  let weight = parseFloat(document.getElementById('inv-weight').value)||0, qty = parseInt(document.getElementById('inv-qty').value)||1;
-  let makingPerGram = parseFloat(document.getElementById('inv-making').value)||0, publish = document.getElementById('inv-publish').checked, notes = document.getElementById('inv-notes').value;
-  let files = document.getElementById('inv-images').files, imgs = [];
+  const name = document.getElementById('inv-name').value.trim(), karat = document.getElementById('inv-karat').value;
+  const weight = parseFloat(document.getElementById('inv-weight').value)||0, qty = parseInt(document.getElementById('inv-qty').value)||1;
+  const makingPerGram = parseFloat(document.getElementById('inv-making').value)||0, publish = document.getElementById('inv-publish').checked, notes = document.getElementById('inv-notes').value;
+  const files = document.getElementById('inv-images').files, imgs = [];
   if (!name || weight <= 0) return showToast('أدخل الاسم والوزن!', 'error');
   const saveItem = () => {
     appState.inventory.push({ name, karat, weight, qty, makingPerGram, publish, notes, images: imgs });
@@ -2632,10 +2531,7 @@ async function addNewInventoryItem() {
   if (files && files.length > 0) {
     let loaded = 0;
     for (let f of files) {
-      try {
-        const uploadedUrl = await uploadImageToIsolatedStorage(f, 'items');
-        imgs.push(uploadedUrl);
-      } catch (_) {}
+      try { const uploadedUrl = await uploadImageToIsolatedStorage(f, 'items'); imgs.push(uploadedUrl); } catch (_) {}
       loaded++;
       if (loaded === files.length) saveItem();
     }
@@ -2643,7 +2539,7 @@ async function addNewInventoryItem() {
 }
 
 function addExpense() {
-  let r = document.getElementById('exp-reason').value.trim(), a = parseFloat(document.getElementById('exp-amount').value)||0, n = document.getElementById('exp-notes').value;
+  const r = document.getElementById('exp-reason').value.trim(), a = parseFloat(document.getElementById('exp-amount').value)||0, n = document.getElementById('exp-notes').value;
   if (!r || a <= 0) return showToast('أدخل السبب والمبلغ!', 'error');
   appState.cash -= a; logTransaction('صرف مصروف', `${r} (${n})`, `-${a.toLocaleString()} د.ع`, n);
   document.getElementById('exp-reason').value = ''; document.getElementById('exp-amount').value = ''; document.getElementById('exp-notes').value = '';
@@ -2652,9 +2548,28 @@ function addExpense() {
 
 function getOrCreateCustomer(name, phone = '--') {
   let c = appState.debts.find(d => d.name === name);
-  if (!c) { c = { name, phone: phone || '--', debt: 0, credit: 0, goldGrams: 0, history: [] }; appState.debts.push(c); }
-  else if (phone && phone !== '--') c.phone = phone;
+  if (!c) {
+    c = { name, phone: phone || '--', debt: 0, credit: 0, goldThem: 0, goldUs: 0, goldGrams: 0, history: [] };
+    appState.debts.push(c);
+  } else {
+    if (phone && phone !== '--') c.phone = phone;
+    c.debt = parseFloat(c.debt) || 0;
+    c.credit = parseFloat(c.credit) || 0;
+    c.goldThem = parseFloat(c.goldThem) || 0;
+    c.goldUs = parseFloat(c.goldUs) || 0;
+    c.goldGrams = parseFloat(c.goldGrams) || 0;
+    if ((c.goldThem === 0 && c.goldUs === 0) && c.goldGrams !== 0) {
+      if (c.goldGrams >= 0) c.goldThem = c.goldGrams;
+      else c.goldUs = Math.abs(c.goldGrams);
+    }
+  }
   return c;
+}
+
+function syncCustomerGoldTotals(c) {
+  c.goldThem = Math.max(0, parseFloat(c.goldThem) || 0);
+  c.goldUs = Math.max(0, parseFloat(c.goldUs) || 0);
+  c.goldGrams = Number((c.goldThem - c.goldUs).toFixed(3));
 }
 
 function selectLuxuryDebtType(typeValue, labelText) {
@@ -2662,40 +2577,69 @@ function selectLuxuryDebtType(typeValue, labelText) {
   const lbl = document.getElementById('selected-debt-type-label');
   if (lbl) {
     lbl.innerText = labelText;
-    lbl.className = typeValue.includes('تطلبهم') || typeValue.includes('إضافة')
+    lbl.className = (typeValue.includes('تطلبهم') || typeValue.includes('إضافة ذهب تطلبهم'))
       ? 'text-emerald-400 font-black'
       : 'text-rose-400 font-black';
   }
   const map = {
     'تطلبهم (دين لك)': 'btn-dmode-plus-money',
-    'مطلوب منك (دين عليك)': 'btn-dmode-minus-money',
-    'إضافة ذهب (غرام)': 'btn-dmode-plus-gold',
-    'نقصان ذهب (غرام)': 'btn-dmode-minus-gold'
+    'نقصان أموال تطلبهم': 'btn-dmode-minus-money',
+    'مطلوب منك (دين عليك)': 'btn-dmode-plus-credit',
+    'نقصان أموال يطلبونك': 'btn-dmode-minus-credit',
+    'إضافة ذهب تطلبهم (غرام)': 'btn-dmode-plus-gold-them',
+    'نقصان ذهب تطلبهم (غرام)': 'btn-dmode-minus-gold-them',
+    'إضافة ذهب يطلبونك (غرام)': 'btn-dmode-plus-gold-us',
+    'نقصان ذهب يطلبونك (غرام)': 'btn-dmode-minus-gold-us'
   };
-  ['btn-dmode-plus-money', 'btn-dmode-minus-money', 'btn-dmode-plus-gold', 'btn-dmode-minus-gold'].forEach(id => {
+  ['btn-dmode-plus-money', 'btn-dmode-minus-money', 'btn-dmode-plus-credit', 'btn-dmode-minus-credit', 'btn-dmode-plus-gold-them', 'btn-dmode-minus-gold-them', 'btn-dmode-plus-gold-us', 'btn-dmode-minus-gold-us'].forEach(id => {
     const el = document.getElementById(id);
-    if (!el) return;
-    el.className = el.className.replace('border-2', 'border');
+    if (el) el.className = el.className.replace('border-2', 'border');
   });
   const activeId = map[typeValue];
-  if (activeId && document.getElementById(activeId)) {
-    document.getElementById(activeId).className += ' border-2';
-  }
-  closeLuxuryDebtTypeModal();
+  if (activeId && document.getElementById(activeId)) document.getElementById(activeId).className += ' border-2';
 }
 
-function openLuxuryDebtTypeModal() { document.getElementById('luxury-debt-type-modal').classList.remove('hidden'); }
-function closeLuxuryDebtTypeModal() { document.getElementById('luxury-debt-type-modal').classList.add('hidden'); }
-
 function addDebtMovement() {
-  let name = document.getElementById('debt-customer').value.trim(), phone = document.getElementById('debt-phone').value.trim() || '--';
-  let amt = parseFloat(document.getElementById('debt-amount').value)||0, type = document.getElementById('debt-type').value, notes = document.getElementById('debt-notes').value;
+  const name = document.getElementById('debt-customer').value.trim(), phone = document.getElementById('debt-phone').value.trim() || '--';
+  const amt = parseFloat(document.getElementById('debt-amount').value)||0, type = document.getElementById('debt-type').value, notes = document.getElementById('debt-notes').value;
   if (!name || amt <= 0) return showToast('أدخل الاسم والقيمة!', 'error');
-  let c = getOrCreateCustomer(name, phone);
-  if (type === 'تطلبهم (دين لك)') { c.debt += amt; c.history.push({ time: new Date().toLocaleDateString('ar-IQ'), type:'إضافة أموال (+ تطلبهم)', details:notes, amount:`+${amt.toLocaleString()} د.ع` }); }
-  else if (type === 'مطلوب منك (دين عليك)') { c.credit += amt; c.history.push({ time: new Date().toLocaleDateString('ar-IQ'), type:'نقصان / مطلوب منك (- عليك)', details:notes, amount:`-${amt.toLocaleString()} د.ع` }); }
-  else if (type === 'إضافة ذهب (غرام)') { c.goldGrams += amt; c.history.push({ time: new Date().toLocaleDateString('ar-IQ'), type:'إضافة ذهب (+)', details:notes, amount:`+${amt}غ` }); }
-  else if (type === 'نقصان ذهب (غرام)') { c.goldGrams -= amt; c.history.push({ time: new Date().toLocaleDateString('ar-IQ'), type:'نقصان ذهب (-)', details:notes, amount:`-${amt}غ` }); }
+  const c = getOrCreateCustomer(name, phone);
+  const t = new Date().toLocaleDateString('ar-IQ');
+
+  if (type === 'تطلبهم (دين لك)') {
+    c.debt += amt;
+    c.history.push({ time: t, type:'زيادة أموال تطلبهم (+)', details:notes, amount:`+${amt.toLocaleString()} د.ع` });
+  } else if (type === 'نقصان أموال تطلبهم') {
+    const dec = Math.min(c.debt, amt);
+    c.debt -= dec;
+    c.history.push({ time: t, type:'نقصان أموال تطلبهم (-)', details:notes, amount:`-${dec.toLocaleString()} د.ع` });
+  } else if (type === 'مطلوب منك (دين عليك)') {
+    c.credit += amt;
+    c.history.push({ time: t, type:'زيادة أموال يطلبونك (+)', details:notes, amount:`+${amt.toLocaleString()} د.ع` });
+  } else if (type === 'نقصان أموال يطلبونك') {
+    const dec = Math.min(c.credit, amt);
+    c.credit -= dec;
+    c.history.push({ time: t, type:'نقصان أموال يطلبونك (-)', details:notes, amount:`-${dec.toLocaleString()} د.ع` });
+  } else if (type === 'إضافة ذهب تطلبهم (غرام)') {
+    c.goldThem += amt;
+    syncCustomerGoldTotals(c);
+    c.history.push({ time: t, type:'زيادة ذهب تطلبهم (+)', details:notes, amount:`+${amt}غ` });
+  } else if (type === 'نقصان ذهب تطلبهم (غرام)') {
+    const dec = Math.min(c.goldThem, amt);
+    c.goldThem -= dec;
+    syncCustomerGoldTotals(c);
+    c.history.push({ time: t, type:'نقصان ذهب تطلبهم (-)', details:notes, amount:`-${dec}غ` });
+  } else if (type === 'إضافة ذهب يطلبونك (غرام)') {
+    c.goldUs += amt;
+    syncCustomerGoldTotals(c);
+    c.history.push({ time: t, type:'زيادة ذهب يطلبونك (+)', details:notes, amount:`+${amt}غ` });
+  } else if (type === 'نقصان ذهب يطلبونك (غرام)') {
+    const dec = Math.min(c.goldUs, amt);
+    c.goldUs -= dec;
+    syncCustomerGoldTotals(c);
+    c.history.push({ time: t, type:'نقصان ذهب يطلبونك (-)', details:notes, amount:`-${dec}غ` });
+  }
+
   logTransaction('حركة ديون', `${type} للعميل (${name})`, `${amt.toLocaleString()}`, notes);
   ['debt-customer','debt-phone','debt-amount','debt-notes'].forEach(id=>document.getElementById(id).value='');
   saveState(); showToast('تم حفظ الحركة في كارت الديون الفخم!');
@@ -2710,15 +2654,15 @@ function setDebtFilter(f) {
 }
 
 function buildSingleDebtCardHtml(c, origIdx, modeStyle) {
+  syncCustomerGoldTotals(c);
   const netMoney = (c.debt || 0) - (c.credit || 0);
-  const goldVal = c.goldGrams || 0;
   const isThemCard = modeStyle === 'them';
   const cardBorder = isThemCard
     ? 'border-emerald-500/50 hover:border-emerald-400 bg-gradient-to-br from-emerald-950/35 via-cardbg to-darkbg'
     : 'border-rose-500/50 hover:border-rose-400 bg-gradient-to-br from-rose-950/35 via-cardbg to-darkbg';
   const badgeHtml = isThemCard
     ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">تطلبهم (+)</span>'
-    : '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-300 border border-rose-400/40">مطلوب منك (-)</span>';
+    : '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-300 border border-rose-400/40">يطلبونك (-)</span>';
 
   return `<div class="rounded-3xl p-5 border-2 ${cardBorder} transition shadow-xl space-y-3.5">
     <div onclick="openCustomerModal(${origIdx})" class="cursor-pointer space-y-2.5">
@@ -2731,38 +2675,24 @@ function buildSingleDebtCardHtml(c, origIdx, modeStyle) {
       </div>
 
       <div class="grid grid-cols-2 gap-2 text-xs bg-darkbg/90 p-3 rounded-2xl border border-slate-800/80">
-        <div>
-          <span class="text-[10px] text-slate-400 block">تطلبهم (+):</span>
-          <strong class="text-emerald-400 font-black">${Math.round(c.debt || 0).toLocaleString()} د.ع</strong>
-        </div>
-        <div>
-          <span class="text-[10px] text-slate-400 block">مطلوب منك (-):</span>
-          <strong class="text-rose-400 font-black">${Math.round(c.credit || 0).toLocaleString()} د.ع</strong>
-        </div>
-        <div>
-          <span class="text-[10px] text-slate-400 block">ذمة الذهب:</span>
-          <strong class="text-amber-300 font-black">${goldVal} غرام</strong>
-        </div>
-        <div>
-          <span class="text-[10px] text-slate-400 block">الصافي:</span>
-          <strong class="${netMoney >= 0 ? 'text-emerald-300' : 'text-rose-300'} font-black">${netMoney >= 0 ? '+' : ''}${Math.round(netMoney).toLocaleString()} د.ع</strong>
-        </div>
+        <div><span class="text-[10px] text-slate-400 block">أموال تطلبهم (+):</span><strong class="text-emerald-400 font-black">${Math.round(c.debt || 0).toLocaleString()} د.ع</strong></div>
+        <div><span class="text-[10px] text-slate-400 block">أموال يطلبونك (-):</span><strong class="text-rose-400 font-black">${Math.round(c.credit || 0).toLocaleString()} د.ع</strong></div>
+        <div><span class="text-[10px] text-slate-400 block">ذهب تطلبهم (+):</span><strong class="text-amber-300 font-black">${c.goldThem} غرام</strong></div>
+        <div><span class="text-[10px] text-slate-400 block">ذهب يطلبونك (-):</span><strong class="text-purple-300 font-black">${c.goldUs} غرام</strong></div>
+      </div>
+      <div class="text-[11px] flex justify-between items-center bg-darkbg/70 px-3 py-1.5 rounded-xl border border-slate-800/60">
+        <span class="text-slate-400">صافي الأموال: <strong class="${netMoney >= 0 ? 'text-emerald-300' : 'text-rose-300'}">${netMoney >= 0 ? '+' : ''}${Math.round(netMoney).toLocaleString()} د.ع</strong></span>
+        <span class="text-gold font-bold">صافي الذهب: ${c.goldGrams >= 0 ? '+' : ''}${c.goldGrams}غ</span>
       </div>
     </div>
 
     <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
-      <button type="button" onclick="openCustomerModal(${origIdx}, 'plus_debt')" class="bg-emerald-600/25 hover:bg-emerald-600/40 border border-emerald-400/50 text-emerald-200 font-black py-2 rounded-xl transition">
-        + إضافة تطلبهم
-      </button>
-      <button type="button" onclick="openCustomerModal(${origIdx}, 'minus_debt')" class="bg-amber-600/25 hover:bg-amber-600/40 border border-amber-400/50 text-amber-200 font-black py-2 rounded-xl transition">
-        - تنقيص / تسديد
-      </button>
-      <button type="button" onclick="openCustomerModal(${origIdx}, 'plus_credit')" class="bg-rose-600/25 hover:bg-rose-600/40 border border-rose-400/50 text-rose-200 font-black py-2 rounded-xl transition">
-        + مطلوب منك
-      </button>
-      <button type="button" onclick="openCustomerModal(${origIdx}, 'plus_gold')" class="bg-gold/20 hover:bg-gold/30 border border-gold/50 text-gold font-black py-2 rounded-xl transition">
-        ⚖️ ذهب (+ / -)
-      </button>
+      <button type="button" onclick="openCustomerModal(${origIdx}, 'plus_debt')" class="bg-emerald-600/25 hover:bg-emerald-600/40 border border-emerald-400/50 text-emerald-200 font-black py-2 rounded-xl transition">+ مال تطلبهم</button>
+      <button type="button" onclick="openCustomerModal(${origIdx}, 'minus_debt')" class="bg-emerald-950/50 hover:bg-emerald-900/50 border border-emerald-400/40 text-emerald-200 font-black py-2 rounded-xl transition">- مال تطلبهم</button>
+      <button type="button" onclick="openCustomerModal(${origIdx}, 'plus_gold_them')" class="bg-amber-600/25 hover:bg-amber-600/40 border border-amber-400/50 text-amber-200 font-black py-2 rounded-xl transition">+ ذهب تطلبهم</button>
+      <button type="button" onclick="openCustomerModal(${origIdx}, 'minus_gold_them')" class="bg-amber-950/50 hover:bg-amber-900/50 border border-amber-400/40 text-amber-200 font-black py-2 rounded-xl transition">- ذهب تطلبهم</button>
+      <button type="button" onclick="openCustomerModal(${origIdx}, 'plus_gold_us')" class="bg-purple-600/25 hover:bg-purple-600/40 border border-purple-400/50 text-purple-200 font-black py-2 rounded-xl transition">+ ذهب يطلبونك</button>
+      <button type="button" onclick="openCustomerModal(${origIdx}, 'minus_gold_us')" class="bg-rose-600/25 hover:bg-rose-600/40 border border-rose-400/50 text-rose-200 font-black py-2 rounded-xl transition">- ذهب يطلبونك</button>
     </div>
   </div>`;
 }
@@ -2774,37 +2704,37 @@ function renderCustomerCards() {
   const secUs = document.getElementById('section-debts-us');
   if (!themGrid || !usGrid) return;
 
-  let totalThemMoney = 0, totalUsMoney = 0, totalGoldGrams = 0;
+  let totalThemMoney = 0, totalUsMoney = 0, totalGoldThem = 0, totalGoldUs = 0;
   const themEntries = [];
   const usEntries = [];
 
   appState.debts.forEach((c, idx) => {
+    syncCustomerGoldTotals(c);
     const d = c.debt || 0;
     const cr = c.credit || 0;
-    const g = c.goldGrams || 0;
+    const gt = c.goldThem || 0;
+    const gu = c.goldUs || 0;
     totalThemMoney += d;
     totalUsMoney += cr;
-    totalGoldGrams += g;
+    totalGoldThem += gt;
+    totalGoldUs += gu;
 
-    if (d > 0 || (d === 0 && cr === 0)) {
+    if (d > 0 || gt > 0 || (d === 0 && cr === 0 && gt === 0 && gu === 0)) {
       themEntries.push({ c, idx });
     }
-    if (cr > 0) {
+    if (cr > 0 || gu > 0) {
       usEntries.push({ c, idx });
     }
   });
 
-  const netAll = totalThemMoney - totalUsMoney;
-  const sumThemEl = document.getElementById('debts-summary-them');
-  const sumUsEl = document.getElementById('debts-summary-us');
-  const sumNetEl = document.getElementById('debts-summary-net');
-  const sumGoldPlusEl = document.getElementById('debts-summary-gold-plus');
-  const sumGoldMinusEl = document.getElementById('debts-summary-gold-minus');
-  if (sumThemEl) sumThemEl.innerText = `${Math.round(totalThemMoney).toLocaleString()} د.ع`;
-  if (sumUsEl) sumUsEl.innerText = `${Math.round(totalUsMoney).toLocaleString()} د.ع`;
-  if (sumNetEl) sumNetEl.innerText = `${netAll >= 0 ? '+' : ''}${Math.round(netAll).toLocaleString()} د.ع`;
-  if (sumGoldPlusEl) sumGoldPlusEl.innerText = `أوزان مسجلة: ${totalGoldGrams} غرام`;
-  if (sumGoldMinusEl) sumGoldMinusEl.innerText = `عدد أصحاب الذمم المدينة: ${usEntries.length}`;
+  const netMoneyAll = totalThemMoney - totalUsMoney;
+  const netGoldAll = Number((totalGoldThem - totalGoldUs).toFixed(3));
+  document.getElementById('debts-summary-them').innerText = `${Math.round(totalThemMoney).toLocaleString()} د.ع`;
+  document.getElementById('debts-summary-us').innerText = `${Math.round(totalUsMoney).toLocaleString()} د.ع`;
+  document.getElementById('debts-summary-net').innerText = `${netMoneyAll >= 0 ? '+' : ''}${Math.round(netMoneyAll).toLocaleString()} د.ع`;
+  document.getElementById('debts-summary-gold-plus').innerText = `ذهب تطلبهم (+): ${totalGoldThem} غرام`;
+  document.getElementById('debts-summary-gold-minus').innerText = `ذهب يطلبونك (-): ${totalGoldUs} غرام`;
+  document.getElementById('debts-summary-gold-net').innerText = `صافي الذهب: ${netGoldAll >= 0 ? '+' : ''}${netGoldAll} غرام`;
 
   if (secThem) secThem.classList.toggle('hidden', currentDebtFilter === 'on_us');
   if (secUs) secUs.classList.toggle('hidden', currentDebtFilter === 'on_them');
@@ -2818,64 +2748,40 @@ function renderCustomerCards() {
 
   usGrid.innerHTML = usEntries.length
     ? usEntries.map(e => buildSingleDebtCardHtml(e.c, e.idx, 'us')).join('')
-    : '<p class="text-slate-500 text-xs col-span-full py-4">لا توجد كارتات في قسم (مطلوب منك -).</p>';
+    : '<p class="text-slate-500 text-xs col-span-full py-4">لا توجد كارتات في قسم (يطلبونك -).</p>';
 }
 
 function setInnerCardAction(actionKey) {
   document.getElementById('modal-action-type').value = actionKey;
   const cfg = {
-    plus_debt: {
-      label: 'زيادة تطلبهم (+ أموال لنا عنده)',
-      btn: 'تأكيد وتنفيذ: زيادة تطلبهم (+) ✅',
-      placeholder: 'أدخل مبلغ الدين الجديد الذي يترتب عليه (د.ع)...'
-    },
-    minus_debt: {
-      label: 'تنقيص / تسديد تطلبهم (- من دينه، + للكاش)',
-      btn: 'تأكيد وتنفيذ: استلام تسديد من دينه (-) 💰',
-      placeholder: 'أدخل المبلغ المسدد من دينه (د.ع)...'
-    },
-    plus_credit: {
-      label: 'زيادة مطلوب منك (+ أموال علينا له)',
-      btn: 'تأكيد وتنفيذ: زيادة مطلوب منك (+) 📌',
-      placeholder: 'أدخل المبلغ الإضافي المطلوب منك له (د.ع)...'
-    },
-    minus_credit: {
-      label: 'تنقيص / وفاء مطلوب منك (- من علينا له، - للكاش)',
-      btn: 'تأكيد وتنفيذ: دفع وتسديد ما عليك (-) 💸',
-      placeholder: 'أدخل المبلغ الذي دفعته له لتقليل ما عليك (د.ع)...'
-    },
-    plus_gold: {
-      label: 'زيادة ذهب (+ غرام في الذمة)',
-      btn: 'تأكيد وتنفيذ: إضافة وزن ذهب (+ غرام) ⚖️',
-      placeholder: 'أدخل وزن الذهب المضاف (بالغرام)...'
-    },
-    minus_gold: {
-      label: 'تنقيص ذهب (- غرام من الذمة)',
-      btn: 'تأكيد وتنفيذ: خصم / تسليم وزن ذهب (- غرام) ⚖️',
-      placeholder: 'أدخل وزن الذهب المخصوم أو المسلم (بالغرام)...'
-    }
+    plus_debt: { label: 'زيادة أموال تطلبهم (+ مال لنا)', btn: 'تأكيد وتنفيذ: زيادة أموال تطلبهم (+) ✅', placeholder: 'أدخل مبلغ المال المضاف لك عنده (د.ع)...' },
+    minus_debt: { label: 'نقصان / تسديد أموال تطلبهم (- مال لنا)', btn: 'تأكيد وتنفيذ: نقصان أموال تطلبهم (-) 💰', placeholder: 'أدخل المبلغ المخصوم أو المسدد من دينه (د.ع)...' },
+    plus_credit: { label: 'زيادة أموال يطلبونك (+ مال علينا)', btn: 'تأكيد وتنفيذ: زيادة أموال يطلبونك (+) 📌', placeholder: 'أدخل مبلغ المال الإضافي المطلوب منك له (د.ع)...' },
+    minus_credit: { label: 'نقصان / وفاء أموال يطلبونك (- مال علينا)', btn: 'تأكيد وتنفيذ: نقصان أموال يطلبونك (-) 💸', placeholder: 'أدخل المبلغ المخصوم أو المدفوع مما عليك (د.ع)...' },
+    plus_gold_them: { label: 'زيادة ذهب تطلبهم (+ غرام لنا عنده)', btn: 'تأكيد وتنفيذ: زيادة ذهب تطلبهم (+) ⚖️', placeholder: 'أدخل وزن الذهب المضاف لك عنده (بالغرام)...' },
+    minus_gold_them: { label: 'نقصان ذهب تطلبهم (- غرام لنا عنده)', btn: 'تأكيد وتنفيذ: نقصان ذهب تطلبهم (-) ⚖️', placeholder: 'أدخل وزن الذهب المخصوم أو المستلم لك (بالغرام)...' },
+    plus_gold_us: { label: 'زيادة ذهب يطلبونك (+ غرام علينا له)', btn: 'تأكيد وتنفيذ: زيادة ذهب يطلبونك (+) 💎', placeholder: 'أدخل وزن الذهب الإضافي المطلوب منك له (بالغرام)...' },
+    minus_gold_us: { label: 'نقصان ذهب يطلبونك (- غرام علينا له)', btn: 'تأكيد وتنفيذ: نقصان ذهب يطلبونك (-) 💎', placeholder: 'أدخل وزن الذهب المخصوم أو المسلم له (بالغرام)...' }
   };
   const selected = cfg[actionKey] || cfg.plus_debt;
-  const banner = document.getElementById('inner-selected-action-banner');
-  const submitBtn = document.getElementById('inner-submit-action-btn');
-  const amtInput = document.getElementById('cust-custom-amount');
-  if (banner) banner.innerText = selected.label;
-  if (submitBtn) submitBtn.innerText = selected.btn;
-  if (amtInput) amtInput.placeholder = selected.placeholder;
+  document.getElementById('inner-selected-action-banner').innerText = selected.label;
+  document.getElementById('inner-submit-action-btn').innerText = selected.btn;
+  document.getElementById('cust-custom-amount').placeholder = selected.placeholder;
 
-  const ids = ['inner-btn-plus-debt', 'inner-btn-minus-debt', 'inner-btn-plus-credit', 'inner-btn-minus-credit', 'inner-btn-plus-gold', 'inner-btn-minus-gold'];
+  const ids = ['inner-btn-plus-debt', 'inner-btn-minus-debt', 'inner-btn-plus-credit', 'inner-btn-minus-credit', 'inner-btn-plus-gold-them', 'inner-btn-minus-gold-them', 'inner-btn-plus-gold-us', 'inner-btn-minus-gold-us'];
   ids.forEach(id => {
     const el = document.getElementById(id);
-    if (!el) return;
-    el.classList.remove('ring-2', 'ring-white', 'scale-[1.01]');
+    if (el) el.classList.remove('ring-2', 'ring-white', 'scale-[1.01]');
   });
   const mapIds = {
     plus_debt: 'inner-btn-plus-debt',
     minus_debt: 'inner-btn-minus-debt',
     plus_credit: 'inner-btn-plus-credit',
     minus_credit: 'inner-btn-minus-credit',
-    plus_gold: 'inner-btn-plus-gold',
-    minus_gold: 'inner-btn-minus-gold'
+    plus_gold_them: 'inner-btn-plus-gold-them',
+    minus_gold_them: 'inner-btn-minus-gold-them',
+    plus_gold_us: 'inner-btn-plus-gold-us',
+    minus_gold_us: 'inner-btn-minus-gold-us'
   };
   const activeEl = document.getElementById(mapIds[actionKey]);
   if (activeEl) activeEl.classList.add('ring-2', 'ring-white', 'scale-[1.01]');
@@ -2883,25 +2789,28 @@ function setInnerCardAction(actionKey) {
 
 function openCustomerModal(idx, presetAction = 'plus_debt') {
   selectedCustIdx = idx;
-  let c = appState.debts[idx];
+  const c = appState.debts[idx];
+  syncCustomerGoldTotals(c);
   const d = c.debt || 0;
   const cr = c.credit || 0;
   const net = d - cr;
   document.getElementById('modal-cust-name').innerText = c.name;
   document.getElementById('modal-cust-phone').innerText = c.phone || '--';
-  document.getElementById('modal-cust-badge').innerText = net >= 0 ? 'تطلبهم (+)' : 'مطلوب منك (-)';
+  document.getElementById('modal-cust-badge').innerText = net >= 0 ? 'تطلبهم (+)' : 'يطلبونك (-)';
   document.getElementById('modal-cust-debt').innerText = `${Math.round(d).toLocaleString()} د.ع`;
   document.getElementById('modal-cust-credit').innerText = `${Math.round(cr).toLocaleString()} د.ع`;
-  document.getElementById('modal-cust-gold').innerText = `${c.goldGrams || 0} غرام`;
   const netEl = document.getElementById('modal-cust-net');
   netEl.innerText = `${net >= 0 ? '+' : ''}${Math.round(net).toLocaleString()} د.ع`;
   netEl.className = `font-black text-sm ${net >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+  document.getElementById('modal-cust-gold-them').innerText = `${c.goldThem} غرام`;
+  document.getElementById('modal-cust-gold-us').innerText = `${c.goldUs} غرام`;
+  document.getElementById('modal-cust-gold-net').innerText = `${c.goldGrams >= 0 ? '+' : ''}${c.goldGrams} غرام`;
 
   document.getElementById('cust-custom-amount').value = '';
   document.getElementById('cust-custom-note').value = '';
   setInnerCardAction(presetAction);
 
-  let det = document.getElementById('modal-cust-details');
+  const det = document.getElementById('modal-cust-details');
   det.innerHTML = (c.history || []).slice().reverse().map(h =>
     `<div class="bg-darkbg p-2.5 rounded-xl border border-slate-800 flex justify-between items-center gap-2">
       <div><strong class="text-gold">${h.type}</strong> <span class="text-slate-400">(${h.details || ''})</span></div>
@@ -2915,45 +2824,57 @@ function openCustomerModal(idx, presetAction = 'plus_debt') {
 function closeCustomerModal() { document.getElementById('customer-modal').classList.add('hidden'); }
 
 function custActionSubmitAdvanced() {
-  let c = appState.debts[selectedCustIdx]; if (!c) return;
-  let val = parseFloat(document.getElementById('cust-custom-amount').value) || 0;
-  let note = document.getElementById('cust-custom-note').value.trim();
-  let act = document.getElementById('modal-action-type').value;
+  const c = appState.debts[selectedCustIdx]; if (!c) return;
+  const val = parseFloat(document.getElementById('cust-custom-amount').value) || 0;
+  const note = document.getElementById('cust-custom-note').value.trim();
+  const act = document.getElementById('modal-action-type').value;
   if (val <= 0) return showToast('أدخل رقماً أكبر من صفر!', 'error');
 
-  let t = new Date().toLocaleDateString('ar-IQ');
-  c.debt = c.debt || 0;
-  c.credit = c.credit || 0;
-  c.goldGrams = c.goldGrams || 0;
+  const t = new Date().toLocaleDateString('ar-IQ');
+  c.debt = parseFloat(c.debt) || 0;
+  c.credit = parseFloat(c.credit) || 0;
+  syncCustomerGoldTotals(c);
 
   if (act === 'plus_debt') {
     c.debt += val;
-    c.history.push({ time: t, type: 'زيادة تطلبهم (+)', details: note || 'إضافة دين جديد', amount: `+${val.toLocaleString()} د.ع` });
-    logTransaction('حركة ديون', `زيادة تطلبهم (+) للعميل (${c.name})`, `+${val.toLocaleString()} د.ع`, note);
+    c.history.push({ time: t, type: 'زيادة أموال تطلبهم (+)', details: note || 'إضافة مال لنا عنده', amount: `+${val.toLocaleString()} د.ع` });
+    logTransaction('حركة ديون', `زيادة أموال تطلبهم (+) للعميل (${c.name})`, `+${val.toLocaleString()} د.ع`, note);
   } else if (act === 'minus_debt') {
-    let dec = Math.min(c.debt, val);
+    const dec = Math.min(c.debt, val);
     c.debt -= dec;
-    appState.cash += dec;
-    c.history.push({ time: t, type: 'تسديد / تنقيص تطلبهم (-)', details: note || 'استلام تسديد للكاش', amount: `-${dec.toLocaleString()} د.ع` });
-    logTransaction('حركة ديون', `تسديد دين من (${c.name}) للكاش`, `+${dec.toLocaleString()} د.ع`, note);
+    c.history.push({ time: t, type: 'نقصان أموال تطلبهم (-)', details: note || 'خصم / تسديد من أموال تطلبهم', amount: `-${dec.toLocaleString()} د.ع` });
+    logTransaction('حركة ديون', `نقصان أموال تطلبهم (-) للعميل (${c.name})`, `-${dec.toLocaleString()} د.ع`, note);
   } else if (act === 'plus_credit') {
     c.credit += val;
-    c.history.push({ time: t, type: 'زيادة مطلوب منك (+)', details: note || 'مبلغ مستحق له عليك', amount: `+${val.toLocaleString()} د.ع` });
-    logTransaction('حركة ديون', `زيادة مطلوب منك (+) للعميل (${c.name})`, `+${val.toLocaleString()} د.ع`, note);
+    c.history.push({ time: t, type: 'زيادة أموال يطلبونك (+)', details: note || 'إضافة مال علينا له', amount: `+${val.toLocaleString()} د.ع` });
+    logTransaction('حركة ديون', `زيادة أموال يطلبونك (+) للعميل (${c.name})`, `+${val.toLocaleString()} د.ع`, note);
   } else if (act === 'minus_credit') {
-    let dec = Math.min(c.credit, val);
+    const dec = Math.min(c.credit, val);
     c.credit -= dec;
-    appState.cash -= dec;
-    c.history.push({ time: t, type: 'تنقيص / وفاء مطلوب منك (-)', details: note || 'دفع من الكاش', amount: `-${dec.toLocaleString()} د.ع` });
-    logTransaction('حركة ديون', `دفع ما عليك للعميل (${c.name}) من الكاش`, `-${dec.toLocaleString()} د.ع`, note);
-  } else if (act === 'plus_gold') {
-    c.goldGrams += val;
-    c.history.push({ time: t, type: 'زيادة ذهب (+)', details: note || 'إضافة غرامات للذمة', amount: `+${val}غ` });
-    logTransaction('حركة ديون', `إضافة ذهب (+) للعميل (${c.name})`, `+${val}غ`, note);
-  } else if (act === 'minus_gold') {
-    c.goldGrams -= val;
-    c.history.push({ time: t, type: 'تنقيص ذهب (-)', details: note || 'خصم / تسليم غرامات', amount: `-${val}غ` });
-    logTransaction('حركة ديون', `تنقيص ذهب (-) للعميل (${c.name})`, `-${val}غ`, note);
+    c.history.push({ time: t, type: 'نقصان أموال يطلبونك (-)', details: note || 'خصم / وفاء من أموال يطلبونك', amount: `-${dec.toLocaleString()} د.ع` });
+    logTransaction('حركة ديون', `نقصان أموال يطلبونك (-) للعميل (${c.name})`, `-${dec.toLocaleString()} د.ع`, note);
+  } else if (act === 'plus_gold_them') {
+    c.goldThem += val;
+    syncCustomerGoldTotals(c);
+    c.history.push({ time: t, type: 'زيادة ذهب تطلبهم (+)', details: note || 'إضافة غرام ذهب لنا عنده', amount: `+${val}غ` });
+    logTransaction('حركة ديون', `زيادة ذهب تطلبهم (+) للعميل (${c.name})`, `+${val}غ`, note);
+  } else if (act === 'minus_gold_them') {
+    const dec = Math.min(c.goldThem, val);
+    c.goldThem -= dec;
+    syncCustomerGoldTotals(c);
+    c.history.push({ time: t, type: 'نقصان ذهب تطلبهم (-)', details: note || 'خصم / استلام ذهب تطلبهم', amount: `-${dec}غ` });
+    logTransaction('حركة ديون', `نقصان ذهب تطلبهم (-) للعميل (${c.name})`, `-${dec}غ`, note);
+  } else if (act === 'plus_gold_us') {
+    c.goldUs += val;
+    syncCustomerGoldTotals(c);
+    c.history.push({ time: t, type: 'زيادة ذهب يطلبونك (+)', details: note || 'إضافة غرام ذهب علينا له', amount: `+${val}غ` });
+    logTransaction('حركة ديون', `زيادة ذهب يطلبونك (+) للعميل (${c.name})`, `+${val}غ`, note);
+  } else if (act === 'minus_gold_us') {
+    const dec = Math.min(c.goldUs, val);
+    c.goldUs -= dec;
+    syncCustomerGoldTotals(c);
+    c.history.push({ time: t, type: 'نقصان ذهب يطلبونك (-)', details: note || 'خصم / تسليم ذهب يطلبونك', amount: `-${dec}غ` });
+    logTransaction('حركة ديون', `نقصان ذهب يطلبونك (-) للعميل (${c.name})`, `-${dec}غ`, note);
   }
 
   saveState();
@@ -2962,18 +2883,20 @@ function custActionSubmitAdvanced() {
 }
 
 function buildCustomerStatementText(c) {
+  syncCustomerGoldTotals(c);
   const d = Math.round(c.debt || 0);
   const cr = Math.round(c.credit || 0);
-  const g = c.goldGrams || 0;
   const net = d - cr;
   const lastOps = (c.history || []).slice(-5).map(h => `- ${h.type}: ${h.amount} (${h.time})`).join('\n');
   return `كشف حساب — ${appState.store.name}
 العميل: ${c.name}
 الهاتف: ${c.phone || '--'}
-تطلبهم (+): ${d.toLocaleString()} د.ع
-مطلوب منك (-): ${cr.toLocaleString()} د.ع
-ذمة الذهب: ${g} غرام
-الصافي المالي: ${net >= 0 ? '+' : ''}${net.toLocaleString()} د.ع
+أموال تطلبهم (+): ${d.toLocaleString()} د.ع
+أموال يطلبونك (-): ${cr.toLocaleString()} د.ع
+صافي الأموال: ${net >= 0 ? '+' : ''}${net.toLocaleString()} د.ع
+ذهب تطلبهم (+): ${c.goldThem} غرام
+ذهب يطلبونك (-): ${c.goldUs} غرام
+صافي الذهب: ${c.goldGrams >= 0 ? '+' : ''}${c.goldGrams} غرام
 ${lastOps ? '\nآخر الحركات:\n' + lastOps : ''}`;
 }
 
@@ -2982,123 +2905,103 @@ function shareCustomerStatementWhatsapp() {
   if (!c) return;
   const text = encodeURIComponent(buildCustomerStatementText(c));
   const cleanPhone = String(c.phone || '').replace(/\D/g, '');
-  const waPhone = cleanPhone.startsWith('07') && cleanPhone.length === 11
-    ? '964' + cleanPhone.slice(1)
-    : cleanPhone;
-  const url = waPhone ? `https://wa.me/${waPhone}?text=${text}` : `https://wa.me/?text=${text}`;
+  const url = cleanPhone ? `https://wa.me/${cleanPhone}?text=${text}` : `https://wa.me/?text=${text}`;
   window.open(url, '_blank');
 }
 
 function printCustomerStatementInvoice() {
   const c = appState.debts[selectedCustIdx];
   if (!c) return;
+  syncCustomerGoldTotals(c);
   const d = Math.round(c.debt || 0);
   const cr = Math.round(c.credit || 0);
-  const g = c.goldGrams || 0;
   const net = d - cr;
   document.getElementById('invoice-header-box').innerHTML = `<h3 class="text-xl font-black text-amber-700">${appState.store.name}</h3><p class="text-[11px] text-slate-600">كشف حساب عميل رسمي</p>`;
   document.getElementById('invoice-body-content').innerHTML = `
     <div class="flex justify-between border-b pb-1"><span>العميل: <strong>${c.name}</strong></span><span>الهاتف: ${c.phone || '--'}</span></div>
     <div class="p-2 bg-slate-100 rounded space-y-1">
-      <div>تطلبهم (+): <strong class="text-emerald-700">${d.toLocaleString()} د.ع</strong></div>
-      <div>مطلوب منك (-): <strong class="text-rose-700">${cr.toLocaleString()} د.ع</strong></div>
-      <div>ذمة الذهب: <strong class="text-amber-700">${g} غرام</strong></div>
-      <div>الصافي المالي: <strong>${net >= 0 ? '+' : ''}${net.toLocaleString()} د.ع</strong></div>
+      <div>أموال تطلبهم (+): <strong class="text-emerald-700">${d.toLocaleString()} د.ع</strong></div>
+      <div>أموال يطلبونك (-): <strong class="text-rose-700">${cr.toLocaleString()} د.ع</strong></div>
+      <div>صافي الأموال: <strong>${net >= 0 ? '+' : ''}${net.toLocaleString()} د.ع</strong></div>
+      <div>ذهب تطلبهم (+): <strong class="text-amber-700">${c.goldThem} غرام</strong></div>
+      <div>ذهب يطلبونك (-): <strong class="text-purple-700">${c.goldUs} غرام</strong></div>
+      <div>صافي الذهب: <strong>${c.goldGrams >= 0 ? '+' : ''}${c.goldGrams} غرام</strong></div>
     </div>
-    <div class="space-y-1 max-h-40 overflow-y-auto">
-      ${(c.history || []).slice().reverse().map(h => `<div class="flex justify-between border-b border-slate-200 py-1"><span>${h.type} (${h.details || ''})</span><strong>${h.amount}</strong></div>`).join('')}
-    </div>`;
+    <div class="space-y-1 max-h-40 overflow-y-auto">${(c.history || []).slice().reverse().map(h => `<div class="flex justify-between border-b border-dashed pb-0.5"><span>${h.type} (${h.details || ''})</span><strong>${h.amount}</strong></div>`).join('')}</div>
+  `;
   document.getElementById('invoice-modal').classList.remove('hidden');
+}
+
+function openLuxuryPreviewModal() { document.getElementById('preview-modal-search').value = ''; renderLuxuryPreviewList(); document.getElementById('luxury-preview-modal').classList.remove('hidden'); }
+function closeLuxuryPreviewModal() { document.getElementById('luxury-preview-modal').classList.add('hidden'); }
+function renderLuxuryPreviewList() {
+  const q = (document.getElementById('preview-modal-search').value || '').toLowerCase(), list = document.getElementById('preview-modal-list'); list.innerHTML = '';
+  appState.inventory.forEach((item, idx) => {
+    if (item.qty <= 0 || (!item.name.toLowerCase().includes(q) && !String(item.karat).includes(q))) return;
+    const mt = item.makingPerGram * item.weight, tot = Math.round((item.weight * getGramPrice(item.karat)) + mt);
+    const thumb = (item.images && item.images.length) ? `<img src="${item.images[0]}" onerror="this.outerHTML='<div class=\\'w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-gold\\'><i class=\\'fa-solid fa-gem\\'></i></div>'" class="w-12 h-12 rounded-xl object-cover bg-darkbg border border-gold/40">` : `<div class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-gold"><i class="fa-solid fa-gem"></i></div>`;
+    list.innerHTML += `<div onclick="selectItemForPreview(${idx})" class="bg-darkbg p-3 rounded-2xl border border-slate-700 hover:border-gold cursor-pointer flex items-center gap-3 transition">${thumb}<div class="flex-1 text-xs"><strong class="text-gold block">${item.name}</strong><span class="text-slate-400">عيار ${item.karat} | ${item.weight}غ | متوفر ${item.qty}</span><span class="text-emerald-400 font-bold block mt-0.5">${tot.toLocaleString()} د.ع</span></div></div>`;
+  });
+}
+function selectItemForPreview(idx) {
+  const item = appState.inventory[idx]; if (!item) return;
+  document.getElementById('selected-preview-index').value = idx;
+  document.getElementById('selected-preview-label').innerHTML = `<i class="fa-solid fa-gem text-gold"></i> ${item.name} (عيار ${item.karat} - ${item.weight}غ)`;
+  closeLuxuryPreviewModal(); updateCartPreview();
+}
+
+function openLuxuryItemModal() { document.getElementById('modal-item-search').value = ''; renderLuxuryItemList(); document.getElementById('luxury-item-modal').classList.remove('hidden'); }
+function closeLuxuryItemModal() { document.getElementById('luxury-item-modal').classList.add('hidden'); }
+function renderLuxuryItemList() {
+  const q = document.getElementById('modal-item-search').value.toLowerCase(), l = document.getElementById('modal-items-list'); l.innerHTML = '';
+  appState.inventory.forEach((item, idx) => {
+    if (item.qty <= 0 || !item.name.toLowerCase().includes(q)) return;
+    const mt = item.makingPerGram * item.weight, tot = Math.round((item.weight * getGramPrice(item.karat)) + mt);
+    l.innerHTML += `<div class="bg-darkbg p-3 rounded-2xl border border-slate-700 flex justify-between items-center text-xs"><div><strong class="text-gold block">${item.name}</strong><span class="text-slate-400">عيار ${item.karat} | ${item.weight}غ | متوفر ${item.qty}</span><span class="text-emerald-400 font-bold block">${tot.toLocaleString()} د.ع</span></div><button onclick="addItemToCartFromIndex(${idx});closeLuxuryItemModal();" class="gold-gradient text-darkbg px-3 py-2 rounded-xl font-bold">+ سلة</button></div>`;
+  });
 }
 
 function openPriceModal() {
   document.getElementById('modal-p-usd').value = appState.prices.usd;
-  ['24','22','21','18','9'].forEach(k => document.getElementById('modal-p-m'+k).value = Math.round(appState.prices['m'+k]));
+  ['24','22','21','18','9'].forEach(k => document.getElementById('modal-p-m'+k).value = appState.prices['m'+k]);
   document.getElementById('price-modal').classList.remove('hidden');
 }
 function closePriceModal() { document.getElementById('price-modal').classList.add('hidden'); }
 function saveGoldPrices() {
-  appState.prices.usd = parseFloat(document.getElementById('modal-p-usd').value)||appState.prices.usd;
-  ['24','22','21','18','9'].forEach(k => appState.prices['m'+k] = parseFloat(document.getElementById('modal-p-m'+k).value)||appState.prices['m'+k]);
-  updatePricesDerived(); autoFillScrapMithqal(); saveState(); closePriceModal(); showToast('تم تحديث الأسعار والمثاقيل!');
+  appState.prices.usd = parseFloat(document.getElementById('modal-p-usd').value)||153000;
+  ['24','22','21','18','9'].forEach(k => appState.prices['m'+k] = parseFloat(document.getElementById('modal-p-m'+k).value)||0);
+  updatePricesDerived(); autoFillScrapMithqal(); saveState(); closePriceModal(); showToast('تم تحديث الأسعار بنجاح!');
 }
 
-function toggleCalcModal() { document.getElementById('calc-modal').classList.toggle('hidden'); if (!document.getElementById('calc-modal').classList.contains('hidden')) { document.getElementById('c-mithqal').value = Math.round(appState.prices.m21); calcAramkyQuick(); } }
+function toggleCalcModal() { document.getElementById('calc-modal').classList.toggle('hidden'); }
 function calcAramkyQuick() {
-  let mp = parseFloat(document.getElementById('c-mithqal').value)||0, w = parseFloat(document.getElementById('c-weight').value)||0, m = parseFloat(document.getElementById('c-making').value)||0;
-  let tot = Math.round(w * ((mp / 5) + m));
-  let makingPerMithqal = Math.round(m * 5);
-  let totalMakingProfit = Math.round(m * w);
+  const m = parseFloat(document.getElementById('c-mithqal').value)||0, w = parseFloat(document.getElementById('c-weight').value)||0, mk = parseFloat(document.getElementById('c-making').value)||0;
+  const totalMaking = Math.round(w * mk), makingPerMithqal = Math.round(mk * 5);
+  const tot = Math.round((w * (m / 5)) + totalMaking), u = appState.prices.usd || 153000;
   document.getElementById('c-result').innerText = tot.toLocaleString() + ' د.ع';
-  document.getElementById('c-result-paper').innerText = formatAltCurrency(tot);
-  document.getElementById('c-making-breakdown').innerText = `أرباح الصياغة: ${totalMakingProfit.toLocaleString()} د.ع (للمثقال: ${makingPerMithqal.toLocaleString()} د.ع)`;
+  document.getElementById('c-result-paper').innerText = `${Math.floor(tot/u)} ورقة و ${Math.round(tot%u).toLocaleString()} د.ع`;
+  document.getElementById('c-making-breakdown').innerText = `أرباح الصياغة: ${totalMaking.toLocaleString()} د.ع (للمثقال: ${makingPerMithqal.toLocaleString()} د.ع)`;
 }
-
 function printAramkyCalculatorResult() {
-  let mp = parseFloat(document.getElementById('c-mithqal').value)||0, w = parseFloat(document.getElementById('c-weight').value)||0, m = parseFloat(document.getElementById('c-making').value)||0;
-  let tot = Math.round(w * ((mp / 5) + m));
-  document.getElementById('invoice-header-box').innerHTML = `<h3 class="text-xl font-black text-amber-700">${appState.store.name}</h3><p class="text-[11px] text-slate-600">حاسبة آرامكي</p>`;
-  document.getElementById('invoice-body-content').innerHTML = `<div class="p-2 bg-slate-100 rounded"><div>الوزن: <strong>${w}غ</strong> | صياغة الغرام: <strong>${m.toLocaleString()}</strong></div></div><div class="text-right font-black text-lg text-amber-800 pt-2">الإجمالي: ${tot.toLocaleString()} د.ع</div>`;
+  const m = parseFloat(document.getElementById('c-mithqal').value)||0, w = parseFloat(document.getElementById('c-weight').value)||0, mk = parseFloat(document.getElementById('c-making').value)||0;
+  const totalMaking = Math.round(w * mk), makingPerMithqal = Math.round(mk * 5), tot = Math.round((w * (m / 5)) + totalMaking);
+  document.getElementById('invoice-header-box').innerHTML = `<h3 class="text-xl font-black text-amber-700">${appState.store.name}</h3><p class="text-[11px] text-slate-600">فاتورة حاسبة آرامكي</p>`;
+  document.getElementById('invoice-body-content').innerHTML = `<div class="p-2 bg-slate-100 rounded space-y-1"><div>سعر المثقال: <strong>${m.toLocaleString()} د.ع</strong></div><div>الوزن: <strong>${w}غ</strong></div><div>أرباح الصياغة: <strong>${totalMaking.toLocaleString()} د.ع</strong> (للمثقال: ${makingPerMithqal.toLocaleString()} د.ع)</div><div class="text-base font-black border-t pt-1">الإجمالي: ${tot.toLocaleString()} د.ع</div></div>`;
   document.getElementById('invoice-modal').classList.remove('hidden');
-}
-
-function openLuxuryPreviewModal() {
-  document.getElementById('preview-modal-search').value = '';
-  renderLuxuryPreviewList();
-  document.getElementById('luxury-preview-modal').classList.remove('hidden');
-  setTimeout(() => document.getElementById('preview-modal-search')?.focus(), 100);
-}
-function closeLuxuryPreviewModal() { document.getElementById('luxury-preview-modal').classList.add('hidden'); }
-function renderLuxuryPreviewList() {
-  let q = (document.getElementById('preview-modal-search').value || '').toLowerCase();
-  let c = document.getElementById('preview-modal-list'); c.innerHTML = '';
-  let matches = appState.inventory.map((it, idx) => ({ ...it, idx })).filter(it => it.qty > 0 && (it.name.toLowerCase().includes(q) || String(it.karat).includes(q)));
-  if (!matches.length) {
-    c.innerHTML = '<p class="col-span-full text-center text-slate-500 text-xs py-6">لا توجد قطع مطابقة.</p>';
-    return;
-  }
-  matches.forEach(item => {
-    let price = Math.round((item.weight * getGramPrice(item.karat)) + (item.makingPerGram * item.weight));
-    let thumb = (item.images && item.images.length)
-      ? `<img src="${item.images[0]}" onclick="event.stopPropagation(); openImageLightbox(this.src, '${item.name.replace(/'/g, '')}')" class="w-12 h-12 rounded-xl object-cover border border-gold/40 shrink-0 cursor-pointer">`
-      : `<div class="w-12 h-12 rounded-xl bg-cardbg border border-gold/30 flex items-center justify-center text-gold shrink-0"><i class="fa-solid fa-gem"></i></div>`;
-    c.innerHTML += `<div onclick="selectPreviewItem(${item.idx})" class="bg-darkbg p-3 rounded-2xl border border-slate-700 hover:border-gold flex items-center justify-between gap-2.5 cursor-pointer transition">
-      <div class="flex items-center gap-2.5">${thumb}<div><strong class="text-gold text-xs block">${item.name}</strong><span class="text-[11px] text-slate-400">عيار ${item.karat} • ${item.weight}غ • ${item.qty} متوفر</span></div></div>
-      <span class="text-xs font-black text-emerald-400 whitespace-nowrap">${price.toLocaleString()} د.ع</span>
-    </div>`;
-  });
-}
-function selectPreviewItem(idx) {
-  let item = appState.inventory[idx]; if (!item) return;
-  document.getElementById('selected-preview-index').value = idx;
-  document.getElementById('selected-preview-label').innerHTML = `<i class="fa-solid fa-gem text-gold"></i> <span>${item.name} (عيار ${item.karat} - ${item.weight}غ)</span>`;
-  closeLuxuryPreviewModal();
-  updateCartPreview();
-  showToast(`تمت معاينة (${item.name})`);
-}
-
-function openLuxuryItemModal() { document.getElementById('luxury-item-modal').classList.remove('hidden'); renderLuxuryItemList(); }
-function closeLuxuryItemModal() { document.getElementById('luxury-item-modal').classList.add('hidden'); }
-function renderLuxuryItemList() {
-  let q = (document.getElementById('modal-item-search').value || '').toLowerCase(), c = document.getElementById('modal-items-list'); c.innerHTML = '';
-  appState.inventory.forEach((item, idx) => {
-    if (item.qty <= 0 || !item.name.toLowerCase().includes(q)) return;
-    let price = Math.round((item.weight * getGramPrice(item.karat)) + (item.makingPerGram * item.weight));
-    let thumb = (item.images && item.images.length)
-      ? `<img src="${item.images[0]}" onclick="event.stopPropagation(); openImageLightbox(this.src, '${item.name.replace(/'/g, '')}')" class="w-12 h-12 rounded-xl object-cover border border-gold/40 shrink-0 cursor-pointer">`
-      : `<div class="w-12 h-12 rounded-xl bg-cardbg border border-gold/30 flex items-center justify-center text-gold shrink-0"><i class="fa-solid fa-gem"></i></div>`;
-    c.innerHTML += `<div onclick="addItemToCartFromIndex(${idx});closeLuxuryItemModal();" class="bg-darkbg p-3 rounded-2xl border border-slate-700 hover:border-gold flex items-center justify-between gap-2.5 cursor-pointer transition"><div class="flex items-center gap-2.5">${thumb}<div><strong class="text-gold text-xs block">${item.name}</strong><span class="text-[11px] text-slate-400">عيار ${item.karat} • ${item.weight}غ • ${item.qty} متوفر</span></div></div><span class="text-xs font-black text-emerald-400 whitespace-nowrap">${price.toLocaleString()} د.ع</span></div>`;
-  });
 }
 
 function openInvoiceModal(inv) {
-  let tmpl = appState.invoiceTemplate || 'detailed';
-  document.getElementById('invoice-header-box').innerHTML = `<h3 class="text-xl font-black text-amber-700">${appState.store.name}</h3><p class="text-[11px] text-slate-600">${appState.store.address} | ${appState.store.phone}</p><p class="text-[11px] font-mono text-slate-500 mt-1">رمز الفاتورة: <strong>${inv.code}</strong> | ${inv.time}</p>`;
-  let itemsHtml = inv.items.map(it => `<div class="flex justify-between border-b border-slate-200 py-1"><span>${it.name} (${it.weight}غ - عيار ${it.karat})</span><strong>${it.itemTotal.toLocaleString()} د.ع</strong></div>`).join('');
-  document.getElementById('invoice-body-content').innerHTML = `<div class="flex justify-between"><span>العميل: <strong>${inv.customer}</strong></span><span>النوع: ${inv.type}</span></div><div class="border-t border-b border-slate-200 py-2 my-2 space-y-1">${itemsHtml}</div><div class="flex justify-between font-black text-base text-amber-800"><span>الإجمالي:</span><span>${inv.total.toLocaleString()} د.ع</span></div>`;
+  const tmpl = appState.invoiceTemplate || 'detailed';
+  let headerHtml = `<h3 class="text-xl font-black text-amber-700">${appState.store.name}</h3><p class="text-[11px] text-slate-600">${appState.store.address||''} | ${appState.store.phone||''}</p><div class="text-xs font-mono mt-1">رمز: <strong>${inv.code}</strong> | ${inv.time}</div>`;
+  if (tmpl === 'compact') headerHtml = `<h3 class="text-lg font-black text-slate-900">${appState.store.name}</h3><div class="text-xs font-mono">فاتورة سريعة #${inv.code} | ${inv.time}</div>`;
+  else if (tmpl === 'jeweler') headerHtml = `<div class="text-amber-700 font-black text-lg">⚜️ ${appState.store.name} — فاتورة صايغ معتمدة</div><div class="text-xs font-mono mt-1">الرمز: ${inv.code} | ${inv.time}</div>`;
+  document.getElementById('invoice-header-box').innerHTML = headerHtml;
+  const itemsHtml = inv.items.map(i => `<div class="flex justify-between border-b py-1"><div><strong>${i.name}</strong> (عيار ${i.karat} - ${i.weight}غ)${tmpl==='detailed'&&i.itemMakingTotal?`<span class="block text-[10px] text-amber-700">أجور صياغة: ${Math.round(i.itemMakingTotal).toLocaleString()} د.ع (المثقال: ${(i.itemMakingMithqal||0).toLocaleString()})</span>`:''}</div><span class="font-bold">${i.itemTotal.toLocaleString()} د.ع</span></div>`).join('');
+  document.getElementById('invoice-body-content').innerHTML = `<div class="flex justify-between"><span>الزبون: <strong>${inv.customer}</strong></span><span>الهاتف: ${inv.phone}</span></div><div class="border-t pt-2">${itemsHtml}</div><div class="flex justify-between text-base font-black border-t pt-2"><span>الإجمالي النهائي:</span><span class="text-amber-700">${inv.total.toLocaleString()} د.ع</span></div>`;
   document.getElementById('invoice-modal').classList.remove('hidden');
 }
 function closeInvoiceModal() { document.getElementById('invoice-modal').classList.add('hidden'); }
+function handleGlobalZeroKey(e) { if (e.key === '0' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') openResetSystemModal(); }
 
 function saveState() {
   if (!currentTenantCode) return false;
@@ -3109,27 +3012,16 @@ function saveState() {
     updateUI();
     return true;
   } catch (e) {
-    showToast('تنبيه: مساحة التخزين ممتلئة، قلل عدد/حجم الصور!', 'error');
+    showToast('مساحة التخزين ممتلئة!', 'error');
     return false;
-  }
-}
-
-function handleGlobalZeroKey(e) {
-  if (e.key === '0' && e.altKey) {
-    e.preventDefault();
-    openResetSystemModal();
   }
 }
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then((reg) => {
-      swRegisteredOk = true;
-      scheduleDiagnosticsToAdmin();
-    }).catch(() => {
-      swRegisteredOk = false;
-      scheduleDiagnosticsToAdmin();
-    });
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .then(() => { swRegisteredOk = true; scheduleDiagnosticsToAdmin(); })
+      .catch(() => { swRegisteredOk = false; scheduleDiagnosticsToAdmin(); });
   });
 }
 </script>
