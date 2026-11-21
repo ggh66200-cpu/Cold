@@ -4,6 +4,7 @@
   "description": "نظام إدارة صياغة الذهب والمجوهرات والمخزن والديون السحابي",
   "start_url": "./index.html",
   "scope": "./",
+  "id": "./",
   "display": "standalone",
   "background_color": "#070A12",
   "theme_color": "#070A12",
