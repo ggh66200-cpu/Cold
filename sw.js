@@ -1,59 +1,47 @@
-const CACHE_NAME = 'aramky-gold-v28.0';
+const CACHE_NAME = 'aramky-gold-os-v29';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './admin.html',
-  './manifest.json',
-  './icon.png'
+  './manifest.json'
 ];
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(async (cache) => {
-      for (const asset of ASSETS_TO_CACHE) {
-        try {
-          await cache.add(asset);
-        } catch (_) {}
-      }
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return Promise.allSettled(ASSETS_TO_CACHE.map((url) => cache.add(url)));
     })
   );
-  self.skipWaiting();
 });
 
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-self.addEventListener('message', (e) => {
-  if (e.data && e.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-  if (e.data && e.data.type === 'CLEAR_ALL_CACHES') {
-    e.waitUntil(
-      caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
-    );
-  }
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
-self.addEventListener('fetch', (e) => {
-  const url = new URL(e.request.url);
-  if (e.request.method !== 'GET' || url.hostname.includes('supabase.co')) {
-    return;
-  }
-  e.respondWith(
-    fetch(e.request)
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  // لا نخزن طلبات Supabase أو API في الكاش حتى تبقى البيانات حية
+  if (url.hostname.includes('supabase.co') || url.pathname.startsWith('/api/')) return;
+
+  event.respondWith(
+    fetch(event.request)
       .then((res) => {
-        if (res && res.status === 200 && url.origin === self.location.origin) {
+        if (res && res.status === 200 && url.origin === location.origin) {
           const copy = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, copy));
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         }
         return res;
       })
-      .catch(() => caches.match(e.request).then((cached) => cached || caches.match('./index.html')))
+      .catch(() => caches.match(event.request))
   );
 });
