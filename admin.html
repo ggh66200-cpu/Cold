@@ -23,7 +23,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
 </head>
 <body class="min-h-screen p-4 md:p-6 flex flex-col items-center custom-scroll">
 
-  <!-- شاشة دخول الأدمن المباشرة (بدون 5 ضغطات) -->
   <div id="admin-lock" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-5">
     <div class="glass p-8 rounded-3xl max-w-md w-full text-center space-y-4 shadow-2xl">
       <div class="w-20 h-20 rounded-2xl gold-gradient text-slate-950 font-black text-3xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border-2 border-amber-200/60">
@@ -52,9 +51,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
     </div>
   </div>
 
-  <!-- لوحة الإدارة الرئيسية -->
   <div id="admin-panel" class="hidden max-w-7xl w-full space-y-6">
-    <!-- الهيدر وأزرار التحكم -->
     <div class="glass p-6 rounded-3xl flex flex-wrap justify-between items-center gap-4 shadow-2xl no-print">
       <div class="flex items-center gap-3">
         <div class="w-14 h-14 rounded-2xl gold-gradient text-slate-950 font-black text-2xl flex items-center justify-center shadow-lg overflow-hidden">
@@ -69,14 +66,13 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
         </div>
       </div>
       <div class="flex flex-wrap gap-2">
-        <button type="button" onclick="window.location.href='index_4.html'" class="bg-amber-500/20 border border-amber-400/60 text-amber-300 text-xs px-4 py-2.5 rounded-xl font-bold hover:bg-amber-500/30 transition"><i class="fa-solid fa-arrow-right"></i> العودة للنظام</button>
+        <button type="button" onclick="window.location.href='index.html'" class="bg-amber-500/20 border border-amber-400/60 text-amber-300 text-xs px-4 py-2.5 rounded-xl font-bold hover:bg-amber-500/30 transition"><i class="fa-solid fa-arrow-right"></i> العودة للنظام</button>
         <button type="button" onclick="openSupabaseConfigModal()" class="bg-blue-600/20 border border-blue-500/50 text-blue-300 text-xs px-4 py-2.5 rounded-xl font-bold hover:bg-blue-600/30 transition"><i class="fa-solid fa-database"></i> إعدادات Supabase 🔗</button>
         <button type="button" onclick="printAdminReport()" class="bg-emerald-600/20 border border-emerald-500/50 text-emerald-300 text-xs px-4 py-2.5 rounded-xl font-bold hover:bg-emerald-600/30 transition"><i class="fa-solid fa-print"></i> طباعة التقرير 🖨️</button>
         <button type="button" onclick="copyAdminSecretLink()" class="bg-slate-800 border border-amber-500/40 text-amber-300 text-xs px-4 py-2.5 rounded-xl font-bold hover:bg-slate-700 transition"><i class="fa-solid fa-link"></i> نسخ رابط الأدمن</button>
       </div>
     </div>
 
-    <!-- ميزة تميز الأدمن والحساب السيادي + حالة ربط السيرفر -->
     <div class="glass p-5 rounded-3xl border border-amber-400/40 bg-gradient-to-l from-amber-500/10 via-slate-900/60 to-slate-900/60">
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div class="space-y-1">
@@ -95,7 +91,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
       </div>
     </div>
 
-    <!-- إحصائيات الجرد السري الفوري -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="glass p-5 rounded-3xl border border-amber-500/30"><p class="text-xs text-slate-400">إجمالي الصاغة المشتركين</p><h3 id="stat-total" class="text-2xl font-black text-amber-400 mt-1">0</h3></div>
       <div class="glass p-5 rounded-3xl border border-emerald-500/30"><p class="text-xs text-slate-400">المشتركين النشطين فعلياً</p><h3 id="stat-active" class="text-2xl font-black text-emerald-400 mt-1">0</h3></div>
@@ -103,7 +98,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
       <div class="glass p-5 rounded-3xl border border-blue-500/30"><p class="text-xs text-slate-400">الرسائل وإيصالات الصور الواردة</p><h3 id="stat-receipts" class="text-2xl font-black text-blue-400 mt-1">0</h3></div>
     </div>
 
-    <!-- تفعيل صايغ جديد مع خانات مستقلة: اسم الصايغ / اليوزر / الهاتف / كلمة المرور -->
     <div class="glass p-6 rounded-3xl space-y-4 no-print">
       <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
         <h3 class="font-bold text-amber-400 text-base"><i class="fa-solid fa-user-plus"></i> تسجيل أو تجديد حساب صايغ (اسم المعرض، اليوزر، الهاتف، كلمة المرور)</h3>
@@ -159,7 +153,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
       </div>
     </div>
 
-    <!-- جدول الصاغة المشتركين -->
     <div class="glass p-6 rounded-3xl space-y-3">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <h3 class="font-bold text-slate-200 text-sm">قائمة الصاغة المشتركين (الاسم، اليوزر، كلمة المرور، الهاتف، والتحكم):</h3>
@@ -182,7 +175,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
       </div>
     </div>
 
-    <!-- جرد الصاغة السحابي المباشر من Supabase -->
     <div class="glass p-6 rounded-3xl space-y-3">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
         <h3 class="font-bold text-emerald-400 text-sm"><i class="fa-solid fa-boxes-stacked"></i> جرد الصاغة والمثاقيل وأجور الصياغة والفواتير (مزامنة Supabase):</h3>
@@ -207,7 +199,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
       </div>
     </div>
 
-    <!-- صندوق الرسائل، تحديثات الصور والأغلفة، وإيصالات التحويل الواردة -->
     <div class="glass p-6 rounded-3xl space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-bold text-blue-400 text-sm"><i class="fa-solid fa-envelope-open-text"></i> صندوق رسائل الصاغة، تحديثات الشعارات والأغلفة، وإيصالات التحويل:</h3>
@@ -217,7 +208,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #030712; color: #F8FA
     </div>
   </div>
 
-  <!-- نافذة إعدادات مفاتيح Supabase -->
   <div id="supabase-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex items-center justify-center hidden p-4 no-print">
     <div class="glass p-6 rounded-3xl max-w-md w-full space-y-4 border border-blue-500/40">
       <h3 class="text-base font-bold text-blue-400"><i class="fa-solid fa-database"></i> ربط قاعدة بيانات Supabase والسيرفر</h3>
@@ -520,10 +510,9 @@ function renderSubs() {
   });
 }
 
-// رابط المعرض العام: نظيف ولا يذكر أي معلومات أو يوزر للمستخدم
 function copyStorefrontOnlyLink(i) {
   const s = subs[i];
-  const base = window.location.origin + window.location.pathname.replace(/admin(_2)?\.html.*/i, 'index_4.html');
+  const base = window.location.origin + window.location.pathname.replace(/admin(_2)?\.html.*/i, 'index.html');
   const publicStoreLink = `${base}?store=${encodeURIComponent(s.code)}`;
   navigator.clipboard.writeText(publicStoreLink);
   alert('تم نسخ رابط المعرض العام (خالي من أي معلومات أو يوزر للمستخدم).');
@@ -531,7 +520,7 @@ function copyStorefrontOnlyLink(i) {
 
 function copyActivationLink(i) {
   const s = subs[i];
-  const base = window.location.origin + window.location.pathname.replace(/admin(_2)?\.html.*/i, 'index_4.html');
+  const base = window.location.origin + window.location.pathname.replace(/admin(_2)?\.html.*/i, 'index.html');
   const link = `${base}?activate=${encodeURIComponent(s.code)}&phone=${encodeURIComponent(s.phone || '')}&exp=${encodeURIComponent(s.expiresAt)}&name=${encodeURIComponent(s.name)}`;
   navigator.clipboard.writeText(link);
   alert(`تم نسخ رابط التفعيل الخاص بالصايغ (${s.name})!`);
