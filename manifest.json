@@ -2,7 +2,7 @@
   "id": "/?source=aramky-gold-os",
   "name": "ARAMKY Gold OS | نظام إدارة صياغة الذهب",
   "short_name": "ARAMKY Gold",
-  "description": "نظام إدارة صياغة الذهب ونقاط البيع والديون والمخزن والمعرض — أرامكي للحلول الرقمية",
+  "description": "نظام إدارة صياغة الذهب ونقاط البيع والديون والمخزن والمعرض",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
