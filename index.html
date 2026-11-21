@@ -108,7 +108,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       </div>
       <div>
         <label class="text-emerald-300 font-bold block mb-1">رقم الهاتف المرتبط بالحساب</label>
-        <input type="tel" id="login-tenant-phone" placeholder="مثال: 07700000000" class="w-full bg-darkbg border border-slate-700 focus:border-emerald-400 rounded-2xl p-3.5 text-center font-mono text-emerald-400 font-bold outline-none">
+        <input type="tel" id="login-tenant-phone" placeholder="مثال: 07801103129" class="w-full bg-darkbg border border-slate-700 focus:border-emerald-400 rounded-2xl p-3.5 text-center font-mono text-emerald-400 font-bold outline-none">
       </div>
       <div>
         <label class="text-cyan-300 font-bold block mb-1">كلمة المرور</label>
@@ -278,15 +278,15 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     </div>
     <div>
       <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span id="aramky-install-badge" class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">⚜️ أرامكي v28.0</span></h1>
-      <p class="text-xs text-slate-400 flex items-center gap-2"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">ID: ARAMKY-01</span></p>
+      <p class="text-xs text-slate-400 flex items-center gap-2 flex-wrap"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">ID: ARAMKY-01</span> | <span id="cloud-sync-status" class="text-[11px] text-sky-300 font-bold">سحابي: جاري الفحص...</span></p>
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-2">
     <button id="pwa-install-btn" onclick="installPWA()" class="bg-emerald-600/20 border border-emerald-500 text-emerald-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-2 font-bold shadow">
       <img src="icon.png" onerror="handleBrandImageError(this)" class="w-5 h-5 rounded-full object-cover bg-darkbg border border-gold/60"> <span>تثبيت النظام ⚜️</span>
     </button>
-    <button onclick="refreshAppAndClearCache()" class="bg-cyan-600/20 border border-cyan-500/50 text-cyan-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow" title="تحديث التطبيق وتفريغ الكاش من الذاكرة">
-      <i class="fa-solid fa-rotate"></i> <span>تحديث الذاكرة</span>
+    <button onclick="refreshAppAndClearCache()" class="bg-cyan-600/20 border border-cyan-500/50 text-cyan-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow" title="مزامنة السحابة وتحديث التطبيق وتفريغ الكاش">
+      <i class="fa-solid fa-rotate"></i> <span>تحديث ومزامنة</span>
     </button>
     <div id="admin-btn-container" class="hidden">
       <button onclick="openAdminPanel()" class="bg-purple-600/20 border border-purple-500/50 text-purple-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow">
@@ -537,7 +537,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         </div>
         <button onclick="saveStoreSettings()" class="w-full gold-gradient text-darkbg font-bold py-3.5 rounded-2xl shadow-lg">حفظ الإعدادات وإشعار الإدارة بالتحديث 🌐</button>
         <div class="bg-darkbg p-4 rounded-2xl border border-slate-800 space-y-2">
-          <label class="text-xs text-slate-400 block">رابط المعرض الخاص بك:</label>
+          <label class="text-xs text-slate-400 block">رابط المعرض الخاص بك (بدون يوزر):</label>
           <div class="flex gap-2">
             <input type="text" id="store-share-link" readonly class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 text-xs text-gold font-mono outline-none">
             <button onclick="copyStoreLink()" class="bg-gold text-darkbg font-bold px-4 py-3 rounded-xl text-xs whitespace-nowrap"><i class="fa-solid fa-copy"></i> نسخ</button>
@@ -1142,13 +1142,34 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
 <script>
 const ADMIN_TENANT_CODE = "ARAMKY-01";
-const ADMIN_SECRET_PASS = localStorage.getItem('aramky_admin_secret_pass') || "ARAMKY2026";
+const DEFAULT_ADMIN_PHONE = "07801103129";
+const DEFAULT_ADMIN_PASS = "waadsdsd";
+const DEFAULT_ADMIN_NAME = "ARAMKY | أرامكي للحلول الرقمية - فرع نواة الذهب";
 const FALLBACK_BRAND_ICON = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><rect width="256" height="256" rx="48" fill="#070A12"/><rect x="8" y="8" width="240" height="240" rx="42" fill="none" stroke="#D4AF37" stroke-width="6"/><text x="128" y="148" text-anchor="middle" font-size="96" fill="#D4AF37" font-family="Arial, sans-serif">👑</text></svg>');
 
 let pwaDiagnosticsReason = "";
 let swRegisteredOk = false;
 let editingImagesDraft = [];
 let splashDismissed = false;
+let isSyncingCloud = false;
+
+function getAdminSecretPass() {
+  return localStorage.getItem('aramky_admin_secret_pass') || "ARAMKY2026";
+}
+
+function getMasterAccountDefault() {
+  const savedAdm = JSON.parse(localStorage.getItem('aramky_admin_account')) || {};
+  return {
+    code: ADMIN_TENANT_CODE,
+    name: savedAdm.name || DEFAULT_ADMIN_NAME,
+    phone: savedAdm.phone || DEFAULT_ADMIN_PHONE,
+    passcode: String(savedAdm.passcode || DEFAULT_ADMIN_PASS),
+    expiresAt: "2099-12-31",
+    active: true,
+    isMaster: true,
+    phoneVerified: true
+  };
+}
 
 function handleSplashLogoFallback(imgEl) {
   if (!imgEl) return;
@@ -1202,31 +1223,6 @@ function dismissAramkySplash() {
   setTimeout(dismissAramkySplash, 2600);
 })();
 
-async function refreshAppAndClearCache() {
-  try {
-    if ('caches' in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map((k) => caches.delete(k)));
-    }
-    if ('serviceWorker' in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      for (const reg of regs) {
-        if (reg.waiting) {
-          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-        }
-        await reg.update();
-      }
-    }
-    localStorage.removeItem('aramky_last_diag_signature');
-    showToast('تم تفريغ الكاش القديم وتحديث النسخة، جاري إعادة التحميل...', 'info');
-    setTimeout(() => {
-      window.location.reload();
-    }, 550);
-  } catch (_) {
-    window.location.reload();
-  }
-}
-
 function isAdminTenant(code) {
   return String(code || '').trim().toUpperCase() === ADMIN_TENANT_CODE;
 }
@@ -1268,6 +1264,7 @@ function sendNotificationToAdmin(method, ref, msg, imageBase64 = "") {
   let masterTickets = JSON.parse(localStorage.getItem('aramky_global_support_tickets')) || [];
   masterTickets.unshift(ticket);
   localStorage.setItem('aramky_global_support_tickets', JSON.stringify(masterTickets));
+  enqueueCloudSync(activeCode);
 }
 
 let diagTimer = null;
@@ -1335,7 +1332,7 @@ function closeAdminSecretModal() {
 
 function verifyAdminSecretPassword() {
   const inputPass = document.getElementById('admin-secret-password').value.trim();
-  if (inputPass === ADMIN_SECRET_PASS) {
+  if (inputPass === getAdminSecretPass()) {
     closeAdminSecretModal();
     document.getElementById('admin-btn-container').classList.remove('hidden');
     showToast('تم تفعيل وضع الأدمن بنجاح 👑');
@@ -1427,27 +1424,258 @@ async function installPWA() {
   deferredPrompt = null;
 }
 
-let subscribersDB = JSON.parse(localStorage.getItem('aramky_subscribers_master')) || [
-  { code: "ARAMKY-01", name: "صاغة أرامكي - الفرع الرئيسي (الأدمن)", phone: "07700000000", passcode: "2026", expiresAt: "2099-12-31", active: true }
-];
-function saveSubscribersDB() { localStorage.setItem('aramky_subscribers_master', JSON.stringify(subscribersDB)); }
+function getInitialSubscribers() {
+  const master = getMasterAccountDefault();
+  const saved = JSON.parse(localStorage.getItem('aramky_subscribers_master'));
+  if (!Array.isArray(saved) || !saved.length) return [master];
+  const idx = saved.findIndex(s => String(s.code || '').toUpperCase() === ADMIN_TENANT_CODE || s.isMaster);
+  if (idx >= 0) saved[idx] = { ...saved[idx], ...master };
+  else saved.unshift(master);
+  return saved;
+}
+
+let subscribersDB = getInitialSubscribers();
+function saveSubscribersDB() {
+  localStorage.setItem('aramky_subscribers_master', JSON.stringify(subscribersDB));
+  const master = subscribersDB.find(s => String(s.code || '').toUpperCase() === ADMIN_TENANT_CODE || s.isMaster);
+  if (master) localStorage.setItem('aramky_admin_account', JSON.stringify(master));
+}
+
 let currentTenantCode = localStorage.getItem('aramky_active_tenant');
 function getStorageKeyForTenant(code) { return `aramky_gold_data_${code.toUpperCase()}`; }
 
 let appState = {
-  store: { name: "صاغة أرامكي - فرع نواة الذهب", logo: "icon.png", cover: "icon.png", phone: "07700000000", address: "بغداد - الشورجة", openTime: "09:00 ص", closeTime: "10:00 م", bio: "أفضل تشكيلة ذهب" },
+  store: { name: "صاغة أرامكي - فرع نواة الذهب", logo: "icon.png", cover: "icon.png", phone: DEFAULT_ADMIN_PHONE, address: "بغداد - الكاظمية", openTime: "09:00 ص", closeTime: "10:00 م", bio: "أفضل تشكيلة ذهب" },
   prices: { usd: 153000, m24: 628571, m22: 576190, m21: 550000, m18: 471428, m9: 235714 },
   cash: 0, usdCash: 0, zainCash: 0, makingProfit: 0,
   inventory: [], cart: [], logs: [], debts: [], invoices: [], supportTickets: [],
-  currencyMode: 'iraqi', invoiceTemplate: 'detailed'
+  currencyMode: 'iraqi', invoiceTemplate: 'detailed', updatedAt: new Date().toISOString()
 };
 let currentCategoryFilter = 'all', currentDayFilter = 'الكل', currentDebtFilter = 'all', selectedCustIdx = null, tempReceiptBase64 = "";
 
 function getSupabaseCreds() {
   let cfg = JSON.parse(localStorage.getItem('aramky_supabase_config')) || {};
-  let url = (cfg.url || localStorage.getItem('aramky_supabase_url') || '').replace(/\/+$/, '');
-  let key = cfg.key || localStorage.getItem('aramky_supabase_key') || '';
+  let url = (cfg.url || localStorage.getItem('aramky_supabase_url') || '').trim().replace(/\/+$/, '');
+  let key = (cfg.key || localStorage.getItem('aramky_supabase_key') || '').trim();
   return { url, key };
+}
+
+function updateCloudSyncBadge(text, isOnline = navigator.onLine) {
+  const el = document.getElementById('cloud-sync-status');
+  if (!el) return;
+  el.innerText = text;
+  el.className = `text-[11px] font-bold ${isOnline ? 'text-emerald-300' : 'text-amber-400'}`;
+}
+
+async function hydrateSupabaseConfigFromHost() {
+  const existing = getSupabaseCreds();
+  if (existing.url && existing.key && !existing.url.includes('YOUR_PROJECT_ID')) {
+    return existing;
+  }
+  const endpoints = ['/api/supabase-config', 'supabase-config.json'];
+  for (const ep of endpoints) {
+    try {
+      const res = await fetch(ep, { cache: 'no-store' });
+      if (!res.ok) continue;
+      const data = await res.json();
+      const url = String(data.url || data.supabaseUrl || data.SUPABASE_URL || '').trim().replace(/\/+$/, '');
+      const key = String(data.key || data.anonKey || data.supabaseKey || data.SUPABASE_ANON_KEY || '').trim();
+      if (url && key && !url.includes('YOUR_PROJECT_ID')) {
+        localStorage.setItem('aramky_supabase_config', JSON.stringify({ url, key }));
+        localStorage.setItem('aramky_supabase_url', url);
+        localStorage.setItem('aramky_supabase_key', key);
+        return { url, key };
+      }
+    } catch (_) {}
+  }
+  return existing;
+}
+
+function getOutboxKey() {
+  return 'aramky_cloud_outbox_v1';
+}
+
+function enqueueCloudSync(tenantCode) {
+  const code = String(tenantCode || currentTenantCode || '').trim().toUpperCase();
+  if (!code) return;
+  const queue = JSON.parse(localStorage.getItem(getOutboxKey())) || [];
+  if (!queue.includes(code)) {
+    queue.push(code);
+    localStorage.setItem(getOutboxKey(), JSON.stringify(queue));
+  }
+  if (navigator.onLine) {
+    flushCloudOutbox();
+  } else {
+    updateCloudSyncBadge('أوفلاين: محفوظ محلياً بانتظار النت', false);
+  }
+}
+
+async function pushTenantToSupabase(code) {
+  const cleanCode = String(code || '').trim().toUpperCase();
+  if (!cleanCode || !navigator.onLine) return false;
+  const { url, key } = await hydrateSupabaseConfigFromHost();
+  if (!url || !key || url.includes('YOUR_PROJECT_ID')) {
+    updateCloudSyncBadge('وضع محلي / أوفلاين نشط', navigator.onLine);
+    return false;
+  }
+
+  const sub = subscribersDB.find(s => String(s.code || '').toUpperCase() === cleanCode) || getMasterAccountDefault();
+  const rawState = JSON.parse(localStorage.getItem(getStorageKeyForTenant(cleanCode)) || 'null') || appState;
+  const nowIso = new Date().toISOString();
+
+  try {
+    await fetch(`${url}/rest/v1/stores`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': key,
+        'Authorization': `Bearer ${key}`,
+        'Prefer': 'resolution=merge-duplicates,return=minimal'
+      },
+      body: JSON.stringify({
+        store_code: cleanCode,
+        store_name: sub.name || rawState.store?.name || cleanCode,
+        phone: sub.phone || rawState.store?.phone || '',
+        passcode: sub.passcode || '1234',
+        expires_at: sub.expiresAt || '2099-12-31',
+        is_active: sub.active !== false,
+        is_master: cleanCode === ADMIN_TENANT_CODE || !!sub.isMaster,
+        updated_at: nowIso
+      })
+    });
+
+    const stateRes = await fetch(`${url}/rest/v1/store_states`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': key,
+        'Authorization': `Bearer ${key}`,
+        'Prefer': 'resolution=merge-duplicates,return=minimal'
+      },
+      body: JSON.stringify({
+        store_code: cleanCode,
+        state_json: { ...rawState, updatedAt: rawState.updatedAt || nowIso },
+        updated_at: nowIso
+      })
+    });
+
+    if (stateRes.ok) {
+      updateCloudSyncBadge('Supabase: متزامن ومؤمّن ✅', true);
+      return true;
+    }
+  } catch (_) {}
+
+  updateCloudSyncBadge('بانتظار مزامنة Supabase...', navigator.onLine);
+  return false;
+}
+
+async function pullTenantFromSupabase(code) {
+  const cleanCode = String(code || '').trim().toUpperCase();
+  if (!cleanCode || !navigator.onLine) return false;
+  const { url, key } = await hydrateSupabaseConfigFromHost();
+  if (!url || !key || url.includes('YOUR_PROJECT_ID')) {
+    updateCloudSyncBadge('وضع محلي / أوفلاين نشط', navigator.onLine);
+    return false;
+  }
+
+  let updated = false;
+  try {
+    const storeRes = await fetch(`${url}/rest/v1/stores?store_code=eq.${encodeURIComponent(cleanCode)}&select=*`, {
+      headers: { 'apikey': key, 'Authorization': `Bearer ${key}` }
+    });
+    if (storeRes.ok) {
+      const rows = await storeRes.json();
+      if (Array.isArray(rows) && rows.length > 0) {
+        const r = rows[0];
+        const idx = subscribersDB.findIndex(s => String(s.code || '').toUpperCase() === cleanCode);
+        const mergedSub = {
+          code: cleanCode,
+          name: r.store_name || cleanCode,
+          phone: r.phone || (idx >= 0 ? subscribersDB[idx].phone : ''),
+          passcode: r.passcode || (idx >= 0 ? subscribersDB[idx].passcode : '1234'),
+          expiresAt: r.expires_at || '2099-12-31',
+          active: r.is_active !== false,
+          isMaster: cleanCode === ADMIN_TENANT_CODE || !!r.is_master,
+          phoneVerified: true
+        };
+        if (idx >= 0) subscribersDB[idx] = { ...subscribersDB[idx], ...mergedSub };
+        else subscribersDB.push(mergedSub);
+        saveSubscribersDB();
+        updated = true;
+      }
+    }
+
+    const stateRes = await fetch(`${url}/rest/v1/store_states?store_code=eq.${encodeURIComponent(cleanCode)}&select=*`, {
+      headers: { 'apikey': key, 'Authorization': `Bearer ${key}` }
+    });
+    if (stateRes.ok) {
+      const stateRows = await stateRes.json();
+      if (Array.isArray(stateRows) && stateRows.length > 0 && stateRows[0].state_json) {
+        const remoteState = stateRows[0].state_json;
+        const localRaw = JSON.parse(localStorage.getItem(getStorageKeyForTenant(cleanCode)) || 'null');
+        const remoteTime = new Date(remoteState.updatedAt || stateRows[0].updated_at || 0).getTime();
+        const localTime = new Date(localRaw?.updatedAt || 0).getTime();
+        if (!localRaw || remoteTime >= localTime) {
+          appState = { ...appState, ...remoteState };
+          localStorage.setItem(getStorageKeyForTenant(cleanCode), JSON.stringify(appState));
+          updated = true;
+        }
+      }
+    }
+
+    if (updated) {
+      updateCloudSyncBadge('Supabase: محدث من السحابة ✅', true);
+    } else {
+      updateCloudSyncBadge('Supabase: متصل ✅', true);
+    }
+  } catch (_) {
+    updateCloudSyncBadge('تعذر الوصول لـ Supabase حالياً', navigator.onLine);
+  }
+  return updated;
+}
+
+async function flushCloudOutbox() {
+  if (isSyncingCloud || !navigator.onLine) return;
+  const queue = JSON.parse(localStorage.getItem(getOutboxKey())) || [];
+  if (!queue.length) return;
+  isSyncingCloud = true;
+  const remaining = [];
+  for (const code of queue) {
+    const ok = await pushTenantToSupabase(code);
+    if (!ok) remaining.push(code);
+  }
+  localStorage.setItem(getOutboxKey(), JSON.stringify(remaining));
+  isSyncingCloud = false;
+}
+
+async function refreshAppAndClearCache() {
+  try {
+    if (currentTenantCode && navigator.onLine) {
+      await flushCloudOutbox();
+      await pullTenantFromSupabase(currentTenantCode);
+      await pushTenantToSupabase(currentTenantCode);
+    }
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    }
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for (const reg of regs) {
+        if (reg.waiting) {
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+        await reg.update();
+      }
+    }
+    localStorage.removeItem('aramky_last_diag_signature');
+    showToast('تمت المزامنة وتفريغ الكاش القديم، جاري التحديث...', 'info');
+    setTimeout(() => {
+      window.location.reload();
+    }, 550);
+  } catch (_) {
+    window.location.reload();
+  }
 }
 
 function getNextMediaSeq(folder) {
@@ -1489,8 +1717,8 @@ function compressImageFileToWebP(file, maxSize = 1000, quality = 0.78) {
 
 async function uploadImageToIsolatedStorage(file, folder = 'items', bucket = 'gold-media') {
   const { blob, dataUrl } = await compressImageFileToWebP(file);
-  const { url, key } = getSupabaseCreds();
-  if (!url || !key || url.includes('YOUR_PROJECT_ID')) {
+  const { url, key } = await hydrateSupabaseConfigFromHost();
+  if (!url || !key || url.includes('YOUR_PROJECT_ID') || !navigator.onLine) {
     return dataUrl;
   }
   const seq = getNextMediaSeq(folder);
@@ -1515,10 +1743,37 @@ async function uploadImageToIsolatedStorage(file, folder = 'items', bucket = 'go
   }
 }
 
-window.onload = function() {
+window.addEventListener('online', () => {
+  updateCloudSyncBadge('عاد الإنترنت: جاري المزامنة...', true);
+  flushCloudOutbox().then(() => {
+    if (currentTenantCode) {
+      pullTenantFromSupabase(currentTenantCode).then(() => updateUI());
+    }
+  });
+});
+
+window.addEventListener('offline', () => {
+  updateCloudSyncBadge('وضع بدون إنترنت (أوفلاين نشط)', false);
+});
+
+window.onload = async function() {
+  await hydrateSupabaseConfigFromHost();
+  if (navigator.onLine) {
+    await flushCloudOutbox();
+  } else {
+    updateCloudSyncBadge('وضع بدون إنترنت (أوفلاين نشط)', false);
+  }
+
   const urlParams = new URLSearchParams(window.location.search);
   const storeParam = urlParams.get('store');
-  if (storeParam) { loadTenantData(storeParam.toUpperCase()); renderPublicCustomerStorefront(); dismissAramkySplash(); return; }
+  if (storeParam) {
+    const cleanStore = storeParam.trim().toUpperCase();
+    loadTenantData(cleanStore);
+    if (navigator.onLine) await pullTenantFromSupabase(cleanStore);
+    renderPublicCustomerStorefront();
+    dismissAramkySplash();
+    return;
+  }
 
   const activateCode = urlParams.get('activate');
   const activateExp = urlParams.get('exp');
@@ -1539,6 +1794,7 @@ window.onload = function() {
     localStorage.removeItem('aramky_last_diag_signature');
     currentTenantCode = cleanCode;
     localStorage.setItem('aramky_active_tenant', currentTenantCode);
+    enqueueCloudSync(currentTenantCode);
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
@@ -1547,7 +1803,7 @@ window.onload = function() {
     scheduleDiagnosticsToAdmin();
     return;
   }
-  verifyAndBootTenant(currentTenantCode);
+  await verifyAndBootTenant(currentTenantCode);
   scheduleDiagnosticsToAdmin();
 };
 
@@ -1566,8 +1822,8 @@ function normalizePhoneDigits(p) {
   return String(p || '').replace(/\D/g, '');
 }
 
-function loginTenant() {
-  subscribersDB = JSON.parse(localStorage.getItem('aramky_subscribers_master')) || subscribersDB;
+async function loginTenant() {
+  subscribersDB = getInitialSubscribers();
   let code = document.getElementById('login-tenant-code').value.trim().toUpperCase();
   let phone = document.getElementById('login-tenant-phone').value.trim();
   let pass = document.getElementById('login-tenant-pass').value.trim();
@@ -1576,9 +1832,13 @@ function loginTenant() {
   if (!phone) return showToast('أدخل رقم الهاتف المرتبط بالحساب!', 'error');
   if (!pass) return showToast('أدخل كلمة المرور!', 'error');
 
+  if (navigator.onLine) {
+    await pullTenantFromSupabase(code);
+  }
+
   let sub = subscribersDB.find(s => s.code.toUpperCase() === code);
   if (!sub && isAdminTenant(code)) {
-    sub = { code: ADMIN_TENANT_CODE, name: "صاغة أرامكي - الفرع الرئيسي (الأدمن)", phone: "07700000000", passcode: "2026", expiresAt: "2099-12-31", active: true };
+    sub = getMasterAccountDefault();
     subscribersDB.unshift(sub);
     saveSubscribersDB();
   }
@@ -1592,7 +1852,7 @@ function loginTenant() {
     return showToast('كلمة المرور غير صحيحة!', 'error');
   }
 
-  verifyAndBootTenant(sub.code);
+  await verifyAndBootTenant(sub.code);
 }
 
 function switchTenantPrompt() {
@@ -1605,13 +1865,18 @@ function switchTenantPrompt() {
   showToast('أدخل اليوزر ورقم الهاتف وكلمة المرور للدخول', 'info');
 }
 
-function verifyAndBootTenant(code) {
-  subscribersDB = JSON.parse(localStorage.getItem('aramky_subscribers_master')) || subscribersDB;
+async function verifyAndBootTenant(code) {
+  subscribersDB = getInitialSubscribers();
   let normalizedCode = String(code || '').trim().toUpperCase();
+
+  if (navigator.onLine) {
+    await pullTenantFromSupabase(normalizedCode);
+  }
+
   let sub = subscribersDB.find(s => s.code.toUpperCase() === normalizedCode);
 
   if (!sub && isAdminTenant(normalizedCode)) {
-    sub = { code: ADMIN_TENANT_CODE, name: "صاغة أرامكي - الفرع الرئيسي (الأدمن)", phone: "07700000000", passcode: "2026", expiresAt: "2099-12-31", active: true };
+    sub = getMasterAccountDefault();
     subscribersDB.unshift(sub);
     saveSubscribersDB();
   }
@@ -1661,6 +1926,9 @@ function verifyAndBootTenant(code) {
   }
 
   updatePricesDerived(); autoFillScrapMithqal(); loadStoreSettingsToUI(); updateUI();
+  if (navigator.onLine) {
+    pushTenantToSupabase(currentTenantCode);
+  }
 }
 
 function openSupportFromLock() {
@@ -2067,6 +2335,26 @@ function setDayFilter(d) {
   filterLogs();
 }
 function setCustomDateFilter() { currentDayFilter = 'custom'; filterLogs(); }
+
+function switchLogCategory(cat) {
+  currentCategoryFilter = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    b.className = b.className.replace('bg-gold text-darkbg font-bold', 'bg-darkbg text-slate-300 border border-slate-700');
+  });
+  const activeIdMap = {
+    'all': 'log-cat-all',
+    'عملية بيع': 'log-cat-sales',
+    'شراء كسر': 'log-cat-scrap',
+    'تعديل مخزن': 'log-cat-inv-edit',
+    'حذف مخزن': 'log-cat-inv-del',
+    'إرجاع فاتورة': 'log-cat-return',
+    'حركة ديون': 'log-cat-debts',
+    'صرف مصروف': 'log-cat-exp'
+  };
+  const btn = document.getElementById(activeIdMap[cat]);
+  if (btn) btn.className = "cat-btn bg-gold text-darkbg px-3.5 py-1.5 rounded-xl font-bold";
+  filterLogs();
+}
 
 function getFilteredLogsList() {
   let q = (document.getElementById('search-input').value || '').toLowerCase();
@@ -2772,94 +3060,76 @@ function renderLuxuryPreviewList() {
   matches.forEach(item => {
     let price = Math.round((item.weight * getGramPrice(item.karat)) + (item.makingPerGram * item.weight));
     let thumb = (item.images && item.images.length)
-      ? `<img src="${item.images[0]}" onclick="event.stopPropagation(); openImageLightbox(this.src, '${item.name.replace(/'/g, '')}')" class="w-12 h-12 rounded-xl object-cover bg-darkbg border border-gold/40 shrink-0">`
-      : `<div class="w-12 h-12 rounded-xl bg-darkbg border border-gold/30 flex items-center justify-center text-gold shrink-0"><i class="fa-solid fa-gem"></i></div>`;
-    c.innerHTML += `<div onclick="selectItemForPreview(${item.idx})" class="bg-darkbg p-3 rounded-2xl border border-slate-800 hover:border-gold cursor-pointer flex items-center gap-3 text-xs transition">
-      ${thumb}
-      <div class="flex-1 min-w-0">
-        <div class="font-bold text-gold truncate">${item.name}</div>
-        <div class="text-[10px] text-slate-400">عيار ${item.karat} • ${item.weight}غ • ${item.qty} متوفر</div>
-        <div class="text-emerald-400 font-black mt-0.5">${price.toLocaleString()} د.ع</div>
-      </div>
+      ? `<img src="${item.images[0]}" onclick="event.stopPropagation(); openImageLightbox(this.src, '${item.name.replace(/'/g, '')}')" class="w-12 h-12 rounded-xl object-cover border border-gold/40 shrink-0 cursor-pointer">`
+      : `<div class="w-12 h-12 rounded-xl bg-cardbg border border-gold/30 flex items-center justify-center text-gold shrink-0"><i class="fa-solid fa-gem"></i></div>`;
+    c.innerHTML += `<div onclick="selectPreviewItem(${item.idx})" class="bg-darkbg p-3 rounded-2xl border border-slate-700 hover:border-gold flex items-center justify-between gap-2.5 cursor-pointer transition">
+      <div class="flex items-center gap-2.5">${thumb}<div><strong class="text-gold text-xs block">${item.name}</strong><span class="text-[11px] text-slate-400">عيار ${item.karat} • ${item.weight}غ • ${item.qty} متوفر</span></div></div>
+      <span class="text-xs font-black text-emerald-400 whitespace-nowrap">${price.toLocaleString()} د.ع</span>
     </div>`;
   });
 }
-function selectItemForPreview(idx) {
+function selectPreviewItem(idx) {
   let item = appState.inventory[idx]; if (!item) return;
   document.getElementById('selected-preview-index').value = idx;
-  document.getElementById('selected-preview-label').innerHTML = `<i class="fa-solid fa-gem text-gold"></i> ${item.name} (عيار ${item.karat} • ${item.weight}غ • ${item.qty} متوفر)`;
+  document.getElementById('selected-preview-label').innerHTML = `<i class="fa-solid fa-gem text-gold"></i> <span>${item.name} (عيار ${item.karat} - ${item.weight}غ)</span>`;
   closeLuxuryPreviewModal();
   updateCartPreview();
+  showToast(`تمت معاينة (${item.name})`);
 }
 
-function openLuxuryItemModal() { document.getElementById('modal-item-search').value = ''; renderLuxuryItemList(); document.getElementById('luxury-item-modal').classList.remove('hidden'); }
+function openLuxuryItemModal() { document.getElementById('luxury-item-modal').classList.remove('hidden'); renderLuxuryItemList(); }
 function closeLuxuryItemModal() { document.getElementById('luxury-item-modal').classList.add('hidden'); }
 function renderLuxuryItemList() {
-  let q = document.getElementById('modal-item-search').value.toLowerCase(), c = document.getElementById('modal-items-list'); c.innerHTML = '';
+  let q = (document.getElementById('modal-item-search').value || '').toLowerCase(), c = document.getElementById('modal-items-list'); c.innerHTML = '';
   appState.inventory.forEach((item, idx) => {
-    if (item.qty <= 0 || (!item.name.toLowerCase().includes(q) && !String(item.karat).includes(q))) return;
+    if (item.qty <= 0 || !item.name.toLowerCase().includes(q)) return;
     let price = Math.round((item.weight * getGramPrice(item.karat)) + (item.makingPerGram * item.weight));
-    c.innerHTML += `<div onclick="addItemToCartFromIndex(${idx});closeLuxuryItemModal();" class="bg-darkbg p-3 rounded-2xl border border-slate-800 hover:border-gold cursor-pointer flex justify-between items-center text-xs"><div><strong class="text-gold block">${item.name}</strong><span class="text-slate-400">عيار ${item.karat} • ${item.weight}غ • ${item.qty} متوفر</span></div><span class="text-emerald-400 font-black">${price.toLocaleString()} د.ع</span></div>`;
+    let thumb = (item.images && item.images.length)
+      ? `<img src="${item.images[0]}" onclick="event.stopPropagation(); openImageLightbox(this.src, '${item.name.replace(/'/g, '')}')" class="w-12 h-12 rounded-xl object-cover border border-gold/40 shrink-0 cursor-pointer">`
+      : `<div class="w-12 h-12 rounded-xl bg-cardbg border border-gold/30 flex items-center justify-center text-gold shrink-0"><i class="fa-solid fa-gem"></i></div>`;
+    c.innerHTML += `<div onclick="addItemToCartFromIndex(${idx});closeLuxuryItemModal();" class="bg-darkbg p-3 rounded-2xl border border-slate-700 hover:border-gold flex items-center justify-between gap-2.5 cursor-pointer transition"><div class="flex items-center gap-2.5">${thumb}<div><strong class="text-gold text-xs block">${item.name}</strong><span class="text-[11px] text-slate-400">عيار ${item.karat} • ${item.weight}غ • ${item.qty} متوفر</span></div></div><span class="text-xs font-black text-emerald-400 whitespace-nowrap">${price.toLocaleString()} د.ع</span></div>`;
   });
 }
 
 function openInvoiceModal(inv) {
   let tmpl = appState.invoiceTemplate || 'detailed';
-  let isCompact = (tmpl === 'compact'), isJeweler = (tmpl === 'jeweler');
-  let headerBadge = isCompact ? 'فاتورة سريعة' : (isJeweler ? 'فاتورة صياغة ومثاقيل معتمدة' : 'فاتورة رسمية مفصلة');
-  document.getElementById('invoice-header-box').innerHTML = `<h3 class="text-xl font-black text-amber-700">${appState.store.name}</h3><p class="text-[11px] text-slate-600">${headerBadge} • ${inv.code}</p><p class="text-[10px] text-slate-500">${inv.time}</p>`;
-  let itemsHtml = inv.items.map(it => {
-    let makingMithqal = Math.round((it.makingPerGram || 0) * 5);
-    let makingTot = Math.round(it.itemMakingTotal || ((it.makingPerGram || 0) * (it.weight || 0)));
-    return `<div class="flex justify-between border-b border-slate-200 py-1.5">
-      <div>
-        <strong>${it.name}</strong> (عيار ${it.karat} - ${it.weight}غ)
-        ${!isCompact ? `<span class="block text-[10px] text-amber-800">صياغة المثقال: ${makingMithqal.toLocaleString()} د.ع | إجمالي الصياغة: ${makingTot.toLocaleString()} د.ع</span>` : ''}
-      </div>
-      <strong>${it.itemTotal.toLocaleString()} د.ع</strong>
-    </div>`;
-  }).join('');
-  let extraBlock = isCompact ? '' : `<div class="bg-amber-50 p-2.5 rounded-xl border border-amber-200 text-[11px] space-y-1">
-    <div>إجمالي الوزن: <strong>${inv.weight} غرام</strong> (${(inv.weight / 5).toFixed(3)} مثقال)</div>
-    <div>صافي أجور الصياغة: <strong>${Math.round(inv.making || 0).toLocaleString()} د.ع</strong></div>
-    ${inv.notes ? `<div>ملاحظات: <strong>${inv.notes}</strong></div>` : ''}
-  </div>`;
-  document.getElementById('invoice-body-content').innerHTML = `<div class="flex justify-between border-b pb-1.5"><span>الاسم: <strong>${inv.customer}</strong></span><span>الهاتف: ${inv.phone}</span></div><div class="space-y-1">${itemsHtml}</div>${extraBlock}<div class="text-right font-black text-lg text-amber-800 pt-2 border-t">الإجمالي: ${inv.total.toLocaleString()} د.ع</div>`;
+  document.getElementById('invoice-header-box').innerHTML = `<h3 class="text-xl font-black text-amber-700">${appState.store.name}</h3><p class="text-[11px] text-slate-600">${appState.store.address} | ${appState.store.phone}</p><p class="text-[11px] font-mono text-slate-500 mt-1">رمز الفاتورة: <strong>${inv.code}</strong> | ${inv.time}</p>`;
+  let itemsHtml = inv.items.map(it => `<div class="flex justify-between border-b border-slate-200 py-1"><span>${it.name} (${it.weight}غ - عيار ${it.karat})</span><strong>${it.itemTotal.toLocaleString()} د.ع</strong></div>`).join('');
+  document.getElementById('invoice-body-content').innerHTML = `<div class="flex justify-between"><span>العميل: <strong>${inv.customer}</strong></span><span>النوع: ${inv.type}</span></div><div class="border-t border-b border-slate-200 py-2 my-2 space-y-1">${itemsHtml}</div><div class="flex justify-between font-black text-base text-amber-800"><span>الإجمالي:</span><span>${inv.total.toLocaleString()} د.ع</span></div>`;
   document.getElementById('invoice-modal').classList.remove('hidden');
 }
 function closeInvoiceModal() { document.getElementById('invoice-modal').classList.add('hidden'); }
 
 function saveState() {
   if (!currentTenantCode) return false;
+  appState.updatedAt = new Date().toISOString();
   try {
     localStorage.setItem(getStorageKeyForTenant(currentTenantCode), JSON.stringify(appState));
-    updateUI(); return true;
+    enqueueCloudSync(currentTenantCode);
+    updateUI();
+    return true;
   } catch (e) {
-    try {
-      let slim = { ...appState, inventory: appState.inventory.map(it => ({ ...it, images: [] })), supportTickets: appState.supportTickets.map(t => ({ ...t, receipt: "" })) };
-      localStorage.setItem(getStorageKeyForTenant(currentTenantCode), JSON.stringify(slim));
-      updateUI(); showToast('تم الحفظ بدون صور إضافية لتوفير المساحة'); return true;
-    } catch (e2) { showToast('الذاكرة ممتلئة!', 'error'); return false; }
+    showToast('تنبيه: مساحة التخزين ممتلئة، قلل عدد/حجم الصور!', 'error');
+    return false;
   }
 }
 
 function handleGlobalZeroKey(e) {
-  if (e.key === '0' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+  if (e.key === '0' && e.altKey) {
+    e.preventDefault();
     openResetSystemModal();
   }
 }
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js', { scope: './' })
-      .then(() => {
-        swRegisteredOk = true;
-        scheduleDiagnosticsToAdmin();
-      })
-      .catch(() => {
-        swRegisteredOk = false;
-        scheduleDiagnosticsToAdmin();
-      });
+    navigator.serviceWorker.register('sw.js').then((reg) => {
+      swRegisteredOk = true;
+      scheduleDiagnosticsToAdmin();
+    }).catch(() => {
+      swRegisteredOk = false;
+      scheduleDiagnosticsToAdmin();
+    });
   });
 }
 </script>
