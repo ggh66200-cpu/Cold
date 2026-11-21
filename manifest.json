@@ -1,25 +1,25 @@
 {
-  "name": "ARAMKY Gold OS - نظام إدارة صياغة الذهب",
-  "short_name": "أرامكي ⚜️",
-  "description": "نظام إدارة صياغة الذهب والمجوهرات والمخزن والديون السحابي",
+  "id": "/?source=aramky-gold-os",
+  "name": "ARAMKY Gold OS | نظام إدارة صياغة الذهب",
+  "short_name": "ARAMKY Gold",
+  "description": "نظام إدارة صياغة الذهب ونقاط البيع والديون والمخزن والمعرض — أرامكي للحلول الرقمية",
   "start_url": "./index.html",
   "scope": "./",
-  "id": "./",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#070A12",
   "theme_color": "#070A12",
-  "orientation": "portrait-primary",
-  "lang": "ar",
   "dir": "rtl",
+  "lang": "ar",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "./icon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icon.png",
+      "src": "./icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
