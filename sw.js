@@ -1,62 +1,86 @@
-const CACHE_NAME = 'aramky-gold-v29.0';
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = 'aramky-gold-os-v28-0';
+const CORE_ASSETS = [
   './',
   './index.html',
   './admin.html',
   './manifest.json',
-  './icon.png'
+  './icon.png',
+  './aramky-splash-logo.png'
 ];
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(async (cache) => {
-      for (const asset of ASSETS_TO_CACHE) {
-        try {
-          await cache.add(asset);
-        } catch (_) {}
-      }
-    })
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return Promise.allSettled(
+        CORE_ASSETS.map((asset) => cache.add(asset).catch(() => null))
+      );
+    }).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+      Promise.all(
+        keys
+          .filter((key) => key !== CACHE_NAME)
+          .map((key) => caches.delete(key))
+      )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-self.addEventListener('message', (e) => {
-  if (e.data && e.data.type === 'SKIP_WAITING') {
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  if (e.data && e.data.type === 'CLEAR_ALL_CACHES') {
-    e.waitUntil(
-      caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
-    );
-  }
 });
 
-self.addEventListener('fetch', (e) => {
-  const url = new URL(e.request.url);
-  if (e.request.method !== 'GET' || url.hostname.includes('supabase.co')) {
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+
+  // عدم تخزين طلبات Supabase أو نقاط الإعداد الديناميكية في الكاش حتى لا تتعارض مع المزامنة الحية
+  if (
+    url.hostname.includes('supabase.co') ||
+    url.pathname.startsWith('/api/') ||
+    url.pathname.endsWith('/supabase-config.json')
+  ) {
+    event.respondWith(
+      fetch(event.request).catch(() => new Response(JSON.stringify({ offline: true }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' }
+      }))
+    );
     return;
   }
-  if (url.pathname.endsWith('/api/supabase-config') || url.pathname.endsWith('supabase-config.json')) {
-    return;
-  }
-  e.respondWith(
-    fetch(e.request)
-      .then((res) => {
-        if (res && res.status === 200 && url.origin === self.location.origin) {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, copy));
+
+  // استراتيجية الكاش أولاً مع تحديث بالخلفية للملفات الثابتة لدعم العمل الفوري بدون إنترنت
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      const networkFetch = fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type !== 'opaque') {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(() => null);
+          }
+          return networkResponse;
+        })
+        .catch(() => null);
+
+      if (cachedResponse) {
+        event.waitUntil(networkFetch);
+        return cachedResponse;
+      }
+
+      return networkFetch.then((res) => {
+        if (res) return res;
+        if (event.request.mode === 'navigate') {
+          return caches.match('./index.html');
         }
-        return res;
-      })
-      .catch(() => caches.match(e.request).then((cached) => cached || caches.match('./index.html')))
+        return new Response('', { status: 504, statusText: 'Offline' });
+      });
+    })
   );
 });
