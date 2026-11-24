@@ -1,308 +1,138 @@
-/* ARAMKY Gold OS - Core Bridge, Cipher, Image Engine, Cloud Sync & Tenant Isolation (aramky-core.js) */
-(function (global) {
-  'use strict';
-
-  const CIPHER_PREFIX = 'ARMK_ENC_V1::';
-  const SECRET_SALT = 'ARAMKY::NAWAT_AL_DHAHAB::2026::GOLD_OS';
-
-  const FALLBACK_BRAND_SVG =
-    'data:image/svg+xml;utf8,' +
-    encodeURIComponent(
-      '<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">' +
-        '<rect width="256" height="256" rx="48" fill="#070A12"/>' +
-        '<rect x="8" y="8" width="240" height="240" rx="42" fill="none" stroke="#D4AF37" stroke-width="6"/>' +
-        '<text x="128" y="148" text-anchor="middle" font-size="96" fill="#D4AF37" font-family="Arial, sans-serif">👑</text>' +
-      '</svg>'
-    );
-
-  const FALLBACK_LOGO_SVG =
-    'data:image/svg+xml;utf8,' +
-    encodeURIComponent(
-      '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">' +
-        '<rect width="200" height="200" fill="#0F172A"/>' +
-        '<circle cx="100" cy="100" r="84" fill="none" stroke="#D4AF37" stroke-width="5"/>' +
-        '<text x="100" y="114" text-anchor="middle" fill="#D4AF37" font-family="Arial,sans-serif" font-size="34" font-weight="bold">ARAMKY</text>' +
-      '</svg>'
-    );
+(function () {
+  const ADMIN_PASS_HASH = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"; // default: 123456 (sha256)
+  const SUPPORT_PHONE = "07766083622";
+  const MASTER_CARD = "910400201646";
+  const PUBLIC_BRAND = "ARAMKY";
 
   const KEYS = {
-    tenants: 'aramky_tenants_v28',
-    activeTenant: 'aramky_active_tenant',
-    supportTickets: 'aramky_support_tickets_v28',
-    adminSession: 'aramky_admin_auth_v28',
-    cloudConfig: 'aramky_cloud_config_v28'
+    activeTenant: "aramky_active_tenant_code",
+    adminSession: "aramky_admin_session_active",
+    supportTickets: "aramky_global_support_tickets",
+    tenantPrefix: "aramky_tenant_vault_"
   };
 
-  function deriveKey(context = 'DEFAULT') {
-    const raw = `${SECRET_SALT}|${String(context || 'DEFAULT').toUpperCase()}`;
-    let h1 = 0x811c9dc5;
-    let h2 = 0x01000193;
-    for (let i = 0; i < raw.length; i++) {
-      const c = raw.charCodeAt(i);
-      h1 ^= c;
-      h1 = Math.imul(h1, 0x01000193);
-      h2 ^= c + i;
-      h2 = Math.imul(h2, 0x85ebca6b);
-    }
-    return ((h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0')).repeat(4);
-  }
-
-  function xorCipher(text, key) {
-    let out = '';
-    for (let i = 0; i < text.length; i++) {
-      const k = key.charCodeAt(i % key.length) + (i % 31);
-      out += String.fromCharCode(text.charCodeAt(i) ^ (k & 0xff));
-    }
-    return out;
-  }
-
-  function encryptPayload(obj, context = 'DEFAULT') {
-    const json = JSON.stringify(obj);
-    const utf8Bytes = new TextEncoder().encode(json);
-    let binary = '';
-    for (let i = 0; i < utf8Bytes.length; i++) binary += String.fromCharCode(utf8Bytes[i]);
-    const xored = xorCipher(binary, deriveKey(context));
-    return CIPHER_PREFIX + btoa(xored);
-  }
-
-  function decryptPayload(cipherText, context = 'DEFAULT') {
-    if (typeof cipherText !== 'string') return null;
-    if (!cipherText.startsWith(CIPHER_PREFIX)) {
-      try {
-        return JSON.parse(cipherText);
-      } catch (_) {
-        return null;
-      }
-    }
+  function obfuscateCode(code) {
+    const clean = String(code || "ARAMKY-01").trim().toUpperCase();
     try {
-      const b64 = cipherText.slice(CIPHER_PREFIX.length);
-      const binary = atob(b64);
-      const xored = xorCipher(binary, deriveKey(context));
-      const bytes = new Uint8Array(xored.length);
-      for (let i = 0; i < xored.length; i++) bytes[i] = xored.charCodeAt(i);
-      return JSON.parse(new TextDecoder().decode(bytes));
+      return btoa(unescape(encodeURIComponent(clean))).replace(/=+$/, "");
     } catch (_) {
-      return null;
+      return clean;
     }
   }
 
-  function readSecureStorage(storageKey, context, fallback = null) {
+  function deobfuscateCode(token) {
+    if (!token) return "ARAMKY-01";
     try {
-      const raw = localStorage.getItem(storageKey);
-      if (raw === null || raw === undefined) return fallback;
-      const parsed = decryptPayload(raw, context);
-      return parsed !== null ? parsed : fallback;
+      let padded = String(token).trim();
+      while (padded.length % 4) padded += "=";
+      const decoded = decodeURIComponent(escape(atob(padded)));
+      return /^[A-Z0-9_-]{2,32}$/i.test(decoded) ? decoded.toUpperCase() : "ARAMKY-01";
+    } catch (_) {
+      return "ARAMKY-01";
+    }
+  }
+
+  function getTenantStorageKey(code) {
+    const safe = String(code || "ARAMKY-01").trim().toUpperCase().replace(/[^A-Z0-9_-]/g, "_");
+    return `${KEYS.tenantPrefix}${safe}`;
+  }
+
+  function readStorage(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
     } catch (_) {
       return fallback;
     }
   }
 
-  function writeSecureStorage(storageKey, value, context) {
+  function writeStorage(key, value) {
     try {
-      localStorage.setItem(storageKey, encryptPayload(value, context));
+      localStorage.setItem(key, JSON.stringify(value));
       return true;
     } catch (_) {
       return false;
     }
   }
 
-  function getTenantDataKey(tenantCode) {
-    return `aramky_gold_data_${String(tenantCode || 'ARAMKY-01').trim().toUpperCase()}`;
-  }
-
-  function getCustomerLedgerKey(tenantCode, customerKey) {
-    return `aramky_cust_ledger_${String(tenantCode || 'ARAMKY-01').trim().toUpperCase()}_${String(customerKey || 'GENERAL')}`;
-  }
-
-  function encodeCatalogRef(tenantCode) {
-    return btoa(unescape(encodeURIComponent(String(tenantCode || 'ARAMKY-01').trim().toUpperCase())));
-  }
-
-  function decodeCatalogRef(ref) {
-    try {
-      return decodeURIComponent(escape(atob(String(ref || '').trim()))).toUpperCase();
-    } catch (_) {
-      return null;
+  function simpleSha256Fallback(str) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 0x01000193);
     }
+    return (h >>> 0).toString(16);
   }
 
-  function getPublicStorefrontUrl(tenantCode) {
-    const base = window.location.href.split('#')[0].split('?')[0];
-    return `${base}?catalog=${encodeURIComponent(encodeCatalogRef(tenantCode))}`;
-  }
-
-  function applyImageFallback(imgEl, variant = 'brand') {
-    if (!imgEl) return;
-    if (imgEl.dataset.fallbackApplied === '1') return;
-    imgEl.dataset.fallbackApplied = '1';
-    imgEl.src = variant === 'logo' ? FALLBACK_LOGO_SVG : FALLBACK_BRAND_SVG;
-  }
-
-  function filesToDataUrls(fileList, opts = {}) {
-    const files = Array.from(fileList || []);
-    const maxWidth = opts.maxWidth || 1024;
-    const maxHeight = opts.maxHeight || 1024;
-    const quality = opts.quality || 0.78;
-    return Promise.all(
-      files.map(
-        file =>
-          new Promise(resolve => {
-            const reader = new FileReader();
-            reader.onload = () => {
-              const img = new Image();
-              img.onload = () => {
-                let { width, height } = img;
-                if (width > maxWidth || height > maxHeight) {
-                  const ratio = Math.min(maxWidth / width, maxHeight / height);
-                  width = Math.round(width * ratio);
-                  height = Math.round(height * ratio);
-                }
-                const canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL('image/jpeg', quality));
-              };
-              img.onerror = () => resolve(reader.result);
-              img.src = reader.result;
-            };
-            reader.onerror = () => resolve(null);
-            reader.readAsDataURL(file);
-          })
-      )
-    ).then(list => list.filter(Boolean));
-  }
-
-  function getCloudConfig() {
-    return readSecureStorage(KEYS.cloudConfig, 'CLOUD_CFG', {
-      enabled: false,
-      endpointUrl: '',
-      apiKey: '',
-      lastSync: null
-    });
-  }
-
-  function saveCloudConfig(cfg) {
-    return writeSecureStorage(KEYS.cloudConfig, cfg, 'CLOUD_CFG');
-  }
-
-  async function syncTenantToCloud(tenantCode, payload) {
-    const cfg = getCloudConfig();
-    cfg.lastSync = new Date().toISOString();
-    saveCloudConfig(cfg);
-    if (!cfg.enabled || !cfg.endpointUrl) {
-      return { ok: true, mode: 'local_encrypted', syncedAt: cfg.lastSync };
+  async function hashText(text) {
+    const clean = String(text || "");
+    if (window.crypto && window.crypto.subtle) {
+      const buf = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(clean));
+      return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
     }
-    try {
-      const res = await fetch(cfg.endpointUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(cfg.apiKey ? { Authorization: `Bearer ${cfg.apiKey}` } : {})
-        },
-        body: JSON.stringify({ tenantCode, payload, syncedAt: cfg.lastSync })
-      });
-      return { ok: res.ok, mode: 'remote_api', status: res.status, syncedAt: cfg.lastSync };
-    } catch (err) {
-      return { ok: false, mode: 'remote_api', error: err.message };
+    return simpleSha256Fallback(clean);
+  }
+
+  function isAdminSessionActive() {
+    return sessionStorage.getItem(KEYS.adminSession) === "1" || localStorage.getItem(KEYS.adminSession) === "1";
+  }
+
+  function setAdminSessionActive(active) {
+    if (active) {
+      sessionStorage.setItem(KEYS.adminSession, "1");
+      localStorage.setItem(KEYS.adminSession, "1");
+    } else {
+      sessionStorage.removeItem(KEYS.adminSession);
+      localStorage.removeItem(KEYS.adminSession);
     }
-  }
-
-  function getTenants() {
-    const list = readSecureStorage(KEYS.tenants, 'TENANTS_LIST', null);
-    if (Array.isArray(list) && list.length) return list;
-    const defaults = [
-      { code: 'ARAMKY-01', name: 'صياغة أرامكي - الفرع الرئيسي', phone: '07766083622', pass: '1234', status: 'نشط' }
-    ];
-    writeSecureStorage(KEYS.tenants, defaults, 'TENANTS_LIST');
-    return defaults;
-  }
-
-  function saveTenants(list) {
-    return writeSecureStorage(KEYS.tenants, list, 'TENANTS_LIST');
-  }
-
-  function authenticateTenant(code, phone, pass) {
-    const cleanCode = String(code || '').trim().toUpperCase();
-    const tenants = getTenants();
-    let found = tenants.find(t => String(t.code).toUpperCase() === cleanCode);
-    if (!found) {
-      found = {
-        code: cleanCode,
-        name: `معرض ${cleanCode}`,
-        phone: String(phone || '').trim(),
-        pass: String(pass || '').trim(),
-        status: 'نشط'
-      };
-      tenants.push(found);
-      saveTenants(tenants);
-    }
-    return { ok: true, code: cleanCode, tenant: found };
-  }
-
-  function isSubscriptionBlocked(tenant) {
-    if (!tenant) return false;
-    return String(tenant.status || '') === 'متوقف';
-  }
-
-  function isAdminAuthenticated() {
-    return readSecureStorage(KEYS.adminSession, 'ADMIN_AUTH', false) === true;
-  }
-
-  function setAdminAuthenticated(val) {
-    writeSecureStorage(KEYS.adminSession, Boolean(val), 'ADMIN_AUTH');
     syncAdminUiVisibility();
   }
 
-  function verifyAdminPassword(pass) {
-    return String(pass || '').trim() === 'ARAMKY2026';
+  async function verifyAdminPassword(inputPass) {
+    const customHash = localStorage.getItem("aramky_admin_pass_hash");
+    const targetHash = customHash || ADMIN_PASS_HASH;
+    const h = await hashText(inputPass);
+    return h === targetHash;
   }
 
   function syncAdminUiVisibility() {
-    const isAdmin = isAdminAuthenticated();
-    const btnContainer = document.getElementById('admin-btn-container');
-    const bar = document.getElementById('admin-control-bar');
-    if (btnContainer) btnContainer.classList.toggle('hidden', !isAdmin);
-    if (bar) bar.classList.toggle('hidden', !isAdmin);
+    const adminBtnWrap = document.getElementById("admin-btn-container");
+    if (adminBtnWrap) {
+      adminBtnWrap.classList.toggle("hidden", !isAdminSessionActive());
+    }
   }
 
-  function getContactInfo() {
-    return {
-      masterCardNumber: '910400201646',
-      supportPhone: '07766083622',
-      whatsappUrl: 'https://wa.me/9647766083622'
-    };
+  function applyImageFallback(img) {
+    if (!img) return;
+    if (!img.dataset.fallbackApplied) {
+      img.dataset.fallbackApplied = "1";
+      img.onerror = null;
+      img.src = "/icon.png";
+    }
   }
 
-  function printReceiptOnly(paperWidth = 80) {
-    document.body.dataset.printWidth = String(paperWidth);
-    window.print();
+  function getClientShareUrl(tenantCode) {
+    const base = `${window.location.origin}/index.html`;
+    return `${base}?client=${encodeURIComponent(obfuscateCode(tenantCode))}`;
   }
 
-  global.ARAMKY_CORE = {
-    keys: KEYS,
-    readSecureStorage,
-    writeSecureStorage,
-    getTenantDataKey,
-    getCustomerLedgerKey,
-    encodeCatalogRef,
-    decodeCatalogRef,
-    getPublicStorefrontUrl,
-    applyImageFallback,
-    filesToDataUrls,
-    getCloudConfig,
-    saveCloudConfig,
-    syncTenantToCloud,
-    getTenants,
-    saveTenants,
-    authenticateTenant,
-    isSubscriptionBlocked,
-    isAdminAuthenticated,
-    setAdminAuthenticated,
+  window.ARAMKY_CORE = {
+    PUBLIC_BRAND,
+    SUPPORT_PHONE,
+    MASTER_CARD,
+    KEYS,
+    obfuscateCode,
+    deobfuscateCode,
+    getTenantStorageKey,
+    readStorage,
+    writeStorage,
+    isAdminSessionActive,
+    setAdminSessionActive,
     verifyAdminPassword,
     syncAdminUiVisibility,
-    getContactInfo,
-    printReceiptOnly
+    applyImageFallback,
+    getClientShareUrl
   };
-})(window);
+
+  document.addEventListener("DOMContentLoaded", syncAdminUiVisibility);
+})();
