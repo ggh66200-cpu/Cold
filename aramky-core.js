@@ -25,6 +25,14 @@
       '</svg>'
     );
 
+  const KEYS = {
+    tenants: 'aramky_tenants_v28',
+    activeTenant: 'aramky_active_tenant',
+    supportTickets: 'aramky_support_tickets_v28',
+    adminSession: 'aramky_admin_auth_v28',
+    cloudConfig: 'aramky_cloud_config_v28'
+  };
+
   function deriveKey(context = 'DEFAULT') {
     const raw = `${SECRET_SALT}|${String(context || 'DEFAULT').toUpperCase()}`;
     let h1 = 0x811c9dc5;
@@ -33,373 +41,268 @@
       const c = raw.charCodeAt(i);
       h1 ^= c;
       h1 = Math.imul(h1, 0x01000193);
-      h2 = Math.imul(h2 ^ c, 0x27d4eb2d);
+      h2 ^= c + i;
+      h2 = Math.imul(h2, 0x85ebca6b);
     }
-    return `${(h1 >>> 0).toString(16)}${(h2 >>> 0).toString(16)}ARAMKY_KEY`;
+    return ((h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0')).repeat(4);
   }
 
-  function toBase64Utf8(str) {
-    const bytes = new TextEncoder().encode(String(str));
-    let bin = '';
-    for (let i = 0; i < bytes.length; i++) {
-      bin += String.fromCharCode(bytes[i]);
+  function xorCipher(text, key) {
+    let out = '';
+    for (let i = 0; i < text.length; i++) {
+      const k = key.charCodeAt(i % key.length) + (i % 31);
+      out += String.fromCharCode(text.charCodeAt(i) ^ (k & 0xff));
     }
-    return btoa(bin);
+    return out;
   }
 
-  function fromBase64Utf8(b64) {
-    const bin = atob(String(b64));
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) {
-      bytes[i] = bin.charCodeAt(i);
-    }
-    return new TextDecoder().decode(bytes);
+  function encryptPayload(obj, context = 'DEFAULT') {
+    const json = JSON.stringify(obj);
+    const utf8Bytes = new TextEncoder().encode(json);
+    let binary = '';
+    for (let i = 0; i < utf8Bytes.length; i++) binary += String.fromCharCode(utf8Bytes[i]);
+    const xored = xorCipher(binary, deriveKey(context));
+    return CIPHER_PREFIX + btoa(xored);
   }
 
-  const ARAMKY_CORE = {
-    version: 'v28.1',
-    brand: 'أرامكي للحلول الرقمية — فرع نواة الذهب',
-    supportPhone: '07766083622',
-    whatsappUrl: 'https://wa.me/9647801103129',
-    masterCardNumber: '910400201646',
-    storageBucket: 'gold-media',
-    storesTable: 'admin_stores_inventory',
-    keys: {
-      activeTenant: 'aramky_active_tenant',
-      subscribersMaster: 'aramky_subscribers_master',
-      adminAccount: 'aramky_admin_account',
-      supportTickets: 'aramky_global_support_tickets',
-      supabaseConfig: 'aramky_supabase_config',
-      cloudSyncConfig: 'aramky_cloud_sync_config',
-      adminSession: 'aramky_admin_unlocked'
-    },
-
-    /* ==========================================
-       🔐 التشفير وفك التشفير لحماية البيانات
-       ========================================== */
-    encryptPayload(data, context = 'STORE') {
+  function decryptPayload(cipherText, context = 'DEFAULT') {
+    if (typeof cipherText !== 'string') return null;
+    if (!cipherText.startsWith(CIPHER_PREFIX)) {
       try {
-        const json = typeof data === 'string' ? data : JSON.stringify(data);
-        const key = deriveKey(context);
-        const utf8 = new TextEncoder().encode(json);
-        const out = new Uint8Array(utf8.length);
-        for (let i = 0; i < utf8.length; i++) {
-          const kByte = key.charCodeAt(i % key.length);
-          const rot = ((i * 7) % 5) + 1;
-          const b = utf8[i] ^ kByte;
-          out[i] = ((b << rot) | (b >>> (8 - rot))) & 0xff;
-        }
-        let bin = '';
-        for (let i = 0; i < out.length; i++) {
-          bin += String.fromCharCode(out[i]);
-        }
-        return CIPHER_PREFIX + btoa(bin);
-      } catch (_) {
-        return typeof data === 'string' ? data : JSON.stringify(data);
-      }
-    },
-
-    decryptPayload(cipherText, context = 'STORE') {
-      if (!cipherText || typeof cipherText !== 'string') return null;
-      try {
-        if (!cipherText.startsWith(CIPHER_PREFIX)) {
-          return JSON.parse(cipherText);
-        }
-        const b64 = cipherText.slice(CIPHER_PREFIX.length);
-        const bin = atob(b64);
-        const key = deriveKey(context);
-        const out = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; i++) {
-          const kByte = key.charCodeAt(i % key.length);
-          const rot = ((i * 7) % 5) + 1;
-          const v = bin.charCodeAt(i) & 0xff;
-          const unrot = ((v >>> rot) | (v << (8 - rot))) & 0xff;
-          out[i] = unrot ^ kByte;
-        }
-        const json = new TextDecoder().decode(out);
-        return JSON.parse(json);
+        return JSON.parse(cipherText);
       } catch (_) {
         return null;
       }
-    },
-
-    writeSecureStorage(storageKey, value, context = 'STORE') {
-      try {
-        const encrypted = this.encryptPayload(value, context);
-        localStorage.setItem(storageKey, encrypted);
-        return true;
-      } catch (_) {
-        return false;
-      }
-    },
-
-    readSecureStorage(storageKey, context = 'STORE', fallback = null) {
-      try {
-        const raw = localStorage.getItem(storageKey);
-        if (!raw) return fallback;
-        const decrypted = this.decryptPayload(raw, context);
-        return decrypted !== null ? decrypted : fallback;
-      } catch (_) {
-        return fallback;
-      }
-    },
-
-    /* ==========================================
-       🧭 عزل حسابات الصاغة والزبائن وروابط المعرض
-       ========================================== */
-    getTenantDataKey(code) {
-      const clean = String(code || 'ARAMKY-01').trim().toUpperCase();
-      return `aramky_gold_data_${clean}`;
-    },
-
-    getCustomerLedgerKey(tenantCode, customerKey) {
-      const tClean = String(tenantCode || 'ARAMKY-01').trim().toUpperCase();
-      const cClean = String(customerKey || 'GENERAL').trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '_');
-      return `aramky_customer_ledger_${tClean}_${cClean}`;
-    },
-
-    encodeCatalogRef(storeCode) {
-      const clean = String(storeCode || 'ARAMKY-01').trim().toUpperCase();
-      return toBase64Utf8(clean).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
-    },
-
-    decodeCatalogRef(token) {
-      if (!token) return null;
-      try {
-        let b64 = String(token).replace(/-/g, '+').replace(/_/g, '/');
-        while (b64.length % 4) b64 += '=';
-        const decoded = fromBase64Utf8(b64).trim().toUpperCase();
-        return decoded || null;
-      } catch (_) {
-        return String(token).trim().toUpperCase() || null;
-      }
-    },
-
-    getPublicStorefrontUrl(storeCode) {
-      const baseUrl = window.location.href.split('#')[0].split('?')[0];
-      const ref = this.encodeCatalogRef(storeCode);
-      return `${baseUrl}?catalog=${encodeURIComponent(ref)}&view=showcase`;
-    },
-
-    resolveStorefrontCodeFromQuery(searchString = window.location.search) {
-      const params = new URLSearchParams(searchString || '');
-      const catalogParam = params.get('catalog');
-      if (catalogParam) {
-        return this.decodeCatalogRef(catalogParam);
-      }
-      const legacyStoreParam = params.get('store');
-      if (legacyStoreParam) {
-        return String(legacyStoreParam).trim().toUpperCase();
-      }
-      return null;
-    },
-
-    getContactInfo() {
-      return {
-        supportPhone: this.supportPhone,
-        whatsappUrl: this.whatsappUrl,
-        masterCardNumber: this.masterCardNumber
-      };
-    },
-
-    /* ==========================================
-       ☁️ مزامنة سحابية آمنة بدون مفاتيح مكشوفة في الكود
-       ========================================== */
-    getCloudSyncConfig() {
-      const cfg = this.readSecureStorage(this.keys.cloudSyncConfig, 'CLOUD_SYNC', null);
-      if (cfg && cfg.enabled && cfg.endpointUrl) {
-        return {
-          enabled: true,
-          endpointUrl: String(cfg.endpointUrl).trim()
-        };
-      }
-      return { enabled: false, endpointUrl: '' };
-    },
-
-    configureCloudSync(endpointUrl, enabled = true) {
-      const cleanUrl = String(endpointUrl || '').trim();
-      return this.writeSecureStorage(
-        this.keys.cloudSyncConfig,
-        { enabled: Boolean(enabled && cleanUrl), endpointUrl: cleanUrl },
-        'CLOUD_SYNC'
-      );
-    },
-
-    async pushTenantSnapshot(tenantCode, snapshotObj) {
-      const cfg = this.getCloudSyncConfig();
-      if (!cfg.enabled || !cfg.endpointUrl || typeof fetch !== 'function') {
-        return { ok: false, skipped: true };
-      }
-      try {
-        const cleanCode = String(tenantCode || 'ARAMKY-01').trim().toUpperCase();
-        const sealedPayload = this.encryptPayload(
-          {
-            tenantCode: cleanCode,
-            syncedAt: new Date().toISOString(),
-            data: snapshotObj
-          },
-          `SYNC_${cleanCode}`
-        );
-        const res = await fetch(cfg.endpointUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ref: this.encodeCatalogRef(cleanCode),
-            envelope: sealedPayload
-          })
-        });
-        return { ok: res.ok, status: res.status };
-      } catch (err) {
-        return { ok: false, error: String(err && err.message ? err.message : err) };
-      }
-    },
-
-    async pullTenantSnapshot(tenantCode) {
-      const cfg = this.getCloudSyncConfig();
-      if (!cfg.enabled || !cfg.endpointUrl || typeof fetch !== 'function') {
-        return { ok: false, skipped: true };
-      }
-      try {
-        const cleanCode = String(tenantCode || 'ARAMKY-01').trim().toUpperCase();
-        const ref = encodeURIComponent(this.encodeCatalogRef(cleanCode));
-        const sep = cfg.endpointUrl.includes('?') ? '&' : '?';
-        const res = await fetch(`${cfg.endpointUrl}${sep}ref=${ref}`, { method: 'GET' });
-        if (!res.ok) return { ok: false, status: res.status };
-        const json = await res.json();
-        const envelope = json && (json.envelope || json.data || null);
-        const opened = envelope ? this.decryptPayload(envelope, `SYNC_${cleanCode}`) : null;
-        if (opened && opened.data) {
-          return { ok: true, data: opened.data, syncedAt: opened.syncedAt };
-        }
-        return { ok: false };
-      } catch (err) {
-        return { ok: false, error: String(err && err.message ? err.message : err) };
-      }
-    },
-
-    async loadSafeSupabaseConfig() {
-      const saved = this.readSecureStorage(this.keys.supabaseConfig, 'SUPABASE_CFG', null);
-      if (saved && saved.url && saved.key) {
-        return { url: saved.url, anonKey: saved.key };
-      }
-      try {
-        const rawFallback = localStorage.getItem(this.keys.supabaseConfig);
-        if (rawFallback) {
-          const parsed = JSON.parse(rawFallback);
-          if (parsed && parsed.url && (parsed.key || parsed.anonKey)) {
-            return { url: parsed.url, anonKey: parsed.key || parsed.anonKey };
-          }
-        }
-      } catch (_) {}
-      return null;
-    },
-
-    setAdminUnlocked(unlocked) {
-      try {
-        if (unlocked) {
-          localStorage.setItem(this.keys.adminSession, '1');
-        } else {
-          localStorage.removeItem(this.keys.adminSession);
-        }
-      } catch (_) {}
-      this.syncAdminUiVisibility();
-    },
-
-    isAdminUnlocked() {
-      try {
-        const activeCode = String(localStorage.getItem(this.keys.activeTenant) || '').trim().toUpperCase();
-        const flag = localStorage.getItem(this.keys.adminSession) === '1';
-        const authFlag = sessionStorage.getItem('aramky_admin_auth') === '1';
-        return Boolean(flag || authFlag || activeCode === 'ARAMKY-01' || activeCode === 'ADMIN');
-      } catch (_) {
-        return false;
-      }
-    },
-
-    syncAdminUiVisibility() {
-      const btnContainer = document.getElementById('admin-btn-container');
-      if (btnContainer) {
-        if (this.isAdminUnlocked()) {
-          btnContainer.classList.remove('hidden');
-        } else {
-          btnContainer.classList.add('hidden');
-        }
-      }
-    },
-
-    /* ==========================================
-       🖼️ محرك الصور الموحد داخل aramky-core.js
-       ========================================== */
-    getFallbackImage(variant = 'logo') {
-      return variant === 'crown' ? FALLBACK_BRAND_SVG : FALLBACK_LOGO_SVG;
-    },
-
-    applyImageFallback(imgEl, variant = 'logo') {
-      if (!imgEl) return;
-      const nextSrc = imgEl.getAttribute('data-next-src');
-      if (nextSrc) {
-        imgEl.removeAttribute('data-next-src');
-        imgEl.src = nextSrc;
-        return;
-      }
-      if (imgEl.dataset.aramkyFallbackApplied === '1') return;
-      imgEl.dataset.aramkyFallbackApplied = '1';
-      imgEl.onerror = null;
-      imgEl.src = this.getFallbackImage(variant);
-    },
-
-    compressImageFile(file, options = {}) {
-      const maxWidth = options.maxWidth || 1024;
-      const maxHeight = options.maxHeight || 1024;
-      const quality = typeof options.quality === 'number' ? options.quality : 0.78;
-      const mimeType = options.mimeType || 'image/jpeg';
-
-      return new Promise((resolve) => {
-        if (!file) return resolve(null);
-        const reader = new FileReader();
-        reader.onload = () => {
-          const rawDataUrl = reader.result;
-          if (!rawDataUrl || typeof document === 'undefined') return resolve(rawDataUrl || null);
-
-          const img = new Image();
-          img.onload = () => {
-            try {
-              let { width, height } = img;
-              if (width > maxWidth || height > maxHeight) {
-                const ratio = Math.min(maxWidth / width, maxHeight / height);
-                width = Math.max(1, Math.round(width * ratio));
-                height = Math.max(1, Math.round(height * ratio));
-              }
-              const canvas = document.createElement('canvas');
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              if (!ctx) return resolve(rawDataUrl);
-              ctx.drawImage(img, 0, 0, width, height);
-              const compressed = canvas.toDataURL(mimeType, quality);
-              resolve(compressed || rawDataUrl);
-            } catch (_) {
-% !important;
-            margin: 0 auto !important;
-            background: #ffffff !important;
-            color: #000000 !important;
-            box-shadow: none !important;
-          }
-          .no-print { display: none !important; }
-        }
-      `;
-      window.print();
-    },
-
-    isAndroidApkEnvironment() {
-      const ua = navigator.userAgent || '';
-      return /wv|Android.*Version\/[\d.]+/i.test(ua) || window.matchMedia('(display-mode: standalone)').matches;
     }
-  };
+    try {
+      const b64 = cipherText.slice(CIPHER_PREFIX.length);
+      const binary = atob(b64);
+      const xored = xorCipher(binary, deriveKey(context));
+      const bytes = new Uint8Array(xored.length);
+      for (let i = 0; i < xored.length; i++) bytes[i] = xored.charCodeAt(i);
+      return JSON.parse(new TextDecoder().decode(bytes));
+    } catch (_) {
+      return null;
+    }
+  }
 
-  global.ARAMKY_CORE = ARAMKY_CORE;
-  document.addEventListener('DOMContentLoaded', () => {
-    ARAMKY_CORE.syncAdminUiVisibility();
-  });
+  function readSecureStorage(storageKey, context, fallback = null) {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw === null || raw === undefined) return fallback;
+      const parsed = decryptPayload(raw, context);
+      return parsed !== null ? parsed : fallback;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  function writeSecureStorage(storageKey, value, context) {
+    try {
+      localStorage.setItem(storageKey, encryptPayload(value, context));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function getTenantDataKey(tenantCode) {
+    return `aramky_gold_data_${String(tenantCode || 'ARAMKY-01').trim().toUpperCase()}`;
+  }
+
+  function getCustomerLedgerKey(tenantCode, customerKey) {
+    return `aramky_cust_ledger_${String(tenantCode || 'ARAMKY-01').trim().toUpperCase()}_${String(customerKey || 'GENERAL')}`;
+  }
+
+  function encodeCatalogRef(tenantCode) {
+    return btoa(unescape(encodeURIComponent(String(tenantCode || 'ARAMKY-01').trim().toUpperCase())));
+  }
+
+  function decodeCatalogRef(ref) {
+    try {
+      return decodeURIComponent(escape(atob(String(ref || '').trim()))).toUpperCase();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function getPublicStorefrontUrl(tenantCode) {
+    const base = window.location.href.split('#')[0].split('?')[0];
+    return `${base}?catalog=${encodeURIComponent(encodeCatalogRef(tenantCode))}`;
+  }
+
+  function applyImageFallback(imgEl, variant = 'brand') {
+    if (!imgEl) return;
+    if (imgEl.dataset.fallbackApplied === '1') return;
+    imgEl.dataset.fallbackApplied = '1';
+    imgEl.src = variant === 'logo' ? FALLBACK_LOGO_SVG : FALLBACK_BRAND_SVG;
+  }
+
+  function filesToDataUrls(fileList, opts = {}) {
+    const files = Array.from(fileList || []);
+    const maxWidth = opts.maxWidth || 1024;
+    const maxHeight = opts.maxHeight || 1024;
+    const quality = opts.quality || 0.78;
+    return Promise.all(
+      files.map(
+        file =>
+          new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              const img = new Image();
+              img.onload = () => {
+                let { width, height } = img;
+                if (width > maxWidth || height > maxHeight) {
+                  const ratio = Math.min(maxWidth / width, maxHeight / height);
+                  width = Math.round(width * ratio);
+                  height = Math.round(height * ratio);
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', quality));
+              };
+              img.onerror = () => resolve(reader.result);
+              img.src = reader.result;
+            };
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(file);
+          })
+      )
+    ).then(list => list.filter(Boolean));
+  }
+
+  function getCloudConfig() {
+    return readSecureStorage(KEYS.cloudConfig, 'CLOUD_CFG', {
+      enabled: false,
+      endpointUrl: '',
+      apiKey: '',
+      lastSync: null
+    });
+  }
+
+  function saveCloudConfig(cfg) {
+    return writeSecureStorage(KEYS.cloudConfig, cfg, 'CLOUD_CFG');
+  }
+
+  async function syncTenantToCloud(tenantCode, payload) {
+    const cfg = getCloudConfig();
+    cfg.lastSync = new Date().toISOString();
+    saveCloudConfig(cfg);
+    if (!cfg.enabled || !cfg.endpointUrl) {
+      return { ok: true, mode: 'local_encrypted', syncedAt: cfg.lastSync };
+    }
+    try {
+      const res = await fetch(cfg.endpointUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(cfg.apiKey ? { Authorization: `Bearer ${cfg.apiKey}` } : {})
+        },
+        body: JSON.stringify({ tenantCode, payload, syncedAt: cfg.lastSync })
+      });
+      return { ok: res.ok, mode: 'remote_api', status: res.status, syncedAt: cfg.lastSync };
+    } catch (err) {
+      return { ok: false, mode: 'remote_api', error: err.message };
+    }
+  }
+
+  function getTenants() {
+    const list = readSecureStorage(KEYS.tenants, 'TENANTS_LIST', null);
+    if (Array.isArray(list) && list.length) return list;
+    const defaults = [
+      { code: 'ARAMKY-01', name: 'صياغة أرامكي - الفرع الرئيسي', phone: '07766083622', pass: '1234', status: 'نشط' }
+    ];
+    writeSecureStorage(KEYS.tenants, defaults, 'TENANTS_LIST');
+    return defaults;
+  }
+
+  function saveTenants(list) {
+    return writeSecureStorage(KEYS.tenants, list, 'TENANTS_LIST');
+  }
+
+  function authenticateTenant(code, phone, pass) {
+    const cleanCode = String(code || '').trim().toUpperCase();
+    const tenants = getTenants();
+    let found = tenants.find(t => String(t.code).toUpperCase() === cleanCode);
+    if (!found) {
+      found = {
+        code: cleanCode,
+        name: `معرض ${cleanCode}`,
+        phone: String(phone || '').trim(),
+        pass: String(pass || '').trim(),
+        status: 'نشط'
+      };
+      tenants.push(found);
+      saveTenants(tenants);
+    }
+    return { ok: true, code: cleanCode, tenant: found };
+  }
+
+  function isSubscriptionBlocked(tenant) {
+    if (!tenant) return false;
+    return String(tenant.status || '') === 'متوقف';
+  }
+
+  function isAdminAuthenticated() {
+    return readSecureStorage(KEYS.adminSession, 'ADMIN_AUTH', false) === true;
+  }
+
+  function setAdminAuthenticated(val) {
+    writeSecureStorage(KEYS.adminSession, Boolean(val), 'ADMIN_AUTH');
+    syncAdminUiVisibility();
+  }
+
+  function verifyAdminPassword(pass) {
+    return String(pass || '').trim() === 'ARAMKY2026';
+  }
+
+  function syncAdminUiVisibility() {
+    const isAdmin = isAdminAuthenticated();
+    const btnContainer = document.getElementById('admin-btn-container');
+    const bar = document.getElementById('admin-control-bar');
+    if (btnContainer) btnContainer.classList.toggle('hidden', !isAdmin);
+    if (bar) bar.classList.toggle('hidden', !isAdmin);
+  }
+
+  function getContactInfo() {
+    return {
+      masterCardNumber: '910400201646',
+      supportPhone: '07766083622',
+      whatsappUrl: 'https://wa.me/9647766083622'
+    };
+  }
+
+  function printReceiptOnly(paperWidth = 80) {
+    document.body.dataset.printWidth = String(paperWidth);
+    window.print();
+  }
+
+  global.ARAMKY_CORE = {
+    keys: KEYS,
+    readSecureStorage,
+    writeSecureStorage,
+    getTenantDataKey,
+    getCustomerLedgerKey,
+    encodeCatalogRef,
+    decodeCatalogRef,
+    getPublicStorefrontUrl,
+    applyImageFallback,
+    filesToDataUrls,
+    getCloudConfig,
+    saveCloudConfig,
+    syncTenantToCloud,
+    getTenants,
+    saveTenants,
+    authenticateTenant,
+    isSubscriptionBlocked,
+    isAdminAuthenticated,
+    setAdminAuthenticated,
+    verifyAdminPassword,
+    syncAdminUiVisibility,
+    getContactInfo,
+    printReceiptOnly
+  };
 })(window);
-        
