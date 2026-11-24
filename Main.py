@@ -3,39 +3,38 @@ from flask import Flask, send_from_directory, abort
 
 app = Flask(__name__)
 
-ALLOWED_ROOT_FILES = {
-    "index.html",
-    "admin.html",
-    "sw.js",
-    "manifest_b.json",
-    "manifest.json",
-    "icon.png",
-    "aramky-splash-logo.png",
-    "aramky-core.js",
+BLOCKED_FILES = {
+    "main.py",
+    "Main.py",
+    "requirements.txt",
+    "Procfile",
+    "package.json",
+    ".env",
 }
 
 @app.route("/")
 def home():
-    if os.path.exists("index.html"):
+    if os.path.isfile("index.html"):
         return send_from_directory(".", "index.html")
     return "ARAMKY Gold OS Online"
 
 @app.route("/admin.html")
 def admin_page():
-    if not os.path.exists("admin.html"):
-        abort(404, description="admin.html not found")
-    return send_from_directory(".", "admin.html")
+    if os.path.isfile("admin.html"):
+        return send_from_directory(".", "admin.html")
+    abort(404)
 
 @app.route("/<path:filename>")
-def static_files(filename):
-    # منع الوصول إلى ملفات الكود المصدرية أو السرية
-    forbidden = {"main.py", "Main.py", "requirements.txt", ".env"}
-    if filename in forbidden or filename.startswith("."):
+def serve_file(filename):
+    clean = filename.lstrip("/")
+    if not clean or clean.startswith(".") or os.path.basename(clean) in BLOCKED_FILES:
         abort(403)
-
-    if os.path.isfile(filename):
-        return send_from_directory(".", filename)
-
+    full_path = os.path.abspath(os.path.join(".", clean))
+    root_path = os.path.abspath(".")
+    if not full_path.startswith(root_path + os.sep) and full_path != root_path:
+        abort(403)
+    if os.path.isfile(full_path):
+        return send_from_directory(".", clean)
     abort(404)
 
 @app.route("/health")
