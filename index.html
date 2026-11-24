@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest_5.json">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
 <title>ARAMKY Gold OS v28.1 | نظام إدارة صياغة الذهب</title>
@@ -86,7 +86,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <div class="w-20 h-20 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto text-4xl"><i class="fa-solid fa-lock"></i></div>
     <h2 class="text-2xl font-black text-rose-400">الاشتراك متوقف!</h2>
     <p class="text-sm text-slate-300">انتهت فترة اشتراكك في نظام <strong>ARAMKY Gold OS</strong>.</p>
-    <div class="bg-darkbg p-3 rounded-2xl border border-slate-800 text-xs text-gold font-mono" id="locked-tenant-info">كود المعرض: --</div>
+    <div class="bg-darkbg p-3 rounded-2xl border border-slate-800 text-xs text-gold font-mono" id="locked-tenant-info">رقم المعرض: --</div>
     <button onclick="openSupportFromLock()" class="w-full gold-gradient text-darkbg font-black py-3.5 rounded-2xl shadow-lg">إرسال إيصال التجديد 💳</button>
     <button onclick="switchTenantPrompt()" class="w-full bg-slate-800 text-amber-300 font-bold py-2.5 rounded-xl text-xs">تبديل الحساب / تسجيل الخروج 🔄</button>
   </div>
@@ -99,12 +99,12 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     </div>
     <div>
       <h2 class="text-xl font-black text-gold">نظام إدارة صياغة الذهب</h2>
-      <p class="text-xs text-slate-400 mt-1">أدخل اليوزر، رقم الهاتف المرتبط، وكلمة المرور في خاناتهم المخصصة</p>
+      <p class="text-xs text-slate-400 mt-1">أدخل المعرف، رقم الهاتف المرتبط، وكلمة المرور في خاناتهم المخصصة</p>
     </div>
 
     <div class="space-y-3 text-right text-xs">
       <div>
-        <label class="text-amber-300 font-bold block mb-1">اليوزر / الكود</label>
+        <label class="text-amber-300 font-bold block mb-1">معرف الحساب / الكود</label>
         <input type="text" id="login-tenant-code" placeholder="مثال: ARAMKY-01" class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-2xl p-3.5 text-center font-mono text-gold font-bold uppercase outline-none">
       </div>
       <div>
@@ -121,7 +121,6 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
-<!-- قائمة اختيار العيارات الفخمة المخصصة -->
 <div id="luxury-karat-picker-modal" class="fixed inset-0 modal-overlay z-[280] flex items-center justify-center hidden p-4">
   <div class="luxury-modal-card p-6 rounded-3xl w-full max-w-md space-y-4 shadow-2xl text-center">
     <div class="w-16 h-16 rounded-full gold-gradient flex items-center justify-center text-darkbg font-black text-2xl mx-auto shadow-lg">
@@ -315,7 +314,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     </div>
     <div>
       <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span id="aramky-install-badge" class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">⚜️ أرامكي v28.1</span></h1>
-      <p class="text-xs text-slate-400 flex items-center gap-2"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">ID: ARAMKY-01</span></p>
+      <p class="text-xs text-slate-400 flex items-center gap-2"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">REF: ARAMKY-01</span></p>
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-2">
@@ -591,7 +590,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         </div>
         <button onclick="saveStoreSettings()" class="w-full gold-gradient text-darkbg font-bold py-3.5 rounded-2xl shadow-lg">حفظ الإعدادات وإشعار الإدارة بالتحديث 🌐</button>
         <div class="bg-darkbg p-4 rounded-2xl border border-slate-800 space-y-2">
-          <label class="text-xs text-slate-400 block">رابط المعرض الخاص بك:</label>
+          <label class="text-xs text-slate-400 block">رابط المعرض الخاص بك (بدون كشف اليوزر):</label>
           <div class="flex gap-2">
             <input type="text" id="store-share-link" readonly class="w-full bg-cardbg border border-slate-700 rounded-xl p-3 text-xs text-gold font-mono outline-none">
             <button onclick="copyStoreLink()" class="bg-gold text-darkbg font-bold px-4 py-3 rounded-xl text-xs whitespace-nowrap"><i class="fa-solid fa-copy"></i> نسخ</button>
@@ -605,7 +604,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-4 gap-3">
           <div>
             <h3 class="font-black text-gold text-xl flex items-center gap-2"><i class="fa-solid fa-crown text-amber-300"></i> دفتر الديون الفخم (تطلبهم + ومطلوب منك -)</h3>
-            <p class="text-[11px] text-slate-400 mt-0.5">كارتات مفصولة بوضوح بين ما تطلبه أنت وما هو مطلوب منك، مع أزرار فاخرة داخل وخارج الكارت</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">كارتات مفصولة بوضوح بين ما تطلبه أنت وما هو مطلوب منك، مع سجل خاص ومستقل لكل زبون</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button onclick="setDebtFilter('all')" id="debt-filter-all" class="bg-gold text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow">الكل</button>
@@ -799,7 +798,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-darkbg p-4 rounded-2xl border border-gold/30 text-xs">
           <div><span class="text-slate-400 block">رقم الماستر / سوبر كي:</span><strong id="support-master-number" class="text-gold font-mono text-base select-all">910400201646</strong></div>
-          <div><span class="text-slate-400 block">رقم الدعم / واتساب:</span><strong id="support-whatsapp-number" class="text-emerald-400 font-mono text-base select-all">07801103129</strong></div>
+          <div><span class="text-slate-400 block">رقم الدعم / واتساب:</span><strong id="support-whatsapp-number" class="text-emerald-400 font-mono text-base select-all">07766083622</strong></div>
         </div>
 
         <div class="bg-darkbg p-5 rounded-2xl border border-slate-800 space-y-4">
@@ -993,13 +992,12 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
-<!-- معرض الزبائن مع خيارات: الكل / ذهب جديد / ذهب مستعمل -->
 <div id="storefront-modal" class="fixed inset-0 bg-darkbg z-[180] flex flex-col hidden overflow-y-auto p-4 md:p-6">
   <div class="max-w-5xl mx-auto w-full space-y-6">
     <div class="rounded-3xl overflow-hidden border border-gold/40 system-card shadow-2xl">
       <div class="w-full h-48 md:h-64 bg-slate-900 relative">
         <img id="store-view-cover" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover bg-darkbg opacity-90">
-        <button onclick="closeStorefrontView()" class="absolute top-4 left-4 bg-darkbg/90 border border-gold/50 text-gold px-4 py-2.5 rounded-xl text-xs font-bold shadow-xl">إغلاق المعرض ✕</button>
+        <button id="storefront-close-btn" onclick="closeStorefrontView()" class="absolute top-4 left-4 bg-darkbg/90 border border-gold/50 text-gold px-4 py-2.5 rounded-xl text-xs font-bold shadow-xl">إغلاق المعرض ✕</button>
       </div>
       <div class="p-6 flex flex-col md:flex-row items-center md:items-end justify-between gap-4 -mt-12 relative z-10">
         <div class="flex flex-col md:flex-row items-center gap-4 text-center md:text-right">
@@ -1139,9 +1137,10 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
 <script>
 const MITHQAL_GRAMS = 5;
-const FALLBACK_BRAND_SVG = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="#0F172A"/><circle cx="100" cy="100" r="84" fill="none" stroke="#D4AF37" stroke-width="5"/><text x="100" y="114" text-anchor="middle" fill="#D4AF37" font-family="Arial,sans-serif" font-size="34" font-weight="bold">ARAMKY</text></svg>');
+const CORE = window.ARAMKY_CORE;
 
 let activeTenantCode = 'ARAMKY-01';
+let isPublicCatalogOnly = false;
 let db = {};
 let cart = [];
 let currencyMode = 'iraqi';
@@ -1160,20 +1159,11 @@ let karatPickerTargetInputId = 'inv-karat';
 let karatPickerTargetLabelId = 'inv-karat-label';
 
 function handleBrandImageError(img) {
-  if (!img) return;
-  img.onerror = null;
-  img.src = FALLBACK_BRAND_SVG;
+  if (CORE) CORE.applyImageFallback(img, 'logo');
 }
 
 function handleSplashLogoFallback(img) {
-  if (!img) return;
-  const nextSrc = img.getAttribute('data-next-src');
-  if (nextSrc) {
-    img.removeAttribute('data-next-src');
-    img.src = nextSrc;
-  } else {
-    handleBrandImageError(img);
-  }
+  if (CORE) CORE.applyImageFallback(img, 'logo');
 }
 
 function showToast(msg, type = 'info') {
@@ -1214,7 +1204,7 @@ function defaultTenantData(code) {
     supportTickets: [],
     store: {
       name: 'ARAMKY | أرامكي للحلول الرقمية — فرع نواة الذهب',
-      phone: window.ARAMKY_CORE ? window.ARAMKY_CORE.supportPhone : '07801103129',
+      phone: CORE ? CORE.supportPhone : '07766083622',
       address: 'بغداد — سوق الكاظمية',
       openTime: '09:00 صباحاً',
       closeTime: '09:00 مساءً',
@@ -1228,15 +1218,19 @@ function defaultTenantData(code) {
 function loadTenantData(code) {
   const cleanCode = String(code || 'ARAMKY-01').trim().toUpperCase();
   activeTenantCode = cleanCode;
-  if (window.ARAMKY_CORE) {
-    localStorage.setItem(window.ARAMKY_CORE.keys.activeTenant, cleanCode);
+  if (!isPublicCatalogOnly && CORE) {
+    localStorage.setItem(CORE.keys.activeTenant, cleanCode);
   }
-  const key = window.ARAMKY_CORE ? window.ARAMKY_CORE.getTenantDataKey(cleanCode) : `aramky_gold_data_${cleanCode}`;
-  let loaded = null;
-  try {
-    const raw = localStorage.getItem(key);
-    if (raw) loaded = JSON.parse(raw);
-  } catch (_) {}
+  const key = CORE ? CORE.getTenantDataKey(cleanCode) : `aramky_gold_data_${cleanCode}`;
+  const loaded = CORE
+    ? CORE.readSecureStorage(key, `TENANT_${cleanCode}`, null)
+    : (() => {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : null;
+        } catch (_) { return null; }
+      })();
+
   db = Object.assign(defaultTenantData(cleanCode), loaded || {});
   db.prices = Object.assign(defaultTenantData(cleanCode).prices, (loaded && loaded.prices) || {});
   db.store = Object.assign(defaultTenantData(cleanCode).store, (loaded && loaded.store) || {});
@@ -1247,25 +1241,43 @@ function loadTenantData(code) {
 }
 
 function saveTenantData() {
-  const key = window.ARAMKY_CORE ? window.ARAMKY_CORE.getTenantDataKey(activeTenantCode) : `aramky_gold_data_${activeTenantCode}`;
-  try {
-    localStorage.setItem(key, JSON.stringify(db));
-  } catch (_) {
-    showToast('تنبيه: مساحة التخزين المحلية ممتلئة جزئياً', 'warning');
+  if (isPublicCatalogOnly) return;
+  const key = CORE ? CORE.getTenantDataKey(activeTenantCode) : `aramky_gold_data_${activeTenantCode}`;
+  const ok = CORE
+    ? CORE.writeSecureStorage(key, db, `TENANT_${activeTenantCode}`)
+    : (() => {
+        try {
+          localStorage.setItem(key, JSON.stringify(db));
+          return true;
+        } catch (_) { return false; }
+      })();
+  if (!ok) {
+    showToast('تنبيه: تعذر حفظ البيانات محلياً أو المساحة ممتلئة', 'warning');
   }
 }
 
+function saveCustomerLedgerEntry(customerName, phone, entry) {
+  if (isPublicCatalogOnly || !CORE) return;
+  const custKey = `${customerName || 'GENERAL'}_${phone || 'NO_PHONE'}`;
+  const ledgerKey = CORE.getCustomerLedgerKey(activeTenantCode, custKey);
+  const existing = CORE.readSecureStorage(ledgerKey, `CUST_${activeTenantCode}_${custKey}`, []);
+  existing.unshift({
+    ...entry,
+    recordedAt: new Date().toISOString()
+  });
+  CORE.writeSecureStorage(ledgerKey, existing, `CUST_${activeTenantCode}_${custKey}`);
+}
+
 function renderAll() {
-  if (window.ARAMKY_CORE) {
-    window.ARAMKY_CORE.syncAdminUiVisibility();
-  }
+  if (CORE) CORE.syncAdminUiVisibility();
   document.getElementById('header-store-name').textContent = db.store.name || 'ARAMKY';
   document.getElementById('header-sub-status').textContent = db.status || 'نشط';
-  document.getElementById('header-tenant-id').textContent = `ID: ${activeTenantCode}`;
-  document.getElementById('sup-tenant-badge').textContent = activeTenantCode;
+  const refTag = CORE ? CORE.encodeCatalogRef(activeTenantCode).slice(0, 8).toUpperCase() : activeTenantCode;
+  document.getElementById('header-tenant-id').textContent = `REF: ${refTag}`;
+  document.getElementById('sup-tenant-badge').textContent = `REF: ${refTag}`;
 
-  if (window.ARAMKY_CORE) {
-    const contact = window.ARAMKY_CORE.getContactInfo();
+  if (CORE) {
+    const contact = CORE.getContactInfo();
     const masterEl = document.getElementById('support-master-number');
     const waNumEl = document.getElementById('support-whatsapp-number');
     const waBtn = document.getElementById('sup-whatsapp-btn');
@@ -1328,7 +1340,6 @@ function switchTab(tabName) {
   if (tabName === 'debts') renderDebts();
 }
 
-/* --- قائمة اختيار العيارات الفخمة --- */
 function openLuxuryKaratPicker(inputId, labelId) {
   karatPickerTargetInputId = inputId;
   karatPickerTargetLabelId = labelId;
@@ -1353,7 +1364,6 @@ function selectLuxuryKaratValue(val, labelText) {
   }
 }
 
-/* --- التمييز بين الذهب الجديد والمستعمل --- */
 function getConditionBadgeHtml(cond) {
   if (cond === 'used') {
     return '<span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-bold">♻️ ذهب مستعمل</span>';
@@ -1415,6 +1425,9 @@ function calculateItemPricing(item) {
 }
 
 function readFilesAsDataUrls(fileList) {
+  if (CORE) {
+    return CORE.filesToDataUrls(fileList, { maxWidth: 1024, maxHeight: 1024, quality: 0.78 });
+  }
   const files = Array.from(fileList || []);
   return Promise.all(files.map(file => new Promise(resolve => {
     const reader = new FileReader();
@@ -1517,6 +1530,10 @@ function openEditInventoryModal(idx) {
 function renderEditImagesGallery() {
   const gallery = document.getElementById('edit-inv-images-gallery');
   if (!gallery) return;
+  if (CORE) {
+    CORE.renderGalleryThumbnails(gallery, editGalleryImages, { onRemoveFn: 'removeEditGalleryImage' });
+    return;
+  }
   if (!editGalleryImages.length) {
     gallery.innerHTML = '<span class="text-slate-500 text-[11px]">لا توجد صور مرفقة حالياً.</span>';
     return;
@@ -1598,7 +1615,6 @@ function confirmDeleteInventoryItem() {
   showToast('تم حذف القطعة وتوثيق العملية', 'warning');
 }
 
-/* --- معرض الزبائن مع فلتر الجديد والمستعمل والكل --- */
 function setStorefrontConditionFilter(filter) {
   activeStorefrontCondition = filter;
   const btnAll = document.getElementById('sf-filter-all');
@@ -1616,11 +1632,14 @@ function openStorefrontView() {
   document.getElementById('store-view-address').textContent = db.store.address || '--';
   document.getElementById('store-view-hours').textContent = `${db.store.openTime || '--'} - ${db.store.closeTime || '--'}`;
   document.getElementById('store-view-phone').textContent = db.store.phone || '--';
+  const closeBtn = document.getElementById('storefront-close-btn');
+  if (closeBtn) closeBtn.classList.toggle('hidden', isPublicCatalogOnly);
   setStorefrontConditionFilter(activeStorefrontCondition || 'all');
   document.getElementById('storefront-modal').classList.remove('hidden');
 }
 
 function closeStorefrontView() {
+  if (isPublicCatalogOnly) return;
   document.getElementById('storefront-modal').classList.add('hidden');
 }
 
@@ -1658,16 +1677,23 @@ function renderStorefrontGrid() {
 }
 
 function openImageLightbox(src, title) {
+  if (CORE) {
+    CORE.openLightbox(src, title, { fallbackVariant: 'logo' });
+    return;
+  }
   document.getElementById('lightbox-img').src = src;
   document.getElementById('lightbox-title').textContent = title || 'معاينة الصورة';
   document.getElementById('image-lightbox-modal').classList.remove('hidden');
 }
 
 function closeImageLightbox() {
+  if (CORE) {
+    CORE.closeLightbox('image-lightbox-modal');
+    return;
+  }
   document.getElementById('image-lightbox-modal').classList.add('hidden');
 }
 
-/* --- الكاسير والمعاينة والسلة والفاتورة --- */
 function openLuxuryPreviewModal() {
   document.getElementById('preview-modal-search').value = '';
   renderLuxuryPreviewList();
@@ -1943,6 +1969,15 @@ function completeSale(type) {
   const detailsSummary = soldItems.map(i => `${i.name} (${i.condition === 'used' ? 'مستعمل' : 'جديد'}, عيار ${i.karat}, ${i.weight}غ × ${i.qty})`).join(' | ');
   addLog('عملية بيع', `${invId} — الزبون: ${customer} — ${detailsSummary} ${notes ? '| ملاحظة: ' + notes : ''}`, totalIqd, totalMakingProfit);
 
+  saveCustomerLedgerEntry(customer, phone, {
+    type: 'invoice',
+    invId,
+    totalIqd,
+    remainingDebtIqd,
+    items: soldItems,
+    notes
+  });
+
   saveTenantData();
   openInvoicePreview({
     id: invId,
@@ -1980,8 +2015,8 @@ function setInvoicePaperWidth(mm) {
 }
 
 function printCurrentInvoice() {
-  if (window.ARAMKY_CORE) {
-    window.ARAMKY_CORE.printReceiptOnly(invoicePaperWidth);
+  if (CORE) {
+    CORE.printReceiptOnly(invoicePaperWidth);
   } else {
     window.print();
   }
@@ -2022,7 +2057,6 @@ function closeInvoiceModal() {
   document.getElementById('invoice-modal').classList.add('hidden');
 }
 
-/* --- شراء ذهب كسر --- */
 function autoFillScrapMithqal() {
   const karat = document.getElementById('scrap-karat').value || '21';
   const input = document.getElementById('scrap-mithqal-price');
@@ -2079,6 +2113,7 @@ function buyScrapGold() {
   });
 
   addLog('شراء كسر', `شراء كسر من ${seller} عيار ${karat} وزن ${weight}غ (خصم غرام: ${deductPerGram})`, -totalIqd);
+  saveCustomerLedgerEntry(seller, phone, { type: 'scrap_buy', karat, weight, totalIqd, notes });
   saveTenantData();
   renderAll();
   document.getElementById('scrap-customer').value = '';
@@ -2089,7 +2124,6 @@ function buyScrapGold() {
   showToast('تم تسجيل شراء الذهب الكسر وتحديث الصندوق', 'success');
 }
 
-/* --- المصروفات --- */
 function addExpense() {
   const reason = document.getElementById('exp-reason').value.trim();
   const amount = parseFloat(document.getElementById('exp-amount').value) || 0;
@@ -2108,7 +2142,6 @@ function addExpense() {
   showToast('تم تسجيل المصروف بنجاح', 'success');
 }
 
-/* --- إعدادات المعرض والشعار والغلاف --- */
 function populateStoreSettingsForm() {
   document.getElementById('store-name').value = db.store.name || '';
   document.getElementById('store-phone').value = db.store.phone || '';
@@ -2116,8 +2149,10 @@ function populateStoreSettingsForm() {
   document.getElementById('store-open-time').value = db.store.openTime || '';
   document.getElementById('store-close-time').value = db.store.closeTime || '';
   document.getElementById('store-bio').value = db.store.bio || '';
-  const baseUrl = window.location.href.split('#')[0].split('?')[0];
-  document.getElementById('store-share-link').value = `${baseUrl}?store=${encodeURIComponent(activeTenantCode)}`;
+  const shareUrl = CORE
+    ? CORE.getPublicStorefrontUrl(activeTenantCode)
+    : `${window.location.href.split('#')[0].split('?')[0]}?view=showcase`;
+  document.getElementById('store-share-link').value = shareUrl;
 }
 
 async function handleStoreCoverUpload(event) {
@@ -2164,10 +2199,9 @@ function copyStoreLink() {
   const input = document.getElementById('store-share-link');
   input.select();
   navigator.clipboard?.writeText(input.value).catch(() => {});
-  showToast('تم نسخ رابط المعرض', 'success');
+  showToast('تم نسخ رابط المعرض (بدون يوزر)', 'success');
 }
 
-/* --- دفتر الديون --- */
 function selectLuxuryDebtType(typeValue, labelText) {
   document.getElementById('debt-type').value = typeValue;
   document.getElementById('selected-debt-type-label').textContent = labelText;
@@ -2224,6 +2258,7 @@ function addDebtMovement() {
   });
 
   addLog('حركة ديون', `${typeValue} — ${customer}: ${amount} ${unit === 'gold' ? 'غرام' : 'د.ع'} ${notes ? '(' + notes + ')' : ''}`, unit === 'money' ? signedAmount : 0);
+  saveCustomerLedgerEntry(customer, phone, { type: 'debt', typeValue, unit, amount: signedAmount, notes });
   saveTenantData();
   renderAll();
   document.getElementById('debt-customer').value = '';
@@ -2287,7 +2322,6 @@ function renderDebts() {
     : '<p class="col-span-3 text-slate-500 text-xs p-3">لا توجد كارتات ضمن هذا القسم.</p>';
 }
 
-/* --- الجرد والمثقال والتقارير وExcel --- */
 function openLuxuryMithqalFilterModal() { document.getElementById('luxury-mithqal-filter-modal').classList.remove('hidden'); }
 function closeLuxuryMithqalFilterModal() { document.getElementById('luxury-mithqal-filter-modal').classList.add('hidden'); }
 function selectLuxuryMithqalFilter(val, label) {
@@ -2495,13 +2529,12 @@ function exportLogsToExcel() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `ARAMKY-Report-${activeTenantCode}.xls`;
+  a.download = `ARAMKY-Report.xls`;
   a.click();
   URL.revokeObjectURL(url);
   showToast('تم تصدير ملف Excel بنجاح', 'success');
 }
 
-/* --- الدعم الفني --- */
 function openLuxuryTransferMethodModal() { document.getElementById('luxury-transfer-method-modal').classList.remove('hidden'); }
 function closeLuxuryTransferMethodModal() { document.getElementById('luxury-transfer-method-modal').classList.add('hidden'); }
 function selectLuxuryTransferMethod(val, label) {
@@ -2530,14 +2563,26 @@ async function submitSupportTransfer() {
     return;
   }
 
-  db.supportTickets.unshift({
+  const ticket = {
     id: 'TKT-' + Date.now().toString().slice(-5),
+    tenant: activeTenantCode,
+    storeName: db.store.name || activeTenantCode,
     method,
     ref,
+    msg,
     message: msg,
+    receipt: imgs[0] || '',
     image: imgs[0] || '',
+    time: new Date().toLocaleString('ar-IQ'),
     date: new Date().toLocaleString('ar-IQ')
-  });
+  };
+
+  db.supportTickets.unshift(ticket);
+  if (CORE) {
+    const globalTickets = CORE.readSecureStorage(CORE.keys.supportTickets, 'GLOBAL_TICKETS', []);
+    globalTickets.unshift(ticket);
+    CORE.writeSecureStorage(CORE.keys.supportTickets, globalTickets, 'GLOBAL_TICKETS');
+  }
 
   saveTenantData();
   renderSupportTickets();
@@ -2560,7 +2605,7 @@ function renderSupportTickets() {
     <div class="bg-darkbg border border-slate-800 p-3.5 rounded-2xl text-xs space-y-1">
       <div class="flex justify-between items-center"><strong class="text-gold">${t.method}</strong><span class="text-slate-500 font-mono">${t.id} • ${t.date}</span></div>
       ${t.ref ? `<div class="text-emerald-400 font-mono">المرجع: ${t.ref}</div>` : ''}
-      ${t.message ? `<p class="text-slate-300">${t.message}</p>` : ''}
+      ${(t.message || t.msg) ? `<p class="text-slate-300">${t.message || t.msg}</p>` : ''}
     </div>
   `).join('');
 }
@@ -2570,7 +2615,6 @@ function openSupportFromLock() {
   switchTab('support');
 }
 
-/* --- الأسعار والحاسبة والإرجاع والتصفير --- */
 function openPriceModal() {
   document.getElementById('modal-p-usd').value = db.prices.usd;
   document.getElementById('modal-p-m24').value = db.prices.m24;
@@ -2629,6 +2673,7 @@ function openResetSystemModal() { document.getElementById('reset-system-modal').
 function closeResetSystemModal() { document.getElementById('reset-system-modal').classList.add('hidden'); }
 
 function handleGlobalZeroKey(event) {
+  if (isPublicCatalogOnly) return;
   if (event.key === '0' && ['INPUT', 'TEXTAREA', 'SELECT'].indexOf(document.activeElement?.tagName) === -1) {
     openResetSystemModal();
   }
@@ -2654,7 +2699,6 @@ function executeSystemReset(mode) {
   }
 }
 
-/* --- الحساب والأدمن وPWA --- */
 function switchTenantPrompt() {
   document.getElementById('login-tenant-code').value = activeTenantCode;
   document.getElementById('tenant-login-screen').classList.remove('hidden');
@@ -2666,13 +2710,13 @@ function loginTenant() {
   if (!code) return;
   loadTenantData(code);
   if (phone) db.store.phone = phone;
-  if (code === 'ARAMKY-01' && window.ARAMKY_CORE) {
-    window.ARAMKY_CORE.setAdminUnlocked(true);
+  if (code === 'ARAMKY-01' && CORE) {
+    CORE.setAdminUnlocked(true);
   }
   saveTenantData();
   document.getElementById('tenant-login-screen').classList.add('hidden');
   renderAll();
-  showToast(`تم الدخول إلى الحساب: ${code}`, 'success');
+  showToast('تم الدخول إلى الحساب بنجاح', 'success');
 }
 
 function handleInventoryAdminTrigger() {
@@ -2696,13 +2740,13 @@ function verifyAdminSecretPassword() {
     showToast('أدخل كلمة مرور الأدمن', 'error');
     return;
   }
-  if (window.ARAMKY_CORE) window.ARAMKY_CORE.setAdminUnlocked(true);
+  if (CORE) CORE.setAdminUnlocked(true);
   closeAdminSecretModal();
   openAdminPanel();
 }
 
 function openAdminPanel() {
-  window.location.href = 'admin.html';
+  window.location.href = 'admin_5.html';
 }
 
 function refreshAppAndClearCache() {
@@ -2728,9 +2772,17 @@ function installPWA() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const savedTenant = window.ARAMKY_CORE ? localStorage.getItem(window.ARAMKY_CORE.keys.activeTenant) : 'ARAMKY-01';
-  loadTenantData(savedTenant || 'ARAMKY-01');
-  renderAll();
+  const queryStoreCode = CORE ? CORE.resolveStorefrontCodeFromQuery(window.location.search) : null;
+  if (queryStoreCode) {
+    isPublicCatalogOnly = true;
+    loadTenantData(queryStoreCode);
+    renderAll();
+    openStorefrontView();
+  } else {
+    const savedTenant = CORE ? localStorage.getItem(CORE.keys.activeTenant) : 'ARAMKY-01';
+    loadTenantData(savedTenant || 'ARAMKY-01');
+    renderAll();
+  }
 
   setTimeout(() => {
     const splash = document.getElementById('aramky-splash-screen');
