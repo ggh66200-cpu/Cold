@@ -1,9 +1,9 @@
 {
-  "name": "ARAMKY Gold OS v28.1",
-  "short_name": "ARAMKY Gold",
-  "description": "نظام إدارة صياغة الذهب والمخزن والمعرض والديون — أرامكي للحلول الرقمية",
-  "start_url": "./index.html",
-  "scope": "./",
+  "name": "ARAMKY Gold OS",
+  "short_name": "ARAMKY",
+  "description": "نظام إدارة صياغة الذهب والمعرض الرقمي الذكي — أرامكي",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#070A12",
@@ -12,13 +12,13 @@
   "lang": "ar",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "/icon.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "icon.png",
+      "src": "/icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
