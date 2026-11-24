@@ -1,29 +1,53 @@
-const { app, BrowserWindow } = require('electron');
+/* ARAMKY Gold OS v28.1 - Electron Desktop Entry (main.js) */
+const { app, BrowserWindow, shell } = require('electron');
 const path = require('path');
 
-function createWindow() {
-  const mainWindow = new BrowserWindow({
+let mainWindow = null;
+
+function createMainWindow() {
+  mainWindow = new BrowserWindow({
     width: 1280,
-    height: 800,
+    height: 860,
+    minWidth: 960,
+    minHeight: 640,
+    title: 'ARAMKY Gold OS v28.1 | نظام إدارة صياغة الذهب',
     icon: path.join(__dirname, 'icon.png'),
+    backgroundColor: '#070A12',
+    autoHideMenuBar: true,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true
     }
   });
 
-  mainWindow.loadFile('index.html');
-  // mainWindow.webContents.openDevTools(); // افتحها لو احتجت فحص الأخطاء
+  mainWindow.loadFile(path.join(__dirname, 'index_5.html'));
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      shell.openExternal(url);
+      return { action: 'deny' };
+    }
+    return { action: 'allow' };
+  });
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
 }
 
 app.whenReady().then(() => {
-  createWindow();
+  createMainWindow();
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createMainWindow();
+    }
   });
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
 });
