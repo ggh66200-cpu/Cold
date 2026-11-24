@@ -319,7 +319,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
   <div class="flex flex-wrap items-center gap-2">
     <button id="pwa-install-btn" onclick="installPWA()" class="bg-emerald-600/20 border border-emerald-500 text-emerald-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-2 font-bold shadow">
-      <img src="icon.png" onerror="handleBrandImageError(this)" class="w-5 h-5 rounded-full object-cover bg-darkbg border border-gold/60"> <span>تثبيت / APK ⚜️</span>
+      <img src="icon.png" onerror="handleBrandImageError(this)" class="w-5 h-5 rounded-full object-cover bg-darkbg border border-gold/60"> <span id="pwa-install-label">تثبيت / APK ⚜️</span>
     </button>
     <button onclick="refreshAppAndClearCache()" class="bg-cyan-600/20 border border-cyan-500/50 text-cyan-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow" title="تحديث التطبيق وتفريغ الكاش من الذاكرة">
       <i class="fa-solid fa-rotate"></i> <span>تحديث الذاكرة</span>
@@ -478,7 +478,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           <input type="hidden" id="scrap-karat" value="21">
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div><label class="text-xs text-slate-400 block mb-1">سعر المثقال:</label><input type="number" id="scrap-mithqal-price" oninput="updateScrapPreview()" class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm text-gold font-bold outline-none"></div>
+          <div><label class="text-xs text-slate-400 block mb-1">سعر المثقال:</label><input type="number" id="scrap-mithqal-price" oninput="this.dataset.manual='1'; updateScrapPreview()" class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm text-gold font-bold outline-none"></div>
           <div><label class="text-xs text-slate-400 block mb-1">الوزن (غرام):</label><input type="number" step="0.001" id="scrap-weight" oninput="updateScrapPreview()" class="w-full bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none"></div>
           <div><label class="text-xs text-amber-300 block mb-1">خصم أجور الصياغة على الغرام الواحد (د.ع):</label><input type="number" placeholder="مثال: 5000" id="scrap-deduct" oninput="updateScrapPreview()" class="w-full bg-darkbg border border-amber-500/50 rounded-2xl p-3 text-sm text-amber-300 font-bold outline-none"></div>
         </div>
@@ -748,11 +748,11 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <div class="bg-darkbg p-4 rounded-2xl border border-gold/30 space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
             <div class="flex flex-wrap items-center gap-1.5">
-              <button onclick="setDayFilter('الكل')" id="day-btn-all" class="day-filter-btn bg-gold text-darkbg font-bold px-3 py-1.5 rounded-xl">الكل</button>
-              <button onclick="setDayFilter('اليوم')" id="day-btn-today" class="day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl">اليوم</button>
-              <button onclick="setDayFilter('البارحة')" id="day-btn-yesterday" class="day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl">البارحة</button>
-              <button onclick="setDayFilter('الأسبوع')" id="day-btn-week" class="day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl">آخر 7 أيام</button>
-              <button onclick="setDayFilter('الشهر')" id="day-btn-month" class="day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl">آخر 30 يوم</button>
+              <button onclick="setDayFilter('الكل')" id="day-btn-الكل" class="day-filter-btn bg-gold text-darkbg font-bold px-3 py-1.5 rounded-xl">الكل</button>
+              <button onclick="setDayFilter('اليوم')" id="day-btn-اليوم" class="day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl">اليوم</button>
+              <button onclick="setDayFilter('البارحة')" id="day-btn-البارحة" class="day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl">البارحة</button>
+              <button onclick="setDayFilter('الأسبوع')" id="day-btn-الأسبوع" class="day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl">آخر 7 أيام</button>
+              <button onclick="setDayFilter('الشهر')" id="day-btn-الشهر" class="day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl">آخر 30 يوم</button>
             </div>
             <input type="date" id="search-date" onchange="setCustomDateFilter()" class="bg-cardbg border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 outline-none">
           </div>
@@ -767,13 +767,13 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
         <div class="flex flex-wrap gap-2 text-xs">
           <button onclick="switchLogCategory('all')" id="log-cat-all" class="cat-btn bg-gold text-darkbg px-3.5 py-1.5 rounded-xl font-bold">الكل</button>
-          <button onclick="switchLogCategory('عملية بيع')" id="log-cat-sales" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">المبيعات</button>
-          <button onclick="switchLogCategory('شراء كسر')" id="log-cat-scrap" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">الكسر</button>
-          <button onclick="switchLogCategory('تعديل مخزن')" id="log-cat-inv-edit" class="cat-btn bg-darkbg text-amber-300 px-3.5 py-1.5 rounded-xl border border-amber-500/40">تعديلات المخزن</button>
-          <button onclick="switchLogCategory('حذف مخزن')" id="log-cat-inv-del" class="cat-btn bg-darkbg text-rose-300 px-3.5 py-1.5 rounded-xl border border-rose-500/40">محذوفات المخزن</button>
-          <button onclick="switchLogCategory('إرجاع فاتورة')" id="log-cat-return" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">المرتجعات</button>
-          <button onclick="switchLogCategory('حركة ديون')" id="log-cat-debts" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">الديون (تطلبهم/يطلبوك)</button>
-          <button onclick="switchLogCategory('صرف مصروف')" id="log-cat-exp" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">المصاريف</button>
+          <button onclick="switchLogCategory('عملية بيع')" id="log-cat-عملية بيع" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">المبيعات</button>
+          <button onclick="switchLogCategory('شراء كسر')" id="log-cat-شراء كسر" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">الكسر</button>
+          <button onclick="switchLogCategory('تعديل مخزن')" id="log-cat-تعديل مخزن" class="cat-btn bg-darkbg text-amber-300 px-3.5 py-1.5 rounded-xl border border-amber-500/40">تعديلات المخزن</button>
+          <button onclick="switchLogCategory('حذف مخزن')" id="log-cat-حذف مخزن" class="cat-btn bg-darkbg text-rose-300 px-3.5 py-1.5 rounded-xl border border-rose-500/40">محذوفات المخزن</button>
+          <button onclick="switchLogCategory('إرجاع فاتورة')" id="log-cat-إرجاع فاتورة" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">المرتجعات</button>
+          <button onclick="switchLogCategory('حركة ديون')" id="log-cat-حركة ديون" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">الديون (تطلبهم/يطلبوك)</button>
+          <button onclick="switchLogCategory('صرف مصروف')" id="log-cat-صرف مصروف" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">المصاريف</button>
         </div>
 
         <input type="text" id="search-input" oninput="filterLogs()" placeholder="ابحث بالرمز، الاسم، أو التفاصيل..." class="w-full bg-darkbg border border-slate-800 rounded-2xl p-3 text-xs text-slate-200 outline-none">
@@ -827,7 +827,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <button onclick="submitSupportTransfer()" class="gold-gradient text-darkbg font-black py-3.5 rounded-2xl text-xs shadow-lg"><i class="fa-solid fa-paper-plane"></i> إرسال مباشر إلى لوحة الأدمن</button>
-            <a id="sup-whatsapp-btn" href="https://wa.me/9647801103129" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg"><i class="fa-brands fa-whatsapp text-base"></i> إرسال عبر واتساب</a>
+            <a id="sup-whatsapp-btn" href="https://wa.me/9647766083622" target="_blank" rel="noopener noreferrer" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg"><i class="fa-brands fa-whatsapp text-base"></i> إرسال عبر واتساب</a>
           </div>
         </div>
 
@@ -1160,10 +1160,12 @@ let karatPickerTargetLabelId = 'inv-karat-label';
 
 function handleBrandImageError(img) {
   if (CORE) CORE.applyImageFallback(img, 'logo');
+  else if (img && img.src !== 'icon.png') { img.onerror = null; img.src = 'icon.png'; }
 }
 
 function handleSplashLogoFallback(img) {
   if (CORE) CORE.applyImageFallback(img, 'logo');
+  else if (img && img.src !== 'icon.png') { img.onerror = null; img.src = 'icon.png'; }
 }
 
 function showToast(msg, type = 'info') {
@@ -1269,8 +1271,8 @@ function defaultTenantData(code) {
 function loadTenantData(code) {
   const cleanCode = String(code || 'ARAMKY-01').trim().toUpperCase();
   activeTenantCode = cleanCode;
-  if (!isPublicCatalogOnly && CORE) {
-    localStorage.setItem(CORE.keys.activeTenant, cleanCode);
+  if (!isPublicCatalogOnly) {
+    localStorage.setItem(CORE ? CORE.keys.activeTenant : 'aramky_active_tenant', cleanCode);
   }
   const key = CORE ? CORE.getTenantDataKey(cleanCode) : `aramky_gold_data_${cleanCode}`;
   const loaded = CORE
@@ -1335,6 +1337,14 @@ function renderAll() {
     if (masterEl) masterEl.textContent = contact.masterCardNumber;
     if (waNumEl) waNumEl.textContent = contact.supportPhone;
     if (waBtn) waBtn.href = contact.whatsappUrl;
+  }
+
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const badge = document.getElementById('aramky-install-badge');
+  const pwaLabel = document.getElementById('pwa-install-label');
+  if (isStandalone) {
+    if (badge) badge.textContent = '⚜️ مثبت (PWA)';
+    if (pwaLabel) pwaLabel.textContent = 'مثبت على الجهاز ✓';
   }
 
   const logoSrc = db.store.logo || 'icon.png';
@@ -1410,6 +1420,8 @@ function selectLuxuryKaratValue(val, labelText) {
   if (labelEl) labelEl.textContent = labelText;
   closeLuxuryKaratPickerModal();
   if (karatPickerTargetInputId === 'scrap-karat') {
+    const scrapPriceInput = document.getElementById('scrap-mithqal-price');
+    if (scrapPriceInput) delete scrapPriceInput.dataset.manual;
     autoFillScrapMithqal();
     updateScrapPreview();
   }
@@ -1573,6 +1585,7 @@ function openEditInventoryModal(idx) {
   document.getElementById('edit-inv-notes').value = item.notes || '';
   document.getElementById('edit-inv-publish').checked = Boolean(item.published);
   document.getElementById('edit-inv-reason').value = '';
+  document.getElementById('edit-inv-new-images').value = '';
   editGalleryImages = Array.isArray(item.images) ? [...item.images] : [];
   renderEditImagesGallery();
   document.getElementById('edit-inventory-modal').classList.remove('hidden');
@@ -1957,7 +1970,12 @@ function completeSale(type) {
     showToast('السلة فارغة! أضف قطعة أولاً', 'error');
     return;
   }
-  const customer = document.getElementById('pos-customer').value.trim() || 'زبون نقدي';
+  const customerInput = document.getElementById('pos-customer').value.trim();
+  if (type === 'debt' && !customerInput) {
+    showToast('يرجى إدخال اسم الزبون لتسجيل البيع بالآجل', 'warning');
+    return;
+  }
+  const customer = customerInput || 'زبون نقدي';
   const phone = document.getElementById('pos-phone').value.trim();
   const notes = document.getElementById('pos-notes').value.trim();
   const payIqd = parseFloat(document.getElementById('pay-iqd').value) || 0;
@@ -2000,20 +2018,17 @@ function completeSale(type) {
   const paidConvertedIqd = payIqd + payCard + (payUsd * usdRate);
   const remainingDebtIqd = Math.max(0, Math.round(totalIqd - paidConvertedIqd));
 
-  if (type === 'debt' || remainingDebtIqd > 0) {
-    const debtAmt = type === 'debt' ? (remainingDebtIqd > 0 ? remainingDebtIqd : totalIqd) : remainingDebtIqd;
-    if (debtAmt > 0) {
-      db.debts.push({
-        id: 'DBT-' + Date.now().toString().slice(-5),
-        customer,
-        phone,
-        category: 'on_them',
-        unit: 'money',
-        amount: debtAmt,
-        notes: notes || `متبقي فاتورة بيع — تطلبهم (${customer})`,
-        date: new Date().toISOString()
-      });
-    }
+  if (type === 'debt' && remainingDebtIqd > 0) {
+    db.debts.push({
+      id: 'DBT-' + Date.now().toString().slice(-5),
+      customer,
+      phone,
+      category: 'on_them',
+      unit: 'money',
+      amount: remainingDebtIqd,
+      notes: notes || `متبقي فاتورة بيع — تطلبهم (${customer})`,
+      date: new Date().toISOString()
+    });
   }
 
   const invId = 'INV-' + Date.now().toString().slice(-6);
@@ -2024,7 +2039,7 @@ function completeSale(type) {
     type: 'invoice',
     invId,
     totalIqd,
-    remainingDebtIqd,
+    remainingDebtIqd: type === 'debt' ? remainingDebtIqd : 0,
     items: soldItems,
     notes
   });
@@ -2041,10 +2056,12 @@ function completeSale(type) {
     payIqd,
     payUsd,
     payCard,
-    remainingDebtIqd
+    remainingDebtIqd: type === 'debt' ? remainingDebtIqd : 0
   });
 
   cart = [];
+  document.getElementById('selected-preview-index').value = '';
+  document.getElementById('selected-preview-label').innerHTML = '<i class="fa-solid fa-gem text-gold"></i> -- اختر قطعة للمعاينة الفورية (اضغط للبحث) --';
   document.getElementById('pos-customer').value = '';
   document.getElementById('pos-phone').value = '';
   document.getElementById('pos-notes').value = '';
@@ -2232,14 +2249,24 @@ function saveStoreSettings() {
   db.store.closeTime = document.getElementById('store-close-time').value.trim();
   db.store.bio = document.getElementById('store-bio').value.trim();
 
-  db.supportTickets.unshift({
+  const ticket = {
     id: 'TKT-' + Date.now().toString().slice(-5),
+    tenant: activeTenantCode,
+    storeName: db.store.name || activeTenantCode,
     method: 'تحديث إعدادات المعرض والشعار',
     ref: db.store.name,
+    msg: `تم تحديث بيانات المعرض (${db.store.name}) والعنوان: ${db.store.address}`,
     message: `تم تحديث بيانات المعرض (${db.store.name}) والعنوان: ${db.store.address}`,
     image: db.store.logo || '',
+    time: new Date().toLocaleString('ar-IQ'),
     date: new Date().toLocaleString('ar-IQ')
-  });
+  };
+  db.supportTickets.unshift(ticket);
+  if (CORE) {
+    const globalTickets = CORE.readSecureStorage(CORE.keys.supportTickets, 'GLOBAL_TICKETS', []);
+    globalTickets.unshift(ticket);
+    CORE.writeSecureStorage(CORE.keys.supportTickets, globalTickets, 'GLOBAL_TICKETS');
+  }
 
   saveTenantData();
   renderAll();
@@ -2320,6 +2347,13 @@ function addDebtMovement() {
 }
 
 function renderDebts() {
+  const btnAll = document.getElementById('debt-filter-all');
+  const btnThem = document.getElementById('debt-filter-them');
+  const btnUs = document.getElementById('debt-filter-us');
+  if (btnAll) btnAll.className = activeDebtFilter === 'all' ? 'bg-gold text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow' : 'bg-darkbg text-slate-300 border border-slate-700 px-4 py-2 rounded-2xl text-xs font-black';
+  if (btnThem) btnThem.className = activeDebtFilter === 'on_them' ? 'bg-emerald-500 text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow' : 'bg-darkbg text-emerald-300 border border-emerald-500/50 px-4 py-2 rounded-2xl text-xs font-black';
+  if (btnUs) btnUs.className = activeDebtFilter === 'on_us' ? 'bg-rose-500 text-white px-4 py-2 rounded-2xl text-xs font-black shadow' : 'bg-darkbg text-rose-300 border border-rose-500/50 px-4 py-2 rounded-2xl text-xs font-black';
+
   const grouped = {};
   db.debts.forEach(d => {
     const key = `${d.customer}||${d.phone || ''}`;
@@ -2431,6 +2465,7 @@ function applyTestMithqalToAudit() {
 
 function renderMithqalMakingAudit() {
   const selectedKarat = document.getElementById('mithqal-audit-karat')?.value || 'all';
+  const customMqPrice = parseFloat(document.getElementById('mithqal-audit-custom-price')?.value) || 0;
   const salesLogs = db.logs.filter(l => l.type === 'عملية بيع');
   const tbody = document.getElementById('mithqal-audit-tbody');
   if (!tbody) return;
@@ -2447,6 +2482,7 @@ function renderMithqalMakingAudit() {
     const making = Number(log.profit || 0);
     const mqCount = w / MITHQAL_GRAMS;
     const makingPerMq = mqCount > 0 ? Math.round(making / mqCount) : 0;
+    const estGoldByCustom = customMqPrice > 0 ? Math.round(mqCount * customMqPrice) : 0;
     totalWeight += w;
     totalMaking += making;
     rows.push({
@@ -2455,7 +2491,8 @@ function renderMithqalMakingAudit() {
       w,
       mqCount,
       makingPerMq,
-      making
+      making,
+      estGoldByCustom
     });
   });
 
@@ -2473,7 +2510,7 @@ function renderMithqalMakingAudit() {
   }
   tbody.innerHTML = rows.map(r => `
     <tr>
-      <td class="p-2.5 font-mono text-gold">${r.title}</td>
+      <td class="p-2.5 font-mono text-gold">${r.title}${r.estGoldByCustom > 0 ? `<span class="block text-[10px] text-cyan-300 font-sans">تقدير ذهب: ${formatIQD(r.estGoldByCustom)}</span>` : ''}</td>
       <td class="p-2.5">${r.karat}</td>
       <td class="p-2.5">${r.w.toFixed(2)} غ</td>
       <td class="p-2.5">${r.mqCount.toFixed(2)}</td>
@@ -2513,6 +2550,34 @@ function switchLogCategory(cat) {
   filterLogs();
 }
 
+function syncLogsFilterButtons() {
+  const dayLabels = ['الكل', 'اليوم', 'البارحة', 'الأسبوع', 'الشهر'];
+  dayLabels.forEach(lbl => {
+    const btn = document.getElementById(`day-btn-${lbl}`);
+    if (btn) {
+      btn.className = activeDayFilter === lbl
+        ? 'day-filter-btn bg-gold text-darkbg font-bold px-3 py-1.5 rounded-xl'
+        : 'day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl';
+    }
+  });
+
+  const catIds = ['all', 'عملية بيع', 'شراء كسر', 'تعديل مخزن', 'حذف مخزن', 'إرجاع فاتورة', 'حركة ديون', 'صرف مصروف'];
+  catIds.forEach(cat => {
+    const btn = document.getElementById(`log-cat-${cat}`);
+    if (btn) {
+      if (activeLogCategory === cat) {
+        btn.className = 'cat-btn bg-gold text-darkbg px-3.5 py-1.5 rounded-xl font-bold';
+      } else if (cat === 'تعديل مخزن') {
+        btn.className = 'cat-btn bg-darkbg text-amber-300 px-3.5 py-1.5 rounded-xl border border-amber-500/40';
+      } else if (cat === 'حذف مخزن') {
+        btn.className = 'cat-btn bg-darkbg text-rose-300 px-3.5 py-1.5 rounded-xl border border-rose-500/40';
+      } else {
+        btn.className = 'cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700';
+      }
+    }
+  });
+}
+
 function getFilteredLogs() {
   const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
   const now = new Date();
@@ -2542,6 +2607,7 @@ function getFilteredLogs() {
 }
 
 function filterLogs() {
+  syncLogsFilterButtons();
   const list = getFilteredLogs();
   const salesTotal = list.filter(l => l.type === 'عملية بيع').reduce((s, l) => s + Number(l.amount || 0), 0);
   const profitTotal = list.filter(l => l.type === 'عملية بيع').reduce((s, l) => s + Number(l.profit || 0), 0);
@@ -2577,7 +2643,6 @@ function exportLogsToExcel() {
   const storeTitle = escapeXml(db.store?.name || 'ARAMKY Gold OS');
   const exportDate = escapeXml(new Date().toLocaleString('ar-IQ'));
 
-  // تجميع الديون وفصل (تطلبهم +) عن (يطلبوك / مطلوب منك -)
   const groupedDebts = {};
   (db.debts || []).forEach(d => {
     const key = `${d.customer}||${d.phone || ''}`;
@@ -3023,51 +3088,51 @@ function exportLogsToExcel() {
  <Worksheet ss:Name="3_سجل_العمليات_المميز">
   <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><DisplayRightToLeft/></WorksheetOptions>
   <Table>
-   <Column ss:Width="45"/>
-   <Column ss:Width="145"/>
-   <Column ss:Width="105"/>
+   <Column ss:Width="50"/>
    <Column ss:Width="165"/>
-   <Column ss:Width="140"/>
+   <Column ss:Width="115"/>
+   <Column ss:Width="175"/>
+   <Column ss:Width="155"/>
    <Column ss:Width="340"/>
-   <Column ss:Width="130"/>
-   <Column ss:Width="120"/>
+   <Column ss:Width="135"/>
+   <Column ss:Width="135"/>
    <Row ss:Height="32">
-    <Cell ss:MergeAcross="7" ss:StyleID="TitleBanner"><Data ss:Type="String">السجل التفصيلي الملوّن والمميز لكل عملية — ${storeTitle}</Data></Cell>
+    <Cell ss:MergeAcross="7" ss:StyleID="TitleBanner"><Data ss:Type="String">سجل العمليات المالي والمخزني المميز بالألوان والتصنيفات — ${storeTitle}</Data></Cell>
    </Row>
    <Row ss:Height="26">
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">#</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">التاريخ والوقت</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الرمز</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">تصنيف العملية</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">اتجاه الحركة</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">نوع العملية المميز</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">اتجاه الحركة (+ / -)</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">التفاصيل الكاملة</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">المبلغ (د.ع)</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">ربح الصياغة (د.ع)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">المبلغ / الوزن</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">أرباح الصياغة</Data></Cell>
    </Row>
    ${logsRowsXml}
   </Table>
  </Worksheet>
 
- <Worksheet ss:Name="4_جرد_المخزن">
+ <Worksheet ss:Name="4_جرد_المخزن_والحالة">
   <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><DisplayRightToLeft/></WorksheetOptions>
   <Table>
-   <Column ss:Width="45"/>
+   <Column ss:Width="50"/>
    <Column ss:Width="110"/>
    <Column ss:Width="200"/>
    <Column ss:Width="130"/>
-   <Column ss:Width="90"/>
+   <Column ss:Width="100"/>
    <Column ss:Width="100"/>
    <Column ss:Width="85"/>
-   <Column ss:Width="125"/>
+   <Column ss:Width="130"/>
    <Column ss:Width="140"/>
    <Row ss:Height="32">
-    <Cell ss:MergeAcross="8" ss:StyleID="TitleBanner"><Data ss:Type="String">جرد المخزن الحالي — ${storeTitle}</Data></Cell>
+    <Cell ss:MergeAcross="8" ss:StyleID="TitleBanner"><Data ss:Type="String">جرد المخزن التفصيلي مع تمييز (جديد / مستعمل) — ${storeTitle}</Data></Cell>
    </Row>
    <Row ss:Height="26">
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">#</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">كود القطعة</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">اسم الصنف</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الحالة (جديد/مستعمل)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">حالة القطعة</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">العيار</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الوزن (غرام)</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الكمية</Data></Cell>
@@ -3079,15 +3144,17 @@ function exportLogsToExcel() {
  </Worksheet>
 </Workbook>`;
 
-  const blob = new Blob(['\uFEFF' + workbookXml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const blob = new Blob(['\ufeff' + workbookXml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  const dateTag = new Date().toISOString().slice(0, 10);
+  const safeCode = String(activeTenantCode || 'ARAMKY').replace(/[^a-zA-Z0-9_-]/g, '_');
   a.href = url;
-  a.download = `ARAMKY-Organized-Report-${dateTag}.xls`;
+  a.download = `ARAMKY_Report_${safeCode}_${new Date().toISOString().slice(0, 10)}.xls`;
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
-  showToast('تم تصدير ملف Excel المنظم (4 أوراق عمل مع تمييز تطلبهم / يطلبوك)', 'success');
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast('تم تصدير ملف Excel المنظم بنجاح (4 أوراق)', 'success');
 }
 
 function openLuxuryTransferMethodModal() { document.getElementById('luxury-transfer-method-modal').classList.remove('hidden'); }
@@ -3113,20 +3180,19 @@ async function submitSupportTransfer() {
   const msg = document.getElementById('sup-message').value.trim();
   const imgs = await readFilesAsDataUrls(document.getElementById('sup-receipt-img').files);
 
-  if (!ref && !msg && !imgs.length) {
-    showToast('اكتب رسالة أو رقم عملية أو أرفق صورة قبل الإرسال', 'warning');
+  if (!msg && !ref && !imgs[0]) {
+    showToast('اكتب رسالة أو أدخل مرجعاً أو أرفق صورة للإرسال', 'warning');
     return;
   }
 
   const ticket = {
     id: 'TKT-' + Date.now().toString().slice(-5),
     tenant: activeTenantCode,
-    storeName: db.store.name || activeTenantCode,
+    storeName: db.store?.name || activeTenantCode,
     method,
     ref,
     msg,
     message: msg,
-    receipt: imgs[0] || '',
     image: imgs[0] || '',
     time: new Date().toLocaleString('ar-IQ'),
     date: new Date().toLocaleString('ar-IQ')
@@ -3145,33 +3211,36 @@ async function submitSupportTransfer() {
   document.getElementById('sup-message').value = '';
   document.getElementById('sup-receipt-img').value = '';
   const prev = document.getElementById('sup-receipt-preview');
-  if (prev) prev.classList.add('hidden');
-  showToast('تم إرسال رسالتك إلى سجل الإدارة بنجاح', 'success');
+  if (prev) { prev.src = ''; prev.classList.add('hidden'); }
+  showToast('تم إرسال رسالتك إلى لوحة الأدمن بنجاح', 'success');
 }
 
 function renderSupportTickets() {
   const list = document.getElementById('support-tickets-list');
   if (!list) return;
   if (!db.supportTickets.length) {
-    list.innerHTML = '<p class="text-slate-500 text-xs p-2">لا توجد رسائل أو تحويلات مسجلة حالياً.</p>';
+    list.innerHTML = '<p class="text-slate-500 text-xs p-2">لا توجد رسائل أو تحويلات مرسلة بعد.</p>';
     return;
   }
   list.innerHTML = db.supportTickets.map(t => `
-    <div class="bg-darkbg border border-slate-800 p-3.5 rounded-2xl text-xs space-y-1">
-      <div class="flex justify-between items-center"><strong class="text-gold">${t.method}</strong><span class="text-slate-500 font-mono">${t.id} • ${t.date}</span></div>
-      ${t.ref ? `<div class="text-emerald-400 font-mono">المرجع: ${t.ref}</div>` : ''}
+    <div class="bg-darkbg border border-slate-800 p-3.5 rounded-2xl text-xs space-y-1.5">
+      <div class="flex justify-between items-center">
+        <strong class="text-gold">${t.method} ${t.ref ? '— ' + t.ref : ''}</strong>
+        <span class="text-slate-500 font-mono text-[10px]">${t.date || t.time || ''}</span>
+      </div>
       ${(t.message || t.msg) ? `<p class="text-slate-300">${t.message || t.msg}</p>` : ''}
+      ${t.image ? `<img src="${t.image}" onerror="handleBrandImageError(this)" onclick="openImageLightbox('${t.image.replace(/'/g, "\\'")}', '${(t.ref || t.method).replace(/'/g, "\\'")}')" class="h-24 rounded-xl border border-gold/30 object-contain cursor-pointer bg-cardbg">` : ''}
     </div>
   `).join('');
 }
 
 function openPriceModal() {
-  document.getElementById('modal-p-usd').value = db.prices.usd || 150000;
-  document.getElementById('modal-p-m24').value = db.prices.m24 || 640000;
-  document.getElementById('modal-p-m22').value = db.prices.m22 || 585000;
-  document.getElementById('modal-p-m21').value = db.prices.m21 || 560000;
-  document.getElementById('modal-p-m18').value = db.prices.m18 || 480000;
-  document.getElementById('modal-p-m9').value = db.prices.m9 || 240000;
+  document.getElementById('modal-p-usd').value = db.prices.usd || 0;
+  document.getElementById('modal-p-m24').value = db.prices.m24 || 0;
+  document.getElementById('modal-p-m22').value = db.prices.m22 || 0;
+  document.getElementById('modal-p-m21').value = db.prices.m21 || 0;
+  document.getElementById('modal-p-m18').value = db.prices.m18 || 0;
+  document.getElementById('modal-p-m9').value = db.prices.m9 || 0;
   document.getElementById('price-modal').classList.remove('hidden');
 }
 
@@ -3180,12 +3249,14 @@ function closePriceModal() {
 }
 
 function saveGoldPrices() {
-  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || db.prices.usd;
-  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || db.prices.m24;
-  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || db.prices.m22;
-  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || db.prices.m21;
-  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || db.prices.m18;
-  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || db.prices.m9;
+  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || 0;
+  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || 0;
+  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || 0;
+  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || 0;
+  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || 0;
+  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || 0;
+  const scrapPriceInput = document.getElementById('scrap-mithqal-price');
+  if (scrapPriceInput) delete scrapPriceInput.dataset.manual;
   saveTenantData();
   renderAll();
   closePriceModal();
@@ -3193,20 +3264,15 @@ function saveGoldPrices() {
 }
 
 function toggleCalcModal() {
-  const m = document.getElementById('calc-modal');
-  if (!document.getElementById('c-mithqal').value) {
-    document.getElementById('c-mithqal').value = db.prices.m21 || 560000;
-  }
-  m.classList.toggle('hidden');
-  calcAramkyQuick();
+  document.getElementById('calc-modal').classList.toggle('hidden');
 }
 
 function calcAramkyQuick() {
   const mq = parseFloat(document.getElementById('c-mithqal').value) || 0;
   const w = parseFloat(document.getElementById('c-weight').value) || 0;
-  const mk = parseFloat(document.getElementById('c-making').value) || 0;
-  const total = Math.round(w * ((mq / MITHQAL_GRAMS) + mk));
-  document.getElementById('c-result-iqd').textContent = formatIQD(total);
+  const making = parseFloat(document.getElementById('c-making').value) || 0;
+  const res = Math.round(w * ((mq / MITHQAL_GRAMS) + making));
+  document.getElementById('c-result-iqd').textContent = formatIQD(res);
 }
 
 function openReturnModal() {
@@ -3220,29 +3286,38 @@ function closeReturnModal() {
 }
 
 function processInvoiceReturn() {
-  const code = document.getElementById('return-inv-code').value.trim();
+  const code = document.getElementById('return-inv-code').value.trim().toUpperCase();
   const reason = document.getElementById('return-reason').value.trim() || 'إرجاع فاتورة';
   if (!code) {
-    showToast('أدخل رمز الفاتورة أولاً', 'warning');
+    showToast('أدخل رمز الفاتورة أولاً', 'error');
     return;
   }
-  const saleLog = db.logs.find(l => l.type === 'عملية بيع' && String(l.details || '').includes(code));
-  if (!saleLog) {
-    showToast('لم يتم العثور على فاتورة بهذا الرمز', 'error');
+  const saleIdx = db.logs.findIndex(l => l.type === 'عملية بيع' && String(l.details || '').toUpperCase().includes(code));
+  if (saleIdx === -1) {
+    showToast('لم يتم العثور على فاتورة بيع بهذا الرمز', 'warning');
     return;
   }
-  const refundAmt = Math.abs(Number(saleLog.amount || 0));
-  db.cash = Number(db.cash || 0) - refundAmt;
-  db.makingProfit = Math.max(0, Number(db.makingProfit || 0) - Number(saleLog.profit || 0));
-  addLog('إرجاع فاتورة', `إرجاع الفاتورة ${code} | السبب: ${reason}`, -refundAmt);
+  const saleLog = db.logs[saleIdx];
+  const amt = Math.abs(Number(saleLog.amount || 0));
+  const prof = Math.abs(Number(saleLog.profit || 0));
+
+  db.cash = Number(db.cash || 0) - amt;
+  db.makingProfit = Math.max(0, Number(db.makingProfit || 0) - prof);
+
+  addLog('إرجاع فاتورة', `إرجاع الفاتورة ${code} | السبب: ${reason}`, -amt, -prof);
   saveTenantData();
   renderAll();
   closeReturnModal();
-  showToast('تم تسجيل إرجاع الفاتورة بنجاح', 'success');
+  showToast(`تم توثيق إرجاع الفاتورة ${code} وتعديل الخزينة`, 'success');
 }
 
-function openResetSystemModal() { document.getElementById('reset-system-modal').classList.remove('hidden'); }
-function closeResetSystemModal() { document.getElementById('reset-system-modal').classList.add('hidden'); }
+function openResetSystemModal() {
+  document.getElementById('reset-system-modal').classList.remove('hidden');
+}
+
+function closeResetSystemModal() {
+  document.getElementById('reset-system-modal').classList.add('hidden');
+}
 
 function executeSystemReset(mode) {
   if (mode === 'cash_only') {
@@ -3250,86 +3325,40 @@ function executeSystemReset(mode) {
     db.usd = 0;
     db.zain = 0;
     db.makingProfit = 0;
-    addLog('تصفير الخزينة', 'تم تصفير صناديق الخزينة وأرباح الصياغة مع الإبقاء على المخزن والديون', 0);
+    addLog('تصفير خزينة', 'تصفير صناديق الكاش والدولار والماستر وأرباح الصياغة (جرد يومي)', 0);
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تم تصفير الخزينة والأرباح فقط بنجاح', 'success');
-    return;
-  }
-  if (mode === 'full_factory') {
-    const keepStore = { ...db.store };
-    const keepPrices = { ...db.prices };
-    db = defaultTenantData(activeTenantCode);
-    db.store = keepStore;
-    db.prices = keepPrices;
-    cart = [];
+    showToast('تم تصفير الخزينة والأرباح بنجاح', 'success');
+  } else if (mode === 'full_factory') {
+    const fresh = defaultTenantData(activeTenantCode);
+    fresh.store = db.store;
+    fresh.prices = db.prices;
+    db = fresh;
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تمت إعادة ضبط النظام بالكامل إلى الصفر', 'warning');
+    showToast('تمت إعادة ضبط النظام بالكامل', 'warning');
   }
 }
 
 function handleGlobalZeroKey(event) {
-  const tag = (event.target && event.target.tagName) || '';
-  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-  if (event.key === '0') {
+  if (event.key === '0' && event.altKey) {
+    event.preventDefault();
     openResetSystemModal();
   }
-}
-
-function switchTenantPrompt() {
-  document.getElementById('login-tenant-code').value = activeTenantCode;
-  document.getElementById('login-tenant-phone').value = '';
-  document.getElementById('login-tenant-pass').value = '';
-  document.getElementById('tenant-login-screen').classList.remove('hidden');
-}
-
-function loginTenant() {
-  const rawCode = document.getElementById('login-tenant-code').value.trim().toUpperCase();
-  const phone = document.getElementById('login-tenant-phone').value.trim();
-  const pass = document.getElementById('login-tenant-pass').value.trim();
-  if (!rawCode) {
-    showToast('يرجى إدخال معرف الحساب / الكود', 'error');
-    return;
-  }
-
-  if (CORE) {
-    const authRes = CORE.authenticateTenant(rawCode, phone, pass);
-    if (!authRes.ok) {
-      showToast(authRes.error || 'فشل التحقق من بيانات الدخول', 'error');
-      return;
-    }
-    loadTenantData(authRes.code);
-    db.status = authRes.tenant.status || 'نشط';
-    saveTenantData();
-    document.getElementById('tenant-login-screen').classList.add('hidden');
-    if (CORE.isSubscriptionBlocked(authRes.tenant)) {
-      document.getElementById('locked-tenant-info').textContent = `رقم المعرض: ${authRes.code}`;
-      document.getElementById('subscription-lock-screen').classList.remove('hidden');
-      return;
-    }
-  } else {
-    loadTenantData(rawCode);
-    document.getElementById('tenant-login-screen').classList.add('hidden');
-  }
-
-  renderAll();
-  showToast(`مرحباً بك في نظام ${activeTenantCode}`, 'success');
-}
-
-function openSupportFromLock() {
-  document.getElementById('subscription-lock-screen').classList.add('hidden');
-  switchTab('support');
 }
 
 function handleInventoryAdminTrigger() {
   inventorySecretClicks += 1;
   clearTimeout(inventorySecretTimer);
-  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 2500);
+  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 1600);
   if (inventorySecretClicks >= 5) {
     inventorySecretClicks = 0;
+    if (CORE && CORE.isAdminSessionActive()) {
+      openAdminPanel();
+      return;
+    }
     document.getElementById('admin-secret-password').value = '';
     document.getElementById('admin-secret-modal').classList.remove('hidden');
   }
@@ -3340,25 +3369,78 @@ function closeAdminSecretModal() {
 }
 
 function verifyAdminSecretPassword() {
-  const pass = document.getElementById('admin-secret-password').value.trim();
-  const valid = CORE ? CORE.verifyAdminPassword(pass) : (pass === 'ARAMKY2026');
-  if (valid) {
-    if (CORE) CORE.setAdminAuthenticated(true);
+  const pass = document.getElementById('admin-secret-password').value;
+  if (CORE && CORE.verifyAdminPassword(pass)) {
+    CORE.setAdminSessionActive(true);
     closeAdminSecretModal();
-    if (CORE) CORE.syncAdminUiVisibility();
-    showToast('تم تفعيل وضع الأدمن بنجاح 👑', 'success');
+    openAdminPanel();
   } else {
     showToast('كلمة مرور الأدمن غير صحيحة', 'error');
   }
 }
 
 function openAdminPanel() {
-  if (CORE && !CORE.isAdminAuthenticated()) {
-    document.getElementById('admin-secret-password').value = '';
-    document.getElementById('admin-secret-modal').classList.remove('hidden');
+  if (CORE) CORE.navigateToAdmin();
+  else window.location.href = 'admin.html';
+}
+
+function openSupportFromLock() {
+  document.getElementById('subscription-lock-screen').classList.add('hidden');
+  switchTab('support');
+}
+
+function switchTenantPrompt() {
+  const codeInput = document.getElementById('login-tenant-code');
+  const phoneInput = document.getElementById('login-tenant-phone');
+  const passInput = document.getElementById('login-tenant-pass');
+  if (codeInput) codeInput.value = activeTenantCode || 'ARAMKY-01';
+  if (phoneInput) phoneInput.value = '';
+  if (passInput) passInput.value = '';
+  document.getElementById('tenant-login-screen').classList.remove('hidden');
+}
+
+function loginTenant() {
+  const rawCode = (document.getElementById('login-tenant-code').value || 'ARAMKY-01').trim().toUpperCase();
+  const phone = (document.getElementById('login-tenant-phone').value || '').trim();
+  const pass = (document.getElementById('login-tenant-pass').value || '').trim();
+
+  if (CORE && CORE.verifyAdminPassword(pass) && rawCode === 'ADMIN') {
+    CORE.setAdminSessionActive(true);
+    document.getElementById('tenant-login-screen').classList.add('hidden');
+    openAdminPanel();
     return;
   }
-  window.location.href = 'admin.html';
+
+  loadTenantData(rawCode);
+  if (phone && !db.store.phone) db.store.phone = phone;
+  saveTenantData();
+  document.getElementById('tenant-login-screen').classList.add('hidden');
+  renderAll();
+  showToast(`مرحباً بك في حساب ${activeTenantCode}`, 'success');
+}
+
+function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+  } else {
+    showToast('للتثبيت: اختر "إضافة إلى الشاشة الرئيسية" من قائمة المتصفح', 'info');
+  }
+}
+
+async function refreshAppAndClearCache() {
+  try {
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.update()));
+    }
+  } catch (_) {}
+  renderAll();
+  showToast('تم تحديث الذاكرة وإعادة تحميل البيانات بنجاح', 'success');
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -3366,77 +3448,33 @@ window.addEventListener('beforeinstallprompt', (e) => {
   deferredPrompt = e;
 });
 
-async function installPWA() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-  } else {
-    showToast('لتثبيت التطبيق: اضغط على قائمة المتصفح (⋮) واختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية"', 'info');
-  }
+function applyPublicShowcaseModeIfNeeded() {
+  const params = new URLSearchParams(window.location.search);
+  const hash = window.location.hash || '';
+  const isShowcase = params.get('view') === 'showcase' || hash.includes('showcase');
+  if (!isShowcase) return;
+
+  isPublicCatalogOnly = true;
+  const encoded = params.get('ref') || '';
+  const decodedTenant = CORE ? CORE.decodeCatalogRef(encoded) : 'ARAMKY-01';
+  loadTenantData(decodedTenant);
+  renderAll();
+  openStorefrontView();
 }
 
-async function refreshAppAndClearCache() {
-  try {
-    if ('caches' in window) {
-      const names = await caches.keys();
-      await Promise.all(names.map(name => caches.delete(name)));
-    }
-    if ('serviceWorker' in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(r => r.unregister()));
-    }
-    showToast('تم تفريغ الكاش وتحديث النسخة...', 'success');
-    setTimeout(() => window.location.reload(true), 600);
-  } catch (err) {
-    window.location.reload();
-  }
+function hideSplashScreen() {
+  const splash = document.getElementById('aramky-splash-screen');
+  if (!splash) return;
+  splash.style.opacity = '0';
+  setTimeout(() => splash.remove(), 550);
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  const params = new URLSearchParams(window.location.search);
-  const catalogRef = params.get('catalog');
-  const viewMode = params.get('view');
-
-  if (catalogRef && CORE) {
-    const resolvedTenant = CORE.decodeCatalogRef(catalogRef);
-    if (resolvedTenant) {
-      isPublicCatalogOnly = true;
-      loadTenantData(resolvedTenant);
-      document.getElementById('app-header')?.classList.add('hidden');
-      document.getElementById('app-ticker')?.classList.add('hidden');
-      document.getElementById('app-main')?.classList.add('hidden');
-      openStorefrontView();
-      const splash = document.getElementById('aramky-splash-screen');
-      if (splash) setTimeout(() => splash.classList.add('hidden'), 650);
-      return;
-    }
-  }
-
-  const savedTenant = (CORE ? localStorage.getItem(CORE.keys.activeTenant) : localStorage.getItem('aramky_active_tenant')) || 'ARAMKY-01';
+  const savedTenant = localStorage.getItem(CORE ? CORE.keys.activeTenant : 'aramky_active_tenant') || 'ARAMKY-01';
   loadTenantData(savedTenant);
-
-  if (CORE) {
-    const tenants = CORE.getTenants();
-    const currentT = tenants.find(t => t.code === activeTenantCode);
-    if (currentT && CORE.isSubscriptionBlocked(currentT)) {
-      document.getElementById('locked-tenant-info').textContent = `رقم المعرض: ${activeTenantCode}`;
-      document.getElementById('subscription-lock-screen').classList.remove('hidden');
-    }
-  }
-
   renderAll();
-  if (viewMode === 'showcase') {
-    openStorefrontView();
-  }
-
-  const splash = document.getElementById('aramky-splash-screen');
-  if (splash) {
-    setTimeout(() => {
-      splash.style.opacity = '0';
-      setTimeout(() => splash.classList.add('hidden'), 700);
-    }, 950);
-  }
+  applyPublicShowcaseModeIfNeeded();
+  setTimeout(hideSplashScreen, 950);
 });
 </script>
 </body>
