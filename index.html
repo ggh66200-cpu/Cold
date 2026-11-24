@@ -360,7 +360,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <button onclick="switchTab('scrap')" id="btn-tab-scrap" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-scale-balanced w-5"></i> <span>شراء ذهب كسر</span></button>
     <button onclick="switchTab('inventory')" id="btn-tab-inventory" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-boxes-stacked w-5"></i> <span>المخزن (تعديل وحذف)</span></button>
     <button onclick="switchTab('store-settings')" id="btn-tab-store-settings" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-store w-5"></i> <span>إعدادات المعرض والشعار</span></button>
-    <button onclick="switchTab('debts')" id="btn-tab-debts" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-file-invoice-dollar w-5"></i> <span>دفتر الديون (تطلب ومطلوب)</span></button>
+    <button onclick="switchTab('debts')" id="btn-tab-debts" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-file-invoice-dollar w-5"></i> <span>دفتر الديون (تطلبهم ويطلبوك)</span></button>
     <button onclick="switchTab('logs')" id="btn-tab-logs" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-chart-pie w-5"></i> <span>الأرباح وجرد Excel</span></button>
     <button onclick="switchTab('support')" id="btn-tab-support" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-blue-300 hover:bg-slate-800 border border-blue-500/30"><i class="fa-solid fa-headset w-5"></i> <span>الدعم ومراسلة الأدمن</span></button>
   </aside>
@@ -459,7 +459,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <button onclick="completeSale('cash')" class="gold-gradient text-darkbg font-black py-4 rounded-2xl shadow-xl"><i class="fa-solid fa-money-bill-wave"></i> إتمام البيع النقدي وطباعة</button>
-            <button onclick="completeSale('debt')" class="system-card border-2 border-amber-500/70 text-amber-400 font-black py-4 rounded-2xl shadow-xl"><i class="fa-solid fa-user-plus"></i> تسجيل آجل (ديون)</button>
+            <button onclick="completeSale('debt')" class="system-card border-2 border-amber-500/70 text-amber-400 font-black py-4 rounded-2xl shadow-xl"><i class="fa-solid fa-user-plus"></i> تسجيل آجل (تطلبهم +)</button>
           </div>
         </div>
       </div>
@@ -603,31 +603,31 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <div class="system-card p-6 rounded-3xl border border-gold/40 shadow-xl space-y-5">
         <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-4 gap-3">
           <div>
-            <h3 class="font-black text-gold text-xl flex items-center gap-2"><i class="fa-solid fa-crown text-amber-300"></i> دفتر الديون الفخم (تطلبهم + ومطلوب منك -)</h3>
-            <p class="text-[11px] text-slate-400 mt-0.5">كارتات مفصولة بوضوح بين ما تطلبه أنت وما هو مطلوب منك، مع سجل خاص ومستقل لكل زبون</p>
+            <h3 class="font-black text-gold text-xl flex items-center gap-2"><i class="fa-solid fa-crown text-amber-300"></i> دفتر الديون الفخم (تطلبهم + ويطلبوك -)</h3>
+            <p class="text-[11px] text-slate-400 mt-0.5">كارتات مفصولة بوضوح بين ما تطلبه أنت (تطلبهم +) وما هو مطلوب منك (يطلبوك -)، مع سجل خاص لكل زبون</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button onclick="setDebtFilter('all')" id="debt-filter-all" class="bg-gold text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow">الكل</button>
             <button onclick="setDebtFilter('on_them')" id="debt-filter-them" class="bg-darkbg text-emerald-300 border border-emerald-500/50 px-4 py-2 rounded-2xl text-xs font-black">كارتات تطلبهم (+)</button>
-            <button onclick="setDebtFilter('on_us')" id="debt-filter-us" class="bg-darkbg text-rose-300 border border-rose-500/50 px-4 py-2 rounded-2xl text-xs font-black">كارتات مطلوب منك (-)</button>
+            <button onclick="setDebtFilter('on_us')" id="debt-filter-us" class="bg-darkbg text-rose-300 border border-rose-500/50 px-4 py-2 rounded-2xl text-xs font-black">كارتات يطلبوك (-)</button>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="bg-emerald-950/35 border border-emerald-500/40 p-4 rounded-2xl shadow-lg">
-            <span class="text-xs text-emerald-300 font-bold block">إجمالي ما تطلبه (لنا عند الناس +)</span>
+            <span class="text-xs text-emerald-300 font-bold block">إجمالي ما تطلبه (تطلبهم — لنا عند الناس +)</span>
             <strong id="debts-summary-them" class="text-xl font-black text-emerald-400 mt-1 block">0 د.ع</strong>
-            <span id="debts-summary-gold-plus" class="text-[11px] text-amber-300 font-mono">ذهب: 0 غرام</span>
+            <span id="debts-summary-gold-plus" class="text-[11px] text-amber-300 font-mono">ذهب تطلبهم: 0 غرام</span>
           </div>
           <div class="bg-rose-950/35 border border-rose-500/40 p-4 rounded-2xl shadow-lg">
-            <span class="text-xs text-rose-300 font-bold block">إجمالي ما هو مطلوب منك (علينا للناس -)</span>
+            <span class="text-xs text-rose-300 font-bold block">إجمالي ما يطلبوك (مطلوب منك — علينا للناس -)</span>
             <strong id="debts-summary-us" class="text-xl font-black text-rose-400 mt-1 block">0 د.ع</strong>
-            <span id="debts-summary-gold-minus" class="text-[11px] text-amber-300 font-mono">رصيد ذمة الذهب الكلي: 0 غرام</span>
+            <span id="debts-summary-gold-minus" class="text-[11px] text-amber-300 font-mono">ذهب يطلبوك: 0 غرام</span>
           </div>
           <div class="bg-amber-950/30 border border-gold/40 p-4 rounded-2xl shadow-lg">
-            <span class="text-xs text-gold font-bold block">صافي ميزان الديون العام</span>
+            <span class="text-xs text-gold font-bold block">صافي ميزان الديون العام (تطلبهم - يطلبوك)</span>
             <strong id="debts-summary-net" class="text-xl font-black text-gold mt-1 block">0 د.ع</strong>
-            <span class="text-[11px] text-slate-400">تحديث لحظي مع كل حركة</span>
+            <span id="debts-summary-gold-net" class="text-[11px] text-slate-300 font-mono">صافي ذمة الذهب: 0 غرام</span>
           </div>
         </div>
 
@@ -639,23 +639,23 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           </div>
 
           <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
-            <button type="button" id="btn-dmode-plus-money" onclick="selectLuxuryDebtType('تطلبهم (دين لك)', 'إضافة أموال (+ تطلبهم)')" class="bg-emerald-600/25 border-2 border-emerald-400 text-emerald-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
-              <i class="fa-solid fa-plus-circle"></i> <span>إضافة أموال (+)</span>
+            <button type="button" id="btn-dmode-plus-money" onclick="selectLuxuryDebtType('تطلبهم (دين لك +)', 'تطلبهم — إضافة أموال (+ لنا عندهم)')" class="bg-emerald-600/25 border-2 border-emerald-400 text-emerald-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-plus-circle"></i> <span>تطلبهم أموال (+)</span>
             </button>
-            <button type="button" id="btn-dmode-minus-money" onclick="selectLuxuryDebtType('مطلوب منك (دين عليك)', 'نقصان / مطلوب منك (- عليك)')" class="bg-rose-600/20 border border-rose-500/40 text-rose-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
-              <i class="fa-solid fa-minus-circle"></i> <span>نقصان أموال (-)</span>
+            <button type="button" id="btn-dmode-minus-money" onclick="selectLuxuryDebtType('يطلبوك / مطلوب منك (-)', 'يطلبوك — أموال مطلوبة منك (- علينا لهم)')" class="bg-rose-600/20 border border-rose-500/40 text-rose-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-minus-circle"></i> <span>يطلبوك أموال (-)</span>
             </button>
-            <button type="button" id="btn-dmode-plus-gold" onclick="selectLuxuryDebtType('إضافة ذهب (غرام)', 'إضافة ذهب (+ غرام)')" class="bg-amber-600/20 border border-amber-400/40 text-amber-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
-              <i class="fa-solid fa-coins"></i> <span>إضافة ذهب (+)</span>
+            <button type="button" id="btn-dmode-plus-gold" onclick="selectLuxuryDebtType('تطلبهم ذهب (+ غرام)', 'تطلبهم ذهب (+ غرام لنا عندهم)')" class="bg-amber-600/20 border border-amber-400/40 text-amber-200 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-coins"></i> <span>تطلبهم ذهب (+)</span>
             </button>
-            <button type="button" id="btn-dmode-minus-gold" onclick="selectLuxuryDebtType('نقصان ذهب (غرام)', 'نقصان ذهب (- غرام)')" class="bg-slate-800 border border-gold/30 text-gold font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
-              <i class="fa-solid fa-scale-balanced"></i> <span>نقصان ذهب (-)</span>
+            <button type="button" id="btn-dmode-minus-gold" onclick="selectLuxuryDebtType('يطلبوك ذهب (- غرام)', 'يطلبوك ذهب (- غرام مطلوب منك)')" class="bg-slate-800 border border-rose-500/40 text-rose-300 font-black py-3 px-3 rounded-2xl flex items-center justify-center gap-2 shadow transition">
+              <i class="fa-solid fa-scale-balanced"></i> <span>يطلبوك ذهب (-)</span>
             </button>
           </div>
-          <input type="hidden" id="debt-type" value="تطلبهم (دين لك)">
+          <input type="hidden" id="debt-type" value="تطلبهم (دين لك +)">
           <div class="text-[11px] text-slate-300 flex items-center justify-between bg-cardbg/80 px-4 py-2 rounded-xl border border-slate-800">
             <span>الحركة المحددة حالياً:</span>
-            <strong id="selected-debt-type-label" class="text-emerald-400 font-black">إضافة أموال (+ تطلبهم)</strong>
+            <strong id="selected-debt-type-label" class="text-emerald-400 font-black">تطلبهم — إضافة أموال (+ لنا عندهم)</strong>
           </div>
 
           <input type="text" id="debt-notes" placeholder="ملاحظات إضافية للحركة أو الحساب..." class="w-full bg-cardbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
@@ -673,7 +673,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
           <div id="section-debts-us" class="space-y-3">
             <div class="flex items-center justify-between border-b border-rose-500/30 pb-2">
-              <h4 class="font-black text-rose-400 text-base flex items-center gap-2"><i class="fa-solid fa-file-signature"></i> كارتات: مطلوب منك (علينا للناس -)</h4>
+              <h4 class="font-black text-rose-400 text-base flex items-center gap-2"><i class="fa-solid fa-file-signature"></i> كارتات: يطلبوك / مطلوب منك (علينا للناس -)</h4>
               <span id="count-debts-us" class="text-xs bg-rose-500/20 text-rose-300 px-3 py-1 rounded-full font-bold">0 كارت</span>
             </div>
             <div id="grid-debts-us" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
@@ -742,7 +742,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-5">
         <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-2">
           <h3 class="font-bold text-gold text-lg"><i class="fa-solid fa-chart-pie"></i> التقارير المالية وجرد التعديلات وتصدير Excel</h3>
-          <button onclick="exportLogsToExcel()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg hover:bg-emerald-500"><i class="fa-solid fa-file-excel text-sm"></i> <span>تصدير ملف Excel رسمي</span></button>
+          <button onclick="exportLogsToExcel()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg hover:bg-emerald-500"><i class="fa-solid fa-file-excel text-sm"></i> <span>تصدير ملف Excel منظم (4 أوراق)</span></button>
         </div>
 
         <div class="bg-darkbg p-4 rounded-2xl border border-gold/30 space-y-3">
@@ -772,7 +772,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           <button onclick="switchLogCategory('تعديل مخزن')" id="log-cat-inv-edit" class="cat-btn bg-darkbg text-amber-300 px-3.5 py-1.5 rounded-xl border border-amber-500/40">تعديلات المخزن</button>
           <button onclick="switchLogCategory('حذف مخزن')" id="log-cat-inv-del" class="cat-btn bg-darkbg text-rose-300 px-3.5 py-1.5 rounded-xl border border-rose-500/40">محذوفات المخزن</button>
           <button onclick="switchLogCategory('إرجاع فاتورة')" id="log-cat-return" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">المرتجعات</button>
-          <button onclick="switchLogCategory('حركة ديون')" id="log-cat-debts" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">الديون</button>
+          <button onclick="switchLogCategory('حركة ديون')" id="log-cat-debts" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">الديون (تطلبهم/يطلبوك)</button>
           <button onclick="switchLogCategory('صرف مصروف')" id="log-cat-exp" class="cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700">المصاريف</button>
         </div>
 
@@ -781,7 +781,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <div class="overflow-x-auto">
           <table class="w-full text-right text-xs">
             <thead class="bg-darkbg text-slate-400 border-b border-slate-800">
-              <tr><th class="p-3">التاريخ</th><th class="p-3">الرمز</th><th class="p-3">النوع</th><th class="p-3">التفاصيل الكاملة (قبل / بعد)</th><th class="p-3">المبلغ / الوزن</th></tr>
+              <tr><th class="p-3">التاريخ</th><th class="p-3">الرمز</th><th class="p-3">تمييز العملية</th><th class="p-3">التفاصيل الكاملة (قبل / بعد)</th><th class="p-3">المبلغ / الوزن</th></tr>
             </thead>
             <tbody id="logs-table-body" class="divide-y divide-slate-800"></tbody>
           </table>
@@ -845,20 +845,20 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <div class="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-bold text-2xl mx-auto shadow-lg"><i class="fa-solid fa-scale-balanced"></i></div>
     <h3 class="text-lg font-bold text-gold">اختر نوع الحركة في دفتر الديون</h3>
     <div class="space-y-2.5 text-right">
-      <button onclick="selectLuxuryDebtType('تطلبهم (دين لك)', 'إضافة أموال (+ تطلبهم)')" class="w-full bg-darkbg border border-emerald-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-emerald-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> 1. إضافة أموال (+ تطلبهم)</span>
+      <button onclick="selectLuxuryDebtType('تطلبهم (دين لك +)', 'تطلبهم — إضافة أموال (+ لنا عندهم)')" class="w-full bg-darkbg border border-emerald-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-emerald-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> 1. تطلبهم أموال (+ لنا عندهم)</span>
         <i class="fa-solid fa-chevron-left text-slate-500"></i>
       </button>
-      <button onclick="selectLuxuryDebtType('مطلوب منك (دين عليك)', 'نقصان / مطلوب منك (- عليك)')" class="w-full bg-darkbg border border-rose-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-rose-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-down text-rose-400"></i> 2. نقصان / مطلوب منك (- عليك)</span>
+      <button onclick="selectLuxuryDebtType('يطلبوك / مطلوب منك (-)', 'يطلبوك — أموال مطلوبة منك (- علينا لهم)')" class="w-full bg-darkbg border border-rose-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-rose-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-down text-rose-400"></i> 2. يطلبوك / مطلوب منك (- علينا لهم)</span>
         <i class="fa-solid fa-chevron-left text-slate-500"></i>
       </button>
-      <button onclick="selectLuxuryDebtType('إضافة ذهب (غرام)', 'إضافة ذهب (+ غرام)')" class="w-full bg-darkbg border border-amber-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-amber-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-coins text-gold"></i> 3. إضافة ذهب (+ غرام)</span>
+      <button onclick="selectLuxuryDebtType('تطلبهم ذهب (+ غرام)', 'تطلبهم ذهب (+ غرام لنا عندهم)')" class="w-full bg-darkbg border border-amber-500/40 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-amber-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-coins text-gold"></i> 3. تطلبهم ذهب (+ غرام)</span>
         <i class="fa-solid fa-chevron-left text-slate-500"></i>
       </button>
-      <button onclick="selectLuxuryDebtType('نقصان ذهب (غرام)', 'نقصان ذهب (- غرام)')" class="w-full bg-darkbg border border-slate-700 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-slate-300 flex items-center justify-between transition">
-        <span class="flex items-center gap-2"><i class="fa-solid fa-minus-circle text-slate-400"></i> 4. نقصان ذهب (- غرام)</span>
+      <button onclick="selectLuxuryDebtType('يطلبوك ذهب (- غرام)', 'يطلبوك ذهب (- غرام مطلوب منك)')" class="w-full bg-darkbg border border-slate-700 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-slate-300 flex items-center justify-between transition">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-minus-circle text-slate-400"></i> 4. يطلبوك ذهب (- غرام)</span>
         <i class="fa-solid fa-chevron-left text-slate-500"></i>
       </button>
     </div>
@@ -899,7 +899,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <button onclick="selectInvoiceTemplate('compact')" class="w-full bg-darkbg border border-slate-700 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-slate-200 flex items-center justify-between transition"><span class="flex items-center gap-2"><i class="fa-solid fa-file-lines text-blue-400 text-base"></i> 2. فاتورة مختصرة سريعة</span><i class="fa-solid fa-chevron-left text-slate-500"></i></button>
       <button onclick="selectInvoiceTemplate('jeweler')" class="w-full bg-darkbg border border-slate-700 hover:border-gold p-3.5 rounded-2xl text-xs font-bold text-slate-200 flex items-center justify-between transition"><span class="flex items-center gap-2"><i class="fa-solid fa-gem text-emerald-400 text-base"></i> 3. نظام الصايغ المؤسسي المطور</span><i class="fa-solid fa-chevron-left text-slate-500"></i></button>
     </div>
-    <button onclick="closeSystemInvoiceTypeModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-2xl text-xs font-bold">إلغاء</button>
+    <button onclick="closeSystemInvoiceTypeModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-2xl text-xs font-bold">إغلاق</button>
   </div>
 </div>
 
@@ -1187,6 +1187,57 @@ function showToast(msg, type = 'info') {
 
 function formatIQD(num) {
   return Number(num || 0).toLocaleString('en-US') + ' د.ع';
+}
+
+function escapeXml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function getOperationMeta(log) {
+  const type = String(log.type || '');
+  const details = String(log.details || '');
+  const amount = Number(log.amount || 0);
+
+  if (type === 'حركة ديون') {
+    const isUs = details.includes('يطلبوك') || details.includes('مطلوب منك') || details.includes('نقصان ذهب') || amount < 0;
+    if (isUs) {
+      return {
+        category: 'يطلبوك / مطلوب منك (-)',
+        direction: 'مدين / علينا للغير (-)',
+        badgeClass: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+        xmlBadge: 'BadgeDebtUs',
+        xmlRow: 'RowDebtUs'
+      };
+    }
+    return {
+      category: 'تطلبهم / دين لك (+)',
+      direction: 'دائن / لنا عند الغير (+)',
+      badgeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+      xmlBadge: 'BadgeDebtThem',
+      xmlRow: 'RowDebtThem'
+    };
+  }
+  if (type === 'عملية بيع') {
+    return { category: 'عملية بيع', direction: 'وارد / مبيعات (+)', badgeClass: 'bg-blue-500/20 text-blue-300 border-blue-500/40', xmlBadge: 'BadgeSale', xmlRow: 'RowSale' };
+  }
+  if (type === 'شراء كسر') {
+    return { category: 'شراء ذهب كسر', direction: 'صادر / شراء كسر (-)', badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/40', xmlBadge: 'BadgeScrap', xmlRow: 'RowScrap' };
+  }
+  if (type === 'صرف مصروف') {
+    return { category: 'صرف مصروف يومي', direction: 'صادر / مصروفات (-)', badgeClass: 'bg-purple-500/20 text-purple-300 border-purple-500/40', xmlBadge: 'BadgeExp', xmlRow: 'RowExp' };
+  }
+  if (type === 'إرجاع فاتورة') {
+    return { category: 'إرجاع فاتورة بيع', direction: 'مرتجع (-)', badgeClass: 'bg-orange-500/20 text-orange-300 border-orange-500/40', xmlBadge: 'BadgeReturn', xmlRow: 'RowReturn' };
+  }
+  if (type.includes('مخزن')) {
+    return { category: type, direction: 'حركة مخزن', badgeClass: 'bg-teal-500/20 text-teal-300 border-teal-500/40', xmlBadge: 'BadgeInv', xmlRow: 'RowInv' };
+  }
+  return { category: type || 'عملية عامة', direction: amount < 0 ? 'صادر (-)' : 'وارد (+)', badgeClass: 'bg-slate-800 text-slate-200 border-slate-700', xmlBadge: 'BadgeDefault', xmlRow: 'RowDefault' };
 }
 
 function defaultTenantData(code) {
@@ -1959,7 +2010,7 @@ function completeSale(type) {
         category: 'on_them',
         unit: 'money',
         amount: debtAmt,
-        notes: notes || `متبقي فاتورة بيع (${customer})`,
+        notes: notes || `متبقي فاتورة بيع — تطلبهم (${customer})`,
         date: new Date().toISOString()
       });
     }
@@ -2048,7 +2099,7 @@ function openInvoicePreview(inv) {
   const usdRate = Number(db.prices.usd || 150000) || 150000;
   document.getElementById('inv-total-iqd').textContent = formatIQD(inv.totalIqd);
   document.getElementById('inv-total-alt').textContent = (inv.totalIqd / usdRate).toFixed(2) + ' ورقة ($' + (inv.totalIqd / usdRate).toFixed(2) + ')';
-  document.getElementById('inv-payment-details').textContent = `المدفوع: كاش ${formatIQD(inv.payIqd)} | دولار $${inv.payUsd} | ماستر/زين كاش ${formatIQD(inv.payCard)} ${inv.remainingDebtIqd > 0 ? '| متبقي آجل: ' + formatIQD(inv.remainingDebtIqd) : ''}`;
+  document.getElementById('inv-payment-details').textContent = `المدفوع: كاش ${formatIQD(inv.payIqd)} | دولار $${inv.payUsd} | ماستر/زين كاش ${formatIQD(inv.payCard)} ${inv.remainingDebtIqd > 0 ? '| متبقي آجل (تطلبهم): ' + formatIQD(inv.remainingDebtIqd) : ''}`;
   document.getElementById('inv-notes-row').textContent = inv.notes ? `ملاحظات: ${inv.notes}` : '';
   document.getElementById('invoice-modal').classList.remove('hidden');
 }
@@ -2205,6 +2256,11 @@ function copyStoreLink() {
 function selectLuxuryDebtType(typeValue, labelText) {
   document.getElementById('debt-type').value = typeValue;
   document.getElementById('selected-debt-type-label').textContent = labelText;
+  const labelEl = document.getElementById('selected-debt-type-label');
+  if (labelEl) {
+    const isUs = typeValue.includes('يطلبوك') || typeValue.includes('مطلوب منك');
+    labelEl.className = isUs ? 'text-rose-400 font-black' : 'text-emerald-400 font-black';
+  }
   closeLuxuryDebtTypeModal();
 }
 
@@ -2233,17 +2289,12 @@ function addDebtMovement() {
   let unit = 'money';
   let signedAmount = amount;
 
-  if (typeValue.includes('مطلوب منك')) {
+  if (typeValue.includes('يطلبوك') || typeValue.includes('مطلوب منك')) {
     category = 'on_us';
     signedAmount = -amount;
-  } else if (typeValue.includes('إضافة ذهب')) {
-    category = 'on_them';
+  }
+  if (typeValue.includes('ذهب')) {
     unit = 'gold';
-    signedAmount = amount;
-  } else if (typeValue.includes('نقصان ذهب')) {
-    category = 'on_us';
-    unit = 'gold';
-    signedAmount = -amount;
   }
 
   db.debts.push({
@@ -2286,12 +2337,17 @@ function renderDebts() {
 
   const totalThem = themCards.reduce((s, c) => s + Math.max(0, c.moneyBalance), 0);
   const totalUs = usCards.reduce((s, c) => s + Math.abs(Math.min(0, c.moneyBalance)), 0);
-  const totalGold = cards.reduce((s, c) => s + c.goldBalance, 0);
+  const totalGoldThem = themCards.reduce((s, c) => s + Math.max(0, c.goldBalance), 0);
+  const totalGoldUs = usCards.reduce((s, c) => s + Math.abs(Math.min(0, c.goldBalance)), 0);
+  const totalGoldNet = cards.reduce((s, c) => s + c.goldBalance, 0);
 
   document.getElementById('debts-summary-them').textContent = formatIQD(totalThem);
   document.getElementById('debts-summary-us').textContent = formatIQD(totalUs);
   document.getElementById('debts-summary-net').textContent = formatIQD(totalThem - totalUs);
-  document.getElementById('debts-summary-gold-minus').textContent = `رصيد ذمة الذهب الكلي: ${totalGold.toFixed(3).replace(/\.?0+$/, '')} غرام`;
+  document.getElementById('debts-summary-gold-plus').textContent = `ذهب تطلبهم: ${totalGoldThem.toFixed(3).replace(/\.?0+$/, '')} غرام`;
+  document.getElementById('debts-summary-gold-minus').textContent = `ذهب يطلبوك: ${totalGoldUs.toFixed(3).replace(/\.?0+$/, '')} غرام`;
+  const goldNetEl = document.getElementById('debts-summary-gold-net');
+  if (goldNetEl) goldNetEl.textContent = `صافي ذمة الذهب: ${totalGoldNet.toFixed(3).replace(/\.?0+$/, '')} غرام`;
   document.getElementById('count-debts-them').textContent = `${themCards.length} كارت`;
   document.getElementById('count-debts-us').textContent = `${usCards.length} كارت`;
 
@@ -2299,11 +2355,11 @@ function renderDebts() {
     <div class="system-card p-4 rounded-2xl border ${isThem ? 'border-emerald-500/40' : 'border-rose-500/40'} space-y-2 text-xs">
       <div class="flex justify-between items-center">
         <strong class="text-sm text-white">${c.customer}</strong>
-        <span class="px-2.5 py-0.5 rounded-full font-bold ${isThem ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${isThem ? 'تطلبهم (+)' : 'مطلوب منك (-)'}</span>
+        <span class="px-2.5 py-0.5 rounded-full font-bold ${isThem ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${isThem ? 'تطلبهم (+)' : 'يطلبوك (-)'}</span>
       </div>
       <div class="text-slate-400 font-mono">${c.phone || 'بدون رقم هاتف'}</div>
-      <div class="font-black text-sm ${c.moneyBalance >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${formatIQD(c.moneyBalance)}</div>
-      ${Math.abs(c.goldBalance) > 0 ? `<div class="text-gold font-bold">ذمة ذهب: ${c.goldBalance.toFixed(3).replace(/\.?0+$/, '')} غرام</div>` : ''}
+      <div class="font-black text-sm ${c.moneyBalance >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${formatIQD(Math.abs(c.moneyBalance))}</div>
+      ${Math.abs(c.goldBalance) > 0 ? `<div class="text-gold font-bold">ذمة ذهب (${c.goldBalance >= 0 ? 'تطلبهم +' : 'يطلبوك -'}): ${Math.abs(c.goldBalance).toFixed(3).replace(/\.?0+$/, '')} غرام</div>` : ''}
       ${c.lastNote ? `<div class="text-[11px] text-slate-400">${c.lastNote}</div>` : ''}
     </div>
   `;
@@ -2315,11 +2371,11 @@ function renderDebts() {
 
   document.getElementById('grid-debts-them').innerHTML = themCards.length
     ? themCards.map(c => renderCard(c, true)).join('')
-    : '<p class="col-span-3 text-slate-500 text-xs p-3">لا توجد كارتات ضمن هذا القسم.</p>';
+    : '<p class="col-span-3 text-slate-500 text-xs p-3">لا توجد كارتات ضمن قسم تطلبهم (+).</p>';
 
   document.getElementById('grid-debts-us').innerHTML = usCards.length
     ? usCards.map(c => renderCard(c, false)).join('')
-    : '<p class="col-span-3 text-slate-500 text-xs p-3">لا توجد كارتات ضمن هذا القسم.</p>';
+    : '<p class="col-span-3 text-slate-500 text-xs p-3">لا توجد كارتات ضمن قسم يطلبوك (-).</p>';
 }
 
 function openLuxuryMithqalFilterModal() { document.getElementById('luxury-mithqal-filter-modal').classList.remove('hidden'); }
@@ -2485,48 +2541,6 @@ function getFilteredLogs() {
   });
 }
 
-function getOperationMeta(log) {
-  const type = String(log.type || '');
-  const details = String(log.details || '');
-  const amount = Number(log.amount || 0);
-
-  if (type === 'حركة ديون') {
-    const isUs = details.includes('مطلوب منك') || details.includes('يطلبوك') || details.includes('نقصان ذهب') || amount < 0;
-    if (isUs) {
-      return {
-        category: 'يطلبوك / مطلوب منك (-)',
-        direction: 'مدين / علينا للغير (-)',
-        badgeClass: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
-        xmlBadge: 'BadgeDebtUs',
-        xmlRow: 'RowDebtUs'
-      };
-    }
-    return {
-      category: 'تطلبهم / دين لك (+)',
-      direction: 'دائن / لنا عند الغير (+)',
-      badgeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-      xmlBadge: 'BadgeDebtThem',
-      xmlRow: 'RowDebtThem'
-    };
-  }
-  if (type === 'عملية بيع') {
-    return { category: 'عملية بيع', direction: 'وارد / مبيعات (+)', badgeClass: 'bg-blue-500/20 text-blue-300 border-blue-500/40', xmlBadge: 'BadgeSale', xmlRow: 'RowSale' };
-  }
-  if (type === 'شراء كسر') {
-    return { category: 'شراء ذهب كسر', direction: 'صادر / شراء كسر (-)', badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/40', xmlBadge: 'BadgeScrap', xmlRow: 'RowScrap' };
-  }
-  if (type === 'صرف مصروف') {
-    return { category: 'صرف مصروف يومي', direction: 'صادر / مصروفات (-)', badgeClass: 'bg-purple-500/20 text-purple-300 border-purple-500/40', xmlBadge: 'BadgeExp', xmlRow: 'RowExp' };
-  }
-  if (type === 'إرجاع فاتورة') {
-    return { category: 'إرجاع فاتورة بيع', direction: 'مرتجع (-)', badgeClass: 'bg-orange-500/20 text-orange-300 border-orange-500/40', xmlBadge: 'BadgeReturn', xmlRow: 'RowReturn' };
-  }
-  if (type.includes('مخزن')) {
-    return { category: type, direction: 'حركة مخزن', badgeClass: 'bg-teal-500/20 text-teal-300 border-teal-500/40', xmlBadge: 'BadgeInv', xmlRow: 'RowInv' };
-  }
-  return { category: type || 'عملية عامة', direction: amount < 0 ? 'صادر (-)' : 'وارد (+)', badgeClass: 'bg-slate-800 text-slate-200 border-slate-700', xmlBadge: 'BadgeDefault', xmlRow: 'RowDefault' };
-}
-
 function filterLogs() {
   const list = getFilteredLogs();
   const salesTotal = list.filter(l => l.type === 'عملية بيع').reduce((s, l) => s + Number(l.amount || 0), 0);
@@ -2556,15 +2570,6 @@ function filterLogs() {
       </tr>
     `;
   }).join('');
-}
-
-function escapeXml(str) {
-  return String(str ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
 }
 
 function exportLogsToExcel() {
@@ -3160,55 +3165,60 @@ function renderSupportTickets() {
   `).join('');
 }
 
-function openSupportFromLock() {
-  document.getElementById('subscription-lock-screen').classList.add('hidden');
-  switchTab('support');
-}
-
 function openPriceModal() {
-  document.getElementById('modal-p-usd').value = db.prices.usd;
-  document.getElementById('modal-p-m24').value = db.prices.m24;
-  document.getElementById('modal-p-m22').value = db.prices.m22;
-  document.getElementById('modal-p-m21').value = db.prices.m21;
-  document.getElementById('modal-p-m18').value = db.prices.m18;
-  document.getElementById('modal-p-m9').value = db.prices.m9;
+  document.getElementById('modal-p-usd').value = db.prices.usd || 150000;
+  document.getElementById('modal-p-m24').value = db.prices.m24 || 640000;
+  document.getElementById('modal-p-m22').value = db.prices.m22 || 585000;
+  document.getElementById('modal-p-m21').value = db.prices.m21 || 560000;
+  document.getElementById('modal-p-m18').value = db.prices.m18 || 480000;
+  document.getElementById('modal-p-m9').value = db.prices.m9 || 240000;
   document.getElementById('price-modal').classList.remove('hidden');
 }
 
-function closePriceModal() { document.getElementById('price-modal').classList.add('hidden'); }
+function closePriceModal() {
+  document.getElementById('price-modal').classList.add('hidden');
+}
 
 function saveGoldPrices() {
-  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || 0;
-  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || 0;
-  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || 0;
-  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || 0;
-  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || 0;
-  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || 0;
+  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || db.prices.usd;
+  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || db.prices.m24;
+  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || db.prices.m22;
+  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || db.prices.m21;
+  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || db.prices.m18;
+  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || db.prices.m9;
   saveTenantData();
   renderAll();
   closePriceModal();
-  showToast('تم حفظ أسعار المثاقيل والدولار', 'success');
+  showToast('تم تحديث أسعار المثاقيل الخمسة والدولار', 'success');
 }
 
 function toggleCalcModal() {
   const m = document.getElementById('calc-modal');
-  m.classList.toggle('hidden');
-  if (!m.classList.contains('hidden')) {
+  if (!document.getElementById('c-mithqal').value) {
     document.getElementById('c-mithqal').value = db.prices.m21 || 560000;
-    calcAramkyQuick();
   }
+  m.classList.toggle('hidden');
+  calcAramkyQuick();
 }
 
 function calcAramkyQuick() {
   const mq = parseFloat(document.getElementById('c-mithqal').value) || 0;
   const w = parseFloat(document.getElementById('c-weight').value) || 0;
   const mk = parseFloat(document.getElementById('c-making').value) || 0;
-  const res = Math.round(w * ((mq / MITHQAL_GRAMS) + mk));
-  document.getElementById('c-result-iqd').textContent = formatIQD(res);
+  const total = Math.round(w * ((mq / MITHQAL_GRAMS) + mk));
+  document.getElementById('c-result-iqd').textContent = formatIQD(total);
 }
 
-function openReturnModal() { document.getElementById('return-modal').classList.remove('hidden'); }
-function closeReturnModal() { document.getElementById('return-modal').classList.add('hidden'); }
+function openReturnModal() {
+  document.getElementById('return-inv-code').value = '';
+  document.getElementById('return-reason').value = '';
+  document.getElementById('return-modal').classList.remove('hidden');
+}
+
+function closeReturnModal() {
+  document.getElementById('return-modal').classList.add('hidden');
+}
+
 function processInvoiceReturn() {
   const code = document.getElementById('return-inv-code').value.trim();
   const reason = document.getElementById('return-reason').value.trim() || 'إرجاع فاتورة';
@@ -3216,13 +3226,19 @@ function processInvoiceReturn() {
     showToast('أدخل رمز الفاتورة أولاً', 'warning');
     return;
   }
-  addLog('إرجاع فاتورة', `إرجاع الفاتورة ${code} — السبب: ${reason}`, 0);
+  const saleLog = db.logs.find(l => l.type === 'عملية بيع' && String(l.details || '').includes(code));
+  if (!saleLog) {
+    showToast('لم يتم العثور على فاتورة بهذا الرمز', 'error');
+    return;
+  }
+  const refundAmt = Math.abs(Number(saleLog.amount || 0));
+  db.cash = Number(db.cash || 0) - refundAmt;
+  db.makingProfit = Math.max(0, Number(db.makingProfit || 0) - Number(saleLog.profit || 0));
+  addLog('إرجاع فاتورة', `إرجاع الفاتورة ${code} | السبب: ${reason}`, -refundAmt);
   saveTenantData();
   renderAll();
   closeReturnModal();
-  document.getElementById('return-inv-code').value = '';
-  document.getElementById('return-reason').value = '';
-  showToast('تم تسجيل عملية إرجاع الفاتورة', 'success');
+  showToast('تم تسجيل إرجاع الفاتورة بنجاح', 'success');
 }
 
 function openResetSystemModal() { document.getElementById('reset-system-modal').classList.remove('hidden'); }
@@ -3234,139 +3250,131 @@ function executeSystemReset(mode) {
     db.usd = 0;
     db.zain = 0;
     db.makingProfit = 0;
-    addLog('تصفير الخزينة', 'تصفير صناديق الكاش، الدولار، الماستر، وأرباح الصياغة', 0);
+    addLog('تصفير الخزينة', 'تم تصفير صناديق الخزينة وأرباح الصياغة مع الإبقاء على المخزن والديون', 0);
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تم تصفير الخزينة والأرباح بنجاح', 'success');
-  } else if (mode === 'full_factory') {
+    showToast('تم تصفير الخزينة والأرباح فقط بنجاح', 'success');
+    return;
+  }
+  if (mode === 'full_factory') {
+    const keepStore = { ...db.store };
+    const keepPrices = { ...db.prices };
     db = defaultTenantData(activeTenantCode);
+    db.store = keepStore;
+    db.prices = keepPrices;
+    cart = [];
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تم تصفير النظام بالكامل إلى ضبط المصنع', 'warning');
+    showToast('تمت إعادة ضبط النظام بالكامل إلى الصفر', 'warning');
   }
 }
 
 function handleGlobalZeroKey(event) {
-  if (event.key === '0' && event.altKey) {
+  const tag = (event.target && event.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if (event.key === '0') {
     openResetSystemModal();
   }
 }
 
-function handleInventoryAdminTrigger() {
-  if (CORE && CORE.isAdminAuthenticated()) {
-    openAdminPanel();
-    return;
-  }
-  inventorySecretClicks += 1;
-  clearTimeout(inventorySecretTimer);
-  if (inventorySecretClicks >= 5) {
-    inventorySecretClicks = 0;
-    document.getElementById('admin-secret-password').value = '';
-    document.getElementById('admin-secret-modal').classList.remove('hidden');
-    setTimeout(() => document.getElementById('admin-secret-password')?.focus(), 80);
-    return;
-  }
-  inventorySecretTimer = setTimeout(() => {
-    inventorySecretClicks = 0;
-  }, 1500);
-}
-
-function closeAdminSecretModal() {
-  inventorySecretClicks = 0;
-  document.getElementById('admin-secret-modal').classList.add('hidden');
-}
-
-function verifyAdminSecretPassword() {
-  const pass = document.getElementById('admin-secret-password').value || '';
-  if (CORE && CORE.verifyAdminPassword(pass)) {
-    CORE.setAdminAuthenticated(true);
-    closeAdminSecretModal();
-    showToast('تم تفعيل وضع الأدمن بنجاح 👑', 'success');
-    openAdminPanel();
-  } else {
-    showToast('كلمة مرور الأدمن غير صحيحة', 'error');
-  }
-}
-
-function openAdminPanel() {
-  if (CORE) CORE.navigateToAdminPanel();
-  else window.location.href = 'admin.html';
-}
-
 function switchTenantPrompt() {
-  if (isPublicCatalogOnly) return;
-  document.getElementById('login-tenant-code').value = activeTenantCode || '';
+  document.getElementById('login-tenant-code').value = activeTenantCode;
   document.getElementById('login-tenant-phone').value = '';
   document.getElementById('login-tenant-pass').value = '';
   document.getElementById('tenant-login-screen').classList.remove('hidden');
 }
 
 function loginTenant() {
-  if (isPublicCatalogOnly) return;
-  const codeInput = (document.getElementById('login-tenant-code').value || '').trim().toUpperCase();
-  const phoneInput = (document.getElementById('login-tenant-phone').value || '').trim();
-  const passInput = (document.getElementById('login-tenant-pass').value || '').trim();
-
-  if (!codeInput) {
+  const rawCode = document.getElementById('login-tenant-code').value.trim().toUpperCase();
+  const phone = document.getElementById('login-tenant-phone').value.trim();
+  const pass = document.getElementById('login-tenant-pass').value.trim();
+  if (!rawCode) {
     showToast('يرجى إدخال معرف الحساب / الكود', 'error');
     return;
   }
-  if (!phoneInput) {
-    showToast('يرجى إدخال رقم الهاتف المرتبط بالحساب', 'error');
-    return;
-  }
-  if (!passInput) {
-    showToast('يرجى إدخال كلمة المرور', 'error');
-    return;
-  }
 
-  const normalizedPhone = phoneInput.replace(/\s+/g, '');
-  const accountKey = CORE ? CORE.getTenantAccountKey(codeInput) : `aramky_account_${codeInput}`;
-  let account = CORE ? CORE.readSecureStorage(accountKey, `ACCT_${codeInput}`, null) : null;
-
-  if (account) {
-    const savedPhone = String(account.phone || '').replace(/\s+/g, '');
-    if (savedPhone && savedPhone !== normalizedPhone) {
-      showToast('رقم الهاتف غير مطابق لبيانات هذا الحساب', 'error');
+  if (CORE) {
+    const authRes = CORE.authenticateTenant(rawCode, phone, pass);
+    if (!authRes.ok) {
+      showToast(authRes.error || 'فشل التحقق من بيانات الدخول', 'error');
       return;
     }
-    if (account.password && String(account.password) !== passInput) {
-      showToast('كلمة المرور غير صحيحة لهذا الحساب', 'error');
+    loadTenantData(authRes.code);
+    db.status = authRes.tenant.status || 'نشط';
+    saveTenantData();
+    document.getElementById('tenant-login-screen').classList.add('hidden');
+    if (CORE.isSubscriptionBlocked(authRes.tenant)) {
+      document.getElementById('locked-tenant-info').textContent = `رقم المعرض: ${authRes.code}`;
+      document.getElementById('subscription-lock-screen').classList.remove('hidden');
       return;
     }
   } else {
-    if (CORE) {
-      account = { code: codeInput, phone: normalizedPhone, password: passInput, updatedAt: new Date().toISOString() };
-      CORE.writeSecureStorage(accountKey, account, `ACCT_${codeInput}`);
-    }
+    loadTenantData(rawCode);
+    document.getElementById('tenant-login-screen').classList.add('hidden');
   }
 
-  if (CORE) CORE.setActiveTenant(codeInput);
-  loadTenantData(codeInput);
-  if (!db.store.phone) db.store.phone = normalizedPhone;
-  saveTenantData();
-  document.getElementById('tenant-login-screen').classList.add('hidden');
   renderAll();
-  showToast(`تم تسجيل الدخول إلى الحساب: ${codeInput}`, 'success');
+  showToast(`مرحباً بك في نظام ${activeTenantCode}`, 'success');
 }
 
-function installPWA() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(() => {
-      deferredPrompt = null;
-    });
-  } else {
-    showToast('يمكنك تثبيت التطبيق من قائمة المتصفح (إضافة إلى الشاشة الرئيسية)', 'info');
+function openSupportFromLock() {
+  document.getElementById('subscription-lock-screen').classList.add('hidden');
+  switchTab('support');
+}
+
+function handleInventoryAdminTrigger() {
+  inventorySecretClicks += 1;
+  clearTimeout(inventorySecretTimer);
+  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 2500);
+  if (inventorySecretClicks >= 5) {
+    inventorySecretClicks = 0;
+    document.getElementById('admin-secret-password').value = '';
+    document.getElementById('admin-secret-modal').classList.remove('hidden');
   }
+}
+
+function closeAdminSecretModal() {
+  document.getElementById('admin-secret-modal').classList.add('hidden');
+}
+
+function verifyAdminSecretPassword() {
+  const pass = document.getElementById('admin-secret-password').value.trim();
+  const valid = CORE ? CORE.verifyAdminPassword(pass) : (pass === 'ARAMKY2026');
+  if (valid) {
+    if (CORE) CORE.setAdminAuthenticated(true);
+    closeAdminSecretModal();
+    if (CORE) CORE.syncAdminUiVisibility();
+    showToast('تم تفعيل وضع الأدمن بنجاح 👑', 'success');
+  } else {
+    showToast('كلمة مرور الأدمن غير صحيحة', 'error');
+  }
+}
+
+function openAdminPanel() {
+  if (CORE && !CORE.isAdminAuthenticated()) {
+    document.getElementById('admin-secret-password').value = '';
+    document.getElementById('admin-secret-modal').classList.remove('hidden');
+    return;
+  }
+  window.location.href = 'admin.html';
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
 });
+
+async function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+  } else {
+    showToast('لتثبيت التطبيق: اضغط على قائمة المتصفح (⋮) واختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية"', 'info');
+  }
+}
 
 async function refreshAppAndClearCache() {
   try {
@@ -3378,60 +3386,57 @@ async function refreshAppAndClearCache() {
       const regs = await navigator.serviceWorker.getRegistrations();
       await Promise.all(regs.map(r => r.unregister()));
     }
-  } catch (_) {}
-  showToast('تم تفريغ الكاش وتحديث الذاكرة، جاري إعادة التحميل...', 'success');
-  setTimeout(() => {
-    const url = new URL(window.location.href);
-    url.searchParams.set('v', Date.now().toString());
-    window.location.replace(url.toString());
-  }, 450);
-}
-
-function activatePublicCatalogOnlyMode() {
-  isPublicCatalogOnly = true;
-  document.getElementById('app-header')?.classList.add('hidden');
-  document.getElementById('app-ticker')?.classList.add('hidden');
-  document.getElementById('app-main')?.classList.add('hidden');
-  document.getElementById('tenant-login-screen')?.classList.add('hidden');
-  document.getElementById('subscription-lock-screen')?.classList.add('hidden');
-
-  let resolvedTenant = 'ARAMKY-01';
-  if (CORE) {
-    const params = new URLSearchParams(window.location.search);
-    const refParam = params.get('ref');
-    if (refParam) {
-      resolvedTenant = CORE.decodeCatalogRef(refParam) || resolvedTenant;
-    } else if (window.location.hash.startsWith('#catalog=')) {
-      resolvedTenant = CORE.decodeCatalogRef(window.location.hash.replace('#catalog=', '')) || resolvedTenant;
-    }
+    showToast('تم تفريغ الكاش وتحديث النسخة...', 'success');
+    setTimeout(() => window.location.reload(true), 600);
+  } catch (err) {
+    window.location.reload();
   }
-  loadTenantData(resolvedTenant);
-  renderStorefrontGrid();
-  openStorefrontView();
-}
-
-function dismissSplashScreen() {
-  const splash = document.getElementById('aramky-splash-screen');
-  if (!splash || splash.dataset.dismissed === '1') return;
-  splash.dataset.dismissed = '1';
-  splash.style.opacity = '0';
-  setTimeout(() => {
-    splash.classList.add('hidden');
-    splash.style.display = 'none';
-  }, 450);
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  if (CORE && CORE.isPublicShowcaseRequest()) {
-    activatePublicCatalogOnlyMode();
-    setTimeout(dismissSplashScreen, 1100);
-    return;
+  const params = new URLSearchParams(window.location.search);
+  const catalogRef = params.get('catalog');
+  const viewMode = params.get('view');
+
+  if (catalogRef && CORE) {
+    const resolvedTenant = CORE.decodeCatalogRef(catalogRef);
+    if (resolvedTenant) {
+      isPublicCatalogOnly = true;
+      loadTenantData(resolvedTenant);
+      document.getElementById('app-header')?.classList.add('hidden');
+      document.getElementById('app-ticker')?.classList.add('hidden');
+      document.getElementById('app-main')?.classList.add('hidden');
+      openStorefrontView();
+      const splash = document.getElementById('aramky-splash-screen');
+      if (splash) setTimeout(() => splash.classList.add('hidden'), 650);
+      return;
+    }
   }
 
-  const savedTenant = CORE ? CORE.getActiveTenant() : (localStorage.getItem('aramky_active_tenant_v28') || 'ARAMKY-01');
+  const savedTenant = (CORE ? localStorage.getItem(CORE.keys.activeTenant) : localStorage.getItem('aramky_active_tenant')) || 'ARAMKY-01';
   loadTenantData(savedTenant);
+
+  if (CORE) {
+    const tenants = CORE.getTenants();
+    const currentT = tenants.find(t => t.code === activeTenantCode);
+    if (currentT && CORE.isSubscriptionBlocked(currentT)) {
+      document.getElementById('locked-tenant-info').textContent = `رقم المعرض: ${activeTenantCode}`;
+      document.getElementById('subscription-lock-screen').classList.remove('hidden');
+    }
+  }
+
   renderAll();
-  setTimeout(dismissSplashScreen, 1450);
+  if (viewMode === 'showcase') {
+    openStorefrontView();
+  }
+
+  const splash = document.getElementById('aramky-splash-screen');
+  if (splash) {
+    setTimeout(() => {
+      splash.style.opacity = '0';
+      setTimeout(() => splash.classList.add('hidden'), 700);
+    }, 950);
+  }
 });
 </script>
 </body>
