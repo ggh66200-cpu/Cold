@@ -2485,6 +2485,48 @@ function getFilteredLogs() {
   });
 }
 
+function getOperationMeta(log) {
+  const type = String(log.type || '');
+  const details = String(log.details || '');
+  const amount = Number(log.amount || 0);
+
+  if (type === 'حركة ديون') {
+    const isUs = details.includes('مطلوب منك') || details.includes('يطلبوك') || details.includes('نقصان ذهب') || amount < 0;
+    if (isUs) {
+      return {
+        category: 'يطلبوك / مطلوب منك (-)',
+        direction: 'مدين / علينا للغير (-)',
+        badgeClass: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+        xmlBadge: 'BadgeDebtUs',
+        xmlRow: 'RowDebtUs'
+      };
+    }
+    return {
+      category: 'تطلبهم / دين لك (+)',
+      direction: 'دائن / لنا عند الغير (+)',
+      badgeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+      xmlBadge: 'BadgeDebtThem',
+      xmlRow: 'RowDebtThem'
+    };
+  }
+  if (type === 'عملية بيع') {
+    return { category: 'عملية بيع', direction: 'وارد / مبيعات (+)', badgeClass: 'bg-blue-500/20 text-blue-300 border-blue-500/40', xmlBadge: 'BadgeSale', xmlRow: 'RowSale' };
+  }
+  if (type === 'شراء كسر') {
+    return { category: 'شراء ذهب كسر', direction: 'صادر / شراء كسر (-)', badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/40', xmlBadge: 'BadgeScrap', xmlRow: 'RowScrap' };
+  }
+  if (type === 'صرف مصروف') {
+    return { category: 'صرف مصروف يومي', direction: 'صادر / مصروفات (-)', badgeClass: 'bg-purple-500/20 text-purple-300 border-purple-500/40', xmlBadge: 'BadgeExp', xmlRow: 'RowExp' };
+  }
+  if (type === 'إرجاع فاتورة') {
+    return { category: 'إرجاع فاتورة بيع', direction: 'مرتجع (-)', badgeClass: 'bg-orange-500/20 text-orange-300 border-orange-500/40', xmlBadge: 'BadgeReturn', xmlRow: 'RowReturn' };
+  }
+  if (type.includes('مخزن')) {
+    return { category: type, direction: 'حركة مخزن', badgeClass: 'bg-teal-500/20 text-teal-300 border-teal-500/40', xmlBadge: 'BadgeInv', xmlRow: 'RowInv' };
+  }
+  return { category: type || 'عملية عامة', direction: amount < 0 ? 'صادر (-)' : 'وارد (+)', badgeClass: 'bg-slate-800 text-slate-200 border-slate-700', xmlBadge: 'BadgeDefault', xmlRow: 'RowDefault' };
+}
+
 function filterLogs() {
   const list = getFilteredLogs();
   const salesTotal = list.filter(l => l.type === 'عملية بيع').reduce((s, l) => s + Number(l.amount || 0), 0);
@@ -2502,37 +2544,545 @@ function filterLogs() {
     tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">لا توجد سجلات مطابقة.</td></tr>';
     return;
   }
-  tbody.innerHTML = list.map(l => `
-    <tr>
-      <td class="p-3 text-slate-400 whitespace-nowrap">${new Date(l.date).toLocaleString('ar-IQ')}</td>
-      <td class="p-3 font-mono text-gold">${l.code || '--'}</td>
-      <td class="p-3 font-bold">${l.type}</td>
-      <td class="p-3 text-slate-200">${l.details}</td>
-      <td class="p-3 font-mono font-bold ${Number(l.amount || 0) < 0 ? 'text-rose-400' : 'text-emerald-400'}">${formatIQD(l.amount || 0)}</td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = list.map(l => {
+    const meta = getOperationMeta(l);
+    return `
+      <tr>
+        <td class="p-3 text-slate-400 whitespace-nowrap">${new Date(l.date).toLocaleString('ar-IQ')}</td>
+        <td class="p-3 font-mono text-gold">${l.code || '--'}</td>
+        <td class="p-3"><span class="px-2.5 py-1 rounded-full border text-[11px] font-bold whitespace-nowrap ${meta.badgeClass}">${meta.category}</span></td>
+        <td class="p-3 text-slate-200">${l.details}</td>
+        <td class="p-3 font-mono font-bold ${Number(l.amount || 0) < 0 ? 'text-rose-400' : 'text-emerald-400'}">${formatIQD(l.amount || 0)}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function escapeXml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }
 
 function exportLogsToExcel() {
   const rows = getFilteredLogs();
-  const html = `
-    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-    <head><meta charset="UTF-8"></head>
-    <body>
-      <table border="1">
-        <tr><th>التاريخ</th><th>الرمز</th><th>النوع</th><th>التفاصيل</th><th>المبلغ</th><th>ربح الصياغة</th></tr>
-        ${rows.map(r => `<tr><td>${new Date(r.date).toLocaleString('ar-IQ')}</td><td>${r.code || ''}</td><td>${r.type || ''}</td><td>${r.details || ''}</td><td>${r.amount || 0}</td><td>${r.profit || 0}</td></tr>`).join('')}
-      </table>
-    </body></html>
+  const storeTitle = escapeXml(db.store?.name || 'ARAMKY Gold OS');
+  const exportDate = escapeXml(new Date().toLocaleString('ar-IQ'));
+
+  // تجميع الديون وفصل (تطلبهم +) عن (يطلبوك / مطلوب منك -)
+  const groupedDebts = {};
+  (db.debts || []).forEach(d => {
+    const key = `${d.customer}||${d.phone || ''}`;
+    if (!groupedDebts[key]) {
+      groupedDebts[key] = { customer: d.customer, phone: d.phone || '--', moneyBalance: 0, goldBalance: 0, lastNote: '' };
+    }
+    if (d.unit === 'gold') groupedDebts[key].goldBalance += Number(d.amount || 0);
+    else groupedDebts[key].moneyBalance += Number(d.amount || 0);
+    if (d.notes) groupedDebts[key].lastNote = d.notes;
+  });
+
+  const allDebtCards = Object.values(groupedDebts).filter(c => Math.abs(c.moneyBalance) > 0.001 || Math.abs(c.goldBalance) > 0.0001);
+  const themCards = allDebtCards.filter(c => c.moneyBalance >= 0 && (c.moneyBalance > 0 || c.goldBalance >= 0));
+  const usCards = allDebtCards.filter(c => c.moneyBalance < 0 || (c.moneyBalance === 0 && c.goldBalance < 0));
+
+  const totalThemMoney = themCards.reduce((s, c) => s + Math.max(0, c.moneyBalance), 0);
+  const totalUsMoney = usCards.reduce((s, c) => s + Math.abs(Math.min(0, c.moneyBalance)), 0);
+  const netDebtsMoney = totalThemMoney - totalUsMoney;
+
+  const salesLogs = rows.filter(l => l.type === 'عملية بيع');
+  const scrapLogs = rows.filter(l => l.type === 'شراء كسر');
+  const expLogs = rows.filter(l => l.type === 'صرف مصروف');
+  const debtLogs = rows.filter(l => l.type === 'حركة ديون');
+
+  const totalSales = salesLogs.reduce((s, l) => s + Number(l.amount || 0), 0);
+  const totalProfit = salesLogs.reduce((s, l) => s + Number(l.profit || 0), 0);
+  const totalScrap = scrapLogs.reduce((s, l) => s + Math.abs(Number(l.amount || 0)), 0);
+  const totalExp = expLogs.reduce((s, l) => s + Math.abs(Number(l.amount || 0)), 0);
+
+  const logsRowsXml = rows.length ? rows.map((r, idx) => {
+    const meta = getOperationMeta(r);
+    const amt = Number(r.amount || 0);
+    const prof = Number(r.profit || 0);
+    return `
+      <Row ss:Height="24">
+        <Cell ss:StyleID="CellCenter"><Data ss:Type="Number">${idx + 1}</Data></Cell>
+        <Cell ss:StyleID="CellCenter"><Data ss:Type="String">${escapeXml(new Date(r.date).toLocaleString('ar-IQ'))}</Data></Cell>
+        <Cell ss:StyleID="CellCode"><Data ss:Type="String">${escapeXml(r.code || '--')}</Data></Cell>
+        <Cell ss:StyleID="${meta.xmlBadge}"><Data ss:Type="String">${escapeXml(meta.category)}</Data></Cell>
+        <Cell ss:StyleID="${meta.xmlRow}"><Data ss:Type="String">${escapeXml(meta.direction)}</Data></Cell>
+        <Cell ss:StyleID="CellRight"><Data ss:Type="String">${escapeXml(r.details || '')}</Data></Cell>
+        <Cell ss:StyleID="${amt < 0 ? 'CellNumNeg' : 'CellNumPos'}"><Data ss:Type="Number">${amt}</Data></Cell>
+        <Cell ss:StyleID="CellNumGold"><Data ss:Type="Number">${prof}</Data></Cell>
+      </Row>
+    `;
+  }).join('') : `
+    <Row ss:Height="24">
+      <Cell ss:MergeAcross="7" ss:StyleID="CellCenter"><Data ss:Type="String">لا توجد سجلات ضمن الفلتر الحالي</Data></Cell>
+    </Row>
   `;
-  const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+
+  const themRowsXml = themCards.length ? themCards.map((c, idx) => `
+    <Row ss:Height="24">
+      <Cell ss:StyleID="CellCenter"><Data ss:Type="Number">${idx + 1}</Data></Cell>
+      <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">${escapeXml(c.customer)}</Data></Cell>
+      <Cell ss:StyleID="CellCenter"><Data ss:Type="String">${escapeXml(c.phone)}</Data></Cell>
+      <Cell ss:StyleID="BadgeDebtThem"><Data ss:Type="String">تطلبهم (لنا عندهم +)</Data></Cell>
+      <Cell ss:StyleID="CellNumPos"><Data ss:Type="Number">${c.moneyBalance}</Data></Cell>
+      <Cell ss:StyleID="CellNumGold"><Data ss:Type="Number">${Number(c.goldBalance.toFixed(3))}</Data></Cell>
+      <Cell ss:StyleID="CellRight"><Data ss:Type="String">${escapeXml(c.lastNote || '--')}</Data></Cell>
+    </Row>
+  `).join('') : `
+    <Row ss:Height="24">
+      <Cell ss:MergeAcross="6" ss:StyleID="CellCenter"><Data ss:Type="String">لا توجد ذمم في قسم (تطلبهم +) حالياً</Data></Cell>
+    </Row>
+  `;
+
+  const usRowsXml = usCards.length ? usCards.map((c, idx) => `
+    <Row ss:Height="24">
+      <Cell ss:StyleID="CellCenter"><Data ss:Type="Number">${idx + 1}</Data></Cell>
+      <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">${escapeXml(c.customer)}</Data></Cell>
+      <Cell ss:StyleID="CellCenter"><Data ss:Type="String">${escapeXml(c.phone)}</Data></Cell>
+      <Cell ss:StyleID="BadgeDebtUs"><Data ss:Type="String">يطلبوك / مطلوب منك (-)</Data></Cell>
+      <Cell ss:StyleID="CellNumNeg"><Data ss:Type="Number">${Math.abs(c.moneyBalance)}</Data></Cell>
+      <Cell ss:StyleID="CellNumGold"><Data ss:Type="Number">${Number(Math.abs(c.goldBalance).toFixed(3))}</Data></Cell>
+      <Cell ss:StyleID="CellRight"><Data ss:Type="String">${escapeXml(c.lastNote || '--')}</Data></Cell>
+    </Row>
+  `).join('') : `
+    <Row ss:Height="24">
+      <Cell ss:MergeAcross="6" ss:StyleID="CellCenter"><Data ss:Type="String">لا توجد ذمم في قسم (يطلبوك / مطلوب منك -) حالياً</Data></Cell>
+    </Row>
+  `;
+
+  const debtMovementsXml = debtLogs.length ? debtLogs.map((r, idx) => {
+    const meta = getOperationMeta(r);
+    const amt = Number(r.amount || 0);
+    return `
+      <Row ss:Height="24">
+        <Cell ss:StyleID="CellCenter"><Data ss:Type="Number">${idx + 1}</Data></Cell>
+        <Cell ss:StyleID="CellCenter"><Data ss:Type="String">${escapeXml(new Date(r.date).toLocaleString('ar-IQ'))}</Data></Cell>
+        <Cell ss:StyleID="CellCode"><Data ss:Type="String">${escapeXml(r.code || '--')}</Data></Cell>
+        <Cell ss:StyleID="${meta.xmlBadge}"><Data ss:Type="String">${escapeXml(meta.category)}</Data></Cell>
+        <Cell ss:StyleID="CellRight"><Data ss:Type="String">${escapeXml(r.details || '')}</Data></Cell>
+        <Cell ss:StyleID="${amt < 0 ? 'CellNumNeg' : 'CellNumPos'}"><Data ss:Type="Number">${amt}</Data></Cell>
+      </Row>
+    `;
+  }).join('') : `
+    <Row ss:Height="24">
+      <Cell ss:MergeAcross="5" ss:StyleID="CellCenter"><Data ss:Type="String">لا توجد حركات ديون مسجلة في الفلتر الحالي</Data></Cell>
+    </Row>
+  `;
+
+  const invRowsXml = (db.inventory || []).length ? db.inventory.map((item, idx) => {
+    const condText = item.condition === 'used' ? 'ذهب مستعمل ♻️' : 'ذهب جديد ✨';
+    const pricing = calculateItemPricing(item);
+    return `
+      <Row ss:Height="24">
+        <Cell ss:StyleID="CellCenter"><Data ss:Type="Number">${idx + 1}</Data></Cell>
+        <Cell ss:StyleID="CellCode"><Data ss:Type="String">${escapeXml(item.id || '--')}</Data></Cell>
+        <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">${escapeXml(item.name || '')}</Data></Cell>
+        <Cell ss:StyleID="${item.condition === 'used' ? 'BadgeScrap' : 'BadgeSale'}"><Data ss:Type="String">${escapeXml(condText)}</Data></Cell>
+        <Cell ss:StyleID="CellCenter"><Data ss:Type="String">عيار ${escapeXml(item.karat || '21')}</Data></Cell>
+        <Cell ss:StyleID="CellNumGold"><Data ss:Type="Number">${Number(item.weight || 0)}</Data></Cell>
+        <Cell ss:StyleID="CellCenter"><Data ss:Type="Number">${Number(item.qty || 0)}</Data></Cell>
+        <Cell ss:StyleID="CellNumPos"><Data ss:Type="Number">${Number(item.makingPerGram || 0)}</Data></Cell>
+        <Cell ss:StyleID="CellNumPos"><Data ss:Type="Number">${pricing.pieceIqd}</Data></Cell>
+      </Row>
+    `;
+  }).join('') : `
+    <Row ss:Height="24">
+      <Cell ss:MergeAcross="8" ss:StyleID="CellCenter"><Data ss:Type="String">المخزن فارغ حالياً</Data></Cell>
+    </Row>
+  `;
+
+  const workbookXml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="11" ss:Color="#1E293B"/>
+  </Style>
+  <Style ss:ID="TitleBanner">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="15" ss:Bold="1" ss:Color="#FDE68A"/>
+   <Interior ss:Color="#0F172A" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="SubBanner">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#CBD5E1"/>
+   <Interior ss:Color="#1E293B" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="SecHeaderThem">
+   <Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="12" ss:Bold="1" ss:Color="#FFFFFF"/>
+   <Interior ss:Color="#065F46" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="SecHeaderUs">
+   <Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="12" ss:Bold="1" ss:Color="#FFFFFF"/>
+   <Interior ss:Color="#9F1239" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="TableHeader">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="11" ss:Bold="1" ss:Color="#F8FAFC"/>
+   <Interior ss:Color="#1E293B" ss:Pattern="Solid"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#D4AF37"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#334155"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#334155"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#334155"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="CellCenter">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="CellRight">
+   <Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:WrapText="1" ss:ReadingOrder="RightToLeft"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="CellRightBold">
+   <Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="11" ss:Bold="1" ss:Color="#0F172A"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="CellCode">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Consolas" ss:Size="10" ss:Bold="1" ss:Color="#92400E"/>
+   <Interior ss:Color="#FEF3C7" ss:Pattern="Solid"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="CellNumPos">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="11" ss:Bold="1" ss:Color="#065F46"/>
+   <NumberFormat ss:Format="#,##0"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="CellNumNeg">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="11" ss:Bold="1" ss:Color="#9F1239"/>
+   <NumberFormat ss:Format="#,##0"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="CellNumGold">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="11" ss:Bold="1" ss:Color="#92400E"/>
+   <NumberFormat ss:Format="#,##0.###"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="BadgeDebtThem">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#065F46"/>
+   <Interior ss:Color="#D1FAE5" ss:Pattern="Solid"/>
+   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#6EE7B7"/></Borders>
+  </Style>
+  <Style ss:ID="RowDebtThem">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#047857"/>
+   <Interior ss:Color="#ECFDF5" ss:Pattern="Solid"/>
+   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#A7F3D0"/></Borders>
+  </Style>
+  <Style ss:ID="BadgeDebtUs">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#9F1239"/>
+   <Interior ss:Color="#FFE4E6" ss:Pattern="Solid"/>
+   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FDA4AF"/></Borders>
+  </Style>
+  <Style ss:ID="RowDebtUs">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#BE123C"/>
+   <Interior ss:Color="#FFF1F2" ss:Pattern="Solid"/>
+   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FECDD3"/></Borders>
+  </Style>
+  <Style ss:ID="BadgeSale">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#1E40AF"/>
+   <Interior ss:Color="#DBEAFE" ss:Pattern="Solid"/>
+   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#93C5FD"/></Borders>
+  </Style>
+  <Style ss:ID="RowSale">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Color="#1D4ED8"/>
+   <Interior ss:Color="#EFF6FF" ss:Pattern="Solid"/>
+   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BFDBFE"/></Borders>
+  </Style>
+  <Style ss:ID="BadgeScrap">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#92400E"/>
+   <Interior ss:Color="#FEF3C7" ss:Pattern="Solid"/>
+   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FCD34D"/></Borders>
+  </Style>
+  <Style ss:ID="RowScrap">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Color="#B45309"/>
+   <Interior ss:Color="#FFFBEB" ss:Pattern="Solid"/>
+   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FDE68A"/></Borders>
+  </Style>
+  <Style ss:ID="BadgeExp">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#6B21A8"/>
+   <Interior ss:Color="#F3E8FF" ss:Pattern="Solid"/>
+   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D8B4FE"/></Borders>
+  </Style>
+  <Style ss:ID="RowExp">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Color="#7E22CE"/>
+   <Interior ss:Color="#FAF5FF" ss:Pattern="Solid"/>
+   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E9D5FF"/></Borders>
+  </Style>
+  <Style ss:ID="BadgeReturn">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#9A3412"/>
+   <Interior ss:Color="#FFEDD5" ss:Pattern="Solid"/>
+   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FDBA74"/></Borders>
+  </Style>
+  <Style ss:ID="RowReturn">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Color="#C2410C"/>
+   <Interior ss:Color="#FFF7ED" ss:Pattern="Solid"/>
+   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FED7AA"/></Borders>
+  </Style>
+  <Style ss:ID="BadgeInv">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#0F766E"/>
+   <Interior ss:Color="#CCFBF1" ss:Pattern="Solid"/>
+   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#5EEAD4"/></Borders>
+  </Style>
+  <Style ss:ID="RowInv">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Color="#115E59"/>
+   <Interior ss:Color="#F0FDFA" ss:Pattern="Solid"/>
+   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#99F6E4"/></Borders>
+  </Style>
+  <Style ss:ID="BadgeDefault">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#334155"/>
+   <Interior ss:Color="#E2E8F0" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="RowDefault">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Color="#475569"/>
+   <Interior ss:Color="#F8FAFC" ss:Pattern="Solid"/>
+  </Style>
+ </Styles>
+
+ <Worksheet ss:Name="1_الملخص_المالي">
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><DisplayRightToLeft/></WorksheetOptions>
+  <Table>
+   <Column ss:Width="260"/>
+   <Column ss:Width="180"/>
+   <Column ss:Width="280"/>
+   <Row ss:Height="34">
+    <Cell ss:MergeAcross="2" ss:StyleID="TitleBanner"><Data ss:Type="String">التقرير المالي والتنظيمي الشامل — ${storeTitle}</Data></Cell>
+   </Row>
+   <Row ss:Height="24">
+    <Cell ss:MergeAcross="2" ss:StyleID="SubBanner"><Data ss:Type="String">تاريخ التصدير: ${exportDate} | نظام ARAMKY Gold OS v28.1</Data></Cell>
+   </Row>
+   <Row ss:Height="10"/>
+   <Row ss:Height="26">
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">البند المالي / المحاسبي</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">القيمة الرقمية (د.ع)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">التصنيف والتمييز</Data></Cell>
+   </Row>
+   <Row ss:Height="24">
+    <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">إجمالي المبيعات (ضمن الفلتر)</Data></Cell>
+    <Cell ss:StyleID="CellNumPos"><Data ss:Type="Number">${totalSales}</Data></Cell>
+    <Cell ss:StyleID="BadgeSale"><Data ss:Type="String">وارد مبيعات الذهب (+)</Data></Cell>
+   </Row>
+   <Row ss:Height="24">
+    <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">صافي أرباح أجور الصياغة</Data></Cell>
+    <Cell ss:StyleID="CellNumGold"><Data ss:Type="Number">${totalProfit}</Data></Cell>
+    <Cell ss:StyleID="BadgeSale"><Data ss:Type="String">أرباح صافية (+)</Data></Cell>
+   </Row>
+   <Row ss:Height="24">
+    <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">إجمالي شراء الذهب الكسر</Data></Cell>
+    <Cell ss:StyleID="CellNumNeg"><Data ss:Type="Number">${totalScrap}</Data></Cell>
+    <Cell ss:StyleID="BadgeScrap"><Data ss:Type="String">مشتريات كسر (-)</Data></Cell>
+   </Row>
+   <Row ss:Height="24">
+    <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">إجمالي المصاريف اليومية</Data></Cell>
+    <Cell ss:StyleID="CellNumNeg"><Data ss:Type="Number">${totalExp}</Data></Cell>
+    <Cell ss:StyleID="BadgeExp"><Data ss:Type="String">مصاريف تشغيلية (-)</Data></Cell>
+   </Row>
+   <Row ss:Height="10"/>
+   <Row ss:Height="24">
+    <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">إجمالي الديون: تطلبهم (لنا عند الناس +)</Data></Cell>
+    <Cell ss:StyleID="CellNumPos"><Data ss:Type="Number">${totalThemMoney}</Data></Cell>
+    <Cell ss:StyleID="BadgeDebtThem"><Data ss:Type="String">لنا عند الغير — تطلبهم (+)</Data></Cell>
+   </Row>
+   <Row ss:Height="24">
+    <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">إجمالي الديون: يطلبوك / مطلوب منك (-)</Data></Cell>
+    <Cell ss:StyleID="CellNumNeg"><Data ss:Type="Number">${totalUsMoney}</Data></Cell>
+    <Cell ss:StyleID="BadgeDebtUs"><Data ss:Type="String">علينا للغير — يطلبوك (-)</Data></Cell>
+   </Row>
+   <Row ss:Height="24">
+    <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">صافي ميزان الديون (تطلبهم - يطلبوك)</Data></Cell>
+    <Cell ss:StyleID="${netDebtsMoney >= 0 ? 'CellNumPos' : 'CellNumNeg'}"><Data ss:Type="Number">${netDebtsMoney}</Data></Cell>
+    <Cell ss:StyleID="${netDebtsMoney >= 0 ? 'BadgeDebtThem' : 'BadgeDebtUs'}"><Data ss:Type="String">${netDebtsMoney >= 0 ? 'الميزان لصالحك (+)' : 'الميزان عليك (-)'}</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+
+ <Worksheet ss:Name="2_الديون_تطلبهم_ويطلبوك">
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><DisplayRightToLeft/></WorksheetOptions>
+  <Table>
+   <Column ss:Width="50"/>
+   <Column ss:Width="180"/>
+   <Column ss:Width="130"/>
+   <Column ss:Width="180"/>
+   <Column ss:Width="140"/>
+   <Column ss:Width="120"/>
+   <Column ss:Width="260"/>
+   <Row ss:Height="32">
+    <Cell ss:MergeAcross="6" ss:StyleID="TitleBanner"><Data ss:Type="String">سجل الذمم والديون المفصول — التمييز بين (تطلبهم +) و (يطلبوك / مطلوب منك -)</Data></Cell>
+   </Row>
+   <Row ss:Height="10"/>
+   <Row ss:Height="28">
+    <Cell ss:MergeAcross="6" ss:StyleID="SecHeaderThem"><Data ss:Type="String">القسم الأول: تطلبهم (+) — مبالغ وذهب لنا عند الزبائن والتجار (${themCards.length} حساب)</Data></Cell>
+   </Row>
+   <Row ss:Height="26">
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">#</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">اسم الزبون / التاجر</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">رقم الهاتف</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">حالة الذمة</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الرصيد المالي (د.ع)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">ذمة الذهب (غرام)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">آخر ملاحظة</Data></Cell>
+   </Row>
+   ${themRowsXml}
+   <Row ss:Height="14"/>
+   <Row ss:Height="28">
+    <Cell ss:MergeAcross="6" ss:StyleID="SecHeaderUs"><Data ss:Type="String">القسم الثاني: يطلبوك / مطلوب منك (-) — مبالغ وذهب علينا للغير (${usCards.length} حساب)</Data></Cell>
+   </Row>
+   <Row ss:Height="26">
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">#</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">اسم الدائن / التاجر</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">رقم الهاتف</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">حالة الذمة</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">المبلغ المطلوب منك (د.ع)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الذهب المطلوب منك (غرام)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">آخر ملاحظة</Data></Cell>
+   </Row>
+   ${usRowsXml}
+   <Row ss:Height="14"/>
+   <Row ss:Height="26">
+    <Cell ss:MergeAcross="5" ss:StyleID="SubBanner"><Data ss:Type="String">سجل حركات الديون التفصيلي (تطلبهم vs يطلبوك)</Data></Cell>
+   </Row>
+   <Row ss:Height="26">
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">#</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">التاريخ والوقت</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الرمز</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">نوع الحركة (تطلبهم / يطلبوك)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">التفاصيل</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">القيمة (د.ع)</Data></Cell>
+   </Row>
+   ${debtMovementsXml}
+  </Table>
+ </Worksheet>
+
+ <Worksheet ss:Name="3_سجل_العمليات_المميز">
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><DisplayRightToLeft/></WorksheetOptions>
+  <Table>
+   <Column ss:Width="45"/>
+   <Column ss:Width="145"/>
+   <Column ss:Width="105"/>
+   <Column ss:Width="165"/>
+   <Column ss:Width="140"/>
+   <Column ss:Width="340"/>
+   <Column ss:Width="130"/>
+   <Column ss:Width="120"/>
+   <Row ss:Height="32">
+    <Cell ss:MergeAcross="7" ss:StyleID="TitleBanner"><Data ss:Type="String">السجل التفصيلي الملوّن والمميز لكل عملية — ${storeTitle}</Data></Cell>
+   </Row>
+   <Row ss:Height="26">
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">#</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">التاريخ والوقت</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الرمز</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">تصنيف العملية</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">اتجاه الحركة</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">التفاصيل الكاملة</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">المبلغ (د.ع)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">ربح الصياغة (د.ع)</Data></Cell>
+   </Row>
+   ${logsRowsXml}
+  </Table>
+ </Worksheet>
+
+ <Worksheet ss:Name="4_جرد_المخزن">
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><DisplayRightToLeft/></WorksheetOptions>
+  <Table>
+   <Column ss:Width="45"/>
+   <Column ss:Width="110"/>
+   <Column ss:Width="200"/>
+   <Column ss:Width="130"/>
+   <Column ss:Width="90"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="85"/>
+   <Column ss:Width="125"/>
+   <Column ss:Width="140"/>
+   <Row ss:Height="32">
+    <Cell ss:MergeAcross="8" ss:StyleID="TitleBanner"><Data ss:Type="String">جرد المخزن الحالي — ${storeTitle}</Data></Cell>
+   </Row>
+   <Row ss:Height="26">
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">#</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">كود القطعة</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">اسم الصنف</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الحالة (جديد/مستعمل)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">العيار</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الوزن (غرام)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الكمية</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">صياغة الغرام</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">السعر التقديري (د.ع)</Data></Cell>
+   </Row>
+   ${invRowsXml}
+  </Table>
+ </Worksheet>
+</Workbook>`;
+
+  const blob = new Blob(['\uFEFF' + workbookXml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
+  const dateTag = new Date().toISOString().slice(0, 10);
   a.href = url;
-  a.download = `ARAMKY-Report.xls`;
+  a.download = `ARAMKY-Organized-Report-${dateTag}.xls`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast('تم تصدير ملف Excel بنجاح', 'success');
+  showToast('تم تصدير ملف Excel المنظم (4 أوراق عمل مع تمييز تطلبهم / يطلبوك)', 'success');
 }
 
 function openLuxuryTransferMethodModal() { document.getElementById('luxury-transfer-method-modal').classList.remove('hidden'); }
@@ -2637,47 +3187,46 @@ function saveGoldPrices() {
   saveTenantData();
   renderAll();
   closePriceModal();
-  showToast('تم تحديث أسعار المثاقيل والدولار', 'success');
+  showToast('تم حفظ أسعار المثاقيل والدولار', 'success');
 }
 
 function toggleCalcModal() {
-  document.getElementById('calc-modal').classList.toggle('hidden');
+  const m = document.getElementById('calc-modal');
+  m.classList.toggle('hidden');
+  if (!m.classList.contains('hidden')) {
+    document.getElementById('c-mithqal').value = db.prices.m21 || 560000;
+    calcAramkyQuick();
+  }
 }
 
 function calcAramkyQuick() {
   const mq = parseFloat(document.getElementById('c-mithqal').value) || 0;
   const w = parseFloat(document.getElementById('c-weight').value) || 0;
   const mk = parseFloat(document.getElementById('c-making').value) || 0;
-  const res = w * ((mq / MITHQAL_GRAMS) + mk);
-  document.getElementById('c-result-iqd').textContent = formatIQD(Math.round(res));
+  const res = Math.round(w * ((mq / MITHQAL_GRAMS) + mk));
+  document.getElementById('c-result-iqd').textContent = formatIQD(res);
 }
 
 function openReturnModal() { document.getElementById('return-modal').classList.remove('hidden'); }
 function closeReturnModal() { document.getElementById('return-modal').classList.add('hidden'); }
-
 function processInvoiceReturn() {
   const code = document.getElementById('return-inv-code').value.trim();
   const reason = document.getElementById('return-reason').value.trim() || 'إرجاع فاتورة';
   if (!code) {
-    showToast('أدخل رمز الفاتورة أولاً', 'error');
+    showToast('أدخل رمز الفاتورة أولاً', 'warning');
     return;
   }
   addLog('إرجاع فاتورة', `إرجاع الفاتورة ${code} — السبب: ${reason}`, 0);
   saveTenantData();
   renderAll();
   closeReturnModal();
-  showToast('تم تسجيل إرجاع الفاتورة في الجرد', 'warning');
+  document.getElementById('return-inv-code').value = '';
+  document.getElementById('return-reason').value = '';
+  showToast('تم تسجيل عملية إرجاع الفاتورة', 'success');
 }
 
 function openResetSystemModal() { document.getElementById('reset-system-modal').classList.remove('hidden'); }
 function closeResetSystemModal() { document.getElementById('reset-system-modal').classList.add('hidden'); }
-
-function handleGlobalZeroKey(event) {
-  if (isPublicCatalogOnly) return;
-  if (event.key === '0' && ['INPUT', 'TEXTAREA', 'SELECT'].indexOf(document.activeElement?.tagName) === -1) {
-    openResetSystemModal();
-  }
-}
 
 function executeSystemReset(mode) {
   if (mode === 'cash_only') {
@@ -2685,7 +3234,7 @@ function executeSystemReset(mode) {
     db.usd = 0;
     db.zain = 0;
     db.makingProfit = 0;
-    addLog('تصفير خزينة', 'تصفير صناديق الكاش والدولار والماستر وأرباح الصياغة', 0);
+    addLog('تصفير الخزينة', 'تصفير صناديق الكاش، الدولار، الماستر، وأرباح الصياغة', 0);
     saveTenantData();
     renderAll();
     closeResetSystemModal();
@@ -2695,66 +3244,123 @@ function executeSystemReset(mode) {
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تمت إعادة ضبط النظام بالكامل', 'warning');
+    showToast('تم تصفير النظام بالكامل إلى ضبط المصنع', 'warning');
   }
 }
 
-function switchTenantPrompt() {
-  document.getElementById('login-tenant-code').value = activeTenantCode;
-  document.getElementById('tenant-login-screen').classList.remove('hidden');
-}
-
-function loginTenant() {
-  const code = (document.getElementById('login-tenant-code').value || 'ARAMKY-01').trim().toUpperCase();
-  const phone = document.getElementById('login-tenant-phone').value.trim();
-  if (!code) return;
-  loadTenantData(code);
-  if (phone) db.store.phone = phone;
-  if (code === 'ARAMKY-01' && CORE) {
-    CORE.setAdminUnlocked(true);
+function handleGlobalZeroKey(event) {
+  if (event.key === '0' && event.altKey) {
+    openResetSystemModal();
   }
-  saveTenantData();
-  document.getElementById('tenant-login-screen').classList.add('hidden');
-  renderAll();
-  showToast('تم الدخول إلى الحساب بنجاح', 'success');
 }
 
 function handleInventoryAdminTrigger() {
+  if (CORE && CORE.isAdminAuthenticated()) {
+    openAdminPanel();
+    return;
+  }
   inventorySecretClicks += 1;
   clearTimeout(inventorySecretTimer);
-  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 1800);
   if (inventorySecretClicks >= 5) {
     inventorySecretClicks = 0;
     document.getElementById('admin-secret-password').value = '';
     document.getElementById('admin-secret-modal').classList.remove('hidden');
+    setTimeout(() => document.getElementById('admin-secret-password')?.focus(), 80);
+    return;
   }
+  inventorySecretTimer = setTimeout(() => {
+    inventorySecretClicks = 0;
+  }, 1500);
 }
 
 function closeAdminSecretModal() {
+  inventorySecretClicks = 0;
   document.getElementById('admin-secret-modal').classList.add('hidden');
 }
 
 function verifyAdminSecretPassword() {
-  const pass = document.getElementById('admin-secret-password').value.trim();
-  if (!pass) {
-    showToast('أدخل كلمة مرور الأدمن', 'error');
-    return;
+  const pass = document.getElementById('admin-secret-password').value || '';
+  if (CORE && CORE.verifyAdminPassword(pass)) {
+    CORE.setAdminAuthenticated(true);
+    closeAdminSecretModal();
+    showToast('تم تفعيل وضع الأدمن بنجاح 👑', 'success');
+    openAdminPanel();
+  } else {
+    showToast('كلمة مرور الأدمن غير صحيحة', 'error');
   }
-  if (CORE) CORE.setAdminUnlocked(true);
-  closeAdminSecretModal();
-  openAdminPanel();
 }
 
 function openAdminPanel() {
-  window.location.href = 'admin_5.html';
+  if (CORE) CORE.navigateToAdminPanel();
+  else window.location.href = 'admin.html';
 }
 
-function refreshAppAndClearCache() {
-  if ('caches' in window) {
-    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).catch(() => {});
+function switchTenantPrompt() {
+  if (isPublicCatalogOnly) return;
+  document.getElementById('login-tenant-code').value = activeTenantCode || '';
+  document.getElementById('login-tenant-phone').value = '';
+  document.getElementById('login-tenant-pass').value = '';
+  document.getElementById('tenant-login-screen').classList.remove('hidden');
+}
+
+function loginTenant() {
+  if (isPublicCatalogOnly) return;
+  const codeInput = (document.getElementById('login-tenant-code').value || '').trim().toUpperCase();
+  const phoneInput = (document.getElementById('login-tenant-phone').value || '').trim();
+  const passInput = (document.getElementById('login-tenant-pass').value || '').trim();
+
+  if (!codeInput) {
+    showToast('يرجى إدخال معرف الحساب / الكود', 'error');
+    return;
   }
+  if (!phoneInput) {
+    showToast('يرجى إدخال رقم الهاتف المرتبط بالحساب', 'error');
+    return;
+  }
+  if (!passInput) {
+    showToast('يرجى إدخال كلمة المرور', 'error');
+    return;
+  }
+
+  const normalizedPhone = phoneInput.replace(/\s+/g, '');
+  const accountKey = CORE ? CORE.getTenantAccountKey(codeInput) : `aramky_account_${codeInput}`;
+  let account = CORE ? CORE.readSecureStorage(accountKey, `ACCT_${codeInput}`, null) : null;
+
+  if (account) {
+    const savedPhone = String(account.phone || '').replace(/\s+/g, '');
+    if (savedPhone && savedPhone !== normalizedPhone) {
+      showToast('رقم الهاتف غير مطابق لبيانات هذا الحساب', 'error');
+      return;
+    }
+    if (account.password && String(account.password) !== passInput) {
+      showToast('كلمة المرور غير صحيحة لهذا الحساب', 'error');
+      return;
+    }
+  } else {
+    if (CORE) {
+      account = { code: codeInput, phone: normalizedPhone, password: passInput, updatedAt: new Date().toISOString() };
+      CORE.writeSecureStorage(accountKey, account, `ACCT_${codeInput}`);
+    }
+  }
+
+  if (CORE) CORE.setActiveTenant(codeInput);
+  loadTenantData(codeInput);
+  if (!db.store.phone) db.store.phone = normalizedPhone;
+  saveTenantData();
+  document.getElementById('tenant-login-screen').classList.add('hidden');
   renderAll();
-  showToast('تم تحديث الذاكرة وعرض أحدث البيانات', 'info');
+  showToast(`تم تسجيل الدخول إلى الحساب: ${codeInput}`, 'success');
+}
+
+function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+    });
+  } else {
+    showToast('يمكنك تثبيت التطبيق من قائمة المتصفح (إضافة إلى الشاشة الرئيسية)', 'info');
+  }
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -2762,35 +3368,70 @@ window.addEventListener('beforeinstallprompt', (e) => {
   deferredPrompt = e;
 });
 
-function installPWA() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-  } else {
-    showToast('لتثبيت كتطبيق أو APK: افتح قائمة المتصفح واختر "إضافة إلى الشاشة الرئيسية" أو استخدم PWABuilder', 'info');
-  }
+async function refreshAppAndClearCache() {
+  try {
+    if ('caches' in window) {
+      const names = await caches.keys();
+      await Promise.all(names.map(name => caches.delete(name)));
+    }
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+  } catch (_) {}
+  showToast('تم تفريغ الكاش وتحديث الذاكرة، جاري إعادة التحميل...', 'success');
+  setTimeout(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('v', Date.now().toString());
+    window.location.replace(url.toString());
+  }, 450);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const queryStoreCode = CORE ? CORE.resolveStorefrontCodeFromQuery(window.location.search) : null;
-  if (queryStoreCode) {
-    isPublicCatalogOnly = true;
-    loadTenantData(queryStoreCode);
-    renderAll();
-    openStorefrontView();
-  } else {
-    const savedTenant = CORE ? localStorage.getItem(CORE.keys.activeTenant) : 'ARAMKY-01';
-    loadTenantData(savedTenant || 'ARAMKY-01');
-    renderAll();
+function activatePublicCatalogOnlyMode() {
+  isPublicCatalogOnly = true;
+  document.getElementById('app-header')?.classList.add('hidden');
+  document.getElementById('app-ticker')?.classList.add('hidden');
+  document.getElementById('app-main')?.classList.add('hidden');
+  document.getElementById('tenant-login-screen')?.classList.add('hidden');
+  document.getElementById('subscription-lock-screen')?.classList.add('hidden');
+
+  let resolvedTenant = 'ARAMKY-01';
+  if (CORE) {
+    const params = new URLSearchParams(window.location.search);
+    const refParam = params.get('ref');
+    if (refParam) {
+      resolvedTenant = CORE.decodeCatalogRef(refParam) || resolvedTenant;
+    } else if (window.location.hash.startsWith('#catalog=')) {
+      resolvedTenant = CORE.decodeCatalogRef(window.location.hash.replace('#catalog=', '')) || resolvedTenant;
+    }
+  }
+  loadTenantData(resolvedTenant);
+  renderStorefrontGrid();
+  openStorefrontView();
+}
+
+function dismissSplashScreen() {
+  const splash = document.getElementById('aramky-splash-screen');
+  if (!splash || splash.dataset.dismissed === '1') return;
+  splash.dataset.dismissed = '1';
+  splash.style.opacity = '0';
+  setTimeout(() => {
+    splash.classList.add('hidden');
+    splash.style.display = 'none';
+  }, 450);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (CORE && CORE.isPublicShowcaseRequest()) {
+    activatePublicCatalogOnlyMode();
+    setTimeout(dismissSplashScreen, 1100);
+    return;
   }
 
-  setTimeout(() => {
-    const splash = document.getElementById('aramky-splash-screen');
-    if (splash) {
-      splash.style.opacity = '0';
-      setTimeout(() => splash.classList.add('hidden'), 650);
-    }
-  }, 900);
+  const savedTenant = CORE ? CORE.getActiveTenant() : (localStorage.getItem('aramky_active_tenant_v28') || 'ARAMKY-01');
+  loadTenantData(savedTenant);
+  renderAll();
+  setTimeout(dismissSplashScreen, 1450);
 });
 </script>
 </body>
