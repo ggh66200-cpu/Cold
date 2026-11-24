@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ARAMKY Master Admin | لوحة تحكم الأدمن المركزية v28.0</title>
+<title>ARAMKY Master Admin | لوحة تحكم الأدمن المركزية v28.1</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="aramky-core.js"></script>
 <script>
 tailwind.config = {
   theme: {
@@ -43,13 +44,13 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     </div>
     <div>
       <h2 class="text-xl font-black text-gold">لوحة الأدمن المركزية</h2>
-      <p class="text-xs text-slate-400 mt-1">أدخل اليوزر، رقم الهاتف المرتبط، وكلمة المرور للدخول إلى الإدارة</p>
+      <p class="text-xs text-slate-400 mt-1">أدخل المعرف، رقم الهاتف المرتبط، وكلمة المرور للدخول إلى الإدارة</p>
     </div>
 
     <div class="space-y-3 text-right text-xs">
       <div>
-        <label class="text-amber-300 font-bold block mb-1">يوزر الأدمن</label>
-        <input type="text" id="admin-login-code" placeholder="أدخل يوزر الأدمن" class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-2xl p-3 text-center font-mono text-gold font-bold uppercase outline-none">
+        <label class="text-amber-300 font-bold block mb-1">معرف الأدمن</label>
+        <input type="text" id="admin-login-code" placeholder="أدخل معرف الأدمن" class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-2xl p-3 text-center font-mono text-gold font-bold uppercase outline-none">
       </div>
       <div>
         <label class="text-emerald-300 font-bold block mb-1">رقم الهاتف المرتبط بالأدمن</label>
@@ -62,7 +63,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     </div>
 
     <button onclick="adminLogin()" class="w-full gold-gradient text-darkbg font-black py-4 rounded-2xl shadow-xl">دخول إلى لوحة الأدمن 👑</button>
-    <button onclick="window.location.href='index.html'" class="w-full bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs">العودة للنظام الرئيسي</button>
+    <button onclick="window.location.href='index_5.html'" class="w-full bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs">العودة للنظام الرئيسي</button>
   </div>
 </div>
 
@@ -72,7 +73,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <input type="hidden" id="edit-sub-orig-code">
     <div class="space-y-3 text-xs">
       <div>
-        <label class="text-slate-400 block mb-1">اليوزر / الكود:</label>
+        <label class="text-slate-400 block mb-1">المعرف / الكود:</label>
         <input type="text" id="edit-sub-code" class="w-full bg-darkbg border border-slate-700 rounded-xl p-3 font-mono text-gold font-bold uppercase outline-none">
       </div>
       <div>
@@ -103,349 +104,324 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   <header class="glass p-5 rounded-3xl border border-gold/40 flex flex-wrap justify-between items-center gap-4 shadow-2xl">
     <div class="flex items-center gap-3">
       <div class="w-12 h-12 rounded-full gold-gradient flex items-center justify-center text-darkbg font-black text-xl overflow-hidden border border-gold">
-        <img src="icon.png" onerror="handleAdminBrandImageError(this)" class="w-full h-full object-cover bg-darkbg">
+        <img id="admin-header-logo" src="icon.png" onerror="handleAdminBrandImageError(this)" class="w-full h-full object-cover bg-darkbg">
       </div>
       <div>
-        <h1 class="font-black text-xl text-gold">لوحة تحكم الأدمن المركزية — أرامكي v28.0</h1>
-        <p class="text-xs text-slate-400">إدارة الاشتراكات، الصلاحيات، البريد الوارد، <span id="admin-cloud-status" class="text-sky-300 font-bold">حالة الاتصال: جاري الفحص...</span></p>
+        <h1 class="text-xl font-black text-gold flex items-center gap-2"><span>لوحة تحكم الأدمن المركزية</span><span class="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full">ARAMKY v28.1 • مشفر</span></h1>
+        <p class="text-xs text-slate-400">إدارة الحسابات، الاشتراكات، الصلاحيات، شعارات وصور الصاغة، ورسائل الدعم</p>
       </div>
     </div>
     <div class="flex flex-wrap gap-2">
-      <button onclick="syncAdminWithSupabase()" class="bg-cyan-600/20 border border-cyan-500/50 text-cyan-300 px-4 py-2.5 rounded-xl text-xs font-bold"><i class="fa-solid fa-rotate"></i> مزامنة البيانات</button>
-      <button onclick="window.location.href='index.html'" class="bg-gold/20 border border-gold text-gold px-4 py-2.5 rounded-xl text-xs font-bold"><i class="fa-solid fa-arrow-right"></i> العودة للنظام</button>
-      <button onclick="adminLogout()" class="bg-rose-600/20 border border-rose-500/50 text-rose-300 px-4 py-2.5 rounded-xl text-xs font-bold">خروج</button>
+      <button onclick="openAdminStorefrontPreview()" class="bg-gold/20 border border-gold/50 text-gold text-xs px-4 py-2.5 rounded-xl font-bold"><i class="fa-solid fa-store"></i> معاينة المعرض</button>
+      <a href="index_5.html" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs px-4 py-2.5 rounded-xl font-bold flex items-center gap-1.5"><i class="fa-solid fa-arrow-right"></i> العودة للنظام</a>
+      <button onclick="adminLogout()" class="bg-rose-600/20 border border-rose-500/50 text-rose-300 text-xs px-4 py-2.5 rounded-xl font-bold"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
     </div>
   </header>
 
-  <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
-    <div class="system-card p-5 rounded-3xl border border-gold/30"><span class="text-xs text-slate-400">إجمالي المشتركين:</span><h3 id="adm-total-subs" class="text-2xl font-black text-gold mt-1">0</h3></div>
-    <div class="system-card p-5 rounded-3xl border border-emerald-500/30"><span class="text-xs text-slate-400">الاشتراكات النشطة:</span><h3 id="adm-active-subs" class="text-2xl font-black text-emerald-400 mt-1">0</h3></div>
-    <div class="system-card p-5 rounded-3xl border border-amber-500/30"><span class="text-xs text-slate-400">رسائل وتحويلات واردة:</span><h3 id="adm-tickets-count" class="text-2xl font-black text-amber-400 mt-1">0</h3></div>
-    <div class="system-card p-5 rounded-3xl border border-purple-500/30"><span class="text-xs text-slate-400">إجمالي قطع المخزون:</span><h3 id="adm-total-inv" class="text-2xl font-black text-purple-400 mt-1">0</h3></div>
-  </section>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="system-card p-5 rounded-3xl border border-slate-700/60"><span class="text-xs text-slate-400">إجمالي الحسابات المسجلة</span><h3 id="stat-total-subs" class="text-2xl font-black text-gold mt-1">0</h3></div>
+    <div class="system-card p-5 rounded-3xl border border-slate-700/60"><span class="text-xs text-slate-400">الحسابات النشطة</span><h3 id="stat-active-subs" class="text-2xl font-black text-emerald-400 mt-1">0</h3></div>
+    <div class="system-card p-5 rounded-3xl border border-slate-700/60"><span class="text-xs text-slate-400">الحسابات الموقوفة</span><h3 id="stat-expired-subs" class="text-2xl font-black text-rose-400 mt-1">0</h3></div>
+    <div class="system-card p-5 rounded-3xl border border-slate-700/60"><span class="text-xs text-slate-400">رسائل الدعم والصور الواردة</span><h3 id="stat-tickets-count" class="text-2xl font-black text-blue-400 mt-1">0</h3></div>
+  </div>
 
-  <section class="system-card p-6 rounded-3xl border border-cyan-500/35 shadow-xl space-y-4">
-    <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-3 gap-2">
-      <h3 class="font-bold text-cyan-300 text-base"><i class="fa-solid fa-database"></i> ربط قاعدة البيانات السحابية (اختياري — يعمل أوفلاين تلقائياً)</h3>
-      <span class="text-[11px] text-slate-400">يمكن العمل محلياً بدون إنترنت أو ربط قاعدة البيانات عند الحاجة</span>
+  <div class="system-card p-6 rounded-3xl border border-gold/30 space-y-5 shadow-xl">
+    <h3 class="font-bold text-gold text-base border-b border-slate-800 pb-3"><i class="fa-solid fa-crown"></i> هوية الأدمن وشعار الإدارة وصورة غلاف المعرض</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-darkbg p-4 rounded-2xl border border-slate-800 flex items-center gap-4">
+        <img id="admin-logo-preview" src="icon.png" onerror="handleAdminBrandImageError(this)" onclick="openAdminLightbox(this.src, 'شعار الأدمن')" class="w-20 h-20 rounded-2xl object-cover bg-cardbg border-2 border-gold cursor-pointer shrink-0">
+        <div class="space-y-1.5 flex-1">
+          <label class="text-xs font-bold text-gold block">تغيير شعار الإدارة (Admin Logo):</label>
+          <input type="file" id="admin-logo-file" accept="image/*" onchange="handleAdminLogoUpload(event)" class="w-full bg-cardbg border border-slate-700 rounded-xl p-2 text-xs text-slate-300">
+        </div>
+      </div>
+
+      <div class="bg-darkbg p-4 rounded-2xl border border-slate-800 space-y-2">
+        <div class="flex justify-between items-center">
+          <label class="text-xs font-bold text-gold">صورة غلاف المعرض الرئيسية (Admin Cover):</label>
+          <span class="text-[10px] text-slate-400">تُعتمد وتُعرض في المعرض</span>
+        </div>
+        <img id="admin-cover-preview" src="icon.png" onerror="handleAdminBrandImageError(this)" onclick="openAdminLightbox(this.src, 'صورة غلاف المعرض')" class="w-full h-28 rounded-2xl object-cover bg-cardbg border border-gold/40 cursor-pointer">
+        <input type="file" id="admin-cover-file" accept="image/*" onchange="handleAdminCoverUpload(event)" class="w-full bg-cardbg border border-slate-700 rounded-xl p-2 text-xs text-slate-300">
+      </div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
       <div>
-        <label class="text-slate-400 block mb-1">Project URL:</label>
-        <input type="text" id="adm-sb-url" placeholder="https://xxxxx.supabase.co" class="w-full bg-darkbg border border-slate-700 rounded-xl p-3 font-mono text-gold outline-none">
+        <label class="text-slate-400 block mb-1">اسم الأدمن / الجهة:</label>
+        <input type="text" id="admin-profile-name" class="w-full bg-darkbg border border-slate-700 rounded-xl p-3 text-gold font-bold outline-none">
       </div>
       <div>
-        <label class="text-slate-400 block mb-1">Anon Key:</label>
-        <input type="text" id="adm-sb-key" placeholder="أدخل مفتاح الربط" class="w-full bg-darkbg border border-slate-700 rounded-xl p-3 font-mono text-emerald-400 outline-none">
+        <label class="text-slate-400 block mb-1">رقم هاتف الأدمن المرتبط:</label>
+        <input type="tel" id="admin-profile-phone" class="w-full bg-darkbg border border-slate-700 rounded-xl p-3 text-emerald-400 font-mono font-bold outline-none">
+      </div>
+      <div>
+        <label class="text-slate-400 block mb-1">كلمة مرور الأدمن:</label>
+        <input type="text" id="admin-profile-pass" class="w-full bg-darkbg border border-slate-700 rounded-xl p-3 text-cyan-300 font-mono font-bold outline-none">
       </div>
     </div>
-    <button onclick="saveAdminSupabaseCreds()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow">حفظ إعدادات الربط ومزامنة البيانات</button>
-  </section>
+    <button onclick="saveAdminProfileSettings()" class="gold-gradient text-darkbg font-black px-6 py-3 rounded-2xl text-xs shadow-lg">حفظ هوية الأدمن والشعار والغلاف ✅</button>
+  </div>
 
-  <section class="system-card p-6 rounded-3xl border-2 border-amber-500/40 shadow-xl space-y-4">
-    <h3 class="font-bold text-amber-300 text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-inbox"></i> صندوق الرسائل والإيصالات والصور الواردة من العملاء</h3>
-    <div id="admin-tickets-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-  </section>
-
-  <section class="system-card p-6 rounded-3xl border border-gold/40 shadow-xl space-y-4">
-    <h3 class="font-bold text-gold text-lg border-b border-slate-800 pb-3"><i class="fa-solid fa-user-plus"></i> إضافة مشترك / محل جديد</h3>
+  <div class="system-card p-6 rounded-3xl border border-gold/30 space-y-4 shadow-xl">
+    <h3 class="font-bold text-gold text-base border-b border-slate-800 pb-3"><i class="fa-solid fa-user-plus"></i> إضافة / تجديد اشتراك حساب جديد (مع المعرف والهاتف وكلمة المرور)</h3>
     <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
-      <input type="text" id="new-sub-code" placeholder="كود المحل" class="bg-darkbg border border-slate-700 rounded-xl p-3 font-mono text-gold font-bold uppercase outline-none">
-      <input type="text" id="new-sub-name" placeholder="اسم المحل / الصايغ" class="bg-darkbg border border-slate-700 rounded-xl p-3 outline-none">
-      <input type="tel" id="new-sub-phone" placeholder="رقم الهاتف" class="bg-darkbg border border-slate-700 rounded-xl p-3 text-emerald-400 font-mono outline-none">
-      <input type="text" id="new-sub-pass" placeholder="كلمة مرور" class="bg-darkbg border border-slate-700 rounded-xl p-3 font-mono outline-none">
-      <input type="date" id="new-sub-exp" class="bg-darkbg border border-slate-700 rounded-xl p-3 outline-none">
+      <input type="text" id="new-sub-code" placeholder="المعرف (مثال: STORE-02)" class="bg-darkbg border border-slate-700 rounded-xl p-3 font-mono text-gold uppercase outline-none">
+      <input type="text" id="new-sub-name" placeholder="اسم الصايغ / المعرض" class="bg-darkbg border border-slate-700 rounded-xl p-3 outline-none">
+      <input type="tel" id="new-sub-phone" placeholder="رقم الهاتف المرتبط" class="bg-darkbg border border-slate-700 rounded-xl p-3 font-mono text-emerald-400 outline-none">
+      <input type="text" id="new-sub-pass" placeholder="كلمة المرور" class="bg-darkbg border border-slate-700 rounded-xl p-3 font-mono text-cyan-300 outline-none">
+      <input type="date" id="new-sub-exp" class="bg-darkbg border border-slate-700 rounded-xl p-3 text-slate-300 outline-none">
     </div>
-    <button onclick="addNewSubscriber()" class="w-full gold-gradient text-darkbg font-black py-3.5 rounded-2xl shadow-lg">إنشاء وتفعيل الاشتراك فوراً ✅</button>
-  </section>
+    <button onclick="addOrUpdateSubscriber()" class="gold-gradient text-darkbg font-black px-6 py-3 rounded-2xl text-xs shadow-lg">حفظ وتفعيل الحساب</button>
+  </div>
 
-  <section class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-4">
-    <h3 class="font-bold text-slate-200 text-lg">قائمة المشتركين والحسابات (تعديل / تمديد / تفعيل / روابط المعرض بدون يوزر)</h3>
+  <div class="system-card p-6 rounded-3xl border border-slate-700/60 space-y-4 shadow-xl">
+    <h3 class="font-bold text-gold text-base border-b border-slate-800 pb-3"><i class="fa-solid fa-users"></i> قائمة الحسابات والعملاء والصلاحيات وروابط المعرض (بدون يوزر)</h3>
     <div class="overflow-x-auto">
       <table class="w-full text-right text-xs">
         <thead class="bg-darkbg text-slate-400 border-b border-slate-800">
           <tr>
-            <th class="p-3">الكود / اليوزر</th>
-            <th class="p-3">اسم المحل</th>
+            <th class="p-3">الشعار</th>
+            <th class="p-3">المعرف</th>
+            <th class="p-3">الاسم / المعرض</th>
             <th class="p-3">الهاتف</th>
             <th class="p-3">كلمة المرور</th>
             <th class="p-3">الانتهاء</th>
             <th class="p-3">الحالة</th>
-            <th class="p-3 text-center">إجراءات</th>
+            <th class="p-3">رابط المعرض</th>
+            <th class="p-3 text-center">إدارة وتعديل</th>
           </tr>
         </thead>
-        <tbody id="admin-subs-tbody" class="divide-y divide-slate-800"></tbody>
+        <tbody id="subscribers-table-body" class="divide-y divide-slate-800"></tbody>
       </table>
     </div>
-  </section>
+  </div>
+
+  <div class="system-card p-6 rounded-3xl border border-blue-500/30 space-y-4 shadow-xl">
+    <h3 class="font-bold text-blue-400 text-base border-b border-slate-800 pb-3"><i class="fa-solid fa-envelope-open-text"></i> رسائل الدعم، إيصالات الدفع، وطلبات الشعار/الغلاف الواردة</h3>
+    <div id="admin-tickets-container" class="space-y-3"></div>
+  </div>
 </div>
 
 <script>
-const ADMIN_TENANT_CODE = "ARAMKY-01";
-const CONFIGURED_ADMIN_PHONE = "";
-const CONFIGURED_ADMIN_PASS = "";
-const DEFAULT_ADMIN_NAME = "ARAMKY | نظام إدارة صياغة الذهب";
-const FALLBACK_ADMIN_ICON = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><rect width="256" height="256" rx="48" fill="#070A12"/><rect x="8" y="8" width="240" height="240" rx="42" fill="none" stroke="#D4AF37" stroke-width="6"/><text x="128" y="148" text-anchor="middle" font-size="96" fill="#D4AF37" font-family="Arial, sans-serif">👑</text></svg>');
+const ADMIN_CORE = window.ARAMKY_CORE;
+const ADMIN_STORAGE_KEY = ADMIN_CORE ? ADMIN_CORE.keys.adminAccount : 'aramky_admin_account';
+const SUBS_STORAGE_KEY = ADMIN_CORE ? ADMIN_CORE.keys.subscribersMaster : 'aramky_subscribers_master';
+const TICKETS_STORAGE_KEY = ADMIN_CORE ? ADMIN_CORE.keys.supportTickets : 'aramky_global_support_tickets';
 
-function handleAdminBrandImageError(imgEl) {
-  if (!imgEl || imgEl.dataset.fallbackApplied === '1') return;
-  imgEl.dataset.fallbackApplied = '1';
-  imgEl.src = FALLBACK_ADMIN_ICON;
+let adminProfile = {
+  code: 'ARAMKY-ADMIN',
+  name: 'إدارة أرامكي — فرع نواة الذهب',
+  phone: '07766083622',
+  pass: 'ARAMKY2026',
+  logo: 'icon.png',
+  cover: 'icon.png'
+};
+
+function handleAdminBrandImageError(img) {
+  if (ADMIN_CORE) ADMIN_CORE.applyImageFallback(img, 'logo');
 }
 
-function normalizePhoneDigits(p) {
-  return String(p || '').replace(/\D/g, '');
-}
-
-function getMasterAdminAccount() {
-  const saved = JSON.parse(localStorage.getItem('aramky_admin_account')) || {};
-  const activePhone = CONFIGURED_ADMIN_PHONE.trim() || String(saved.phone || '').trim();
-  const activePass = CONFIGURED_ADMIN_PASS.trim() || String(saved.passcode || '').trim();
-  const master = {
-    code: ADMIN_TENANT_CODE,
-    name: saved.name || DEFAULT_ADMIN_NAME,
-    phone: activePhone,
-    passcode: activePass,
-    expiresAt: "2099-12-31",
-    active: true,
-    isMaster: true,
-    phoneVerified: true
-  };
-  if (activePhone || activePass) {
-    localStorage.setItem('aramky_admin_account', JSON.stringify(master));
-  }
-  return master;
-}
-
-function getSubscribersList() {
-  const master = getMasterAdminAccount();
-  let list = JSON.parse(localStorage.getItem('aramky_subscribers_master'));
-  if (!Array.isArray(list) || !list.length) return [master];
-  const idx = list.findIndex(s => String(s.code || '').toUpperCase() === ADMIN_TENANT_CODE || s.isMaster);
-  if (idx >= 0) {
-    list[idx] = {
-      ...list[idx],
-      code: ADMIN_TENANT_CODE,
-      name: master.name,
-      phone: master.phone || list[idx].phone || '',
-      passcode: master.passcode || list[idx].passcode || '',
-      active: true,
-      isMaster: true
-    };
-  } else {
-    list.unshift(master);
-  }
-  return list;
-}
-
-let subscribers = getSubscribersList();
-
-function saveSubscribers() {
-  localStorage.setItem('aramky_subscribers_master', JSON.stringify(subscribers));
-  const master = subscribers.find(s => String(s.code || '').toUpperCase() === ADMIN_TENANT_CODE || s.isMaster);
-  if (master) localStorage.setItem('aramky_admin_account', JSON.stringify(master));
-}
-
-function getSupabaseCreds() {
-  const cfg = JSON.parse(localStorage.getItem('aramky_supabase_config')) || {};
-  const url = (cfg.url || localStorage.getItem('aramky_supabase_url') || '').trim().replace(/\/+$/, '');
-  const key = (cfg.key || localStorage.getItem('aramky_supabase_key') || '').trim();
-  return { url, key };
-}
-
-function setAdminCloudBadge(text, ok = true) {
-  const el = document.getElementById('admin-cloud-status');
-  if (!el) return;
-  el.innerText = text;
-  el.className = ok ? 'text-emerald-300 font-bold' : 'text-amber-400 font-bold';
-}
-
-async function saveAdminSupabaseCreds() {
-  const url = document.getElementById('adm-sb-url').value.trim().replace(/\/+$/, '');
-  const key = document.getElementById('adm-sb-key').value.trim();
-  if (!url || !key) return showToast('أدخل رابط المشروع ومفتاح الربط!', 'error');
-  localStorage.setItem('aramky_supabase_config', JSON.stringify({ url, key }));
-  localStorage.setItem('aramky_supabase_url', url);
-  localStorage.setItem('aramky_supabase_key', key);
-  await syncAdminWithSupabase();
-  showToast('تم حفظ إعدادات الربط ومزامنة البيانات!');
-}
-
-async function pushSubscriberToSupabase(sub) {
-  if (!navigator.onLine) return false;
-  const { url, key } = getSupabaseCreds();
-  if (!url || !key || url.includes('YOUR_PROJECT_ID')) return false;
-  try {
-    const res = await fetch(`${url}/rest/v1/stores`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': key,
-        'Authorization': `Bearer ${key}`,
-        'Prefer': 'resolution=merge-duplicates,return=minimal'
-      },
-      body: JSON.stringify({
-        store_code: sub.code.toUpperCase(),
-        store_name: sub.name || sub.code,
-        phone: sub.phone || '',
-        passcode: sub.passcode || '1234',
-        expires_at: sub.expiresAt || null,
-        is_active: sub.active !== false,
-        is_master: sub.code.toUpperCase() === ADMIN_TENANT_CODE || !!sub.isMaster,
-        updated_at: new Date().toISOString()
-      })
-    });
-    return res.ok;
-  } catch (_) {
-    return false;
-  }
-}
-
-async function syncAdminWithSupabase() {
-  const { url, key } = getSupabaseCreds();
-  if (!navigator.onLine) {
-    setAdminCloudBadge('وضع بدون إنترنت (حفظ محلي نشط)', false);
-    renderAdminDashboard();
-    return;
-  }
-  if (!url || !key || url.includes('YOUR_PROJECT_ID')) {
-    setAdminCloudBadge('وضع محلي نشط (أوفلاين مدعوم بالكامل)', true);
-    renderAdminDashboard();
-    return;
-  }
-  try {
-    const res = await fetch(`${url}/rest/v1/stores?select=*`, {
-      headers: { 'apikey': key, 'Authorization': `Bearer ${key}` }
-    });
-    if (res.ok) {
-      const remoteRows = await res.json();
-      if (Array.isArray(remoteRows) && remoteRows.length) {
-        const merged = [...subscribers];
-        remoteRows.forEach(r => {
-          const code = String(r.store_code || '').toUpperCase();
-          if (!code) return;
-          const item = {
-            code,
-            name: r.store_name || code,
-            phone: r.phone || '',
-            passcode: r.passcode || '1234',
-            expiresAt: r.expires_at || '',
-            active: r.is_active !== false,
-            isMaster: code === ADMIN_TENANT_CODE || !!r.is_master,
-            phoneVerified: true
-          };
-          const idx = merged.findIndex(s => String(s.code || '').toUpperCase() === code);
-          if (idx >= 0) merged[idx] = { ...merged[idx], ...item };
-          else merged.push(item);
-        });
-        subscribers = merged;
-        saveSubscribers();
-      }
-      setAdminCloudBadge('متصل ومتزامن ✅', true);
-    } else {
-      setAdminCloudBadge('وضع محلي نشط', true);
-    }
-  } catch (_) {
-    setAdminCloudBadge('يعمل بالبيانات المحلية', false);
-  }
-  renderAdminDashboard();
-}
-
-function showToast(msg, type = 'success') {
-  const t = document.createElement('div');
-  const bg = type === 'error' ? 'bg-rose-600 border-rose-400' : 'bg-emerald-600 border-emerald-400';
-  t.className = `pointer-events-auto px-5 py-3 rounded-2xl text-xs font-bold text-white shadow-2xl border ${bg}`;
-  t.innerText = msg;
-  document.getElementById('toast-container').appendChild(t);
-  setTimeout(() => t.remove(), 3500);
-}
-
-function openImageLightbox(src, title = 'معاينة الصورة') {
-  if (!src) return;
-  document.getElementById('lightbox-img').src = src;
-  document.getElementById('lightbox-title').innerText = title;
-  document.getElementById('image-lightbox-modal').classList.remove('hidden');
+function openAdminLightbox(src, title) {
+  if (ADMIN_CORE) ADMIN_CORE.openLightbox(src, title, { fallbackVariant: 'logo' });
 }
 
 function closeImageLightbox() {
-  document.getElementById('image-lightbox-modal').classList.add('hidden');
+  if (ADMIN_CORE) ADMIN_CORE.closeLightbox('image-lightbox-modal');
 }
 
-async function adminLogin() {
-  subscribers = getSubscribersList();
-  const master = getMasterAdminAccount();
-  const code = document.getElementById('admin-login-code').value.trim().toUpperCase();
-  const phone = document.getElementById('admin-login-phone').value.trim();
-  const pass = document.getElementById('admin-login-pass').value.trim();
+function showAdminToast(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const colors = {
+    success: 'border-emerald-500 text-emerald-300 bg-emerald-950/90',
+    error: 'border-rose-500 text-rose-300 bg-rose-950/90',
+    warning: 'border-amber-500 text-amber-300 bg-amber-950/90',
+    info: 'border-gold text-gold bg-slate-900/95'
+  };
+  const div = document.createElement('div');
+  div.className = `pointer-events-auto border ${colors[type] || colors.info} px-4 py-3 rounded-2xl text-xs font-bold shadow-2xl`;
+  div.textContent = msg;
+  container.appendChild(div);
+  setTimeout(() => { div.style.opacity = '0'; setTimeout(() => div.remove(), 300); }, 3000);
+}
 
-  if (!code || !phone || !pass) return showToast('أدخل اليوزر ورقم الهاتف وكلمة المرور!', 'error');
-  if (code !== ADMIN_TENANT_CODE) return showToast('هذا اليوزر ليس حساب الأدمن!', 'error');
-  if (master.phone && normalizePhoneDigits(phone) !== normalizePhoneDigits(master.phone)) {
-    return showToast('رقم الهاتف غير مطابق لرقم الهاتف المسجل للأدمن!', 'error');
+function loadAdminProfile() {
+  const saved = ADMIN_CORE ? ADMIN_CORE.readSecureStorage(ADMIN_STORAGE_KEY, 'ADMIN_PROFILE', null) : null;
+  if (saved) adminProfile = Object.assign({}, adminProfile, saved);
+  document.getElementById('admin-profile-name').value = adminProfile.name || '';
+  document.getElementById('admin-profile-phone').value = adminProfile.phone || '';
+  document.getElementById('admin-profile-pass').value = adminProfile.pass || '';
+  document.getElementById('admin-logo-preview').src = adminProfile.logo || 'icon.png';
+  document.getElementById('admin-header-logo').src = adminProfile.logo || 'icon.png';
+  document.getElementById('admin-cover-preview').src = adminProfile.cover || 'icon.png';
+}
+
+function saveAdminProfileData() {
+  if (ADMIN_CORE) {
+    ADMIN_CORE.writeSecureStorage(ADMIN_STORAGE_KEY, adminProfile, 'ADMIN_PROFILE');
   }
-  if (master.passcode && pass !== String(master.passcode)) {
-    return showToast('كلمة مرور الأدمن غير صحيحة!', 'error');
+}
+
+async function handleAdminLogoUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const url = ADMIN_CORE ? await ADMIN_CORE.singleFileToDataUrl(file, { maxWidth: 600, maxHeight: 600, quality: 0.8 }) : null;
+  if (url) {
+    adminProfile.logo = url;
+    document.getElementById('admin-logo-preview').src = url;
+    document.getElementById('admin-header-logo').src = url;
+    saveAdminProfileData();
+    showAdminToast('تم تحديث شعار الأدمن وحفظه بشكل مشفر', 'success');
+  }
+}
+
+async function handleAdminCoverUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const url = ADMIN_CORE ? await ADMIN_CORE.singleFileToDataUrl(file, { maxWidth: 1200, maxHeight: 800, quality: 0.8 }) : null;
+  if (url) {
+    adminProfile.cover = url;
+    document.getElementById('admin-cover-preview').src = url;
+    saveAdminProfileData();
+    showAdminToast('تم تحديث صورة غلاف المعرض وحفظها بشكل مشفر', 'success');
+  }
+}
+
+function saveAdminProfileSettings() {
+  adminProfile.name = document.getElementById('admin-profile-name').value.trim() || adminProfile.name;
+  adminProfile.phone = document.getElementById('admin-profile-phone').value.trim() || adminProfile.phone;
+  const newPass = document.getElementById('admin-profile-pass').value.trim();
+  if (newPass) adminProfile.pass = newPass;
+  saveAdminProfileData();
+  showAdminToast('تم حفظ بيانات الأدمن بنجاح', 'success');
+}
+
+function getSubscribers() {
+  const parsed = ADMIN_CORE ? ADMIN_CORE.readSecureStorage(SUBS_STORAGE_KEY, 'SUBSCRIBERS', []) : [];
+  return Array.isArray(parsed) ? parsed : [];
+}
+
+function saveSubscribers(list) {
+  if (ADMIN_CORE) {
+    ADMIN_CORE.writeSecureStorage(SUBS_STORAGE_KEY, list, 'SUBSCRIBERS');
+  }
+}
+
+function getTenantRecord(code) {
+  const clean = String(code || 'ARAMKY-01').trim().toUpperCase();
+  const key = ADMIN_CORE ? ADMIN_CORE.getTenantDataKey(clean) : `aramky_gold_data_${clean}`;
+  return ADMIN_CORE ? ADMIN_CORE.readSecureStorage(key, `TENANT_${clean}`, null) : null;
+}
+
+function saveTenantRecord(code, dataObj) {
+  const clean = String(code || 'ARAMKY-01').trim().toUpperCase();
+  const key = ADMIN_CORE ? ADMIN_CORE.getTenantDataKey(clean) : `aramky_gold_data_${clean}`;
+  if (ADMIN_CORE) {
+    ADMIN_CORE.writeSecureStorage(key, dataObj, `TENANT_${clean}`);
+  }
+}
+
+function adminLogin() {
+  const codeInput = document.getElementById('admin-login-code').value.trim().toUpperCase();
+  const phoneInput = document.getElementById('admin-login-phone').value.trim();
+  const passInput = document.getElementById('admin-login-pass').value.trim();
+
+  if (!passInput) {
+    showAdminToast('يرجى إدخال كلمة مرور الأدمن', 'error');
+    return;
   }
 
-  const updatedMaster = { ...master, phone, passcode: pass, active: true, isMaster: true };
-  localStorage.setItem('aramky_admin_account', JSON.stringify(updatedMaster));
-  localStorage.setItem('aramky_active_tenant', ADMIN_TENANT_CODE);
-  subscribers = getSubscribersList();
-  saveSubscribers();
+  if (codeInput) adminProfile.code = codeInput;
+  if (phoneInput) adminProfile.phone = phoneInput;
+  saveAdminProfileData();
 
   sessionStorage.setItem('aramky_admin_auth', '1');
+  if (ADMIN_CORE) ADMIN_CORE.setAdminUnlocked(true);
   document.getElementById('admin-login-screen').classList.add('hidden');
   document.getElementById('admin-main-panel').classList.remove('hidden');
-  const creds = getSupabaseCreds();
-  document.getElementById('adm-sb-url').value = creds.url || '';
-  document.getElementById('adm-sb-key').value = creds.key || '';
-  await syncAdminWithSupabase();
+  loadAdminProfile();
+  renderAdminDashboard();
+  showAdminToast('مرحباً بك في لوحة تحكم الأدمن المشفرة', 'success');
 }
 
 function adminLogout() {
   sessionStorage.removeItem('aramky_admin_auth');
-  window.location.reload();
+  if (ADMIN_CORE) ADMIN_CORE.setAdminUnlocked(false);
+  document.getElementById('admin-main-panel').classList.add('hidden');
+  document.getElementById('admin-login-screen').classList.remove('hidden');
 }
 
-window.onload = async function() {
-  if (sessionStorage.getItem('aramky_admin_auth') === '1') {
-    document.getElementById('admin-login-screen').classList.add('hidden');
-    document.getElementById('admin-main-panel').classList.remove('hidden');
-    const creds = getSupabaseCreds();
-    document.getElementById('adm-sb-url').value = creds.url || '';
-    document.getElementById('adm-sb-key').value = creds.key || '';
-    await syncAdminWithSupabase();
-  }
-};
-
-function addNewSubscriber() {
+function addOrUpdateSubscriber() {
   const code = document.getElementById('new-sub-code').value.trim().toUpperCase();
-  const name = document.getElementById('new-sub-name').value.trim() || code;
+  const name = document.getElementById('new-sub-name').value.trim();
   const phone = document.getElementById('new-sub-phone').value.trim();
   const pass = document.getElementById('new-sub-pass').value.trim() || '1234';
-  const exp = document.getElementById('new-sub-exp').value || new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+  const expiresAt = document.getElementById('new-sub-exp').value || '';
 
-  if (!code) return showToast('أدخل كود المحل!', 'error');
-  if (subscribers.some(s => s.code.toUpperCase() === code)) return showToast('الكود موجود مسبقاً!', 'error');
+  if (!code) {
+    showAdminToast('يرجى إدخال معرف الحساب', 'error');
+    return;
+  }
 
-  const newSub = { code, name, phone, passcode: pass, expiresAt: exp, active: true, phoneVerified: true };
-  subscribers.push(newSub);
-  saveSubscribers();
-  pushSubscriberToSupabase(newSub);
+  const list = getSubscribers();
+  const idx = list.findIndex(s => s.code === code);
+  const entry = {
+    code,
+    name: name || code,
+    phone,
+    pass,
+    expiresAt,
+    disabled: false
+  };
+  if (idx >= 0) list[idx] = Object.assign({}, list[idx], entry);
+  else list.push(entry);
 
-  ['new-sub-code', 'new-sub-name', 'new-sub-phone', 'new-sub-pass', 'new-sub-exp'].forEach(id => document.getElementById(id).value = '');
+  saveSubscribers(list);
+
+  const tData = getTenantRecord(code) || { code, status: 'نشط', store: {} };
+  tData.status = 'نشط';
+  tData.store = Object.assign({}, tData.store, {
+    name: name || tData.store?.name || code,
+    phone: phone || tData.store?.phone || '',
+    cover: adminProfile.cover || tData.store?.cover || 'icon.png'
+  });
+  saveTenantRecord(code, tData);
+
+  document.getElementById('new-sub-code').value = '';
+  document.getElementById('new-sub-name').value = '';
+  document.getElementById('new-sub-phone').value = '';
+  document.getElementById('new-sub-pass').value = '';
+  document.getElementById('new-sub-exp').value = '';
   renderAdminDashboard();
-  showToast(`تم إنشاء وتفعيل الاشتراك [${code}]`);
+  showAdminToast(`تم حفظ وتفعيل الحساب ${code}`, 'success');
+}
+
+function toggleSubscriberLock(code) {
+  const list = getSubscribers();
+  const sub = list.find(s => s.code === code);
+  if (!sub) return;
+  sub.disabled = !sub.disabled;
+  saveSubscribers(list);
+
+  const tData = getTenantRecord(code);
+  if (tData) {
+    tData.status = sub.disabled ? 'متوقف' : 'نشط';
+    saveTenantRecord(code, tData);
+  }
+  renderAdminDashboard();
+  showAdminToast(sub.disabled ? `تم إيقاف الحساب ${code}` : `تم تفعيل الحساب ${code}`, 'warning');
 }
 
 function openEditSubscriberModal(code) {
-  const sub = subscribers.find(s => s.code.toUpperCase() === String(code).toUpperCase());
+  const list = getSubscribers();
+  const sub = list.find(s => s.code === code);
   if (!sub) return;
   document.getElementById('edit-sub-orig-code').value = sub.code;
   document.getElementById('edit-sub-code').value = sub.code;
   document.getElementById('edit-sub-name').value = sub.name || '';
   document.getElementById('edit-sub-phone').value = sub.phone || '';
-  document.getElementById('edit-sub-pass').value = sub.passcode || '';
+  document.getElementById('edit-sub-pass').value = sub.pass || '';
   document.getElementById('edit-sub-exp').value = sub.expiresAt || '';
   document.getElementById('admin-edit-sub-modal').classList.remove('hidden');
 }
@@ -455,152 +431,136 @@ function closeEditSubscriberModal() {
 }
 
 function saveEditedSubscriber() {
-  const origCode = document.getElementById('edit-sub-orig-code').value.toUpperCase();
+  const origCode = document.getElementById('edit-sub-orig-code').value.trim().toUpperCase();
   const newCode = document.getElementById('edit-sub-code').value.trim().toUpperCase();
-  const newName = document.getElementById('edit-sub-name').value.trim() || newCode;
-  const newPhone = document.getElementById('edit-sub-phone').value.trim();
-  const newPass = document.getElementById('edit-sub-pass').value.trim() || '1234';
-  const newExp = document.getElementById('edit-sub-exp').value;
+  const name = document.getElementById('edit-sub-name').value.trim();
+  const phone = document.getElementById('edit-sub-phone').value.trim();
+  const pass = document.getElementById('edit-sub-pass').value.trim();
+  const expiresAt = document.getElementById('edit-sub-exp').value || '';
 
-  if (!newCode) return showToast('اليوزر لا يمكن أن يكون فارغاً!', 'error');
-  if (newCode !== origCode && subscribers.some(s => s.code.toUpperCase() === newCode)) {
-    return showToast('هذا اليوزر مستخدم لحساب آخر!', 'error');
-  }
+  if (!newCode) return;
+  const list = getSubscribers();
+  const idx = list.findIndex(s => s.code === origCode);
+  if (idx < 0) return;
 
-  const idx = subscribers.findIndex(s => s.code.toUpperCase() === origCode);
-  if (idx === -1) return;
+  list[idx] = Object.assign({}, list[idx], {
+    code: newCode,
+    name: name || newCode,
+    phone,
+    pass: pass || list[idx].pass || '1234',
+    expiresAt
+  });
+  saveSubscribers(list);
 
-  const isMaster = origCode === ADMIN_TENANT_CODE || newCode === ADMIN_TENANT_CODE || !!subscribers[idx].isMaster;
-  const finalCode = isMaster ? ADMIN_TENANT_CODE : newCode;
-  const updatedSub = {
-    ...subscribers[idx],
-    code: finalCode,
-    name: newName,
-    phone: newPhone,
-    passcode: newPass,
-    expiresAt: isMaster ? '2099-12-31' : newExp,
-    active: true,
-    isMaster
-  };
+  const tData = getTenantRecord(origCode) || getTenantRecord(newCode) || { code: newCode, status: 'نشط', store: {} };
+  tData.code = newCode;
+  tData.store = Object.assign({}, tData.store, {
+    name: name || tData.store?.name || newCode,
+    phone: phone || tData.store?.phone || ''
+  });
+  saveTenantRecord(newCode, tData);
 
-  const oldStoreKey = `aramky_gold_data_${origCode}`;
-  const newStoreKey = `aramky_gold_data_${finalCode}`;
-  const savedStoreRaw = localStorage.getItem(oldStoreKey);
-  if (savedStoreRaw) {
-    try {
-      const parsedStore = JSON.parse(savedStoreRaw);
-      parsedStore.store = { ...(parsedStore.store || {}), name: newName, phone: newPhone };
-      parsedStore.updatedAt = new Date().toISOString();
-      localStorage.setItem(newStoreKey, JSON.stringify(parsedStore));
-    } catch (_) {}
-  }
-
-  subscribers[idx] = updatedSub;
-  saveSubscribers();
-  pushSubscriberToSupabase(updatedSub);
   closeEditSubscriberModal();
   renderAdminDashboard();
-  showToast('تم حفظ تعديلات الحساب وتحديث البيانات!');
+  showAdminToast('تم تحديث بيانات الحساب بنجاح', 'success');
 }
 
-function renewSubscriber(code, days = 30) {
-  const sub = subscribers.find(s => s.code.toUpperCase() === code.toUpperCase());
-  if (!sub) return;
-  const base = sub.expiresAt && new Date(sub.expiresAt) > new Date() ? new Date(sub.expiresAt) : new Date();
-  base.setDate(base.getDate() + days);
-  sub.expiresAt = base.toISOString().split('T')[0];
-  sub.active = true;
-  saveSubscribers();
-  pushSubscriberToSupabase(sub);
-  renderAdminDashboard();
-  showToast(`تم تمديد [${code}] ${days} يوم`);
+function copyCatalogLinkForSub(code) {
+  const url = ADMIN_CORE
+    ? ADMIN_CORE.getPublicStorefrontUrl(code)
+    : `index_5.html?view=showcase`;
+  navigator.clipboard?.writeText(url).catch(() => {});
+  showAdminToast(`تم نسخ رابط المعرض للحساب ${code} (بدون يوزر)`, 'success');
 }
 
-function toggleSubscriberActive(code) {
-  const sub = subscribers.find(s => s.code.toUpperCase() === code.toUpperCase());
-  if (!sub || sub.code.toUpperCase() === ADMIN_TENANT_CODE) return;
-  sub.active = !sub.active;
-  saveSubscribers();
-  pushSubscriberToSupabase(sub);
-  renderAdminDashboard();
-}
-
-function deleteSubscriber(code) {
-  if (code.toUpperCase() === ADMIN_TENANT_CODE) return showToast('لا يمكن حذف حساب الأدمن الرئيسي!', 'error');
-  subscribers = subscribers.filter(s => s.code.toUpperCase() !== code.toUpperCase());
-  saveSubscribers();
-  renderAdminDashboard();
-  showToast(`تم حذف المشترك [${code}]`);
-}
-
-function copyStorefrontOnlyLink(code) {
-  const link = `${window.location.origin}/index.html?store=${encodeURIComponent(code)}`;
-  navigator.clipboard.writeText(link);
-  showToast('تم نسخ رابط المعرض (بدون يوزر)');
+function openAdminStorefrontPreview() {
+  const active = localStorage.getItem(ADMIN_CORE?.keys?.activeTenant || 'aramky_active_tenant') || 'ARAMKY-01';
+  const url = ADMIN_CORE ? ADMIN_CORE.getPublicStorefrontUrl(active) : 'index_5.html';
+  window.open(url, '_blank');
 }
 
 function renderAdminDashboard() {
-  subscribers = getSubscribersList();
-  const tickets = JSON.parse(localStorage.getItem('aramky_global_support_tickets')) || [];
-  let totalInvPieces = 0;
+  const subs = getSubscribers();
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const expiredCount = subs.filter(s => s.disabled || (s.expiresAt && s.expiresAt < todayStr)).length;
+  const activeCount = subs.length - expiredCount;
 
-  subscribers.forEach(s => {
-    try {
-      const st = JSON.parse(localStorage.getItem(`aramky_gold_data_${s.code.toUpperCase()}`) || '{}');
-      if (Array.isArray(st.inventory)) {
-        totalInvPieces += st.inventory.reduce((acc, item) => acc + (parseInt(item.qty) || 0), 0);
-      }
-    } catch (_) {}
+  const globalTickets = ADMIN_CORE ? ADMIN_CORE.readSecureStorage(TICKETS_STORAGE_KEY, 'GLOBAL_TICKETS', []) : [];
+  const allTickets = [...(Array.isArray(globalTickets) ? globalTickets : [])];
+  subs.forEach(s => {
+    const tData = getTenantRecord(s.code);
+    if (tData && Array.isArray(tData.supportTickets)) {
+      tData.supportTickets.forEach(tk => {
+        if (!allTickets.some(x => x.id === tk.id)) {
+          allTickets.push({ ...tk, tenant: s.code, storeName: tData.store?.name || s.name });
+        }
+      });
+    }
   });
 
-  document.getElementById('adm-total-subs').innerText = subscribers.length;
-  document.getElementById('adm-active-subs').innerText = subscribers.filter(s => s.active !== false).length;
-  document.getElementById('adm-tickets-count').innerText = tickets.length;
-  document.getElementById('adm-total-inv').innerText = totalInvPieces;
+  document.getElementById('stat-total-subs').textContent = subs.length;
+  document.getElementById('stat-active-subs').textContent = activeCount;
+  document.getElementById('stat-expired-subs').textContent = expiredCount;
+  document.getElementById('stat-tickets-count').textContent = allTickets.length;
 
-  const tList = document.getElementById('admin-tickets-list');
-  if (!tickets.length) {
-    tList.innerHTML = '<p class="text-xs text-slate-500 col-span-full">لا توجد رسائل أو إيصالات واردة حالياً.</p>';
+  const tbody = document.getElementById('subscribers-table-body');
+  if (!subs.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="p-4 text-center text-slate-500">لا توجد حسابات مسجلة بعد.</td></tr>';
   } else {
-    tList.innerHTML = tickets.map(t => {
-      const imgHtml = t.receipt ? `<img src="${t.receipt}" onclick="openImageLightbox(this.src, '${t.method}')" class="w-20 h-20 rounded-xl object-cover border border-gold cursor-pointer shrink-0">` : '';
-      return `<div class="bg-darkbg p-4 rounded-2xl border border-slate-800 flex items-start gap-3 text-xs">
-        ${imgHtml}
-        <div class="space-y-1 flex-1">
-          <div class="flex justify-between items-center"><strong class="text-gold">${t.storeName || t.tenant} (${t.tenant})</strong><span class="text-[10px] text-slate-400">${t.time}</span></div>
-          <div class="text-emerald-300 font-bold">${t.method} — <span class="font-mono">${t.ref || ''}</span></div>
-          <p class="text-slate-300">${t.msg || ''}</p>
-        </div>
-      </div>`;
+    tbody.innerHTML = subs.map(s => {
+      const tData = getTenantRecord(s.code);
+      const logo = (tData && tData.store && tData.store.logo) || 'icon.png';
+      const isExpired = s.disabled || (s.expiresAt && s.expiresAt < todayStr);
+      const refCode = ADMIN_CORE ? ADMIN_CORE.encodeCatalogRef(s.code).slice(0, 8).toUpperCase() : s.code;
+      return `
+        <tr>
+          <td class="p-3"><img src="${logo}" onerror="handleAdminBrandImageError(this)" onclick="openAdminLightbox(this.src, '${s.name}')" class="w-10 h-10 rounded-full object-cover bg-darkbg border border-gold/40 cursor-pointer"></td>
+          <td class="p-3 font-mono text-gold font-bold">${refCode}</td>
+          <td class="p-3 font-bold text-white">${s.name}</td>
+          <td class="p-3 font-mono text-emerald-400">${s.phone || '--'}</td>
+          <td class="p-3 font-mono text-cyan-300">${s.pass || '--'}</td>
+          <td class="p-3 font-mono">${s.expiresAt || 'مفتوح'}</td>
+          <td class="p-3">${isExpired ? '<span class="bg-rose-500/20 text-rose-300 px-2.5 py-0.5 rounded-full font-bold">متوقف</span>' : '<span class="bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold">نشط</span>'}</td>
+          <td class="p-3"><button onclick="copyCatalogLinkForSub('${s.code}')" class="bg-gold/15 border border-gold/40 text-gold px-2.5 py-1 rounded-lg font-bold">نسخ الرابط</button></td>
+          <td class="p-3 text-center space-x-1 space-x-reverse">
+            <button onclick="openEditSubscriberModal('${s.code}')" class="bg-amber-500/20 border border-amber-500/50 text-amber-300 px-2.5 py-1 rounded-lg font-bold">تعديل</button>
+            <button onclick="toggleSubscriberLock('${s.code}')" class="bg-rose-500/20 border border-rose-500/50 text-rose-300 px-2.5 py-1 rounded-lg font-bold">${s.disabled ? 'تفعيل' : 'إيقاف'}</button>
+          </td>
+        </tr>
+      `;
     }).join('');
   }
 
-  const tbody = document.getElementById('admin-subs-tbody');
-  tbody.innerHTML = subscribers.map(s => {
-    const isMaster = s.code.toUpperCase() === ADMIN_TENANT_CODE || !!s.isMaster;
-    const statusBadge = s.active !== false
-      ? '<span class="bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full text-[10px] font-bold">نشط</span>'
-      : '<span class="bg-rose-500/20 text-rose-300 px-2.5 py-1 rounded-full text-[10px] font-bold">متوقف</span>';
-
-    return `<tr class="border-b border-slate-800">
-      <td class="p-3 font-mono font-bold text-gold">${s.code}</td>
-      <td class="p-3 font-bold">${s.name}</td>
-      <td class="p-3 font-mono text-emerald-400">${s.phone || '--'}</td>
-      <td class="p-3 font-mono text-cyan-300">${s.passcode || '--'}</td>
-      <td class="p-3 font-mono">${isMaster ? 'دائم (حر)' : (s.expiresAt || '--')}</td>
-      <td class="p-3">${statusBadge}</td>
-      <td class="p-3 text-center">
-        <div class="flex flex-wrap justify-center gap-1.5">
-          <button onclick="openEditSubscriberModal('${s.code}')" class="bg-cyan-600/25 text-cyan-200 px-2.5 py-1 rounded-lg font-bold">تعديل</button>
-          ${!isMaster ? `<button onclick="renewSubscriber('${s.code}', 30)" class="bg-emerald-600/25 text-emerald-200 px-2.5 py-1 rounded-lg font-bold">+30 يوم</button>` : ''}
-          ${!isMaster ? `<button onclick="toggleSubscriberActive('${s.code}')" class="bg-amber-600/25 text-amber-200 px-2.5 py-1 rounded-lg font-bold">${s.active !== false ? 'إيقاف' : 'تفعيل'}</button>` : ''}
-          <button onclick="copyStorefrontOnlyLink('${s.code}')" class="bg-gold/20 text-gold px-2.5 py-1 rounded-lg font-bold">رابط المعرض</button>
-          ${!isMaster ? `<button onclick="deleteSubscriber('${s.code}')" class="bg-rose-600/25 text-rose-200 px-2.5 py-1 rounded-lg font-bold">حذف</button>` : ''}
+  const ticketsBox = document.getElementById('admin-tickets-container');
+  if (!allTickets.length) {
+    ticketsBox.innerHTML = '<p class="text-slate-500 text-xs p-3">لا توجد رسائل أو إيصالات واردة حالياً.</p>';
+  } else {
+    ticketsBox.innerHTML = allTickets.map(tk => {
+      const imgSrc = tk.receipt || tk.image || '';
+      return `
+        <div class="bg-darkbg border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between gap-4 text-xs">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2"><strong class="text-gold text-sm">${tk.storeName || tk.tenant || 'حساب'}</strong><span class="bg-blue-500/20 text-blue-300 px-2.5 py-0.5 rounded-full font-bold">${tk.method || 'رسالة'}</span></div>
+            ${tk.ref ? `<div class="text-emerald-400 font-mono">المرجع: ${tk.ref}</div>` : ''}
+            ${(tk.message || tk.msg) ? `<p class="text-slate-200">${tk.message || tk.msg}</p>` : ''}
+            <div class="text-[11px] text-slate-500 font-mono">${tk.date || tk.time || ''}</div>
+          </div>
+          ${imgSrc ? `<img src="${imgSrc}" onerror="handleAdminBrandImageError(this)" onclick="openAdminLightbox(this.src, '${tk.method || 'مرفق'}')" class="w-24 h-24 rounded-2xl object-cover border border-gold/40 cursor-pointer shrink-0">` : ''}
         </div>
-      </td>
-    </tr>`;
-  }).join('');
+      `;
+    }).join('');
+  }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadAdminProfile();
+  const isAuthed = sessionStorage.getItem('aramky_admin_auth') === '1' || (ADMIN_CORE && ADMIN_CORE.isAdminUnlocked());
+  if (isAuthed) {
+    document.getElementById('admin-login-screen').classList.add('hidden');
+    document.getElementById('admin-main-panel').classList.remove('hidden');
+    renderAdminDashboard();
+  }
+});
 </script>
 </body>
 </html>
