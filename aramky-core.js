@@ -1,4 +1,4 @@
-/* ARAMKY Gold OS - Core Bridge, Cipher, Image Engine & Tenant Isolation (aramky-core.js) */
+/* ARAMKY Gold OS - Core Bridge, Cipher, Image Engine, Cloud Sync & Tenant Isolation (aramky-core.js) */
 (function (global) {
   'use strict';
 
@@ -35,8 +35,7 @@
       h1 = Math.imul(h1, 0x01000193);
       h2 = Math.imul(h2 ^ c, 0x27d4eb2d);
     }
-    const seed = `${(h1 >>> 0).toString(16)}${(h2 >>> 0).toString(16)}ARAMKY_KEY`;
-    return seed;
+    return `${(h1 >>> 0).toString(16)}${(h2 >>> 0).toString(16)}ARAMKY_KEY`;
   }
 
   function toBase64Utf8(str) {
@@ -71,6 +70,7 @@
       adminAccount: 'aramky_admin_account',
       supportTickets: 'aramky_global_support_tickets',
       supabaseConfig: 'aramky_supabase_config',
+      cloudSyncConfig: 'aramky_cloud_sync_config',
       adminSession: 'aramky_admin_unlocked'
     },
 
@@ -203,8 +203,80 @@
     },
 
     /* ==========================================
-       ☁️ تحميل الإعدادات بدون إجبار أو تعطيل أوفلاين
+       ☁️ مزامنة سحابية آمنة بدون مفاتيح مكشوفة في الكود
        ========================================== */
+    getCloudSyncConfig() {
+      const cfg = this.readSecureStorage(this.keys.cloudSyncConfig, 'CLOUD_SYNC', null);
+      if (cfg && cfg.enabled && cfg.endpointUrl) {
+        return {
+          enabled: true,
+          endpointUrl: String(cfg.endpointUrl).trim()
+        };
+      }
+      return { enabled: false, endpointUrl: '' };
+    },
+
+    configureCloudSync(endpointUrl, enabled = true) {
+      const cleanUrl = String(endpointUrl || '').trim();
+      return this.writeSecureStorage(
+        this.keys.cloudSyncConfig,
+        { enabled: Boolean(enabled && cleanUrl), endpointUrl: cleanUrl },
+        'CLOUD_SYNC'
+      );
+    },
+
+    async pushTenantSnapshot(tenantCode, snapshotObj) {
+      const cfg = this.getCloudSyncConfig();
+      if (!cfg.enabled || !cfg.endpointUrl || typeof fetch !== 'function') {
+        return { ok: false, skipped: true };
+      }
+      try {
+        const cleanCode = String(tenantCode || 'ARAMKY-01').trim().toUpperCase();
+        const sealedPayload = this.encryptPayload(
+          {
+            tenantCode: cleanCode,
+            syncedAt: new Date().toISOString(),
+            data: snapshotObj
+          },
+          `SYNC_${cleanCode}`
+        );
+        const res = await fetch(cfg.endpointUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ref: this.encodeCatalogRef(cleanCode),
+            envelope: sealedPayload
+          })
+        });
+        return { ok: res.ok, status: res.status };
+      } catch (err) {
+        return { ok: false, error: String(err && err.message ? err.message : err) };
+      }
+    },
+
+    async pullTenantSnapshot(tenantCode) {
+      const cfg = this.getCloudSyncConfig();
+      if (!cfg.enabled || !cfg.endpointUrl || typeof fetch !== 'function') {
+        return { ok: false, skipped: true };
+      }
+      try {
+        const cleanCode = String(tenantCode || 'ARAMKY-01').trim().toUpperCase();
+        const ref = encodeURIComponent(this.encodeCatalogRef(cleanCode));
+        const sep = cfg.endpointUrl.includes('?') ? '&' : '?';
+        const res = await fetch(`${cfg.endpointUrl}${sep}ref=${ref}`, { method: 'GET' });
+        if (!res.ok) return { ok: false, status: res.status };
+        const json = await res.json();
+        const envelope = json && (json.envelope || json.data || null);
+        const opened = envelope ? this.decryptPayload(envelope, `SYNC_${cleanCode}`) : null;
+        if (opened && opened.data) {
+          return { ok: true, data: opened.data, syncedAt: opened.syncedAt };
+        }
+        return { ok: false };
+      } catch (err) {
+        return { ok: false, error: String(err && err.message ? err.message : err) };
+      }
+    },
+
     async loadSafeSupabaseConfig() {
       const saved = this.readSecureStorage(this.keys.supabaseConfig, 'SUPABASE_CFG', null);
       if (saved && saved.url && saved.key) {
@@ -307,93 +379,7 @@
               const compressed = canvas.toDataURL(mimeType, quality);
               resolve(compressed || rawDataUrl);
             } catch (_) {
-              resolve(rawDataUrl);
-            }
-          };
-          img.onerror = () => resolve(rawDataUrl);
-          img.src = rawDataUrl;
-        };
-        reader.onerror = () => resolve(null);
-        reader.readAsDataURL(file);
-      });
-    },
-
-    async filesToDataUrls(fileList, options = {}) {
-      const files = Array.from(fileList || []);
-      if (!files.length) return [];
-      const results = await Promise.all(
-        files.map((file) => this.compressImageFile(file, options))
-      );
-      return results.filter(Boolean);
-    },
-
-    async singleFileToDataUrl(file, options = {}) {
-      const list = await this.filesToDataUrls(file ? [file] : [], options);
-      return list[0] || null;
-    },
-
-    openLightbox(src, title = 'معاينة الصورة', options = {}) {
-      if (!src) return;
-      const modalId = options.modalId || 'image-lightbox-modal';
-      const imgId = options.imgId || 'lightbox-img';
-      const titleId = options.titleId || 'lightbox-title';
-
-      const modalEl = document.getElementById(modalId);
-      const imgEl = document.getElementById(imgId);
-      const titleEl = document.getElementById(titleId);
-
-      if (titleEl) titleEl.textContent = title;
-      if (imgEl) {
-        delete imgEl.dataset.aramkyFallbackApplied;
-        imgEl.onerror = () => this.applyImageFallback(imgEl, options.fallbackVariant || 'logo');
-        imgEl.src = src;
-      }
-      if (modalEl) modalEl.classList.remove('hidden');
-    },
-
-    closeLightbox(modalId = 'image-lightbox-modal') {
-      const modalEl = document.getElementById(modalId);
-      if (modalEl) modalEl.classList.add('hidden');
-    },
-
-    renderGalleryThumbnails(containerEl, images = [], options = {}) {
-      if (!containerEl) return;
-      const list = Array.isArray(images) ? images : [];
-      if (!list.length) {
-        containerEl.innerHTML = `<span class="text-slate-500 text-[11px]">${options.emptyText || 'لا توجد صور مرفقة حالياً.'}</span>`;
-        return;
-      }
-      const onRemoveFn = options.onRemoveFn || 'removeEditGalleryImage';
-      containerEl.innerHTML = list
-        .map(
-          (src, idx) => `
-          <div class="relative w-16 h-16 rounded-xl overflow-hidden border border-gold/40 bg-darkbg">
-            <img src="${src}" onclick="ARAMKY_CORE.openLightbox(this.src, 'صورة القطعة #${idx + 1}')" onerror="ARAMKY_CORE.applyImageFallback(this, 'logo')" class="w-full h-full object-cover cursor-pointer">
-            <button type="button" onclick="${onRemoveFn}(${idx})" class="absolute top-0.5 left-0.5 bg-rose-600 text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center">✕</button>
-          </div>
-        `
-        )
-        .join('');
-    },
-
-    printReceiptOnly(paperWidthMm = 80) {
-      const styleId = 'aramky-thermal-print-style';
-      let styleEl = document.getElementById(styleId);
-      if (!styleEl) {
-        styleEl = document.createElement('style');
-        styleEl.id = styleId;
-        document.head.appendChild(styleEl);
-      }
-      styleEl.textContent = `
-        @media print {
-          @page { size: ${paperWidthMm}mm auto; margin: 2mm; }
-          body * { visibility: hidden !important; }
-          #invoice-modal, #invoice-modal * { visibility: visible !important; }
-          #invoice-modal {
-            position: fixed !important;
-            inset: 0 !important;
-            width: ${paperWidthMm}mm !important;
-            max-width: 100% !important;
+% !important;
             margin: 0 auto !important;
             background: #ffffff !important;
             color: #000000 !important;
@@ -416,3 +402,4 @@
     ARAMKY_CORE.syncAdminUiVisibility();
   });
 })(window);
+        
