@@ -1,5 +1,5 @@
 /**
- * ARAMKY Gold OS v28.1 — Core System Engine (Local + Render + Supabase)
+ * ARAMKY Gold OS v28.2 — Core System Engine (Local + Render + Supabase)
  * أرامكي للحلول الرقمية — فرع نواة الذهب
  */
 (function (global) {
@@ -9,7 +9,9 @@
 
   const KEYS = {
     activeTenant: `${STORAGE_PREFIX}active_tenant`,
+    tenantSession: `${STORAGE_PREFIX}tenant_session`,
     tenantsRegistry: `${STORAGE_PREFIX}tenants_registry`,
+    tenantsList: `${STORAGE_PREFIX}tenants_registry`,
     subscribersMaster: `${STORAGE_PREFIX}subscribers_master`,
     supportTickets: `${STORAGE_PREFIX}support_tickets`,
     adminAccount: `${STORAGE_PREFIX}admin_account`,
@@ -34,6 +36,8 @@
     supabaseTable: 'aramky_stores_data'
   };
 
+  let currentLang = 'ar';
+
   function xorCipher(str, secret) {
     const key = String(secret || 'ARAMKY_SECRET_KEY');
     let out = '';
@@ -54,7 +58,7 @@
       }
       const xored = xorCipher(binary, secret);
       return 'ARMK1:' + btoa(xored);
-    } catch (e) {
+    } catch (_) {
       return null;
     }
   }
@@ -74,7 +78,7 @@
         return JSON.parse(json);
       }
       return JSON.parse(raw);
-    } catch (e) {
+    } catch (_) {
       return null;
     }
   }
@@ -85,7 +89,7 @@
       if (!encoded) return false;
       localStorage.setItem(key, encoded);
       return true;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }
@@ -96,7 +100,7 @@
       if (!raw) return fallback;
       const decoded = decodePayload(raw, secret);
       return decoded !== null ? decoded : fallback;
-    } catch (e) {
+    } catch (_) {
       return fallback;
     }
   }
@@ -121,6 +125,36 @@
     return writeSecureStorage(KEYS.cloudConfig, next, 'CLOUD_CFG');
   }
 
+  async function hydrateCloudConfigFromServer() {
+    const current = getCloudConfig();
+    if (current.supabaseUrl && (current.supabaseKey || current.supabaseAnonKey)) {
+      return current;
+    }
+    const endpoints = ['/api/supabase-config', '/api/config'];
+    for (const ep of endpoints) {
+      try {
+        const res = await fetch(ep, { cache: 'no-store' });
+        if (!res.ok) continue;
+        const data = await res.json();
+        const url = data.supabaseUrl || data.url || data.SUPABASE_URL || '';
+        const key = data.supabaseAnonKey || data.supabaseKey || data.anonKey || data.key || data.SUPABASE_ANON_KEY || '';
+        const table = data.supabaseTable || data.table || data.SUPABASE_TABLE || current.supabaseTable || 'aramky_stores_data';
+        const renderBase = data.renderApiBase || data.apiBase || current.renderApiBase || '';
+        if (url && key) {
+          saveCloudConfig({
+            supabaseUrl: url,
+            supabaseKey: key,
+            supabaseAnonKey: key,
+            supabaseTable: table,
+            renderApiBase: renderBase
+          });
+          return getCloudConfig();
+        }
+      } catch (_) {}
+    }
+    return current;
+  }
+
   function isSupabaseReady() {
     const cfg = getCloudConfig();
     const key = cfg.supabaseKey || cfg.supabaseAnonKey;
@@ -130,14 +164,17 @@
   function getRenderEndpoint(path) {
     const cfg = getCloudConfig();
     const base = String(cfg.renderApiBase || '').trim().replace(/\/+$/, '');
-    if (!base) return '';
     const cleanPath = String(path || '').startsWith('/') ? String(path || '') : '/' + String(path || '');
-    return `${base}${cleanPath}`;
+    return base ? `${base}${cleanPath}` : cleanPath;
   }
 
   async function syncTenantToSupabase(tenantCode, payloadObj) {
-    const cfg = getCloudConfig();
-    const apiKey = cfg.supabaseKey || cfg.supabaseAnonKey;
+    let cfg = getCloudConfig();
+    let apiKey = cfg.supabaseKey || cfg.supabaseAnonKey;
+    if (!cfg.supabaseUrl || !apiKey) {
+      cfg = await hydrateCloudConfigFromServer();
+      apiKey = cfg.supabaseKey || cfg.supabaseAnonKey;
+    }
     if (!cfg.supabaseUrl || !apiKey || !tenantCode) {
       return { ok: false, skipped: true, reason: 'supabase_not_configured' };
     }
@@ -170,8 +207,12 @@
   }
 
   async function pullTenantFromSupabase(tenantCode) {
-    const cfg = getCloudConfig();
-    const apiKey = cfg.supabaseKey || cfg.supabaseAnonKey;
+    let cfg = getCloudConfig();
+    let apiKey = cfg.supabaseKey || cfg.supabaseAnonKey;
+    if (!cfg.supabaseUrl || !apiKey) {
+      cfg = await hydrateCloudConfigFromServer();
+      apiKey = cfg.supabaseKey || cfg.supabaseAnonKey;
+    }
     if (!cfg.supabaseUrl || !apiKey || !tenantCode) {
       return null;
     }
@@ -231,7 +272,7 @@
       let bin = '';
       bytes.forEach(b => (bin += String.fromCharCode(b)));
       return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    } catch (e) {
+    } catch (_) {
       return 'QVJBTUtZLTAx';
     }
   }
@@ -244,7 +285,7 @@
       const bytes = new Uint8Array(bin.length);
       for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
       return new TextDecoder().decode(bytes);
-    } catch (e) {
+    } catch (_) {
       return 'ARAMKY-01';
     }
   }
@@ -265,8 +306,11 @@
         phone: '07766083622',
         password: '',
         ownerName: 'المعرض الرئيسي — أرامكي',
+        storeName: 'ARAMKY | أرامكي للحلول الرقمية — فرع نواة الذهب',
         status: 'نشط',
         expiryDate: '2027-12-31',
+        expiry: '2027-12-31',
+        synced: false,
         createdAt: new Date().toISOString()
       }
     ];
@@ -275,7 +319,8 @@
   }
 
   function saveTenantsRegistry(list) {
-    return writeSecureStorage(KEYS.tenantsRegistry, Array.isArray(list) ? list : [], 'REGISTRY_MASTER');
+    const arr = Array.isArray(list) ? list : [];
+    return writeSecureStorage(KEYS.tenantsRegistry, arr, 'REGISTRY_MASTER');
   }
 
   function getSubscribersMaster() {
@@ -283,10 +328,10 @@
     if (Array.isArray(list) && list.length > 0) return list;
     return getTenantsRegistry().map(t => ({
       code: t.code,
-      name: t.ownerName || t.code,
+      name: t.ownerName || t.storeName || t.code,
       phone: t.phone || '',
       pass: t.password || '',
-      expiresAt: t.expiryDate || '',
+      expiresAt: t.expiryDate || t.expiry || '',
       disabled: t.status === 'متوقف'
     }));
   }
@@ -294,15 +339,21 @@
   function saveSubscribersMaster(list) {
     const arr = Array.isArray(list) ? list : [];
     writeSecureStorage(KEYS.subscribersMaster, arr, 'SUBSCRIBERS');
-    const syncedRegistry = arr.map(s => ({
-      code: s.code,
-      phone: s.phone || '',
-      password: s.pass || '',
-      ownerName: s.name || s.code,
-      status: s.disabled ? 'متوقف' : 'نشط',
-      expiryDate: s.expiresAt || '2027-12-31',
-      createdAt: new Date().toISOString()
-    }));
+    const prevReg = getTenantsRegistry();
+    const syncedRegistry = arr.map(s => {
+      const existing = prevReg.find(r => String(r.code).toUpperCase() === String(s.code).toUpperCase()) || {};
+      return Object.assign({}, existing, {
+        code: String(s.code).toUpperCase(),
+        phone: s.phone || existing.phone || '',
+        password: s.pass || existing.password || '',
+        ownerName: s.name || existing.ownerName || s.code,
+        storeName: s.name || existing.storeName || s.code,
+        status: s.disabled ? 'متوقف' : 'نشط',
+        expiryDate: s.expiresAt || existing.expiryDate || '2027-12-31',
+        expiry: s.expiresAt || existing.expiry || '2027-12-31',
+        createdAt: existing.createdAt || new Date().toISOString()
+      });
+    });
     saveTenantsRegistry(syncedRegistry);
     return true;
   }
@@ -325,13 +376,15 @@
         phone: cleanPhone,
         password: cleanPass,
         ownerName: `معرض ${cleanCode}`,
+        storeName: `معرض ${cleanCode}`,
         status: 'نشط',
         expiryDate: '2027-12-31',
+        expiry: '2027-12-31',
+        synced: false,
         createdAt: new Date().toISOString()
       };
       registry.push(newTenant);
       saveTenantsRegistry(registry);
-      localStorage.setItem(KEYS.activeTenant, cleanCode);
       return { ok: true, code: cleanCode, tenant: newTenant };
     }
 
@@ -342,8 +395,61 @@
       return { ok: false, message: 'كلمة المرور غير صحيحة' };
     }
 
-    localStorage.setItem(KEYS.activeTenant, cleanCode);
     return { ok: true, code: cleanCode, tenant: found };
+  }
+
+  function authenticateTenantCredentials(code, phone, password) {
+    return authenticateTenant(code, phone, password);
+  }
+
+  function persistTenantSession(code) {
+    const clean = String(code || 'ARAMKY-01').trim().toUpperCase();
+    try {
+      localStorage.setItem(KEYS.activeTenant, clean);
+      sessionStorage.setItem(KEYS.tenantSession, clean);
+      localStorage.setItem(KEYS.tenantSession, clean);
+    } catch (_) {}
+  }
+
+  function logoutTenantSession() {
+    try {
+      sessionStorage.removeItem(KEYS.tenantSession);
+      localStorage.removeItem(KEYS.tenantSession);
+    } catch (_) {}
+  }
+
+  function hasValidTenantSession() {
+    try {
+      return Boolean(sessionStorage.getItem(KEYS.tenantSession) || localStorage.getItem(KEYS.tenantSession));
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function getActiveTenantCode() {
+    try {
+      return String(
+        sessionStorage.getItem(KEYS.tenantSession) ||
+        localStorage.getItem(KEYS.activeTenant) ||
+        'ARAMKY-01'
+      ).trim().toUpperCase();
+    } catch (_) {
+      return 'ARAMKY-01';
+    }
+  }
+
+  function isSubscriptionExpired(tenantObj) {
+    if (!tenantObj) return false;
+    if (String(tenantObj.status || '').trim() === 'متوقف') return true;
+    const registry = getTenantsRegistry();
+    const regMatch = registry.find(t => String(t.code || '').toUpperCase() === String(tenantObj.code || '').toUpperCase());
+    if (regMatch && String(regMatch.status || '').trim() === 'متوقف') return true;
+    const expStr = (regMatch && (regMatch.expiryDate || regMatch.expiry)) || tenantObj.expiryDate || tenantObj.expiry;
+    if (expStr) {
+      const expTime = new Date(expStr).getTime();
+      if (!isNaN(expTime) && Date.now() > expTime + 86400000) return true;
+    }
+    return false;
   }
 
   function resolveActiveTenantOnLoad() {
@@ -407,19 +513,33 @@
     const cfg = getAdminConfig();
     const trimmed = String(inputPass || '').trim();
     if (trimmed === String(cfg.password || DEFAULT_ADMIN_PASSWORD) || trimmed === 'waad sdsd') {
-      sessionStorage.setItem(KEYS.adminSession, '1');
+      setAdminSessionActive(true);
       return true;
     }
     return false;
   }
 
+  function setAdminSessionActive(active) {
+    try {
+      if (active) {
+        sessionStorage.setItem(KEYS.adminSession, '1');
+      } else {
+        sessionStorage.removeItem(KEYS.adminSession);
+      }
+      syncAdminUiVisibility();
+    } catch (_) {}
+  }
+
   function isAdminSessionActive() {
-    return sessionStorage.getItem(KEYS.adminSession) === '1';
+    try {
+      return sessionStorage.getItem(KEYS.adminSession) === '1';
+    } catch (_) {
+      return false;
+    }
   }
 
   function logoutAdminSession() {
-    sessionStorage.removeItem(KEYS.adminSession);
-    syncAdminUiVisibility();
+    setAdminSessionActive(false);
   }
 
   function syncAdminUiVisibility() {
@@ -429,7 +549,20 @@
   }
 
   function navigateToAdmin() {
-    window.location.href = 'admin_2.html';
+    window.location.href = 'admin.html';
+  }
+
+  function openAdminPanelModal() {
+    setAdminSessionActive(true);
+    navigateToAdmin();
+  }
+
+  function setLanguage(lang) {
+    currentLang = lang === 'en' ? 'en' : 'ar';
+  }
+
+  function getLanguage() {
+    return currentLang;
   }
 
   function compressImageFile(file, options = {}) {
@@ -479,7 +612,7 @@
     return results.filter(Boolean);
   }
 
-  function applyImageFallback(imgEl) {
+  function applyImageFallback(imgEl, variant = 'logo') {
     if (!imgEl || imgEl.dataset.fallbackApplied === '1') return;
     const nextSrc = imgEl.getAttribute('data-next-src');
     if (nextSrc && imgEl.src && !imgEl.src.endsWith(nextSrc)) {
@@ -488,6 +621,8 @@
       return;
     }
     imgEl.dataset.fallbackApplied = '1';
+    const label = variant === 'cover' ? 'ARAMKY GOLD OS' : 'ARAMKY';
+    const fontSize = variant === 'cover' ? '22' : '28';
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
       <defs>
         <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
@@ -498,7 +633,7 @@
       </defs>
       <rect width="200" height="200" rx="36" fill="#070A12"/>
       <circle cx="100" cy="100" r="78" fill="none" stroke="url(#g)" stroke-width="5"/>
-      <text x="100" y="108" text-anchor="middle" fill="url(#g)" font-family="sans-serif" font-weight="900" font-size="28">ARAMKY</text>
+      <text x="100" y="108" text-anchor="middle" fill="url(#g)" font-family="sans-serif" font-weight="900" font-size="${fontSize}">${label}</text>
     </svg>`;
     imgEl.src = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
   }
@@ -513,18 +648,19 @@
     }
     containerEl.innerHTML = list.map((src, idx) => `
       <div class="relative w-16 h-16 rounded-xl overflow-hidden border border-gold/40 bg-darkbg">
-        <img src="${src}" onerror="window.ARAMKY_CORE.applyImageFallback(this)" class="w-full h-full object-cover">
+        <img src="${src}" onerror="window.ARAMKY_CORE.applyImageFallback(this, 'logo')" class="w-full h-full object-cover">
         <button type="button" onclick="${onRemoveFn}(${idx})" class="absolute top-0.5 left-0.5 bg-rose-600 text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center shadow">✕</button>
       </div>
     `).join('');
   }
 
-  function openLightbox(src, title) {
+  function openLightbox(src, title, options = {}) {
     const modal = document.getElementById('image-lightbox-modal');
     const img = document.getElementById('lightbox-img');
     const lbl = document.getElementById('lightbox-title');
     if (!modal || !img) return;
     delete img.dataset.fallbackApplied;
+    img.onerror = function () { applyImageFallback(img, options.fallbackVariant || 'logo'); };
     img.src = src || 'icon.png';
     if (lbl) lbl.textContent = title || 'معاينة الصورة';
     modal.classList.remove('hidden');
@@ -566,13 +702,14 @@
   }
 
   global.ARAMKY_CORE = {
-    version: '28.1',
+    version: '28.2',
     keys: KEYS,
     supportPhone: DEFAULT_CONTACT.supportPhone,
     writeSecureStorage,
     readSecureStorage,
     getCloudConfig,
     saveCloudConfig,
+    hydrateCloudConfigFromServer,
     isSupabaseReady,
     getRenderEndpoint,
     syncTenantToSupabase,
@@ -588,15 +725,25 @@
     getSubscribersMaster,
     saveSubscribersMaster,
     authenticateTenant,
+    authenticateTenantCredentials,
+    persistTenantSession,
+    logoutTenantSession,
+    hasValidTenantSession,
+    getActiveTenantCode,
+    isSubscriptionExpired,
     resolveActiveTenantOnLoad,
     getAdminConfig,
     saveAdminConfig,
     getContactInfo,
     verifyAdminPassword,
+    setAdminSessionActive,
     isAdminSessionActive,
     logoutAdminSession,
     syncAdminUiVisibility,
     navigateToAdmin,
+    openAdminPanelModal,
+    setLanguage,
+    getLanguage,
     filesToDataUrls,
     applyImageFallback,
     renderGalleryThumbnails,
