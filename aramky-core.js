@@ -37,6 +37,7 @@
   };
 
   let currentLang = 'ar';
+  let cloudConfigPromise = null;
 
   function xorCipher(str, secret) {
     const key = String(secret || 'ARAMKY_SECRET_KEY');
@@ -130,29 +131,39 @@
     if (current.supabaseUrl && (current.supabaseKey || current.supabaseAnonKey)) {
       return current;
     }
-    const endpoints = ['/api/supabase-config', '/api/config'];
-    for (const ep of endpoints) {
-      try {
-        const res = await fetch(ep, { cache: 'no-store' });
-        if (!res.ok) continue;
-        const data = await res.json();
-        const url = data.supabaseUrl || data.url || data.SUPABASE_URL || '';
-        const key = data.supabaseAnonKey || data.supabaseKey || data.anonKey || data.key || data.SUPABASE_ANON_KEY || '';
-        const table = data.supabaseTable || data.table || data.SUPABASE_TABLE || current.supabaseTable || 'aramky_stores_data';
-        const renderBase = data.renderApiBase || data.apiBase || current.renderApiBase || '';
-        if (url && key) {
-          saveCloudConfig({
-            supabaseUrl: url,
-            supabaseKey: key,
-            supabaseAnonKey: key,
-            supabaseTable: table,
-            renderApiBase: renderBase
-          });
-          return getCloudConfig();
-        }
-      } catch (_) {}
+    if (cloudConfigPromise) {
+      return cloudConfigPromise;
     }
-    return current;
+
+    cloudConfigPromise = (async () => {
+      const endpoints = ['/api/supabase-config', '/api/config'];
+      for (const ep of endpoints) {
+        try {
+          const res = await fetch(ep, { cache: 'no-store' });
+          if (!res.ok) continue;
+          const data = await res.json();
+          const url = data.supabaseUrl || data.url || data.SUPABASE_URL || '';
+          const key = data.supabaseAnonKey || data.supabaseKey || data.anonKey || data.key || data.SUPABASE_ANON_KEY || '';
+          const table = data.supabaseTable || data.table || data.SUPABASE_TABLE || current.supabaseTable || 'aramky_stores_data';
+          const renderBase = data.renderApiBase || data.apiBase || current.renderApiBase || '';
+          if (url && key) {
+            saveCloudConfig({
+              supabaseUrl: url,
+              supabaseKey: key,
+              supabaseAnonKey: key,
+              supabaseTable: table,
+              renderApiBase: renderBase
+            });
+            return getCloudConfig();
+          }
+        } catch (_) {}
+      }
+      return getCloudConfig();
+    })().finally(() => {
+      cloudConfigPromise = null;
+    });
+
+    return cloudConfigPromise;
   }
 
   function isSupabaseReady() {
@@ -168,6 +179,63 @@
     return base ? `${base}${cleanPath}` : cleanPath;
   }
 
+  function normalizeTenantPayload(payloadObj, tenantCode) {
+    const code = String(tenantCode || (payloadObj && payloadObj.code) || 'ARAMKY-01').trim().toUpperCase();
+    const base = Object.assign({
+      code,
+      status: 'نشط',
+      cash: 0,
+      usd: 0,
+      zain: 0,
+      makingProfit: 0,
+      prices: { usd: 150000, m24: 640000, m22: 585000, m21: 560000, m18: 480000, m9: 240000 },
+      inventory: [],
+      debts: [],
+      logs: [],
+      supportTickets: [],
+      store: {
+        name: 'ARAMKY | أرامكي للحلول الرقمية — فرع نواة الذهب',
+        phone: DEFAULT_CONTACT.supportPhone,
+        address: 'بغداد — سوق الكاظمية',
+        openTime: '09:00 صباحاً',
+        closeTime: '09:00 مساءً',
+        bio: 'نظام إدارة صياغة الذهب والمعرض الرقمي الذكي',
+        logo: 'icon.png',
+        cover: 'icon.png'
+      }
+    }, payloadObj || {});
+
+    base.code = code;
+    base.prices = Object.assign({}, { usd: 150000, m24: 640000, m22: 585000, m21: 560000, m18: 480000, m9: 240000 }, base.prices || {});
+    base.store = Object.assign({}, {
+      name: 'ARAMKY | أرامكي للحلول الرقمية — فرع نواة الذهب',
+      phone: DEFAULT_CONTACT.supportPhone,
+      address: 'بغداد — سوق الكاظمية',
+      openTime: '09:00 صباحاً',
+      closeTime: '09:00 مساءً',
+      bio: 'نظام إدارة صياغة الذهب والمعرض الرقمي الذكي',
+      logo: 'icon.png',
+      cover: 'icon.png'
+    }, base.store || {});
+    base.inventory = Array.isArray(base.inventory) ? base.inventory : [];
+    base.debts = Array.isArray(base.debts) ? base.debts.map(d => {
+      const amt = Number(d.amount || 0);
+      const absAmt = Math.abs(Number(d.absAmount !== undefined ? d.absAmount : amt));
+      const unit = d.unit === 'gold' ? 'gold' : 'money';
+      const category = d.category || (amt >= 0 ? 'on_them' : 'on_us');
+      return Object.assign({}, d, {
+        unit,
+        category,
+        amount: amt,
+        absAmount: absAmt,
+        actionKind: d.actionKind || (amt >= 0 ? 'زيادة (+)' : 'نقصان (-)')
+      });
+    }) : [];
+    base.logs = Array.isArray(base.logs) ? base.logs : [];
+    base.supportTickets = Array.isArray(base.supportTickets) ? base.supportTickets : [];
+    return base;
+  }
+
   async function syncTenantToSupabase(tenantCode, payloadObj) {
     let cfg = getCloudConfig();
     let apiKey = cfg.supabaseKey || cfg.supabaseAnonKey;
@@ -178,6 +246,8 @@
     if (!cfg.supabaseUrl || !apiKey || !tenantCode) {
       return { ok: false, skipped: true, reason: 'supabase_not_configured' };
     }
+    const cleanCode = String(tenantCode).trim().toUpperCase();
+    const normalized = normalizeTenantPayload(payloadObj, cleanCode);
     const baseUrl = String(cfg.supabaseUrl).replace(/\/+$/, '');
     const table = encodeURIComponent(cfg.supabaseTable || 'aramky_stores_data');
     const endpoint = `${baseUrl}/rest/v1/${table}?on_conflict=tenant_code`;
@@ -192,8 +262,8 @@
           'Prefer': 'resolution=merge-duplicates,return=minimal'
         },
         body: JSON.stringify([{
-          tenant_code: String(tenantCode).trim().toUpperCase(),
-          payload: payloadObj,
+          tenant_code: cleanCode,
+          payload: normalized,
           updated_at: new Date().toISOString()
         }])
       });
@@ -216,9 +286,10 @@
     if (!cfg.supabaseUrl || !apiKey || !tenantCode) {
       return null;
     }
+    const cleanCode = String(tenantCode).trim().toUpperCase();
     const baseUrl = String(cfg.supabaseUrl).replace(/\/+$/, '');
     const table = encodeURIComponent(cfg.supabaseTable || 'aramky_stores_data');
-    const code = encodeURIComponent(String(tenantCode).trim().toUpperCase());
+    const code = encodeURIComponent(cleanCode);
     const endpoint = `${baseUrl}/rest/v1/${table}?tenant_code=eq.${code}&select=payload,updated_at&limit=1`;
 
     try {
@@ -232,7 +303,7 @@
       if (!res.ok) return null;
       const rows = await res.json();
       if (Array.isArray(rows) && rows[0] && rows[0].payload) {
-        return rows[0].payload;
+        return normalizeTenantPayload(rows[0].payload, cleanCode);
       }
       return null;
     } catch (_) {
@@ -712,6 +783,7 @@
     hydrateCloudConfigFromServer,
     isSupabaseReady,
     getRenderEndpoint,
+    normalizeTenantPayload,
     syncTenantToSupabase,
     pullTenantFromSupabase,
     postToRenderBackend,
