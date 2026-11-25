@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify, send_from_directory, abort
+from flask import Flask, jsonify, send_from_directory, abort, make_response
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -12,13 +12,14 @@ app = Flask(
 ALLOWED_STATIC_FILES = {
     "index.html",
     "admin.html",
+    "admin_3.html",
     "aramky-core.js",
     "aramky-i18n.js",
     "main.js",
+    "sw.js",
     "icon.png",
     "manifest.json",
     "manifest_5.json",
-    "aramky-splash-logo.png",
 }
 
 
@@ -41,6 +42,22 @@ def home():
 @app.route("/admin.html")
 def admin_page():
     return _serve_html_file("admin.html")
+
+
+@app.route("/admin_3.html")
+def admin_v3_page():
+    return _serve_html_file("admin_3.html")
+
+
+@app.route("/sw.js")
+def service_worker():
+    sw_path = os.path.join(BASE_DIR, "sw.js")
+    if not os.path.isfile(sw_path):
+        abort(404)
+    resp = make_response(send_from_directory(BASE_DIR, "sw.js", mimetype="application/javascript"))
+    resp.headers["Service-Worker-Allowed"] = "/"
+    resp.headers["Cache-Control"] = "no-cache"
+    return resp
 
 
 @app.route("/api/supabase-config", methods=["GET"])
