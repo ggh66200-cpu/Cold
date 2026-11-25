@@ -1,138 +1,556 @@
-(function () {
-  const ADMIN_PASS_HASH = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"; // default: 123456 (sha256)
-  const SUPPORT_PHONE = "07766083622";
-  const MASTER_CARD = "910400201646";
-  const PUBLIC_BRAND = "ARAMKY";
+/**
+ * ARAMKY Gold OS v28.1 — Core System Engine (Local + Render + Supabase)
+ * أرامكي للحلول الرقمية — فرع نواة الذهب
+ */
+(function (global) {
+  'use strict';
+
+  const STORAGE_PREFIX = 'aramky_gold_v28_';
 
   const KEYS = {
-    activeTenant: "aramky_active_tenant_code",
-    adminSession: "aramky_admin_session_active",
-    supportTickets: "aramky_global_support_tickets",
-    tenantPrefix: "aramky_tenant_vault_"
+    activeTenant: `${STORAGE_PREFIX}active_tenant`,
+    tenantsRegistry: `${STORAGE_PREFIX}tenants_registry`,
+    adminSession: `${STORAGE_PREFIX}admin_session`,
+    adminConfig: `${STORAGE_PREFIX}admin_config`,
+    cloudConfig: `${STORAGE_PREFIX}cloud_config`
   };
 
-  function obfuscateCode(code) {
-    const clean = String(code || "ARAMKY-01").trim().toUpperCase();
+  const DEFAULT_ADMIN_PASSWORD = 'ARAMKY-ADMIN-2026';
+
+  const DEFAULT_CONTACT = {
+    masterCardNumber: '910400201646',
+    supportPhone: '07766083622',
+    whatsappUrl: 'https://wa.me/9647766083622'
+  };
+
+  const DEFAULT_CLOUD = {
+    renderApiBase: '',
+    supabaseUrl: '',
+    supabaseAnonKey: '',
+    supabaseTable: 'aramky_stores_data'
+  };
+
+  function xorCipher(str, secret) {
+    const key = String(secret || 'ARAMKY_SECRET_KEY');
+    let out = '';
+    for (let i = 0; i < str.length; i++) {
+      const charCode = str.charCodeAt(i) ^ key.charCodeAt(i % key.length);
+      out += String.fromCharCode(charCode);
+    }
+    return out;
+  }
+
+  function encodePayload(obj, secret) {
     try {
-      return btoa(unescape(encodeURIComponent(clean))).replace(/=+$/, "");
-    } catch (_) {
-      return clean;
+      const json = JSON.stringify(obj);
+      const utf8Bytes = new TextEncoder().encode(json);
+      let binary = '';
+      for (let i = 0; i < utf8Bytes.length; i++) {
+        binary += String.fromCharCode(utf8Bytes[i]);
+      }
+      const xored = xorCipher(binary, secret);
+      return 'ARMK1:' + btoa(xored);
+    } catch (e) {
+      return null;
     }
   }
 
-  function deobfuscateCode(token) {
-    if (!token) return "ARAMKY-01";
+  function decodePayload(raw, secret) {
+    if (!raw || typeof raw !== 'string') return null;
     try {
-      let padded = String(token).trim();
-      while (padded.length % 4) padded += "=";
-      const decoded = decodeURIComponent(escape(atob(padded)));
-      return /^[A-Z0-9_-]{2,32}$/i.test(decoded) ? decoded.toUpperCase() : "ARAMKY-01";
-    } catch (_) {
-      return "ARAMKY-01";
+      if (raw.startsWith('ARMK1:')) {
+        const b64 = raw.slice(6);
+        const xored = atob(b64);
+        const binary = xorCipher(xored, secret);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        const json = new TextDecoder().decode(bytes);
+        return JSON.parse(json);
+      }
+      return JSON.parse(raw);
+    } catch (e) {
+      return null;
     }
   }
 
-  function getTenantStorageKey(code) {
-    const safe = String(code || "ARAMKY-01").trim().toUpperCase().replace(/[^A-Z0-9_-]/g, "_");
-    return `${KEYS.tenantPrefix}${safe}`;
-  }
-
-  function readStorage(key, fallback) {
+  function writeSecureStorage(key, data, secret) {
     try {
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : fallback;
-    } catch (_) {
-      return fallback;
-    }
-  }
-
-  function writeStorage(key, value) {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
+      const encoded = encodePayload(data, secret);
+      if (!encoded) return false;
+      localStorage.setItem(key, encoded);
       return true;
-    } catch (_) {
+    } catch (e) {
       return false;
     }
   }
 
-  function simpleSha256Fallback(str) {
-    let h = 0x811c9dc5;
-    for (let i = 0; i < str.length; i++) {
-      h ^= str.charCodeAt(i);
-      h = Math.imul(h, 0x01000193);
+  function readSecureStorage(key, secret, fallback = null) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return fallback;
+      const decoded = decodePayload(raw, secret);
+      return decoded !== null ? decoded : fallback;
+    } catch (e) {
+      return fallback;
     }
-    return (h >>> 0).toString(16);
   }
 
-  async function hashText(text) {
-    const clean = String(text || "");
-    if (window.crypto && window.crypto.subtle) {
-      const buf = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(clean));
-      return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  function getCloudConfig() {
+    const saved = readSecureStorage(KEYS.cloudConfig, 'CLOUD_CFG', {});
+    const injected = (global.ARAMKY_ENV && typeof global.ARAMKY_ENV === 'object') ? global.ARAMKY_ENV : {};
+    return Object.assign({}, DEFAULT_CLOUD, saved || {}, injected);
+  }
+
+  function saveCloudConfig(partialCfg) {
+    const current = readSecureStorage(KEYS.cloudConfig, 'CLOUD_CFG', {});
+    const merged = Object.assign({}, DEFAULT_CLOUD, current || {}, partialCfg || {});
+    return writeSecureStorage(KEYS.cloudConfig, merged, 'CLOUD_CFG');
+  }
+
+  function isSupabaseReady() {
+    const cfg = getCloudConfig();
+    return Boolean(cfg.supabaseUrl && cfg.supabaseAnonKey);
+  }
+
+  function getRenderEndpoint(path) {
+    const cfg = getCloudConfig();
+    const base = String(cfg.renderApiBase || '').trim().replace(/\/+$/, '');
+    if (!base) return '';
+    const cleanPath = String(path || '').startsWith('/') ? String(path || '') : '/' + String(path || '');
+    return `${base}${cleanPath}`;
+  }
+
+  // مزامنة بيانات الحساب مع Supabase عبر REST API (إن كانت المفاتيح مضبوطة)
+  async function syncTenantToSupabase(tenantCode, payloadObj) {
+    const cfg = getCloudConfig();
+    if (!cfg.supabaseUrl || !cfg.supabaseAnonKey || !tenantCode) {
+      return { ok: false, skipped: true, reason: 'supabase_not_configured' };
     }
-    return simpleSha256Fallback(clean);
+    const baseUrl = String(cfg.supabaseUrl).replace(/\/+$/, '');
+    const table = encodeURIComponent(cfg.supabaseTable || 'aramky_stores_data');
+    const endpoint = `${baseUrl}/rest/v1/${table}?on_conflict=tenant_code`;
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': cfg.supabaseAnonKey,
+          'Authorization': `Bearer ${cfg.supabaseAnonKey}`,
+          'Prefer': 'resolution=merge-duplicates,return=minimal'
+        },
+        body: JSON.stringify([{
+          tenant_code: String(tenantCode).trim().toUpperCase(),
+          payload: payloadObj,
+          updated_at: new Date().toISOString()
+        }])
+      });
+      if (!res.ok) {
+        return { ok: false, status: res.status };
+      }
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
+  }
+
+  async function pullTenantFromSupabase(tenantCode) {
+    const cfg = getCloudConfig();
+    if (!cfg.supabaseUrl || !cfg.supabaseAnonKey || !tenantCode) {
+      return null;
+    }
+    const baseUrl = String(cfg.supabaseUrl).replace(/\/+$/, '');
+    const table = encodeURIComponent(cfg.supabaseTable || 'aramky_stores_data');
+    const code = encodeURIComponent(String(tenantCode).trim().toUpperCase());
+    const endpoint = `${baseUrl}/rest/v1/${table}?tenant_code=eq.${code}&select=payload,updated_at&limit=1`;
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'apikey': cfg.supabaseAnonKey,
+          'Authorization': `Bearer ${cfg.supabaseAnonKey}`
+        }
+      });
+      if (!res.ok) return null;
+      const rows = await res.json();
+      if (Array.isArray(rows) && rows[0] && rows[0].payload) {
+        return rows[0].payload;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async function postToRenderBackend(path, bodyObj) {
+    const url = getRenderEndpoint(path);
+    if (!url) return { ok: false, skipped: true };
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyObj || {})
+      });
+      return { ok: res.ok, status: res.status };
+    } catch (err) {
+      return { ok: false, error: String(err) };
+    }
+  }
+
+  function getTenantDataKey(code) {
+    const clean = String(code || 'ARAMKY-01').trim().toUpperCase();
+    return `${STORAGE_PREFIX}tenant_data_${clean}`;
+  }
+
+  function getCustomerLedgerKey(tenantCode, customerKey) {
+    const tClean = String(tenantCode || 'ARAMKY-01').trim().toUpperCase();
+    const cClean = encodeCatalogRef(customerKey || 'GENERAL').replace(/[^A-Za-z0-9]/g, '').slice(0, 24);
+    return `${STORAGE_PREFIX}ledger_${tClean}_${cClean}`;
+  }
+
+  function encodeCatalogRef(text) {
+    try {
+      const bytes = new TextEncoder().encode(String(text || 'ARAMKY-01'));
+      let bin = '';
+      bytes.forEach(b => (bin += String.fromCharCode(b)));
+      return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    } catch (e) {
+      return 'QVJBTUtZLTAx';
+    }
+  }
+
+  function decodeCatalogRef(ref) {
+    try {
+      let b64 = String(ref || '').replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return new TextDecoder().decode(bytes);
+    } catch (e) {
+      return 'ARAMKY-01';
+    }
+  }
+
+  function getPublicStorefrontUrl(tenantCode) {
+    const baseUrl = window.location.href.split('#')[0].split('?')[0];
+    const ref = encodeCatalogRef(String(tenantCode || 'ARAMKY-01').trim().toUpperCase());
+    return `${baseUrl}?view=showcase&ref=${encodeURIComponent(ref)}`;
+  }
+
+  function getTenantsRegistry() {
+    const list = readSecureStorage(KEYS.tenantsRegistry, 'REGISTRY_MASTER', null);
+    if (Array.isArray(list) && list.length > 0) return list;
+
+    const defaults = [
+      {
+        code: 'ARAMKY-01',
+        phone: '07766083622',
+        password: '',
+        ownerName: 'المعرض الرئيسي — أرامكي',
+        status: 'نشط',
+        expiryDate: '2027-12-31',
+        createdAt: new Date().toISOString()
+      }
+    ];
+    writeSecureStorage(KEYS.tenantsRegistry, defaults, 'REGISTRY_MASTER');
+    return defaults;
+  }
+
+  function saveTenantsRegistry(list) {
+    return writeSecureStorage(KEYS.tenantsRegistry, Array.isArray(list) ? list : [], 'REGISTRY_MASTER');
+  }
+
+  function authenticateTenant(code, phone, password) {
+    const cleanCode = String(code || '').trim().toUpperCase();
+    const cleanPhone = String(phone || '').trim();
+    const cleanPass = String(password || '').trim();
+
+    if (!cleanCode) {
+      return { ok: false, message: 'يرجى إدخال معرف الحساب' };
+    }
+
+    const registry = getTenantsRegistry();
+    const found = registry.find(t => String(t.code || '').toUpperCase() === cleanCode);
+
+    if (!found) {
+      const newTenant = {
+        code: cleanCode,
+        phone: cleanPhone,
+        password: cleanPass,
+        ownerName: `معرض ${cleanCode}`,
+        status: 'نشط',
+        expiryDate: '2027-12-31',
+        createdAt: new Date().toISOString()
+      };
+      registry.push(newTenant);
+      saveTenantsRegistry(registry);
+      localStorage.setItem(KEYS.activeTenant, cleanCode);
+      return { ok: true, code: cleanCode, tenant: newTenant };
+    }
+
+    if (found.phone && cleanPhone && found.phone !== cleanPhone) {
+      return { ok: false, message: 'رقم الهاتف غير مطابق لهذا الحساب' };
+    }
+    if (found.password && found.password !== cleanPass) {
+      return { ok: false, message: 'كلمة المرور غير صحيحة' };
+    }
+
+    localStorage.setItem(KEYS.activeTenant, cleanCode);
+    return { ok: true, code: cleanCode, tenant: found };
+  }
+
+  function resolveActiveTenantOnLoad() {
+    const params = new URLSearchParams(window.location.search);
+    const viewParam = params.get('view');
+    const refParam = params.get('ref');
+
+    if (viewParam === 'showcase') {
+      const decodedCode = refParam ? decodeCatalogRef(refParam) : (localStorage.getItem(KEYS.activeTenant) || 'ARAMKY-01');
+      return {
+        code: String(decodedCode || 'ARAMKY-01').toUpperCase(),
+        publicOnly: true,
+        requireLogin: false
+      };
+    }
+
+    const saved = localStorage.getItem(KEYS.activeTenant);
+    if (saved) {
+      return {
+        code: saved.toUpperCase(),
+        publicOnly: false,
+        requireLogin: false
+      };
+    }
+
+    localStorage.setItem(KEYS.activeTenant, 'ARAMKY-01');
+    return {
+      code: 'ARAMKY-01',
+      publicOnly: false,
+      requireLogin: false
+    };
+  }
+
+  function getAdminConfig() {
+    const cfg = readSecureStorage(KEYS.adminConfig, 'ADMIN_CFG', null);
+    return Object.assign({
+      password: DEFAULT_ADMIN_PASSWORD,
+      masterCardNumber: DEFAULT_CONTACT.masterCardNumber,
+      supportPhone: DEFAULT_CONTACT.supportPhone
+    }, cfg || {});
+  }
+
+  function saveAdminConfig(newCfg) {
+    const current = getAdminConfig();
+    const merged = Object.assign(current, newCfg || {});
+    return writeSecureStorage(KEYS.adminConfig, merged, 'ADMIN_CFG');
+  }
+
+  function getContactInfo() {
+    const cfg = getAdminConfig();
+    const cleanPhone = String(cfg.supportPhone || DEFAULT_CONTACT.supportPhone).replace(/\D/g, '');
+    const intlPhone = cleanPhone.startsWith('0') ? '964' + cleanPhone.slice(1) : cleanPhone;
+    return {
+      masterCardNumber: cfg.masterCardNumber || DEFAULT_CONTACT.masterCardNumber,
+      supportPhone: cfg.supportPhone || DEFAULT_CONTACT.supportPhone,
+      whatsappUrl: `https://wa.me/${intlPhone}`
+    };
+  }
+
+  function verifyAdminPassword(inputPass) {
+    const cfg = getAdminConfig();
+    if (String(inputPass || '').trim() === String(cfg.password || DEFAULT_ADMIN_PASSWORD)) {
+      sessionStorage.setItem(KEYS.adminSession, '1');
+      return true;
+    }
+    return false;
   }
 
   function isAdminSessionActive() {
-    return sessionStorage.getItem(KEYS.adminSession) === "1" || localStorage.getItem(KEYS.adminSession) === "1";
+    return sessionStorage.getItem(KEYS.adminSession) === '1';
   }
 
-  function setAdminSessionActive(active) {
-    if (active) {
-      sessionStorage.setItem(KEYS.adminSession, "1");
-      localStorage.setItem(KEYS.adminSession, "1");
-    } else {
-      sessionStorage.removeItem(KEYS.adminSession);
-      localStorage.removeItem(KEYS.adminSession);
-    }
+  function logoutAdminSession() {
+    sessionStorage.removeItem(KEYS.adminSession);
     syncAdminUiVisibility();
   }
 
-  async function verifyAdminPassword(inputPass) {
-    const customHash = localStorage.getItem("aramky_admin_pass_hash");
-    const targetHash = customHash || ADMIN_PASS_HASH;
-    const h = await hashText(inputPass);
-    return h === targetHash;
-  }
-
   function syncAdminUiVisibility() {
-    const adminBtnWrap = document.getElementById("admin-btn-container");
-    if (adminBtnWrap) {
-      adminBtnWrap.classList.toggle("hidden", !isAdminSessionActive());
+    const container = document.getElementById('admin-btn-container');
+    if (!container) return;
+    container.classList.toggle('hidden', !isAdminSessionActive());
+  }
+
+  function compressImageFile(file, options = {}) {
+    const maxWidth = options.maxWidth || 1024;
+    const maxHeight = options.maxHeight || 1024;
+    const quality = options.quality || 0.78;
+
+    return new Promise((resolve) => {
+      if (!file || !file.type || !file.type.startsWith('image/')) {
+        resolve(null);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onerror = () => resolve(null);
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onerror = () => resolve(ev.target.result);
+        img.onload = () => {
+          let w = img.width;
+          let h = img.height;
+          if (w > maxWidth || h > maxHeight) {
+            const ratio = Math.min(maxWidth / w, maxHeight / h);
+            w = Math.round(w * ratio);
+            h = Math.round(h * ratio);
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          try {
+            const mime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+            resolve(canvas.toDataURL(mime, quality));
+          } catch (_) {
+            resolve(ev.target.result);
+          }
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function filesToDataUrls(fileList, options = {}) {
+    const files = Array.from(fileList || []);
+    const results = await Promise.all(files.map(f => compressImageFile(f, options)));
+    return results.filter(Boolean);
+  }
+
+  function applyImageFallback(imgEl) {
+    if (!imgEl || imgEl.dataset.fallbackApplied === '1') return;
+    const nextSrc = imgEl.getAttribute('data-next-src');
+    if (nextSrc && imgEl.src && !imgEl.src.endsWith(nextSrc)) {
+      imgEl.removeAttribute('data-next-src');
+      imgEl.src = nextSrc;
+      return;
     }
+    imgEl.dataset.fallbackApplied = '1';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#BF953F"/>
+          <stop offset="50%" stop-color="#FCF6BA"/>
+          <stop offset="100%" stop-color="#AA771C"/>
+        </linearGradient>
+      </defs>
+      <rect width="200" height="200" rx="36" fill="#070A12"/>
+      <circle cx="100" cy="100" r="78" fill="none" stroke="url(#g)" stroke-width="5"/>
+      <text x="100" y="108" text-anchor="middle" fill="url(#g)" font-family="sans-serif" font-weight="900" font-size="28">ARAMKY</text>
+    </svg>`;
+    imgEl.src = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
   }
 
-  function applyImageFallback(img) {
-    if (!img) return;
-    if (!img.dataset.fallbackApplied) {
-      img.dataset.fallbackApplied = "1";
-      img.onerror = null;
-      img.src = "/icon.png";
+  function renderGalleryThumbnails(containerEl, images, options = {}) {
+    if (!containerEl) return;
+    const list = Array.isArray(images) ? images : [];
+    const onRemoveFn = options.onRemoveFn || 'removeEditGalleryImage';
+    if (!list.length) {
+      containerEl.innerHTML = '<span class="text-slate-500 text-[11px]">لا توجد صور مرفقة حالياً.</span>';
+      return;
     }
+    containerEl.innerHTML = list.map((src, idx) => `
+      <div class="relative w-16 h-16 rounded-xl overflow-hidden border border-gold/40 bg-darkbg">
+        <img src="${src}" onerror="window.ARAMKY_CORE.applyImageFallback(this)" class="w-full h-full object-cover">
+        <button type="button" onclick="${onRemoveFn}(${idx})" class="absolute top-0.5 left-0.5 bg-rose-600 text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center shadow">✕</button>
+      </div>
+    `).join('');
   }
 
-  function getClientShareUrl(tenantCode) {
-    const base = `${window.location.origin}/index.html`;
-    return `${base}?client=${encodeURIComponent(obfuscateCode(tenantCode))}`;
+  function openLightbox(src, title) {
+    const modal = document.getElementById('image-lightbox-modal');
+    const img = document.getElementById('lightbox-img');
+    const lbl = document.getElementById('lightbox-title');
+    if (!modal || !img) return;
+    delete img.dataset.fallbackApplied;
+    img.src = src || 'icon.png';
+    if (lbl) lbl.textContent = title || 'معاينة الصورة';
+    modal.classList.remove('hidden');
   }
 
-  window.ARAMKY_CORE = {
-    PUBLIC_BRAND,
-    SUPPORT_PHONE,
-    MASTER_CARD,
-    KEYS,
-    obfuscateCode,
-    deobfuscateCode,
-    getTenantStorageKey,
-    readStorage,
-    writeStorage,
-    isAdminSessionActive,
-    setAdminSessionActive,
+  function closeLightbox(modalId = 'image-lightbox-modal') {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.add('hidden');
+  }
+
+  function printReceiptOnly(paperWidthMm = 80) {
+    const widthCss = paperWidthMm === 58 ? '58mm' : '80mm';
+    let styleTag = document.getElementById('aramky-dynamic-print-style');
+    if (!styleTag) {
+      styleTag = document.createElement('style');
+      styleTag.id = 'aramky-dynamic-print-style';
+      document.head.appendChild(styleTag);
+    }
+    styleTag.textContent = `
+      @media print {
+        @page { size: ${widthCss} auto; margin: 2mm; }
+        body * { visibility: hidden !important; }
+        #invoice-modal, #invoice-modal * { visibility: visible !important; }
+        #invoice-modal {
+          position: fixed !important;
+          inset: 0 !important;
+          width: ${widthCss} !important;
+          max-width: ${widthCss} !important;
+          margin: 0 auto !important;
+          padding: 4px !important;
+          background: #ffffff !important;
+          color: #000000 !important;
+          box-shadow: none !important;
+        }
+        #invoice-modal .no-print { display: none !important; }
+      }
+    `;
+    window.print();
+  }
+
+  global.ARAMKY_CORE = {
+    version: '28.1',
+    keys: KEYS,
+    supportPhone: DEFAULT_CONTACT.supportPhone,
+    writeSecureStorage,
+    readSecureStorage,
+    getCloudConfig,
+    saveCloudConfig,
+    isSupabaseReady,
+    getRenderEndpoint,
+    syncTenantToSupabase,
+    pullTenantFromSupabase,
+    postToRenderBackend,
+    getTenantDataKey,
+    getCustomerLedgerKey,
+    encodeCatalogRef,
+    decodeCatalogRef,
+    getPublicStorefrontUrl,
+    getTenantsRegistry,
+    saveTenantsRegistry,
+    authenticateTenant,
+    resolveActiveTenantOnLoad,
+    getAdminConfig,
+    saveAdminConfig,
+    getContactInfo,
     verifyAdminPassword,
+    isAdminSessionActive,
+    logoutAdminSession,
     syncAdminUiVisibility,
+    filesToDataUrls,
     applyImageFallback,
-    getClientShareUrl
+    renderGalleryThumbnails,
+    openLightbox,
+    closeLightbox,
+    printReceiptOnly
   };
-
-  document.addEventListener("DOMContentLoaded", syncAdminUiVisibility);
-})();
+})(window);
