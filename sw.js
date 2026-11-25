@@ -3,6 +3,7 @@ const ASSETS = [
   "/",
   "/index.html",
   "/admin.html",
+  "/admin_3.html",
   "/manifest.json",
   "/aramky-i18n.js",
   "/aramky-core.js",
@@ -15,7 +16,7 @@ self.addEventListener("install", (event) => {
       return Promise.allSettled(
         ASSETS.map((url) =>
           fetch(url).then((res) => {
-            if (res.ok) return cache.put(url, res);
+            if (res && res.ok) return cache.put(url, res);
           })
         )
       );
