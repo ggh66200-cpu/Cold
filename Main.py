@@ -1,45 +1,75 @@
 import os
-from flask import Flask, send_from_directory, abort
+from flask import Flask, jsonify, send_from_directory, abort
 
-app = Flask(__name__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-BLOCKED_FILES = {
-    "main.py",
-    "Main.py",
-    "requirements.txt",
-    "Procfile",
-    "package.json",
-    ".env",
+app = Flask(
+    __name__,
+    static_folder=BASE_DIR,
+    static_url_path=""
+)
+
+ALLOWED_STATIC_FILES = {
+    "index.html",
+    "admin.html",
+    "aramky-core.js",
+    "aramky-i18n.js",
+    "main.js",
+    "icon.png",
+    "manifest.json",
+    "manifest_5.json",
+    "aramky-splash-logo.png",
 }
+
+
+def _serve_html_file(filename):
+    filepath = os.path.join(BASE_DIR, filename)
+    if not os.path.isfile(filepath):
+        abort(404)
+    with open(filepath, "r", encoding="utf-8") as f:
+        return f.read(), 200, {"Content-Type": "text/html; charset=utf-8"}
+
 
 @app.route("/")
 def home():
-    if os.path.isfile("index.html"):
-        return send_from_directory(".", "index.html")
-    return "ARAMKY Gold OS Online"
+    index_path = os.path.join(BASE_DIR, "index.html")
+    if os.path.isfile(index_path):
+        return _serve_html_file("index.html")
+    return "ARAMKY Gold OS Online", 200, {"Content-Type": "text/plain; charset=utf-8"}
+
 
 @app.route("/admin.html")
 def admin_page():
-    if os.path.isfile("admin.html"):
-        return send_from_directory(".", "admin.html")
-    abort(404)
+    return _serve_html_file("admin.html")
+
+
+@app.route("/api/supabase-config", methods=["GET"])
+def api_supabase_config():
+    supabase_url = os.environ.get("SUPABASE_URL", "").strip()
+    supabase_key = (
+        os.environ.get("SUPABASE_KEY", "").strip()
+        or os.environ.get("SUPABASE_ANON_KEY", "").strip()
+    )
+    supabase_table = os.environ.get("SUPABASE_TABLE", "aramky_stores_data").strip() or "aramky_stores_data"
+
+    return jsonify({
+        "ok": bool(supabase_url and supabase_key),
+        "supabaseUrl": supabase_url,
+        "supabaseKey": supabase_key,
+        "supabaseTable": supabase_table,
+    }), 200
+
 
 @app.route("/<path:filename>")
-def serve_file(filename):
-    clean = filename.lstrip("/")
-    if not clean or clean.startswith(".") or os.path.basename(clean) in BLOCKED_FILES:
-        abort(403)
-    full_path = os.path.abspath(os.path.join(".", clean))
-    root_path = os.path.abspath(".")
-    if not full_path.startswith(root_path + os.sep) and full_path != root_path:
-        abort(403)
-    if os.path.isfile(full_path):
-        return send_from_directory(".", clean)
-    abort(404)
+def serve_static_asset(filename):
+    clean_name = os.path.basename(filename)
+    if clean_name not in ALLOWED_STATIC_FILES:
+        abort(404)
+    filepath = os.path.join(BASE_DIR, clean_name)
+    if not os.path.isfile(filepath):
+        abort(404)
+    return send_from_directory(BASE_DIR, clean_name)
 
-@app.route("/health")
-def health():
-    return {"status": "ok", "service": "ARAMKY Gold OS"}, 200
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
