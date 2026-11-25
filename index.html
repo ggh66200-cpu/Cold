@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<title>ARAMKY Gold OS v28.1 | نظام إدارة صياغة الذهب</title>
+<title>ARAMKY Gold OS v28.2 | نظام إدارة صياغة الذهب</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="aramky-core.js"></script>
@@ -59,7 +59,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <div class="w-80 h-80 rounded-full bg-amber-500/10 blur-3xl"></div>
   </div>
   <div class="relative z-10 text-[11px] font-bold tracking-wider text-amber-300/75">
-    ARAMKY GOLD OS • v28.1
+    ARAMKY GOLD OS • v28.2
   </div>
   <div class="relative z-10 flex flex-col items-center">
     <img
@@ -305,6 +305,52 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
   </div>
 </div>
 
+<div id="debt-card-details-modal" class="fixed inset-0 modal-overlay z-[275] flex items-center justify-center hidden p-4">
+  <div class="luxury-modal-card p-6 rounded-3xl w-full max-w-2xl space-y-4 shadow-2xl max-h-[88vh] flex flex-col">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl gold-gradient flex items-center justify-center text-darkbg font-black text-xl shadow-lg">
+          <i class="fa-solid fa-id-card"></i>
+        </div>
+        <div>
+          <h3 id="dcm-customer-name" class="text-base font-black text-gold">تفاصيل الكارت</h3>
+          <p id="dcm-customer-meta" class="text-[11px] text-slate-400 font-mono">--</p>
+        </div>
+      </div>
+      <button onclick="closeDebtCardDetailsModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+
+    <div id="dcm-balances-summary" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs"></div>
+
+    <div class="bg-darkbg/90 p-4 rounded-2xl border border-gold/30 space-y-3 text-xs">
+      <div class="font-bold text-gold flex items-center justify-between">
+        <span>إضافة زيادة أو نقصان سريع لهذا الكارت:</span>
+        <span id="dcm-mode-badge" class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px]">زيادة (+)</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+        <select id="dcm-action-dir" class="bg-cardbg border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none">
+          <option value="inc">زيادة الرصيد (+)</option>
+          <option value="dec">نقصان / تسديد (-)</option>
+        </select>
+        <select id="dcm-action-unit" class="bg-cardbg border border-slate-700 rounded-xl p-2.5 text-gold font-bold outline-none">
+          <option value="money">أموال (د.ع)</option>
+          <option value="gold">ذهب (غرام)</option>
+        </select>
+        <input type="number" step="0.001" id="dcm-action-amount" placeholder="المبلغ أو الوزن" class="bg-cardbg border border-slate-700 rounded-xl p-2.5 text-emerald-400 font-bold outline-none">
+        <button type="button" onclick="applyQuickCardAdjustment()" class="gold-gradient text-darkbg font-black rounded-xl py-2.5 px-3 shadow">تطبيق وتوثيق</button>
+      </div>
+      <input type="text" id="dcm-action-notes" placeholder="سبب التعديل أو ملاحظة الحركة (يظهر في الجرد)..." class="w-full bg-cardbg border border-slate-700 rounded-xl p-2.5 outline-none">
+    </div>
+
+    <div class="flex-1 overflow-y-auto space-y-2">
+      <h4 class="text-xs font-bold text-slate-300">سجل حركات هذا الكارت بالكامل (الزيادات والنقصان):</h4>
+      <div id="dcm-history-list" class="space-y-2 text-xs"></div>
+    </div>
+
+    <button onclick="closeDebtCardDetailsModal()" class="w-full bg-slate-800 text-slate-300 py-3 rounded-2xl text-xs font-bold">إغلاق النافذة</button>
+  </div>
+</div>
+
 <div id="toast-container" class="fixed top-5 left-5 z-[350] flex flex-col gap-3 max-w-md pointer-events-none"></div>
 
 <header id="app-header" class="glass sticky top-0 z-50 border-b border-gold/30 px-5 py-3 flex flex-wrap justify-between items-center gap-3 shadow-2xl">
@@ -313,7 +359,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <img id="header-store-logo" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover bg-darkbg">
     </div>
     <div>
-      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span id="aramky-install-badge" class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">⚜️ أرامكي v28.1</span></h1>
+      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span id="aramky-install-badge" class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">⚜️ أرامكي v28.2</span></h1>
       <p class="text-xs text-slate-400 flex items-center gap-2"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">REF: ARAMKY-01</span></p>
     </div>
   </div>
@@ -604,7 +650,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-4 gap-3">
           <div>
             <h3 class="font-black text-gold text-xl flex items-center gap-2"><i class="fa-solid fa-crown text-amber-300"></i> دفتر الديون الفخم (تطلبهم + ويطلبوك -)</h3>
-            <p class="text-[11px] text-slate-400 mt-0.5">كارتات مفصولة بوضوح بين ما تطلبه أنت (تطلبهم +) وما هو مطلوب منك (يطلبوك -)، مع سجل خاص لكل زبون</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">كارتات مفصولة بوضوح بين ما تطلبه أنت (تطلبهم +) وما هو مطلوب منك (يطلبوك -)، مع زيادة ونقصان وتفاصيل كاملة وجرد لكل حركة</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button onclick="setDebtFilter('all')" id="debt-filter-all" class="bg-gold text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow">الكل</button>
@@ -1157,6 +1203,8 @@ let inventorySecretTimer = null;
 let editGalleryImages = [];
 let karatPickerTargetInputId = 'inv-karat';
 let karatPickerTargetLabelId = 'inv-karat-label';
+let activeDebtCardKey = null;
+let splashDismissed = false;
 
 function handleBrandImageError(img) {
   if (CORE) CORE.applyImageFallback(img, 'logo');
@@ -1545,7 +1593,7 @@ async function addNewInventoryItem() {
     images: imgs
   });
 
-  addLog('إضافة مخزن', `إضافة ${name} (${condition === 'used' ? 'مستعمل' : 'جديد'}) عيار ${karat} وزن ${weight}غ كمية ${qty}`, weight * qty);
+  addLog('إضافة مخزن', `إضافة ${name} (${condition === 'used' ? 'مستعمل' : 'جديد'}) عيار ${karat} وزن ${weight}غ كمية ${qty} صياغة ${makingPerGram}/غ${notes ? ' | ملاحظة: ' + notes : ''}`, weight * qty);
   saveTenantData();
   renderAll();
   document.getElementById('inv-name').value = '';
@@ -1650,7 +1698,7 @@ function saveEditedInventoryItem() {
   const idx = parseInt(document.getElementById('edit-inv-index').value, 10);
   const item = db.inventory[idx];
   if (!item) return;
-  const beforeSummary = `${item.name} (${item.condition === 'used' ? 'مستعمل' : 'جديد'}, عيار ${item.karat}, ${item.weight}غ, عدد ${item.qty})`;
+  const beforeSummary = `${item.name} (${item.condition === 'used' ? 'مستعمل' : 'جديد'}, عيار ${item.karat}, ${item.weight}غ, عدد ${item.qty}, صياغة ${item.makingPerGram || 0})`;
   item.name = document.getElementById('edit-inv-name').value.trim() || item.name;
   item.karat = document.getElementById('edit-inv-karat').value || item.karat;
   item.condition = document.getElementById('edit-inv-condition').value || 'new';
@@ -1661,7 +1709,7 @@ function saveEditedInventoryItem() {
   item.published = document.getElementById('edit-inv-publish').checked;
   item.images = [...editGalleryImages];
   const reason = document.getElementById('edit-inv-reason').value.trim() || 'تعديل بيانات القطعة';
-  const afterSummary = `${item.name} (${item.condition === 'used' ? 'مستعمل' : 'جديد'}, عيار ${item.karat}, ${item.weight}غ, عدد ${item.qty})`;
+  const afterSummary = `${item.name} (${item.condition === 'used' ? 'مستعمل' : 'جديد'}, عيار ${item.karat}, ${item.weight}غ, عدد ${item.qty}, صياغة ${item.makingPerGram || 0})`;
   addLog('تعديل مخزن', `السبب: ${reason} | قبل: ${beforeSummary} → بعد: ${afterSummary}`, item.weight);
   saveTenantData();
   renderAll();
@@ -1688,7 +1736,7 @@ function confirmDeleteInventoryItem() {
   if (!item) return;
   const reason = document.getElementById('delete-inv-reason').value.trim() || 'حذف من المخزن';
   db.inventory.splice(idx, 1);
-  addLog('حذف مخزن', `حذف ${item.name} (${item.condition === 'used' ? 'مستعمل' : 'جديد'}) عيار ${item.karat} | السبب: ${reason}`, item.weight);
+  addLog('حذف مخزن', `حذف ${item.name} (${item.condition === 'used' ? 'مستعمل' : 'جديد'}) عيار ${item.karat} وزن ${item.weight}غ عدد ${item.qty} | السبب: ${reason}`, item.weight);
   saveTenantData();
   renderAll();
   closeDeleteInventoryModal();
@@ -1930,7 +1978,7 @@ function renderCart() {
     }).join('');
   }
 
-  const totalIqd = cart.reduce((sum, c) => sum + calculateItemPricing(c).pieceIqd * c.qty, 0);
+  const totalIqd = getCartTotalIqd();
   const usdRate = Number(db.prices.usd || 150000) || 150000;
   document.getElementById('cart-total-price').textContent = formatIQD(totalIqd);
   document.getElementById('cart-total-alt').textContent = currencyMode === 'iraqi'
@@ -2022,7 +2070,8 @@ function completeSale(type) {
       weight: c.weight,
       qty: c.qty,
       makingPerGram: c.makingPerGram,
-      lineTotal
+      lineTotal,
+      lineMaking
     });
   }
 
@@ -2049,7 +2098,7 @@ function completeSale(type) {
 
   const invId = 'INV-' + Date.now().toString().slice(-6);
   const detailsSummary = soldItems.map(i => `${i.name} (${i.condition === 'used' ? 'مستعمل' : 'جديد'}, عيار ${i.karat}, ${i.weight}غ × ${i.qty})`).join(' | ');
-  addLog('عملية بيع', `${invId} — الزبون: ${customer} — ${detailsSummary} ${notes ? '| ملاحظة: ' + notes : ''}`, totalIqd, totalMakingProfit);
+  addLog('عملية بيع', `${invId} — الزبون: ${customer} — ${detailsSummary} ${notes ? '| ملاحظة: ' + notes : ''}`, totalIqd, totalMakingProfit, soldItems);
 
   saveCustomerLedgerEntry(customer, phone, {
     type: 'invoice',
@@ -2196,7 +2245,7 @@ function buyScrapGold() {
     images: []
   });
 
-  addLog('شراء كسر', `شراء كسر من ${seller} عيار ${karat} وزن ${weight}غ (خصم غرام: ${deductPerGram})`, -totalIqd);
+  addLog('شراء كسر', `شراء كسر من ${seller} عيار ${karat} وزن ${weight}غ (خصم غرام: ${deductPerGram})${notes ? ' | ملاحظة: ' + notes : ''}`, -totalIqd);
   saveCustomerLedgerEntry(seller, phone, { type: 'scrap_buy', karat, weight, totalIqd, notes });
   saveTenantData();
   renderAll();
@@ -2258,12 +2307,16 @@ async function handleStoreLogoUpload(event) {
 }
 
 function saveStoreSettings() {
+  const prevName = db.store.name || '';
+  const prevAddr = db.store.address || '';
   db.store.name = document.getElementById('store-name').value.trim() || db.store.name;
   db.store.phone = document.getElementById('store-phone').value.trim();
   db.store.address = document.getElementById('store-address').value.trim();
   db.store.openTime = document.getElementById('store-open-time').value.trim();
   db.store.closeTime = document.getElementById('store-close-time').value.trim();
   db.store.bio = document.getElementById('store-bio').value.trim();
+
+  addLog('تعديل معرض', `تحديث بيانات المعرض | قبل: (${prevName} - ${prevAddr}) → بعد: (${db.store.name} - ${db.store.address})`, 0);
 
   const ticket = {
     id: 'TKT-' + Date.now().toString().slice(-5),
@@ -2316,6 +2369,10 @@ function setDebtFilter(filter) {
   renderDebts();
 }
 
+function getDebtCardKey(customer, phone) {
+  return `${String(customer || '').trim()}||${String(phone || '').trim()}`;
+}
+
 function addDebtMovement() {
   const customer = document.getElementById('debt-customer').value.trim();
   const phone = document.getElementById('debt-phone').value.trim();
@@ -2340,18 +2397,23 @@ function addDebtMovement() {
     unit = 'gold';
   }
 
-  db.debts.push({
+  const entryObj = {
     id: 'DBT-' + Date.now().toString().slice(-5),
     customer,
     phone,
+    typeValue,
+    actionKind: signedAmount >= 0 ? 'زيادة (+)' : 'نقصان (-)',
     category,
     unit,
     amount: signedAmount,
+    absAmount: amount,
     notes,
     date: new Date().toISOString()
-  });
+  };
 
-  addLog('حركة ديون', `${typeValue} — ${customer}: ${amount} ${unit === 'gold' ? 'غرام' : 'د.ع'} ${notes ? '(' + notes + ')' : ''}`, unit === 'money' ? signedAmount : 0);
+  db.debts.push(entryObj);
+
+  addLog('حركة ديون', `${typeValue} — ${customer} (${phone || 'بدون هاتف'}): ${signedAmount >= 0 ? '+' : '-'}${amount} ${unit === 'gold' ? 'غرام' : 'د.ع'} ${notes ? '| ملاحظة: ' + notes : ''}`, unit === 'money' ? signedAmount : 0);
   saveCustomerLedgerEntry(customer, phone, { type: 'debt', typeValue, unit, amount: signedAmount, notes });
   saveTenantData();
   renderAll();
@@ -2360,6 +2422,149 @@ function addDebtMovement() {
   document.getElementById('debt-amount').value = '';
   document.getElementById('debt-notes').value = '';
   showToast('تم حفظ حركة الديون وتحديث الكارت', 'success');
+}
+
+function quickAdjustDebtCard(encodedKey, dir, unit) {
+  const key = decodeURIComponent(encodedKey);
+  const valStr = prompt(unit === 'gold' ? `أدخل وزن الذهب بالغرام (${dir === 'inc' ? 'زيادة +' : 'نقصان -'}):` : `أدخل المبلغ بالدينار (${dir === 'inc' ? 'زيادة +' : 'نقصان -'}):`);
+  if (valStr === null) return;
+  const num = parseFloat(valStr);
+  if (isNaN(num) || num <= 0) {
+    showToast('يرجى إدخال قيمة موجبة صحيحة', 'error');
+    return;
+  }
+  const noteStr = prompt('ملاحظة أو سبب التعديل (اختياري):') || '';
+  const parts = key.split('||');
+  const customer = parts[0] || 'غير محدد';
+  const phone = parts[1] || '';
+  const signedAmount = dir === 'inc' ? num : -num;
+  const category = signedAmount >= 0 ? 'on_them' : 'on_us';
+  const label = unit === 'gold'
+    ? (dir === 'inc' ? 'زيادة ذهب تطلبهم (+)' : 'نقصان ذهب / تسديد (-)')
+    : (dir === 'inc' ? 'زيادة دين تطلبهم (+)' : 'نقصان دين / تسديد (-)');
+
+  db.debts.push({
+    id: 'DBT-' + Date.now().toString().slice(-5),
+    customer,
+    phone,
+    typeValue: label,
+    actionKind: dir === 'inc' ? 'زيادة (+)' : 'نقصان (-)',
+    category,
+    unit,
+    amount: signedAmount,
+    absAmount: num,
+    notes: noteStr.trim(),
+    date: new Date().toISOString()
+  });
+
+  addLog('حركة ديون', `${label} — ${customer}: ${dir === 'inc' ? '+' : '-'}${num} ${unit === 'gold' ? 'غرام' : 'د.ع'}${noteStr.trim() ? ' | ملاحظة: ' + noteStr.trim() : ''}`, unit === 'money' ? signedAmount : 0);
+  saveCustomerLedgerEntry(customer, phone, { type: 'debt', typeValue: label, unit, amount: signedAmount, notes: noteStr.trim() });
+  saveTenantData();
+  renderAll();
+  if (activeDebtCardKey === key) openDebtCardDetailsModal(encodedKey);
+  showToast('تم تحديث الكارت وتوثيق التعديل في الجرد', 'success');
+}
+
+function openDebtCardDetailsModal(encodedKey) {
+  const key = decodeURIComponent(encodedKey);
+  activeDebtCardKey = key;
+  const movements = db.debts.filter(d => getDebtCardKey(d.customer, d.phone) === key);
+  const parts = key.split('||');
+  const customer = parts[0] || 'غير محدد';
+  const phone = parts[1] || 'بدون رقم هاتف';
+
+  const moneyBalance = movements.filter(m => m.unit !== 'gold').reduce((s, m) => s + Number(m.amount || 0), 0);
+  const goldBalance = movements.filter(m => m.unit === 'gold').reduce((s, m) => s + Number(m.amount || 0), 0);
+
+  document.getElementById('dcm-customer-name').textContent = customer;
+  document.getElementById('dcm-customer-meta').textContent = `الهاتف: ${phone} • عدد الحركات: ${movements.length}`;
+  document.getElementById('dcm-balances-summary').innerHTML = `
+    <div class="bg-darkbg p-3.5 rounded-2xl border ${moneyBalance >= 0 ? 'border-emerald-500/40' : 'border-rose-500/40'}">
+      <span class="text-slate-400 block text-[10px]">رصيد الأموال الصافي:</span>
+      <strong class="text-sm font-black ${moneyBalance >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${moneyBalance >= 0 ? 'تطلبهم (+): ' : 'يطلبوك (-): '}${formatIQD(Math.abs(moneyBalance))}</strong>
+    </div>
+    <div class="bg-darkbg p-3.5 rounded-2xl border border-gold/40">
+      <span class="text-slate-400 block text-[10px]">رصيد الذهب الصافي:</span>
+      <strong class="text-sm font-black text-gold">${goldBalance >= 0 ? 'تطلبهم (+): ' : 'يطلبوك (-): '}${Math.abs(goldBalance).toFixed(3).replace(/\.?0+$/, '')} غرام</strong>
+    </div>
+  `;
+
+  document.getElementById('dcm-action-amount').value = '';
+  document.getElementById('dcm-action-notes').value = '';
+
+  const histEl = document.getElementById('dcm-history-list');
+  if (!movements.length) {
+    histEl.innerHTML = '<p class="text-slate-500 text-center p-3">لا توجد حركات مسجلة لهذا الكارت.</p>';
+  } else {
+    histEl.innerHTML = [...movements].reverse().map(m => {
+      const amt = Number(m.amount || 0);
+      const isInc = amt >= 0;
+      const unitLabel = m.unit === 'gold' ? `${Math.abs(amt).toFixed(3).replace(/\.?0+$/, '')} غرام` : formatIQD(Math.abs(amt));
+      return `
+        <div class="bg-darkbg border border-slate-800 p-3 rounded-2xl flex flex-wrap justify-between items-center gap-2">
+          <div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isInc ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${isInc ? 'زيادة (+)' : 'نقصان (-)'}</span>
+            <strong class="text-slate-100 mr-1.5">${m.typeValue || (isInc ? 'تطلبهم (+)' : 'يطلبوك (-)')}</strong>
+            ${m.notes ? `<p class="text-[11px] text-slate-400 mt-1">${m.notes}</p>` : ''}
+          </div>
+          <div class="text-left">
+            <strong class="font-mono ${isInc ? 'text-emerald-400' : 'text-rose-400'}">${isInc ? '+' : '-'}${unitLabel}</strong>
+            <span class="block text-[10px] text-slate-500">${new Date(m.date).toLocaleString('ar-IQ')}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.getElementById('debt-card-details-modal').classList.remove('hidden');
+}
+
+function closeDebtCardDetailsModal() {
+  activeDebtCardKey = null;
+  document.getElementById('debt-card-details-modal').classList.add('hidden');
+}
+
+function applyQuickCardAdjustment() {
+  if (!activeDebtCardKey) return;
+  const dir = document.getElementById('dcm-action-dir').value;
+  const unit = document.getElementById('dcm-action-unit').value;
+  const num = parseFloat(document.getElementById('dcm-action-amount').value);
+  const notes = document.getElementById('dcm-action-notes').value.trim();
+
+  if (isNaN(num) || num <= 0) {
+    showToast('أدخل قيمة موجبة للتعديل', 'error');
+    return;
+  }
+
+  const parts = activeDebtCardKey.split('||');
+  const customer = parts[0] || 'غير محدد';
+  const phone = parts[1] || '';
+  const signedAmount = dir === 'inc' ? num : -num;
+  const category = signedAmount >= 0 ? 'on_them' : 'on_us';
+  const label = unit === 'gold'
+    ? (dir === 'inc' ? 'تطلبهم ذهب (+ غرام)' : 'يطلبوك ذهب (- غرام)')
+    : (dir === 'inc' ? 'تطلبهم (دين لك +)' : 'يطلبوك / مطلوب منك (-)');
+
+  db.debts.push({
+    id: 'DBT-' + Date.now().toString().slice(-5),
+    customer,
+    phone,
+    typeValue: label,
+    actionKind: dir === 'inc' ? 'زيادة (+)' : 'نقصان (-)',
+    category,
+    unit,
+    amount: signedAmount,
+    absAmount: num,
+    notes,
+    date: new Date().toISOString()
+  });
+
+  addLog('حركة ديون', `${label} — ${customer}: ${dir === 'inc' ? '+' : '-'}${num} ${unit === 'gold' ? 'غرام' : 'د.ع'}${notes ? ' | ملاحظة: ' + notes : ''}`, unit === 'money' ? signedAmount : 0);
+  saveCustomerLedgerEntry(customer, phone, { type: 'debt', typeValue: label, unit, amount: signedAmount, notes });
+  saveTenantData();
+  renderAll();
+  openDebtCardDetailsModal(encodeURIComponent(activeDebtCardKey));
+  showToast('تم تطبيق التعديل وتسجيله في سجل الكارت والجرد', 'success');
 }
 
 function renderDebts() {
@@ -2372,17 +2577,18 @@ function renderDebts() {
 
   const grouped = {};
   db.debts.forEach(d => {
-    const key = `${d.customer}||${d.phone || ''}`;
+    const key = getDebtCardKey(d.customer, d.phone);
     if (!grouped[key]) {
-      grouped[key] = { customer: d.customer, phone: d.phone || '', moneyBalance: 0, goldBalance: 0, lastNote: '' };
+      grouped[key] = { key, customer: d.customer, phone: d.phone || '', moneyBalance: 0, goldBalance: 0, lastNote: '', count: 0 };
     }
     if (d.unit === 'gold') grouped[key].goldBalance += Number(d.amount || 0);
     else grouped[key].moneyBalance += Number(d.amount || 0);
     if (d.notes) grouped[key].lastNote = d.notes;
+    grouped[key].count += 1;
   });
 
-  const cards = Object.values(grouped).filter(c => Math.abs(c.moneyBalance) > 0.001 || Math.abs(c.goldBalance) > 0.0001);
-  const themCards = cards.filter(c => c.moneyBalance >= 0 && (c.moneyBalance > 0 || c.goldBalance >= 0));
+  const cards = Object.values(grouped).filter(c => Math.abs(c.moneyBalance) > 0.001 || Math.abs(c.goldBalance) > 0.0001 || c.count > 0);
+  const themCards = cards.filter(c => c.moneyBalance > 0 || (c.moneyBalance === 0 && c.goldBalance > 0));
   const usCards = cards.filter(c => c.moneyBalance < 0 || (c.moneyBalance === 0 && c.goldBalance < 0));
 
   const totalThem = themCards.reduce((s, c) => s + Math.max(0, c.moneyBalance), 0);
@@ -2401,18 +2607,29 @@ function renderDebts() {
   document.getElementById('count-debts-them').textContent = `${themCards.length} كارت`;
   document.getElementById('count-debts-us').textContent = `${usCards.length} كارت`;
 
-  const renderCard = (c, isThem) => `
-    <div class="system-card p-4 rounded-2xl border ${isThem ? 'border-emerald-500/40' : 'border-rose-500/40'} space-y-2 text-xs">
-      <div class="flex justify-between items-center">
-        <strong class="text-sm text-white">${c.customer}</strong>
-        <span class="px-2.5 py-0.5 rounded-full font-bold ${isThem ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${isThem ? 'تطلبهم (+)' : 'يطلبوك (-)'}</span>
+  const renderCard = (c, isThem) => {
+    const enc = encodeURIComponent(c.key);
+    return `
+      <div class="system-card p-4 rounded-2xl border ${isThem ? 'border-emerald-500/40' : 'border-rose-500/40'} space-y-2.5 text-xs">
+        <div class="flex justify-between items-center gap-2">
+          <strong class="text-sm text-white">${c.customer}</strong>
+          <span class="px-2.5 py-0.5 rounded-full font-bold ${isThem ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}">${isThem ? 'تطلبهم (+)' : 'يطلبوك (-)'}</span>
+        </div>
+        <div class="flex justify-between items-center text-slate-400 font-mono text-[11px]">
+          <span>${c.phone || 'بدون رقم هاتف'}</span>
+          <span>${c.count} حركة</span>
+        </div>
+        <div class="font-black text-sm ${c.moneyBalance >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${formatIQD(Math.abs(c.moneyBalance))}</div>
+        ${Math.abs(c.goldBalance) > 0 ? `<div class="text-gold font-bold">ذمة ذهب (${c.goldBalance >= 0 ? 'تطلبهم +' : 'يطلبوك -'}): ${Math.abs(c.goldBalance).toFixed(3).replace(/\.?0+$/, '')} غرام</div>` : ''}
+        ${c.lastNote ? `<div class="text-[11px] text-slate-400 truncate">${c.lastNote}</div>` : ''}
+        <div class="grid grid-cols-3 gap-1.5 pt-2 border-t border-slate-800">
+          <button type="button" onclick="quickAdjustDebtCard('${enc}', 'inc', 'money')" class="bg-emerald-600/25 hover:bg-emerald-600/40 border border-emerald-500/40 text-emerald-300 py-1.5 rounded-xl font-bold">+ زيادة</button>
+          <button type="button" onclick="quickAdjustDebtCard('${enc}', 'dec', 'money')" class="bg-rose-600/25 hover:bg-rose-600/40 border border-rose-500/40 text-rose-300 py-1.5 rounded-xl font-bold">- نقصان</button>
+          <button type="button" onclick="openDebtCardDetailsModal('${enc}')" class="bg-gold/20 hover:bg-gold/30 border border-gold/40 text-gold py-1.5 rounded-xl font-bold">التفاصيل</button>
+        </div>
       </div>
-      <div class="text-slate-400 font-mono">${c.phone || 'بدون رقم هاتف'}</div>
-      <div class="font-black text-sm ${c.moneyBalance >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${formatIQD(Math.abs(c.moneyBalance))}</div>
-      ${Math.abs(c.goldBalance) > 0 ? `<div class="text-gold font-bold">ذمة ذهب (${c.goldBalance >= 0 ? 'تطلبهم +' : 'يطلبوك -'}): ${Math.abs(c.goldBalance).toFixed(3).replace(/\.?0+$/, '')} غرام</div>` : ''}
-      ${c.lastNote ? `<div class="text-[11px] text-slate-400">${c.lastNote}</div>` : ''}
-    </div>
-  `;
+    `;
+  };
 
   const secThem = document.getElementById('section-debts-them');
   const secUs = document.getElementById('section-debts-us');
@@ -2491,25 +2708,48 @@ function renderMithqalMakingAudit() {
   const rows = [];
 
   salesLogs.forEach(log => {
-    const matchKarat = selectedKarat === 'all' || String(log.details || '').includes(`عيار ${selectedKarat}`);
-    if (!matchKarat) return;
-    const weightMatch = String(log.details || '').match(/([\d.]+)\s*غ/);
-    const w = weightMatch ? parseFloat(weightMatch[1]) : 0;
-    const making = Number(log.profit || 0);
-    const mqCount = w / MITHQAL_GRAMS;
-    const makingPerMq = mqCount > 0 ? Math.round(making / mqCount) : 0;
-    const estGoldByCustom = customMqPrice > 0 ? Math.round(mqCount * customMqPrice) : 0;
-    totalWeight += w;
-    totalMaking += making;
-    rows.push({
-      title: log.code || 'فاتورة',
-      karat: selectedKarat === 'all' ? 'متنوع' : `عيار ${selectedKarat}`,
-      w,
-      mqCount,
-      makingPerMq,
-      making,
-      estGoldByCustom
-    });
+    const items = Array.isArray(log.items) && log.items.length ? log.items : null;
+    if (items) {
+      const matchingItems = items.filter(it => selectedKarat === 'all' || String(it.karat) === String(selectedKarat));
+      matchingItems.forEach(it => {
+        const w = Number(it.weight || 0) * Number(it.qty || 1);
+        const making = Number(it.lineMaking ?? (w * Number(it.makingPerGram || 0)));
+        const mqCount = w / MITHQAL_GRAMS;
+        const makingPerMq = mqCount > 0 ? Math.round(making / mqCount) : 0;
+        const estGoldByCustom = customMqPrice > 0 ? Math.round(mqCount * customMqPrice) : 0;
+        totalWeight += w;
+        totalMaking += making;
+        rows.push({
+          title: `${log.code || 'فاتورة'} — ${it.name}`,
+          karat: `عيار ${it.karat}`,
+          w,
+          mqCount,
+          makingPerMq,
+          making,
+          estGoldByCustom
+        });
+      });
+    } else {
+      const matchKarat = selectedKarat === 'all' || String(log.details || '').includes(`عيار ${selectedKarat}`);
+      if (!matchKarat) return;
+      const weightMatch = String(log.details || '').match(/([\d.]+)\s*غ/);
+      const w = weightMatch ? parseFloat(weightMatch[1]) : 0;
+      const making = Number(log.profit || 0);
+      const mqCount = w / MITHQAL_GRAMS;
+      const makingPerMq = mqCount > 0 ? Math.round(making / mqCount) : 0;
+      const estGoldByCustom = customMqPrice > 0 ? Math.round(mqCount * customMqPrice) : 0;
+      totalWeight += w;
+      totalMaking += making;
+      rows.push({
+        title: log.code || 'فاتورة',
+        karat: selectedKarat === 'all' ? 'متنوع' : `عيار ${selectedKarat}`,
+        w,
+        mqCount,
+        makingPerMq,
+        making,
+        estGoldByCustom
+      });
+    }
   });
 
   const totalMq = totalWeight / MITHQAL_GRAMS;
@@ -2536,7 +2776,7 @@ function renderMithqalMakingAudit() {
   `).join('');
 }
 
-function addLog(type, details, amount = 0, profit = 0) {
+function addLog(type, details, amount = 0, profit = 0, items = null) {
   db.logs.unshift({
     id: 'LOG-' + Date.now().toString().slice(-6),
     code: 'LOG-' + Date.now().toString().slice(-5),
@@ -2544,6 +2784,7 @@ function addLog(type, details, amount = 0, profit = 0) {
     details,
     amount: Number(amount || 0),
     profit: Number(profit || 0),
+    items: Array.isArray(items) ? items : undefined,
     date: new Date().toISOString()
   });
 }
@@ -2661,7 +2902,7 @@ function exportLogsToExcel() {
 
   const groupedDebts = {};
   (db.debts || []).forEach(d => {
-    const key = `${d.customer}||${d.phone || ''}`;
+    const key = getDebtCardKey(d.customer, d.phone);
     if (!groupedDebts[key]) {
       groupedDebts[key] = { customer: d.customer, phone: d.phone || '--', moneyBalance: 0, goldBalance: 0, lastNote: '' };
     }
@@ -2671,7 +2912,7 @@ function exportLogsToExcel() {
   });
 
   const allDebtCards = Object.values(groupedDebts).filter(c => Math.abs(c.moneyBalance) > 0.001 || Math.abs(c.goldBalance) > 0.0001);
-  const themCards = allDebtCards.filter(c => c.moneyBalance >= 0 && (c.moneyBalance > 0 || c.goldBalance >= 0));
+  const themCards = allDebtCards.filter(c => c.moneyBalance > 0 || (c.moneyBalance === 0 && c.goldBalance > 0));
   const usCards = allDebtCards.filter(c => c.moneyBalance < 0 || (c.moneyBalance === 0 && c.goldBalance < 0));
 
   const totalThemMoney = themCards.reduce((s, c) => s + Math.max(0, c.moneyBalance), 0);
@@ -2751,13 +2992,13 @@ function exportLogsToExcel() {
         <Cell ss:StyleID="CellCenter"><Data ss:Type="String">${escapeXml(new Date(r.date).toLocaleString('ar-IQ'))}</Data></Cell>
         <Cell ss:StyleID="CellCode"><Data ss:Type="String">${escapeXml(r.code || '--')}</Data></Cell>
         <Cell ss:StyleID="${meta.xmlBadge}"><Data ss:Type="String">${escapeXml(meta.category)}</Data></Cell>
-        <Cell ss:StyleID="CellRight"><Data ss:Type="String">${escapeXml(r.details || '')}</Data></Cell>
+        <Cell ss:MergeAcross="2" ss:StyleID="CellRight"><Data ss:Type="String">${escapeXml(r.details || '')}</Data></Cell>
         <Cell ss:StyleID="${amt < 0 ? 'CellNumNeg' : 'CellNumPos'}"><Data ss:Type="Number">${amt}</Data></Cell>
       </Row>
     `;
   }).join('') : `
     <Row ss:Height="24">
-      <Cell ss:MergeAcross="5" ss:StyleID="CellCenter"><Data ss:Type="String">لا توجد حركات ديون مسجلة في الفلتر الحالي</Data></Cell>
+      <Cell ss:MergeAcross="6" ss:StyleID="CellCenter"><Data ss:Type="String">لا توجد حركات ديون مسجلة في الفلتر الحالي</Data></Cell>
     </Row>
   `;
 
@@ -2895,265 +3136,220 @@ function exportLogsToExcel() {
    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
    <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#065F46"/>
    <Interior ss:Color="#D1FAE5" ss:Pattern="Solid"/>
-   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#6EE7B7"/></Borders>
-  </Style>
-  <Style ss:ID="RowDebtThem">
-   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
-   <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#047857"/>
-   <Interior ss:Color="#ECFDF5" ss:Pattern="Solid"/>
-   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#A7F3D0"/></Borders>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#A7F3D0"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#A7F3D0"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#A7F3D0"/>
+   </Borders>
   </Style>
   <Style ss:ID="BadgeDebtUs">
    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
    <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#9F1239"/>
    <Interior ss:Color="#FFE4E6" ss:Pattern="Solid"/>
-   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FDA4AF"/></Borders>
-  </Style>
-  <Style ss:ID="RowDebtUs">
-   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
-   <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#BE123C"/>
-   <Interior ss:Color="#FFF1F2" ss:Pattern="Solid"/>
-   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FECDD3"/></Borders>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FECDD3"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FECDD3"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FECDD3"/>
+   </Borders>
   </Style>
   <Style ss:ID="BadgeSale">
    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
    <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#1E40AF"/>
    <Interior ss:Color="#DBEAFE" ss:Pattern="Solid"/>
-   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#93C5FD"/></Borders>
-  </Style>
-  <Style ss:ID="RowSale">
-   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
-   <Font ss:FontName="Cairo" ss:Size="10" ss:Color="#1D4ED8"/>
-   <Interior ss:Color="#EFF6FF" ss:Pattern="Solid"/>
-   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BFDBFE"/></Borders>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BFDBFE"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BFDBFE"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#BFDBFE"/>
+   </Borders>
   </Style>
   <Style ss:ID="BadgeScrap">
    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
    <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#92400E"/>
    <Interior ss:Color="#FEF3C7" ss:Pattern="Solid"/>
-   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FCD34D"/></Borders>
-  </Style>
-  <Style ss:ID="RowScrap">
-   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
-   <Font ss:FontName="Cairo" ss:Size="10" ss:Color="#B45309"/>
-   <Interior ss:Color="#FFFBEB" ss:Pattern="Solid"/>
-   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FDE68A"/></Borders>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FDE68A"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FDE68A"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FDE68A"/>
+   </Borders>
   </Style>
   <Style ss:ID="BadgeExp">
    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
    <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#6B21A8"/>
    <Interior ss:Color="#F3E8FF" ss:Pattern="Solid"/>
-   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D8B4FE"/></Borders>
-  </Style>
-  <Style ss:ID="RowExp">
-   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
-   <Font ss:FontName="Cairo" ss:Size="10" ss:Color="#7E22CE"/>
-   <Interior ss:Color="#FAF5FF" ss:Pattern="Solid"/>
-   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E9D5FF"/></Borders>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E9D5FF"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E9D5FF"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E9D5FF"/>
+   </Borders>
   </Style>
   <Style ss:ID="BadgeReturn">
    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
    <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#9A3412"/>
    <Interior ss:Color="#FFEDD5" ss:Pattern="Solid"/>
-   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FDBA74"/></Borders>
-  </Style>
-  <Style ss:ID="RowReturn">
-   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
-   <Font ss:FontName="Cairo" ss:Size="10" ss:Color="#C2410C"/>
-   <Interior ss:Color="#FFF7ED" ss:Pattern="Solid"/>
-   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FED7AA"/></Borders>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FED7AA"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FED7AA"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#FED7AA"/>
+   </Borders>
   </Style>
   <Style ss:ID="BadgeInv">
    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
-   <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#0F766E"/>
+   <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#115E59"/>
    <Interior ss:Color="#CCFBF1" ss:Pattern="Solid"/>
-   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#5EEAD4"/></Borders>
-  </Style>
-  <Style ss:ID="RowInv">
-   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
-   <Font ss:FontName="Cairo" ss:Size="10" ss:Color="#115E59"/>
-   <Interior ss:Color="#F0FDFA" ss:Pattern="Solid"/>
-   <Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#99F6E4"/></Borders>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#99F6E4"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#99F6E4"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#99F6E4"/>
+   </Borders>
   </Style>
   <Style ss:ID="BadgeDefault">
    <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
    <Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#334155"/>
-   <Interior ss:Color="#E2E8F0" ss:Pattern="Solid"/>
+   <Interior ss:Color="#F1F5F9" ss:Pattern="Solid"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+   </Borders>
   </Style>
-  <Style ss:ID="RowDefault">
-   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:ReadingOrder="RightToLeft"/>
-   <Font ss:FontName="Cairo" ss:Size="10" ss:Color="#475569"/>
-   <Interior ss:Color="#F8FAFC" ss:Pattern="Solid"/>
-  </Style>
+  <Style ss:ID="RowDebtThem" ss:Parent="BadgeDebtThem"/>
+  <Style ss:ID="RowDebtUs" ss:Parent="BadgeDebtUs"/>
+  <Style ss:ID="RowSale" ss:Parent="BadgeSale"/>
+  <Style ss:ID="RowScrap" ss:Parent="BadgeScrap"/>
+  <Style ss:ID="RowExp" ss:Parent="BadgeExp"/>
+  <Style ss:ID="RowReturn" ss:Parent="BadgeReturn"/>
+  <Style ss:ID="RowInv" ss:Parent="BadgeInv"/>
+  <Style ss:ID="RowDefault" ss:Parent="BadgeDefault"/>
  </Styles>
 
- <Worksheet ss:Name="1_الملخص_المالي">
-  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><DisplayRightToLeft/></WorksheetOptions>
+ <Worksheet ss:Name="سجل العمليات والجرد" ss:RightToLeft="1">
   <Table>
-   <Column ss:Width="260"/>
-   <Column ss:Width="180"/>
-   <Column ss:Width="280"/>
-   <Row ss:Height="34">
-    <Cell ss:MergeAcross="2" ss:StyleID="TitleBanner"><Data ss:Type="String">التقرير المالي والتنظيمي الشامل — ${storeTitle}</Data></Cell>
+   <Column ss:Width="45"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="105"/>
+   <Column ss:Width="165"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="340"/>
+   <Column ss:Width="130"/>
+   <Column ss:Width="130"/>
+   <Row ss:Height="32">
+    <Cell ss:MergeAcross="7" ss:StyleID="TitleBanner"><Data ss:Type="String">تقرير العمليات والجرد المؤسسي — ${storeTitle}</Data></Cell>
    </Row>
-   <Row ss:Height="24">
-    <Cell ss:MergeAcross="2" ss:StyleID="SubBanner"><Data ss:Type="String">تاريخ التصدير: ${exportDate} | نظام ARAMKY Gold OS v28.1</Data></Cell>
+   <Row ss:Height="22">
+    <Cell ss:MergeAcross="7" ss:StyleID="SubBanner"><Data ss:Type="String">تاريخ التصدير: ${exportDate} | الفلتر الزمني: ${escapeXml(activeDayFilter)}</Data></Cell>
    </Row>
-   <Row ss:Height="10"/>
+   <Row ss:Height="28">
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">#</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">التاريخ والوقت</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الرمز</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">نوع العملية</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الاتجاه المالي</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">تفاصيل العملية والتعديلات</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">المبلغ / الوزن</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">ربح الصياغة</Data></Cell>
+   </Row>
+   ${logsRowsXml}
    <Row ss:Height="26">
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">البند المالي / المحاسبي</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">القيمة الرقمية (د.ع)</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">التصنيف والتمييز</Data></Cell>
-   </Row>
-   <Row ss:Height="24">
-    <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">إجمالي المبيعات (ضمن الفلتر)</Data></Cell>
-    <Cell ss:StyleID="CellNumPos"><Data ss:Type="Number">${totalSales}</Data></Cell>
-    <Cell ss:StyleID="BadgeSale"><Data ss:Type="String">وارد مبيعات الذهب (+)</Data></Cell>
-   </Row>
-   <Row ss:Height="24">
-    <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">صافي أرباح أجور الصياغة</Data></Cell>
+    <Cell ss:MergeAcross="5" ss:StyleID="CellRightBold"><Data ss:Type="String">إجمالي المبيعات (${salesLogs.length}) | أرباح الصياغة | الكسر (${scrapLogs.length}) | المصاريف (${expLogs.length})</Data></Cell>
+    <Cell ss:StyleID="CellNumPos"><Data ss:Type="Number">${totalSales - totalScrap - totalExp}</Data></Cell>
     <Cell ss:StyleID="CellNumGold"><Data ss:Type="Number">${totalProfit}</Data></Cell>
-    <Cell ss:StyleID="BadgeSale"><Data ss:Type="String">أرباح صافية (+)</Data></Cell>
-   </Row>
-   <Row ss:Height="24">
-    <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">إجمالي شراء الذهب الكسر</Data></Cell>
-    <Cell ss:StyleID="CellNumNeg"><Data ss:Type="Number">${totalScrap}</Data></Cell>
-    <Cell ss:StyleID="BadgeScrap"><Data ss:Type="String">مشتريات كسر (-)</Data></Cell>
-   </Row>
-   <Row ss:Height="24">
-    <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">إجمالي المصاريف اليومية</Data></Cell>
-    <Cell ss:StyleID="CellNumNeg"><Data ss:Type="Number">${totalExp}</Data></Cell>
-    <Cell ss:StyleID="BadgeExp"><Data ss:Type="String">مصاريف تشغيلية (-)</Data></Cell>
-   </Row>
-   <Row ss:Height="10"/>
-   <Row ss:Height="24">
-    <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">إجمالي الديون: تطلبهم (لنا عند الناس +)</Data></Cell>
-    <Cell ss:StyleID="CellNumPos"><Data ss:Type="Number">${totalThemMoney}</Data></Cell>
-    <Cell ss:StyleID="BadgeDebtThem"><Data ss:Type="String">لنا عند الغير — تطلبهم (+)</Data></Cell>
-   </Row>
-   <Row ss:Height="24">
-    <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">إجمالي الديون: يطلبوك / مطلوب منك (-)</Data></Cell>
-    <Cell ss:StyleID="CellNumNeg"><Data ss:Type="Number">${totalUsMoney}</Data></Cell>
-    <Cell ss:StyleID="BadgeDebtUs"><Data ss:Type="String">علينا للغير — يطلبوك (-)</Data></Cell>
-   </Row>
-   <Row ss:Height="24">
-    <Cell ss:StyleID="CellRightBold"><Data ss:Type="String">صافي ميزان الديون (تطلبهم - يطلبوك)</Data></Cell>
-    <Cell ss:StyleID="${netDebtsMoney >= 0 ? 'CellNumPos' : 'CellNumNeg'}"><Data ss:Type="Number">${netDebtsMoney}</Data></Cell>
-    <Cell ss:StyleID="${netDebtsMoney >= 0 ? 'BadgeDebtThem' : 'BadgeDebtUs'}"><Data ss:Type="String">${netDebtsMoney >= 0 ? 'الميزان لصالحك (+)' : 'الميزان عليك (-)'}</Data></Cell>
    </Row>
   </Table>
  </Worksheet>
 
- <Worksheet ss:Name="2_الديون_تطلبهم_ويطلبوك">
-  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><DisplayRightToLeft/></WorksheetOptions>
+ <Worksheet ss:Name="دفتر الديون (تطلبهم ويطلبوك)" ss:RightToLeft="1">
   <Table>
-   <Column ss:Width="50"/>
+   <Column ss:Width="45"/>
    <Column ss:Width="180"/>
-   <Column ss:Width="130"/>
-   <Column ss:Width="180"/>
+   <Column ss:Width="135"/>
+   <Column ss:Width="175"/>
    <Column ss:Width="140"/>
    <Column ss:Width="120"/>
    <Column ss:Width="260"/>
    <Row ss:Height="32">
-    <Cell ss:MergeAcross="6" ss:StyleID="TitleBanner"><Data ss:Type="String">سجل الذمم والديون المفصول — التمييز بين (تطلبهم +) و (يطلبوك / مطلوب منك -)</Data></Cell>
+    <Cell ss:MergeAcross="6" ss:StyleID="TitleBanner"><Data ss:Type="String">دفتر الديون الفخم — تطلبهم (+) ويطلبوك (-)</Data></Cell>
    </Row>
-   <Row ss:Height="10"/>
-   <Row ss:Height="28">
-    <Cell ss:MergeAcross="6" ss:StyleID="SecHeaderThem"><Data ss:Type="String">القسم الأول: تطلبهم (+) — مبالغ وذهب لنا عند الزبائن والتجار (${themCards.length} حساب)</Data></Cell>
+   <Row ss:Height="22">
+    <Cell ss:MergeAcross="6" ss:StyleID="SubBanner"><Data ss:Type="String">إجمالي تطلبهم: ${totalThemMoney.toLocaleString('en-US')} د.ع | إجمالي يطلبوك: ${totalUsMoney.toLocaleString('en-US')} د.ع | الصافي: ${netDebtsMoney.toLocaleString('en-US')} د.ع</Data></Cell>
+   </Row>
+   <Row ss:Height="26">
+    <Cell ss:MergeAcross="6" ss:StyleID="SecHeaderThem"><Data ss:Type="String">أولاً: كارتات تطلبهم — لنا عند الناس (+)</Data></Cell>
    </Row>
    <Row ss:Height="26">
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">#</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">اسم الزبون / التاجر</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">رقم الهاتف</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">حالة الذمة</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الرصيد المالي (د.ع)</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">ذمة الذهب (غرام)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الاسم</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الهاتف</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">التصنيف</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">رصيد الأموال (د.ع)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">رصيد الذهب (غرام)</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">آخر ملاحظة</Data></Cell>
    </Row>
    ${themRowsXml}
-   <Row ss:Height="14"/>
-   <Row ss:Height="28">
-    <Cell ss:MergeAcross="6" ss:StyleID="SecHeaderUs"><Data ss:Type="String">القسم الثاني: يطلبوك / مطلوب منك (-) — مبالغ وذهب علينا للغير (${usCards.length} حساب)</Data></Cell>
+   <Row ss:Height="26">
+    <Cell ss:MergeAcross="6" ss:StyleID="SecHeaderUs"><Data ss:Type="String">ثانياً: كارتات يطلبوك / مطلوب منك — علينا للناس (-)</Data></Cell>
    </Row>
    <Row ss:Height="26">
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">#</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">اسم الدائن / التاجر</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">رقم الهاتف</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">حالة الذمة</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">المبلغ المطلوب منك (د.ع)</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">ذهب مطلوب منك (غرام)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الاسم</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الهاتف</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">التصنيف</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">رصيد الأموال (د.ع)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">رصيد الذهب (غرام)</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">آخر ملاحظة</Data></Cell>
    </Row>
    ${usRowsXml}
-   <Row ss:Height="14"/>
-   <Row ss:Height="26">
-    <Cell ss:MergeAcross="6" ss:StyleID="SubBanner"><Data ss:Type="String">تفاصيل حركات الديون المسجلة في السجل اليومي (${debtLogs.length} حركة)</Data></Cell>
-   </Row>
-   <Row ss:Height="26">
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">#</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">التاريخ والوقت</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الرمز</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">نوع الحركة</Data></Cell>
-    <Cell ss:MergeAcross="2" ss:StyleID="TableHeader"><Data ss:Type="String">بيان الحركة</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">القيمة (د.ع)</Data></Cell>
-   </Row>
-   ${debtMovementsXml}
   </Table>
  </Worksheet>
 
- <Worksheet ss:Name="3_سجل_العمليات_والجرد">
-  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><DisplayRightToLeft/></WorksheetOptions>
+ <Worksheet ss:Name="سجل حركات الديون" ss:RightToLeft="1">
   <Table>
-   <Column ss:Width="50"/>
+   <Column ss:Width="45"/>
    <Column ss:Width="150"/>
    <Column ss:Width="110"/>
-   <Column ss:Width="170"/>
-   <Column ss:Width="150"/>
-   <Column ss:Width="340"/>
-   <Column ss:Width="120"/>
-   <Column ss:Width="120"/>
+   <Column ss:Width="175"/>
+   <Column ss:Width="130"/>
+   <Column ss:Width="130"/>
+   <Column ss:Width="130"/>
+   <Column ss:Width="130"/>
    <Row ss:Height="32">
-    <Cell ss:MergeAcross="7" ss:StyleID="TitleBanner"><Data ss:Type="String">سجل العمليات التفصيلي — كل عملية مميزة بلون ونوع واضح</Data></Cell>
+    <Cell ss:MergeAcross="7" ss:StyleID="TitleBanner"><Data ss:Type="String">سجل حركات الزيادة والنقصان في الديون</Data></Cell>
    </Row>
    <Row ss:Height="26">
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">#</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">التاريخ</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الرمز</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">نوع العملية</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">اتجاه الحركة</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">التفاصيل الكاملة</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">المبلغ (د.ع)</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">أرباح الصياغة</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">النوع</Data></Cell>
+    <Cell ss:MergeAcross="2" ss:StyleID="TableHeader"><Data ss:Type="String">تفاصيل الحركة والملاحظات</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">القيمة</Data></Cell>
    </Row>
-   ${logsRowsXml}
+   ${debtMovementsXml}
   </Table>
  </Worksheet>
 
- <Worksheet ss:Name="4_جرد_المخزن_والأسعار">
-  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><DisplayRightToLeft/></WorksheetOptions>
+ <Worksheet ss:Name="جرد المخزن" ss:RightToLeft="1">
   <Table>
-   <Column ss:Width="50"/>
-   <Column ss:Width="110"/>
-   <Column ss:Width="200"/>
-   <Column ss:Width="130"/>
-   <Column ss:Width="90"/>
-   <Column ss:Width="95"/>
-   <Column ss:Width="80"/>
+   <Column ss:Width="45"/>
+   <Column ss:Width="115"/>
+   <Column ss:Width="180"/>
    <Column ss:Width="120"/>
-   <Column ss:Width="130"/>
+   <Column ss:Width="95"/>
+   <Column ss:Width="105"/>
+   <Column ss:Width="85"/>
+   <Column ss:Width="125"/>
+   <Column ss:Width="140"/>
    <Row ss:Height="32">
-    <Cell ss:MergeAcross="8" ss:StyleID="TitleBanner"><Data ss:Type="String">جرد المخزن الحالي وأسعار المثاقيل المعتمدة</Data></Cell>
+    <Cell ss:MergeAcross="8" ss:StyleID="TitleBanner"><Data ss:Type="String">جرد المخزن الحالي — ${storeTitle}</Data></Cell>
    </Row>
    <Row ss:Height="26">
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">#</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الكود</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">اسم الصنف</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">حالة القطعة</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الحالة</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">العيار</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الوزن (غ)</Data></Cell>
     <Cell ss:StyleID="TableHeader"><Data ss:Type="String">الكمية</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">أجور الغرام</Data></Cell>
-    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">سعر القطعة (د.ع)</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">صياغة الغرام</Data></Cell>
+    <Cell ss:StyleID="TableHeader"><Data ss:Type="String">سعر القطعة التقديري</Data></Cell>
    </Row>
    ${invRowsXml}
   </Table>
@@ -3168,21 +3364,16 @@ function exportLogsToExcel() {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
   showToast('تم تصدير ملف Excel المنظم بنجاح', 'success');
 }
 
 function openLuxuryTransferMethodModal() { document.getElementById('luxury-transfer-method-modal').classList.remove('hidden'); }
 function closeLuxuryTransferMethodModal() { document.getElementById('luxury-transfer-method-modal').classList.add('hidden'); }
-function selectLuxuryTransferMethod(val, label) {
-  document.getElementById('sup-pay-method').value = val;
-  document.getElementById('selected-transfer-method-label').textContent = label;
+function selectLuxuryTransferMethod(value, labelText) {
+  document.getElementById('sup-pay-method').value = value;
+  document.getElementById('selected-transfer-method-label').textContent = labelText;
   closeLuxuryTransferMethodModal();
-}
-
-function openSupportFromLock() {
-  document.getElementById('subscription-lock-screen').classList.add('hidden');
-  switchTab('support');
 }
 
 async function previewSupportReceipt(event) {
@@ -3199,9 +3390,10 @@ async function submitSupportTransfer() {
   const ref = document.getElementById('sup-trans-ref').value.trim();
   const msg = document.getElementById('sup-message').value.trim();
   const imgs = await readFilesAsDataUrls(document.getElementById('sup-receipt-img').files);
+  const image = imgs[0] || document.getElementById('sup-receipt-preview').src || '';
 
-  if (!ref && !msg && !imgs[0]) {
-    showToast('أدخل عنوان الرسالة أو النص أو أرفق صورة', 'warning');
+  if (!ref && !msg && !image) {
+    showToast('يرجى كتابة رسالة أو مرجع أو إرفاق صورة للإدارة', 'error');
     return;
   }
 
@@ -3210,10 +3402,10 @@ async function submitSupportTransfer() {
     tenant: activeTenantCode,
     storeName: db.store.name || activeTenantCode,
     method,
-    ref: ref || 'بدون رقم عملية',
-    msg: msg || method,
-    message: msg || method,
-    image: imgs[0] || '',
+    ref,
+    msg,
+    message: msg,
+    image: image.startsWith('data:image') ? image : '',
     time: new Date().toLocaleString('ar-IQ'),
     date: new Date().toLocaleString('ar-IQ')
   };
@@ -3236,31 +3428,38 @@ async function submitSupportTransfer() {
 }
 
 function renderSupportTickets() {
-  const list = document.getElementById('support-tickets-list');
-  if (!list) return;
-  if (!db.supportTickets.length) {
-    list.innerHTML = '<p class="text-xs text-slate-500">لا توجد رسائل أو تحويلات مرسلة بعد.</p>';
+  const listEl = document.getElementById('support-tickets-list');
+  if (!listEl) return;
+  const tickets = db.supportTickets || [];
+  if (!tickets.length) {
+    listEl.innerHTML = '<p class="text-slate-500 text-xs">لا توجد رسائل أو تحويلات مرسلة بعد.</p>';
     return;
   }
-  list.innerHTML = db.supportTickets.map(t => `
+  listEl.innerHTML = tickets.map(t => `
     <div class="bg-darkbg border border-slate-800 p-3.5 rounded-2xl text-xs space-y-1.5">
       <div class="flex justify-between items-center">
-        <strong class="text-gold">${t.method} — ${t.ref || ''}</strong>
-        <span class="text-[10px] text-slate-400">${t.time || t.date || ''}</span>
+        <strong class="text-gold">${t.method}</strong>
+        <span class="text-slate-500 font-mono text-[10px]">${t.time || t.date || ''}</span>
       </div>
-      <p class="text-slate-300">${t.msg || t.message || ''}</p>
-      ${t.image ? `<img src="${t.image}" onerror="handleBrandImageError(this)" onclick="openImageLightbox('${t.image.replace(/'/g, "\\'")}', '${(t.ref || 'مرفق').replace(/'/g, "\\'")}')" class="max-h-28 rounded-xl border border-gold/40 cursor-pointer">` : ''}
+      ${t.ref ? `<div class="text-cyan-300 font-mono">المرجع: ${t.ref}</div>` : ''}
+      ${(t.msg || t.message) ? `<p class="text-slate-200">${t.msg || t.message}</p>` : ''}
+      ${t.image ? `<img src="${t.image}" onerror="handleBrandImageError(this)" onclick="openImageLightbox('${t.image.replace(/'/g, "\\'")}', '${t.method.replace(/'/g, "\\'")}')" class="max-h-28 rounded-xl border border-gold/30 cursor-pointer mt-1">` : ''}
     </div>
   `).join('');
 }
 
+function openSupportFromLock() {
+  document.getElementById('subscription-lock-screen').classList.add('hidden');
+  switchTab('support');
+}
+
 function openPriceModal() {
-  document.getElementById('modal-p-usd').value = db.prices.usd || 150000;
-  document.getElementById('modal-p-m24').value = db.prices.m24 || 640000;
-  document.getElementById('modal-p-m22').value = db.prices.m22 || 585000;
-  document.getElementById('modal-p-m21').value = db.prices.m21 || 560000;
-  document.getElementById('modal-p-m18').value = db.prices.m18 || 480000;
-  document.getElementById('modal-p-m9').value = db.prices.m9 || 240000;
+  document.getElementById('modal-p-usd').value = db.prices.usd || 0;
+  document.getElementById('modal-p-m24').value = db.prices.m24 || 0;
+  document.getElementById('modal-p-m22').value = db.prices.m22 || 0;
+  document.getElementById('modal-p-m21').value = db.prices.m21 || 0;
+  document.getElementById('modal-p-m18').value = db.prices.m18 || 0;
+  document.getElementById('modal-p-m9').value = db.prices.m9 || 0;
   document.getElementById('price-modal').classList.remove('hidden');
 }
 
@@ -3269,23 +3468,22 @@ function closePriceModal() {
 }
 
 function saveGoldPrices() {
-  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || 150000;
-  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || 640000;
-  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || 585000;
-  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || 560000;
-  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || 480000;
-  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || 240000;
-  const scrapPriceInput = document.getElementById('scrap-mithqal-price');
-  if (scrapPriceInput) delete scrapPriceInput.dataset.manual;
+  const prevPrices = JSON.stringify(db.prices);
+  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || 0;
+  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || 0;
+  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || 0;
+  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || 0;
+  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || 0;
+  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || 0;
+  addLog('تعديل أسعار', `تحديث أسعار المثاقيل والدولار | قبل: ${prevPrices} → بعد: ${JSON.stringify(db.prices)}`, 0);
   saveTenantData();
   renderAll();
   closePriceModal();
-  showToast('تم حفظ أسعار المثاقيل والدولار وتحديث النظام', 'success');
+  showToast('تم حفظ وتحديث أسعار المثاقيل والدولار', 'success');
 }
 
 function toggleCalcModal() {
-  const modal = document.getElementById('calc-modal');
-  modal.classList.toggle('hidden');
+  document.getElementById('calc-modal').classList.toggle('hidden');
 }
 
 function calcAramkyQuick() {
@@ -3314,23 +3512,34 @@ function processInvoiceReturn() {
     return;
   }
   const targetLog = db.logs.find(l => l.type === 'عملية بيع' && String(l.details || '').includes(code));
-  const refundAmount = targetLog ? Number(targetLog.amount || 0) : 0;
+  const refundAmount = targetLog ? Math.abs(Number(targetLog.amount || 0)) : 0;
+  const refundProfit = targetLog ? Math.abs(Number(targetLog.profit || 0)) : 0;
+
   if (refundAmount > 0) {
     db.cash = Number(db.cash || 0) - refundAmount;
+    db.makingProfit = Math.max(0, Number(db.makingProfit || 0) - refundProfit);
   }
-  addLog('إرجاع فاتورة', `إرجاع الفاتورة ${code} — السبب: ${reason}`, -refundAmount);
+  if (targetLog && Array.isArray(targetLog.items)) {
+    targetLog.items.forEach(it => {
+      const invMatch = db.inventory.find(x => x.name === it.name && String(x.karat) === String(it.karat));
+      if (invMatch) invMatch.qty = Number(invMatch.qty || 0) + Number(it.qty || 1);
+    });
+  }
+
+  addLog('إرجاع فاتورة', `إرجاع الفاتورة ${code} | السبب: ${reason}`, -refundAmount);
   saveTenantData();
   renderAll();
   closeReturnModal();
   showToast('تم توثيق إرجاع الفاتورة بنجاح', 'warning');
 }
 
-function openResetSystemModal() {
-  document.getElementById('reset-system-modal').classList.remove('hidden');
-}
-
-function closeResetSystemModal() {
-  document.getElementById('reset-system-modal').classList.add('hidden');
+function openResetSystemModal() { document.getElementById('reset-system-modal').classList.remove('hidden'); }
+function closeResetSystemModal() { document.getElementById('reset-system-modal').classList.add('hidden'); }
+function handleGlobalZeroKey(event) {
+  if (event.altKey && event.key === '0') {
+    event.preventDefault();
+    openResetSystemModal();
+  }
 }
 
 function executeSystemReset(mode) {
@@ -3339,34 +3548,68 @@ function executeSystemReset(mode) {
     db.usd = 0;
     db.zain = 0;
     db.makingProfit = 0;
-    addLog('تصفير خزينة', 'تصفير صناديق الكاش والدولار والماستر وأرباح الصياغة (جرد يومي)', 0);
+    addLog('تصفير خزينة', 'تصفير صناديق الكاش والدولار والماستر وأرباح الصياغة مع بقاء المخزن والديون', 0);
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تم تصفير الخزينة والأرباح مع بقاء المخزن والديون', 'success');
-    return;
-  }
-  if (mode === 'full_factory') {
-    db = defaultTenantData(activeTenantCode);
+    showToast('تم تصفير الخزينة والأرباح بنجاح', 'success');
+  } else if (mode === 'full_factory') {
+    const fresh = defaultTenantData(activeTenantCode);
+    fresh.store = Object.assign(fresh.store, { name: db.store.name, phone: db.store.phone, address: db.store.address, logo: db.store.logo, cover: db.store.cover });
+    db = fresh;
     cart = [];
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تم تصفير النظام بالكامل وإعادته لضبط المصنع', 'warning');
+    showToast('تمت إعادة ضبط النظام بالكامل', 'warning');
   }
 }
 
-function handleGlobalZeroKey(event) {
-  if (event.key === '0' && event.altKey) {
-    event.preventDefault();
-    openResetSystemModal();
+function switchTenantPrompt() {
+  if (CORE) {
+    CORE.logoutTenantSession();
+  } else {
+    localStorage.removeItem('aramky_active_tenant');
   }
+  showLoginScreen();
+}
+
+function showLoginScreen() {
+  const loginScreen = document.getElementById('tenant-login-screen');
+  if (loginScreen) loginScreen.classList.remove('hidden');
+}
+
+function loginTenant() {
+  const code = document.getElementById('login-tenant-code').value.trim().toUpperCase();
+  const phone = document.getElementById('login-tenant-phone').value.trim();
+  const pass = document.getElementById('login-tenant-pass').value;
+
+  if (!code) {
+    showToast('أدخل معرف الحساب / الكود', 'error');
+    return;
+  }
+
+  if (CORE) {
+    const res = CORE.authenticateTenantCredentials(code, phone, pass);
+    if (!res.ok) {
+      showToast(res.message || 'بيانات الدخول غير صحيحة', 'error');
+      return;
+    }
+    CORE.persistTenantSession(code);
+  } else {
+    localStorage.setItem('aramky_active_tenant', code);
+  }
+
+  document.getElementById('tenant-login-screen').classList.add('hidden');
+  loadTenantData(code);
+  renderAll();
+  showToast(`مرحباً بك في حساب ${code}`, 'success');
 }
 
 function handleInventoryAdminTrigger() {
   inventorySecretClicks += 1;
   clearTimeout(inventorySecretTimer);
-  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 1800);
+  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 2200);
   if (inventorySecretClicks >= 5) {
     inventorySecretClicks = 0;
     document.getElementById('admin-secret-password').value = '';
@@ -3379,8 +3622,9 @@ function closeAdminSecretModal() {
 }
 
 function verifyAdminSecretPassword() {
-  const pass = document.getElementById('admin-secret-password').value.trim();
+  const pass = document.getElementById('admin-secret-password').value;
   if (CORE && CORE.verifyAdminPassword(pass)) {
+    CORE.setAdminSessionActive(true);
     closeAdminSecretModal();
     openAdminPanel();
   } else {
@@ -3390,54 +3634,24 @@ function verifyAdminSecretPassword() {
 
 function openAdminPanel() {
   if (CORE) {
-    window.location.href = CORE.getAdminPanelUrl();
+    CORE.setAdminSessionActive(true);
+    CORE.openAdminPanelModal();
   }
 }
 
-function switchTenantPrompt() {
-  if (isPublicCatalogOnly) return;
-  document.getElementById('login-tenant-code').value = activeTenantCode;
-  document.getElementById('login-tenant-phone').value = '';
-  document.getElementById('login-tenant-pass').value = '';
-  document.getElementById('tenant-login-screen').classList.remove('hidden');
-}
-
-function loginTenant() {
-  const code = document.getElementById('login-tenant-code').value.trim().toUpperCase();
-  const phone = document.getElementById('login-tenant-phone').value.trim();
-  const pass = document.getElementById('login-tenant-pass').value.trim();
-
-  if (!code) {
-    showToast('يرجى إدخال معرف الحساب', 'error');
-    return;
-  }
-
-  if (CORE) {
-    const auth = CORE.authenticateTenant(code, phone, pass);
-    if (!auth.ok) {
-      showToast(auth.message || 'بيانات الدخول غير صحيحة', 'error');
-      return;
+async function refreshAppAndClearCache() {
+  try {
+    if ('caches' in window) {
+      const names = await caches.keys();
+      await Promise.all(names.map(n => caches.delete(n)));
     }
-    loadTenantData(auth.tenant.code);
-    db.status = auth.tenant.status || 'نشط';
-    if (auth.tenant.storeName) db.store.name = auth.tenant.storeName;
-    saveTenantData();
-    document.getElementById('tenant-login-screen').classList.add('hidden');
-    if (auth.tenant.status === 'متوقف') {
-      document.getElementById('locked-tenant-info').textContent = `المعرف: ${auth.tenant.code}`;
-      document.getElementById('subscription-lock-screen').classList.remove('hidden');
-    } else {
-      document.getElementById('subscription-lock-screen').classList.add('hidden');
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.update().catch(() => {})));
     }
-    renderAll();
-    showToast(`تم تسجيل الدخول إلى الحساب ${auth.tenant.code}`, 'success');
-    return;
-  }
-
-  loadTenantData(code);
-  document.getElementById('tenant-login-screen').classList.add('hidden');
-  renderAll();
-  showToast(`تم تفعيل الحساب ${code}`, 'success');
+  } catch (_) {}
+  showToast('جاري تحديث الذاكرة وإعادة التحميل...', 'info');
+  setTimeout(() => window.location.reload(), 450);
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -3445,76 +3659,66 @@ window.addEventListener('beforeinstallprompt', (e) => {
   deferredPrompt = e;
 });
 
-function installPWA() {
+async function installPWA() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
-    deferredPrompt.userChoice.finally(() => {
-      deferredPrompt = null;
-      renderAll();
-    });
+    await deferredPrompt.userChoice.catch(() => {});
+    deferredPrompt = null;
+  } else if (CORE && CORE.openInstallGuideModal) {
+    CORE.openInstallGuideModal();
   } else {
-    showToast('للتثبيت: افتح قائمة المتصفح واختر "إضافة إلى الشاشة الرئيسية"', 'info');
+    showToast('يمكنك تثبيت التطبيق من قائمة المتصفح: إضافة إلى الشاشة الرئيسية', 'info');
   }
-}
-
-function refreshAppAndClearCache() {
-  if ('caches' in window) {
-    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).catch(() => {});
-  }
-  showToast('تم تفريغ الكاش وجاري تحديث التطبيق...', 'info');
-  setTimeout(() => { window.location.reload(true); }, 450);
-}
-
-function applyPublicCatalogOnlyMode() {
-  const params = new URLSearchParams(window.location.search);
-  const isShowcase = params.get('view') === 'showcase' || window.location.hash === '#showcase';
-  if (!isShowcase) return;
-
-  isPublicCatalogOnly = true;
-  const refParam = params.get('ref');
-  const resolvedCode = CORE ? CORE.resolveCatalogRef(refParam) : (refParam || 'ARAMKY-01');
-  loadTenantData(resolvedCode);
-
-  ['app-header', 'app-ticker', 'app-main'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.add('hidden');
-  });
-  document.getElementById('tenant-login-screen')?.classList.add('hidden');
-  document.getElementById('subscription-lock-screen')?.classList.add('hidden');
-  openStorefrontView();
 }
 
 function dismissSplashScreen() {
+  if (splashDismissed) return;
+  splashDismissed = true;
   const splash = document.getElementById('aramky-splash-screen');
   if (!splash) return;
   splash.style.opacity = '0';
-  setTimeout(() => splash.remove(), 650);
-}
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
-  });
+  setTimeout(() => {
+    splash.classList.add('hidden');
+    splash.style.display = 'none';
+  }, 450);
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  if (CORE) CORE.ensureInitialized();
-  const savedTenant = localStorage.getItem(CORE ? CORE.keys.activeTenant : 'aramky_active_tenant') || 'ARAMKY-01';
-  loadTenantData(savedTenant);
+  setTimeout(dismissSplashScreen, 1300);
+  setTimeout(dismissSplashScreen, 2600);
 
-  if (CORE) {
-    const tenants = CORE.getTenants();
-    const matched = tenants.find(t => t.code === activeTenantCode);
-    if (matched && matched.status === 'متوقف') {
-      db.status = 'متوقف';
-      document.getElementById('locked-tenant-info').textContent = `المعرف: ${matched.code}`;
-      document.getElementById('subscription-lock-screen').classList.remove('hidden');
-    }
+  const params = new URLSearchParams(window.location.search);
+  const viewParam = params.get('view');
+  const encodedRef = params.get('ref') || params.get('catalog') || params.get('s');
+  const resolvedRef = CORE && encodedRef ? CORE.decodeCatalogRef(encodedRef) : (encodedRef || '');
+
+  if (viewParam === 'showcase' || viewParam === 'storefront' || viewParam === 'catalog') {
+    isPublicCatalogOnly = true;
+    const targetCode = resolvedRef || (CORE ? CORE.getActiveTenantCode() : 'ARAMKY-01');
+    loadTenantData(targetCode);
+    renderAll();
+    document.getElementById('app-header')?.classList.add('hidden');
+    document.getElementById('app-ticker')?.classList.add('hidden');
+    document.getElementById('app-main')?.classList.add('hidden');
+    openStorefrontView();
+    return;
   }
 
-  renderAll();
-  applyPublicCatalogOnlyMode();
-  setTimeout(dismissSplashScreen, 1200);
+  const savedTenant = CORE ? CORE.getActiveTenantCode() : localStorage.getItem('aramky_active_tenant');
+  const hasSession = CORE ? CORE.hasValidTenantSession() : Boolean(savedTenant);
+
+  if (savedTenant && hasSession) {
+    loadTenantData(savedTenant);
+    renderAll();
+    if (CORE && CORE.isSubscriptionExpired(db)) {
+      document.getElementById('locked-tenant-info').textContent = `رقم المعرض: ${activeTenantCode}`;
+      document.getElementById('subscription-lock-screen').classList.remove('hidden');
+    }
+  } else {
+    loadTenantData(savedTenant || 'ARAMKY-01');
+    renderAll();
+    showLoginScreen();
+  }
 });
 </script>
 </body>
