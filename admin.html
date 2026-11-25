@@ -141,7 +141,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <h3 class="font-black text-gold text-base flex items-center gap-2">
           <i class="fa-solid fa-server text-cyan-400"></i> حالة الربط بمفاتيح Supabase داخل سيرفر Render
         </h3>
-        <p class="text-[11px] text-slate-400 mt-0.5">يجلب مفاتيح Supabase العامة من سيرفر Render ويختبر الاتصال؛ وإذا لم يربط يوضح السبب بدقة</p>
+        <p class="text-[11px] text-slate-400 mt-0.5">يقرأ مفاتيح SUPABASE_URL وSUPABASE_KEY من سيرفر Render ويختبر الاتصال؛ وإذا لم يربط يوضح السبب بدقة</p>
       </div>
       <div class="flex flex-wrap items-center gap-2">
         <span id="cloud-connection-badge" class="px-3 py-1 rounded-full text-xs font-black bg-amber-500/20 text-amber-300 border border-amber-500/40">جاري الفحص...</span>
@@ -154,15 +154,15 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
       <div>
         <label class="text-slate-400 block mb-1">رابط سيرفر Render (Render URL):</label>
-        <input type="url" id="cfg-render-url" placeholder="https://your-service.onrender.com" class="w-full bg-darkbg border border-slate-700 focus:border-cyan-400 rounded-xl p-3 font-mono text-cyan-300 outline-none">
+        <input type="url" id="cfg-render-url" placeholder="https://cold-xxxx.onrender.com" class="w-full bg-darkbg border border-slate-700 focus:border-cyan-400 rounded-xl p-3 font-mono text-cyan-300 outline-none">
       </div>
       <div>
         <label class="text-slate-400 block mb-1">رابط Supabase (SUPABASE_URL):</label>
         <input type="url" id="cfg-supabase-url" placeholder="https://xxxx.supabase.co" class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-xl p-3 font-mono text-gold outline-none">
       </div>
       <div>
-        <label class="text-slate-400 block mb-1">مفتاح Supabase العام (SUPABASE_ANON_KEY):</label>
-        <input type="password" id="cfg-supabase-anon" placeholder="eyJhbGciOi..." class="w-full bg-darkbg border border-slate-700 focus:border-emerald-400 rounded-xl p-3 font-mono text-emerald-400 outline-none">
+        <label class="text-slate-400 block mb-1">مفتاح Supabase (SUPABASE_KEY):</label>
+        <input type="password" id="cfg-supabase-key" placeholder="أدخل SUPABASE_KEY" class="w-full bg-darkbg border border-slate-700 focus:border-emerald-400 rounded-xl p-3 font-mono text-emerald-400 outline-none">
       </div>
     </div>
 
@@ -359,76 +359,78 @@ function setCloudDiagnostic(state, titleText, reasonText) {
 }
 
 function populateCloudInputs() {
-  if (!ADMIN_CORE || !ADMIN_CORE.getCloudConfig) return;
-  const cfg = ADMIN_CORE.getCloudConfig();
+  const cfg = ADMIN_CORE?.getCloudConfig ? ADMIN_CORE.getCloudConfig() : {};
   const rInput = document.getElementById('cfg-render-url');
   const sUrlInput = document.getElementById('cfg-supabase-url');
-  const sAnonInput = document.getElementById('cfg-supabase-anon');
-  if (rInput && !rInput.value) rInput.value = cfg.renderApiBase || window.location.origin || '';
+  const sKeyInput = document.getElementById('cfg-supabase-key');
+  if (rInput && !rInput.value) {
+    rInput.value = cfg.renderApiBase || (window.location.origin && !window.location.origin.startsWith('file:') ? window.location.origin : '');
+  }
   if (sUrlInput && !sUrlInput.value) sUrlInput.value = cfg.supabaseUrl || '';
-  if (sAnonInput && !sAnonInput.value) sAnonInput.value = cfg.supabaseAnonKey || '';
+  if (sKeyInput && !sKeyInput.value) sKeyInput.value = cfg.supabaseAnonKey || cfg.supabaseKey || '';
 }
 
 async function fetchKeysFromRenderBackend() {
   populateCloudInputs();
   const rawRenderUrl = (document.getElementById('cfg-render-url')?.value || '').trim().replace(/\/+$/, '');
-  const baseUrl = rawRenderUrl || window.location.origin;
+  const baseUrl = rawRenderUrl || (window.location.origin && !window.location.origin.startsWith('file:') ? window.location.origin : '');
 
-  if (!baseUrl || baseUrl.startsWith('file:')) {
-    setCloudDiagnostic('warning', 'غير مربوط بسيرفر Render', 'السبب: لم يتم إدخال رابط سيرفر Render أو يتم فتح الصفحة محلياً (file://). أدخل رابط خدمة Render ثم أعد الفحص.');
+  if (!baseUrl) {
+    setCloudDiagnostic('warning', 'غير مربوط بسيرفر Render', 'السبب: لم يتم إدخال رابط سيرفر Render أو يتم فتح الصفحة محلياً (file://). أدخل رابط الخدمة على Render ثم أعد الفحص.');
     return { ok: false, reason: 'missing_render_url' };
   }
 
-  const candidatePaths = ['/api/supabase-config', '/api/config', '/health'];
+  const candidatePaths = ['/api/supabase-config', '/api/config', '/config'];
   for (const path of candidatePaths) {
     try {
       const res = await fetch(`${baseUrl}${path}`, { method: 'GET', headers: { 'Accept': 'application/json' } });
       if (res.ok) {
         const data = await res.json().catch(() => ({}));
         const supUrl = data.supabaseUrl || data.SUPABASE_URL || data.supabase_url || '';
-        const supAnon = data.supabaseAnonKey || data.SUPABASE_ANON_KEY || data.supabase_anon_key || '';
+        const supKey = data.supabaseKey || data.SUPABASE_KEY || data.supabaseAnonKey || data.SUPABASE_ANON_KEY || data.supabase_key || '';
         const supTable = data.supabaseTable || data.SUPABASE_TABLE || 'aramky_stores_data';
 
         if (ADMIN_CORE && ADMIN_CORE.saveCloudConfig) {
           ADMIN_CORE.saveCloudConfig({
             renderApiBase: baseUrl,
             supabaseUrl: supUrl || (document.getElementById('cfg-supabase-url')?.value || '').trim(),
-            supabaseAnonKey: supAnon || (document.getElementById('cfg-supabase-anon')?.value || '').trim(),
+            supabaseAnonKey: supKey || (document.getElementById('cfg-supabase-key')?.value || '').trim(),
+            supabaseKey: supKey || (document.getElementById('cfg-supabase-key')?.value || '').trim(),
             supabaseTable: supTable
           });
         }
         if (supUrl && document.getElementById('cfg-supabase-url')) document.getElementById('cfg-supabase-url').value = supUrl;
-        if (supAnon && document.getElementById('cfg-supabase-anon')) document.getElementById('cfg-supabase-anon').value = supAnon;
+        if (supKey && document.getElementById('cfg-supabase-key')) document.getElementById('cfg-supabase-key').value = supKey;
 
-        if (!supUrl || !supAnon) {
+        if (!supUrl || !supKey) {
           return {
             ok: false,
             reason: 'missing_supabase_keys_on_render',
-            detail: `تم الوصول إلى سيرفر Render (${baseUrl}) لكن المفاتيح العامة (SUPABASE_URL أو SUPABASE_ANON_KEY) غير مرسلة أو غير مضبوطة في متغيرات بيئة Render.`
+            detail: `تم الوصول إلى Render (${baseUrl}) لكن المفاتيح (SUPABASE_URL أو SUPABASE_KEY) غير مرسلة من المسار ${path} أو فارغة في متغيرات بيئة Render.`
           };
         }
-        return { ok: true, supUrl, supAnon, supTable };
+        return { ok: true, supUrl, supKey, supTable };
       }
-    } catch (err) {
-      // نكمل المحاولة مع المسارات الأخرى أو نرجع الخطأ أدناه
+    } catch (_) {
+      // تجربة المسار التالي
     }
   }
 
   return {
     ok: false,
     reason: 'render_endpoint_unreachable',
-    detail: `تعذر الحصول على مفاتيح Supabase من سيرفر Render (${baseUrl}). السبب المحتمل: السيرفر في وضع إسبات (Sleep)، أو المسار /api/supabase-config غير مفعّل على Render، أو حظر CORS.`
+    detail: `تعذر جلب مفاتيح Supabase من سيرفر Render (${baseUrl}). السبب المحتمل: مسار /api/supabase-config غير مضاف داخل Main.py أو الخدمة متوقفة/في وضع إسبات أو يوجد حظر CORS.`
   };
 }
 
 async function testRenderSupabaseConnection(notify = false) {
   const fromRender = await fetchKeysFromRenderBackend();
   const supUrl = (document.getElementById('cfg-supabase-url')?.value || '').trim().replace(/\/+$/, '');
-  const supAnon = (document.getElementById('cfg-supabase-anon')?.value || '').trim();
+  const supKey = (document.getElementById('cfg-supabase-key')?.value || '').trim();
   const table = (ADMIN_CORE?.getCloudConfig?.().supabaseTable) || 'aramky_stores_data';
 
-  if (!supUrl || !supAnon) {
-    const reason = fromRender.detail || 'السبب: مفتاح SUPABASE_URL أو SUPABASE_ANON_KEY غير متوفر بعد. تأكد من إضافته في Environment Variables داخل Render أو إدخاله هنا.';
+  if (!supUrl || !supKey) {
+    const reason = fromRender.detail || 'السبب: SUPABASE_URL أو SUPABASE_KEY غير متوفر بعد. تأكد من وجودهما في Environment على Render ومن إرجاعهما في /api/supabase-config داخل Main.py.';
     setCloudDiagnostic('error', 'لم يربط بـ Supabase', reason);
     if (notify) showAdminToast('لم يتم الربط بـ Supabase — راجع السبب الموضح', 'warning');
     return false;
@@ -438,13 +440,13 @@ async function testRenderSupabaseConnection(notify = false) {
     const res = await fetch(`${supUrl}/rest/v1/${encodeURIComponent(table)}?select=tenant_code&limit=1`, {
       method: 'GET',
       headers: {
-        'apikey': supAnon,
-        'Authorization': `Bearer ${supAnon}`
+        'apikey': supKey,
+        'Authorization': `Bearer ${supKey}`
       }
     });
 
     if (res.ok) {
-      setCloudDiagnostic('connected', 'مربوط بنجاح بـ Render و Supabase ✅', `تم التحقق من المفاتيح والاتصال بقاعدة Supabase (الجدول: ${table}) بنجاح.`);
+      setCloudDiagnostic('connected', 'مربوط بنجاح بـ Render و Supabase ✅', `تم الربط والتحقق من SUPABASE_URL وSUPABASE_KEY والاتصال بجدول (${table}) بنجاح.`);
       if (notify) showAdminToast('تم الاتصال بـ Render وSupabase بنجاح', 'success');
       return true;
     }
@@ -452,7 +454,7 @@ async function testRenderSupabaseConnection(notify = false) {
     const errText = await res.text().catch(() => '');
     let why = `رمز الاستجابة HTTP ${res.status}. `;
     if (res.status === 401 || res.status === 403) {
-      why += 'السبب: مفتاح SUPABASE_ANON_KEY غير صحيح أو سياسة RLS تمنع الوصول للجدول.';
+      why += 'السبب: قيمة SUPABASE_KEY غير صحيحة أو سياسة RLS تمنع الوصول إلى الجدول.';
     } else if (res.status === 404) {
       why += `السبب: الجدول (${table}) غير موجود في قاعدة بيانات Supabase.`;
     } else {
@@ -462,7 +464,7 @@ async function testRenderSupabaseConnection(notify = false) {
     if (notify) showAdminToast('فشل الربط بـ Supabase', 'error');
     return false;
   } catch (err) {
-    setCloudDiagnostic('error', 'خطأ شبكة أثناء الربط', `السبب: تعذر الوصول إلى ${supUrl} (${err.message || 'Network Error'}). تأكد من صحة الرابط ومن اتصال الإنترنت.`);
+    setCloudDiagnostic('error', 'خطأ شبكة أثناء الربط', `السبب: تعذر الوصول إلى ${supUrl} (${err.message || 'Network Error'}). تأكد من صحة رابط Supabase ومن اتصال الإنترنت.`);
     if (notify) showAdminToast('تعذر الوصول إلى Supabase', 'error');
     return false;
   }
@@ -471,10 +473,10 @@ async function testRenderSupabaseConnection(notify = false) {
 async function saveCloudSettingsAndSync() {
   const renderApiBase = (document.getElementById('cfg-render-url')?.value || '').trim();
   const supabaseUrl = (document.getElementById('cfg-supabase-url')?.value || '').trim();
-  const supabaseAnonKey = (document.getElementById('cfg-supabase-anon')?.value || '').trim();
+  const supabaseKey = (document.getElementById('cfg-supabase-key')?.value || '').trim();
 
   if (ADMIN_CORE && ADMIN_CORE.saveCloudConfig) {
-    ADMIN_CORE.saveCloudConfig({ renderApiBase, supabaseUrl, supabaseAnonKey });
+    ADMIN_CORE.saveCloudConfig({ renderApiBase, supabaseUrl, supabaseAnonKey: supabaseKey, supabaseKey });
   }
   await testRenderSupabaseConnection(false);
   await broadcastFullSystemState();
