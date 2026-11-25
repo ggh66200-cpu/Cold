@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#070A12">
-<title>ARAMKY Gold OS v28.2 | لوحة إدارة المشتركين والربط السحابي</title>
+<title>ARAMKY Gold OS | لوحة إدارة المشتركين والربط السحابي</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="aramky-core.js"></script>
@@ -52,7 +52,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <img src="icon.png" onerror="window.ARAMKY_CORE.applyImageFallback(this, 'logo')" class="w-full h-full object-cover bg-darkbg">
       </div>
       <div>
-        <h1 class="font-black text-base text-gold">ARAMKY Admin Console <span class="text-[10px] bg-gold/20 text-gold px-2 py-0.5 rounded-full border border-gold/40">v28.2</span></h1>
+        <h1 class="font-black text-base text-gold">ARAMKY Admin Console <span class="text-[10px] bg-gold/20 text-gold px-2 py-0.5 rounded-full border border-gold/40">GOLD OS</span></h1>
         <p class="text-[11px] text-slate-400">إدارة المعارض والمشتركين والبيانات السحابية</p>
       </div>
     </div>
@@ -136,7 +136,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <div class="system-card p-6 rounded-3xl border border-gold/40 space-y-4">
       <h2 class="font-black text-gold text-base border-b border-slate-800 pb-3"><i class="fa-solid fa-user-plus"></i> إضافة أو تحديث حساب مشترك / معرض</h2>
       <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
-        <input type="text" id="sub-code" placeholder="معرف الحساب (مثال: ARAMKY-02)" class="bg-darkbg border border-slate-700 rounded-xl p-3 text-gold font-mono font-bold uppercase outline-none">
+        <input type="text" id="sub-code" placeholder="معرف الحساب (مثال: ARAMKY-STORE)" class="bg-darkbg border border-slate-700 rounded-xl p-3 text-gold font-mono font-bold uppercase outline-none">
         <input type="text" id="sub-name" placeholder="اسم المعرض / المشترك" class="bg-darkbg border border-slate-700 rounded-xl p-3 outline-none">
         <input type="tel" id="sub-phone" placeholder="رقم الهاتف (077...)" class="bg-darkbg border border-slate-700 rounded-xl p-3 text-emerald-400 font-mono outline-none">
         <input type="text" id="sub-pass" placeholder="كلمة مرور الحساب" class="bg-darkbg border border-slate-700 rounded-xl p-3 text-cyan-300 font-mono outline-none">
@@ -194,7 +194,7 @@ function showAdminToast(msg, type = 'info') {
 
 function unlockAdminPanel() {
   const pass = document.getElementById('admin-pass-input').value.trim();
-  const ok = CORE ? CORE.verifyAdminPassword(pass) : (pass === 'ARAMKY-ADMIN-2026' || pass === 'waad sdsd');
+  const ok = CORE ? CORE.verifyAdminPassword(pass) : false;
   if (!ok) {
     showAdminToast('كلمة مرور الأدمن غير صحيحة', 'error');
     return;
@@ -210,7 +210,7 @@ function unlockAdminPanel() {
 function lockAdminConsole() {
   if (CORE && typeof CORE.setAdminSessionActive === 'function') {
     CORE.setAdminSessionActive(false);
-  } else if (CORE) {
+  } else if (CORE && typeof CORE.logoutAdminSession === 'function') {
     CORE.logoutAdminSession();
   }
   document.getElementById('admin-shell').classList.add('hidden');
@@ -220,13 +220,13 @@ function lockAdminConsole() {
 
 function loadSettingsInputs() {
   const cloud = CORE ? CORE.getCloudConfig() : {};
-  const contact = CORE ? CORE.getContactInfo() : { masterCardNumber: '910400201646', supportPhone: '07766083622' };
+  const contact = CORE ? CORE.getContactInfo() : { masterCardNumber: '', supportPhone: '' };
   document.getElementById('cfg-sb-url').value = cloud.supabaseUrl || '';
   document.getElementById('cfg-sb-key').value = cloud.supabaseKey || cloud.supabaseAnonKey || '';
   document.getElementById('cfg-sb-table').value = cloud.supabaseTable || 'aramky_stores_data';
   document.getElementById('cfg-render-base').value = cloud.renderApiBase || '';
-  document.getElementById('cfg-master-card').value = contact.masterCardNumber || '910400201646';
-  document.getElementById('cfg-support-phone').value = contact.supportPhone || '07766083622';
+  document.getElementById('cfg-master-card').value = contact.masterCardNumber || '';
+  document.getElementById('cfg-support-phone').value = contact.supportPhone || '';
 }
 
 function saveAdminAndCloudSettings() {
@@ -246,10 +246,9 @@ function saveAdminAndCloudSettings() {
       supabaseTable: sbTable,
       renderApiBase: renderBase
     });
-    const adminUpdate = {
-      masterCardNumber: masterCard || '910400201646',
-      supportPhone: supportPhone || '07766083622'
-    };
+    const adminUpdate = {};
+    if (masterCard) adminUpdate.masterCardNumber = masterCard;
+    if (supportPhone) adminUpdate.supportPhone = supportPhone;
     if (newPass) adminUpdate.password = newPass;
     CORE.saveAdminConfig(adminUpdate);
   }
@@ -272,7 +271,7 @@ async function runSupabaseConnectivityDiagnostic() {
   const table = String(cfg.supabaseTable || 'aramky_stores_data').trim();
 
   if (!url || !key) {
-    diagBox.innerHTML = '<span class="text-rose-400 font-bold">تعذر الاتصال: رابط Supabase أو المفتاح غير مضبوط (لا في الإعدادات ولا في /api/supabase-config أو /api/config).</span>';
+    diagBox.innerHTML = '<span class="text-rose-400 font-bold">تعذر الاتصال: رابط Supabase أو المفتاح غير مضبوط.</span>';
     return;
   }
 
@@ -286,11 +285,11 @@ async function runSupabaseConnectivityDiagnostic() {
       }
     });
     if (res.ok) {
-      diagBox.innerHTML = `<span class="text-emerald-400 font-bold">✓ الاتصال ناجح مع Supabase</span> — الجدول: <strong class="font-mono text-gold">${table}</strong> (HTTP ${res.status})`;
+      diagBox.innerHTML = `<span class="text-emerald-400 font-bold">✓ الاتصال ناجح مع Supabase</span> — الجدول: <strong class="font-mono text-gold">${table}</strong>`;
       showAdminToast('تم التحقق من الاتصال بـ Supabase بنجاح', 'success');
     } else {
       const txt = await res.text().catch(() => '');
-      diagBox.innerHTML = `<span class="text-rose-400 font-bold">✕ فشل الاتصال بـ Supabase (HTTP ${res.status})</span> — <span class="text-slate-400">${txt.slice(0, 140)}</span>`;
+      diagBox.innerHTML = `<span class="text-rose-400 font-bold">✕ فشل الاتصال بـ Supabase</span> — <span class="text-slate-400">${txt.slice(0, 140)}</span>`;
       showAdminToast('فشل التحقق من الاتصال بـ Supabase', 'error');
     }
   } catch (err) {
@@ -336,7 +335,7 @@ function addOrUpdateSubscriber() {
   const name = document.getElementById('sub-name').value.trim() || `معرض ${code}`;
   const phone = document.getElementById('sub-phone').value.trim();
   const pass = document.getElementById('sub-pass').value.trim();
-  const expiresAt = document.getElementById('sub-expiry').value || '2027-12-31';
+  const expiresAt = document.getElementById('sub-expiry').value || '';
 
   if (!code) {
     showAdminToast('يرجى إدخال معرف الحساب', 'error');
@@ -378,7 +377,7 @@ function editSubscriberRow(idx) {
   document.getElementById('sub-name').value = s.name || '';
   document.getElementById('sub-phone').value = s.phone || '';
   document.getElementById('sub-pass').value = s.pass || '';
-  document.getElementById('sub-expiry').value = s.expiresAt || '2027-12-31';
+  document.getElementById('sub-expiry').value = s.expiresAt || '';
 }
 
 function deleteSubscriberRow(idx) {
@@ -448,7 +447,6 @@ function collectIsolatedLedgers() {
   const container = document.getElementById('isolated-ledgers-list');
   if (!container || !CORE) return;
   const found = [];
-  const prefix = `${CORE.keys.activeTenant.replace('active_tenant', '')}ledger_`;
 
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
