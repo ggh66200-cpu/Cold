@@ -10,10 +10,11 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<title>ARAMKY Gold OS v28.2 | نظام إدارة صياغة الذهب</title>
+<title>ARAMKY Gold OS v28.3 | نظام إدارة صياغة الذهب</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="aramky-core.js"></script>
+<script src="aramky-i18n.js"></script>
 <script>
 tailwind.config = {
   theme: {
@@ -59,7 +60,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <div class="w-80 h-80 rounded-full bg-amber-500/10 blur-3xl"></div>
   </div>
   <div class="relative z-10 text-[11px] font-bold tracking-wider text-amber-300/75">
-    ARAMKY GOLD OS • v28.2
+    ARAMKY GOLD OS • v28.3
   </div>
   <div class="relative z-10 flex flex-col items-center">
     <img
@@ -84,11 +85,11 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <div id="subscription-lock-screen" class="fixed inset-0 bg-darkbg z-[300] flex items-center justify-center p-5 hidden">
   <div class="system-card p-8 rounded-3xl border-2 border-rose-500/60 max-w-md w-full text-center space-y-5 shadow-2xl">
     <div class="w-20 h-20 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto text-4xl"><i class="fa-solid fa-lock"></i></div>
-    <h2 class="text-2xl font-black text-rose-400">الاشتراك متوقف!</h2>
-    <p class="text-sm text-slate-300">انتهت فترة اشتراكك في نظام <strong>ARAMKY Gold OS</strong>.</p>
+    <h2 id="i18n-lock-title" class="text-2xl font-black text-rose-400">الاشتراك متوقف!</h2>
+    <p id="i18n-lock-desc" class="text-sm text-slate-300">اشتراكك متوقف أو منتهي في نظام <strong>ARAMKY Gold OS</strong>. يمكنك فقط التواصل مع الدعم الفني.</p>
     <div class="bg-darkbg p-3 rounded-2xl border border-slate-800 text-xs text-gold font-mono" id="locked-tenant-info">رقم المعرض: --</div>
-    <button onclick="openSupportFromLock()" class="w-full gold-gradient text-darkbg font-black py-3.5 rounded-2xl shadow-lg">إرسال إيصال التجديد 💳</button>
-    <button onclick="switchTenantPrompt()" class="w-full bg-slate-800 text-amber-300 font-bold py-2.5 rounded-xl text-xs">تبديل الحساب / تسجيل الخروج 🔄</button>
+    <button onclick="openSupportFromLock()" class="w-full gold-gradient text-darkbg font-black py-3.5 rounded-2xl shadow-lg"><span id="i18n-lock-support-btn">التواصل مع الدعم الفني 🛟</span></button>
+    <button onclick="switchTenantPrompt()" class="w-full bg-slate-800 text-amber-300 font-bold py-2.5 rounded-xl text-xs"><span id="i18n-lock-switch-btn">تبديل الحساب / تسجيل الخروج 🔄</span></button>
   </div>
 </div>
 
@@ -98,26 +99,26 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <img src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover bg-darkbg">
     </div>
     <div>
-      <h2 class="text-xl font-black text-gold">نظام إدارة صياغة الذهب</h2>
-      <p class="text-xs text-slate-400 mt-1">أدخل المعرف، رقم الهاتف المرتبط، وكلمة المرور في خاناتهم المخصصة</p>
+      <h2 id="i18n-login-title" class="text-xl font-black text-gold">تسجيل دخول المعرض / المشترك</h2>
+      <p id="i18n-login-desc" class="text-xs text-slate-400 mt-1">الدخول متاح فقط للحسابات المعتمدة من الأدمن (الكود، رقم الهاتف، وكلمة المرور)</p>
     </div>
 
     <div class="space-y-3 text-right text-xs">
       <div>
-        <label class="text-amber-300 font-bold block mb-1">معرف الحساب / الكود</label>
+        <label id="i18n-login-code-label" class="text-amber-300 font-bold block mb-1">معرف الحساب / الكود</label>
         <input type="text" id="login-tenant-code" placeholder="مثال: ARAMKY-01" class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-2xl p-3.5 text-center font-mono text-gold font-bold uppercase outline-none">
       </div>
       <div>
-        <label class="text-emerald-300 font-bold block mb-1">رقم الهاتف المرتبط بالحساب</label>
+        <label id="i18n-login-phone-label" class="text-emerald-300 font-bold block mb-1">رقم الهاتف المرتبط بالحساب</label>
         <input type="tel" id="login-tenant-phone" placeholder="مثال: 07766083622" class="w-full bg-darkbg border border-slate-700 focus:border-emerald-400 rounded-2xl p-3.5 text-center font-mono text-emerald-400 font-bold outline-none">
       </div>
       <div>
-        <label class="text-cyan-300 font-bold block mb-1">كلمة المرور</label>
+        <label id="i18n-login-pass-label" class="text-cyan-300 font-bold block mb-1">كلمة المرور</label>
         <input type="password" id="login-tenant-pass" onkeydown="if(event.key==='Enter') loginTenant()" placeholder="أدخل كلمة المرور" class="w-full bg-darkbg border border-slate-700 focus:border-cyan-400 rounded-2xl p-3.5 text-center font-mono text-cyan-300 font-bold outline-none">
       </div>
     </div>
 
-    <button onclick="loginTenant()" class="w-full gold-gradient text-darkbg font-black py-4 rounded-2xl shadow-xl">دخول إلى النظام 🔓</button>
+    <button onclick="loginTenant()" class="w-full gold-gradient text-darkbg font-black py-4 rounded-2xl shadow-xl"><span id="i18n-login-submit-btn">دخول إلى النظام 🔓</span></button>
   </div>
 </div>
 
@@ -369,74 +370,77 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
       <img id="header-store-logo" src="icon.png" onerror="handleBrandImageError(this)" class="w-full h-full object-cover bg-darkbg">
     </div>
     <div>
-      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span id="aramky-install-badge" class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">⚜️ أرامكي v28.2</span></h1>
+      <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span id="aramky-install-badge" class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">⚜️ أرامكي v28.3</span></h1>
       <p class="text-xs text-slate-400 flex items-center gap-2"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">REF: ARAMKY-01</span></p>
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-2">
+    <button onclick="cycleSystemLanguage()" class="bg-gold/15 border border-gold/60 text-gold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-black shadow" title="تبديل اللغة: العربية / کوردی / English">
+      <i class="fa-solid fa-language text-sm"></i> <span id="i18n-lang-label">العربية (AR)</span>
+    </button>
     <button id="pwa-install-btn" onclick="installPWA()" class="bg-emerald-600/20 border border-emerald-500 text-emerald-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-2 font-bold shadow">
       <img src="icon.png" onerror="handleBrandImageError(this)" class="w-5 h-5 rounded-full object-cover bg-darkbg border border-gold/60"> <span id="pwa-install-label">تثبيت / APK ⚜️</span>
     </button>
     <button onclick="refreshAppAndClearCache()" class="bg-cyan-600/20 border border-cyan-500/50 text-cyan-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow" title="تحديث التطبيق وتفريغ الكاش من الذاكرة">
-      <i class="fa-solid fa-rotate"></i> <span>تحديث الذاكرة</span>
+      <i class="fa-solid fa-rotate"></i> <span id="i18n-refresh-label">تحديث الذاكرة</span>
     </button>
     <div id="admin-btn-container" class="hidden">
       <button onclick="openAdminPanel()" class="bg-purple-600/20 border border-purple-500/50 text-purple-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow">
-        <i class="fa-solid fa-user-shield"></i> <span>لوحة الأدمن 👑</span>
+        <i class="fa-solid fa-user-shield"></i> <span id="i18n-admin-label">لوحة الأدمن 👑</span>
       </button>
     </div>
     <button onclick="switchTenantPrompt()" class="bg-amber-600/20 border border-amber-500/50 text-amber-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow">
-      <i class="fa-solid fa-users-gear"></i> <span>تبديل الحساب</span>
+      <i class="fa-solid fa-users-gear"></i> <span id="i18n-switch-label">تبديل الحساب</span>
     </button>
-    <button onclick="openStorefrontView()" class="bg-gold/20 border border-gold/50 text-gold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-store"></i> <span>معرض الزبائن</span></button>
-    <button onclick="openReturnModal()" class="bg-rose-500/15 border border-rose-500/45 text-rose-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-rotate-left"></i> <span>إرجاع فاتورة</span></button>
-    <button onclick="toggleCalcModal()" class="bg-cardbg border border-gold/50 text-gold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-calculator"></i> <span>حاسبة آرامكي</span></button>
-    <button onclick="openPriceModal()" class="bg-cardbg border border-slate-700 text-slate-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow"><i class="fa-solid fa-coins"></i> <span>الأسعار (5)</span></button>
-    <button onclick="openResetSystemModal()" class="bg-rose-600/20 border border-rose-500/60 text-rose-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow" title="تصفير النظام (0)"><i class="fa-solid fa-power-off"></i> <span>تصفير (0)</span></button>
+    <button onclick="openStorefrontView()" class="bg-gold/20 border border-gold/50 text-gold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-store"></i> <span id="i18n-storefront-label">معرض الزبائن</span></button>
+    <button onclick="openReturnModal()" class="bg-rose-500/15 border border-rose-500/45 text-rose-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-rotate-left"></i> <span id="i18n-return-label">إرجاع فاتورة</span></button>
+    <button onclick="toggleCalcModal()" class="bg-cardbg border border-gold/50 text-gold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow"><i class="fa-solid fa-calculator"></i> <span id="i18n-calc-label">حاسبة آرامكي</span></button>
+    <button onclick="openPriceModal()" class="bg-cardbg border border-slate-700 text-slate-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow"><i class="fa-solid fa-coins"></i> <span id="i18n-prices-label">الأسعار (5)</span></button>
+    <button onclick="openResetSystemModal()" class="bg-rose-600/20 border border-rose-500/60 text-rose-300 text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold shadow" title="تصفير النظام (0)"><i class="fa-solid fa-power-off"></i> <span id="i18n-reset-label">تصفير (0)</span></button>
   </div>
 </header>
 
 <section id="app-ticker" class="bg-cardbg/90 border-b border-slate-800 py-2.5 px-5 overflow-x-auto">
   <div class="flex items-center gap-4 min-w-max text-xs">
-    <span class="text-gold font-bold flex items-center gap-1.5"><i class="fa-solid fa-chart-line animate-pulse"></i> الأسعار والمثاقيل:</span>
-    <div class="bg-darkbg px-3 py-1 rounded-lg border border-slate-700">الورقة (100$): <span id="ticker-usd" class="text-emerald-400 font-bold">0</span> د.ع</div>
-    <div class="bg-darkbg px-3 py-1 rounded-lg border border-slate-700">عيار 24: <span id="ticker-g24" class="text-gold font-bold">0</span></div>
-    <div class="bg-darkbg px-3 py-1 rounded-lg border border-slate-700">عيار 22: <span id="ticker-g22" class="text-gold font-bold">0</span></div>
-    <div class="bg-darkbg px-3 py-1 rounded-lg border border-slate-700">عيار 21: <span id="ticker-g21" class="text-gold font-bold">0</span></div>
-    <div class="bg-darkbg px-3 py-1 rounded-lg border border-slate-700">عيار 18: <span id="ticker-g18" class="text-gold font-bold">0</span></div>
-    <div class="bg-darkbg px-3 py-1 rounded-lg border border-slate-700">عيار 9: <span id="ticker-g9" class="text-gold font-bold">0</span></div>
+    <span class="text-gold font-bold flex items-center gap-1.5"><i class="fa-solid fa-chart-line animate-pulse"></i> <span id="i18n-ticker-title">الأسعار والمثاقيل:</span></span>
+    <div class="bg-darkbg px-3 py-1 rounded-lg border border-slate-700"><span id="i18n-ticker-usd">الورقة (100$):</span> <span id="ticker-usd" class="text-emerald-400 font-bold">0</span> د.ع</div>
+    <div class="bg-darkbg px-3 py-1 rounded-lg border border-slate-700"><span id="i18n-ticker-m24">عيار 24:</span> <span id="ticker-g24" class="text-gold font-bold">0</span></div>
+    <div class="bg-darkbg px-3 py-1 rounded-lg border border-slate-700"><span id="i18n-ticker-m22">عيار 22:</span> <span id="ticker-g22" class="text-gold font-bold">0</span></div>
+    <div class="bg-darkbg px-3 py-1 rounded-lg border border-slate-700"><span id="i18n-ticker-m21">عيار 21:</span> <span id="ticker-g21" class="text-gold font-bold">0</span></div>
+    <div class="bg-darkbg px-3 py-1 rounded-lg border border-slate-700"><span id="i18n-ticker-m18">عيار 18:</span> <span id="ticker-g18" class="text-gold font-bold">0</span></div>
+    <div class="bg-darkbg px-3 py-1 rounded-lg border border-slate-700"><span id="i18n-ticker-m9">عيار 9:</span> <span id="ticker-g9" class="text-gold font-bold">0</span></div>
   </div>
 </section>
 
 <main id="app-main" class="flex-1 p-5 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-4 gap-6">
   <aside class="lg:col-span-1 glass p-4 rounded-3xl flex flex-col gap-2 h-fit shadow-2xl border border-gold/20">
-    <h2 class="text-xs text-slate-400 font-bold mb-2 px-2">لوحة التحكم المؤسسية</h2>
-    <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 bg-gold text-darkbg font-bold shadow-lg"><i class="fa-solid fa-house-chimney w-5"></i> <span>الرئيسية والخزينة</span></button>
-    <button onclick="switchTab('pos')" id="btn-tab-pos" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-cash-register w-5"></i> <span>نقطة البيع (الكاسير)</span></button>
-    <button onclick="switchTab('scrap')" id="btn-tab-scrap" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-scale-balanced w-5"></i> <span>شراء ذهب كسر</span></button>
-    <button onclick="switchTab('inventory')" id="btn-tab-inventory" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-boxes-stacked w-5"></i> <span>المخزن (تعديل وحذف)</span></button>
-    <button onclick="switchTab('store-settings')" id="btn-tab-store-settings" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-store w-5"></i> <span>إعدادات المعرض والشعار</span></button>
-    <button onclick="switchTab('debts')" id="btn-tab-debts" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-file-invoice-dollar w-5"></i> <span>دفتر الديون (تطلبهم ويطلبوك)</span></button>
-    <button onclick="switchTab('logs')" id="btn-tab-logs" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-chart-pie w-5"></i> <span>الأرباح وجرد Excel</span></button>
-    <button onclick="switchTab('support')" id="btn-tab-support" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-blue-300 hover:bg-slate-800 border border-blue-500/30"><i class="fa-solid fa-headset w-5"></i> <span>الدعم ومراسلة الأدمن</span></button>
+    <h2 id="i18n-sidebar-title" class="text-xs text-slate-400 font-bold mb-2 px-2">لوحة التحكم المؤسسية</h2>
+    <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 bg-gold text-darkbg font-bold shadow-lg"><i class="fa-solid fa-house-chimney w-5"></i> <span id="i18n-tab-dashboard">الرئيسية والخزينة</span></button>
+    <button onclick="switchTab('pos')" id="btn-tab-pos" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-cash-register w-5"></i> <span id="i18n-tab-pos">نقطة البيع (الكاسير)</span></button>
+    <button onclick="switchTab('scrap')" id="btn-tab-scrap" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-scale-balanced w-5"></i> <span id="i18n-tab-scrap">شراء ذهب كسر</span></button>
+    <button onclick="switchTab('inventory')" id="btn-tab-inventory" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-boxes-stacked w-5"></i> <span id="i18n-tab-inventory">المخزن (تعديل وحذف)</span></button>
+    <button onclick="switchTab('store-settings')" id="btn-tab-store-settings" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-store w-5"></i> <span id="i18n-tab-store-settings">إعدادات المعرض والشعار</span></button>
+    <button onclick="switchTab('debts')" id="btn-tab-debts" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-file-invoice-dollar w-5"></i> <span id="i18n-tab-debts">دفتر الديون (تطلبهم ويطلبوك)</span></button>
+    <button onclick="switchTab('logs')" id="btn-tab-logs" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-slate-300 hover:bg-slate-800"><i class="fa-solid fa-chart-pie w-5"></i> <span id="i18n-tab-logs">الأرباح وجرد Excel</span></button>
+    <button onclick="switchTab('support')" id="btn-tab-support" class="tab-btn w-full text-right px-4 py-3 rounded-2xl flex items-center gap-3 text-blue-300 hover:bg-slate-800 border border-blue-500/30"><i class="fa-solid fa-headset w-5"></i> <span id="i18n-tab-support">الدعم ومراسلة الأدمن</span></button>
   </aside>
 
   <section class="lg:col-span-3 space-y-6">
     <div id="view-dashboard" class="space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="system-card p-5 rounded-3xl border border-slate-700/60 shadow-xl"><p class="text-xs text-slate-400">صندوق الكاش (دينار)</p><h3 id="dash-cash" class="text-xl font-black text-gold mt-1">0 د.ع</h3></div>
-        <div class="system-card p-5 rounded-3xl border border-slate-700/60 shadow-xl"><p class="text-xs text-slate-400">صندوق الدولار ($)</p><h3 id="dash-usd" class="text-xl font-black text-emerald-400 mt-1">$0</h3></div>
-        <div class="system-card p-5 rounded-3xl border border-slate-700/60 shadow-xl"><p class="text-xs text-slate-400">زين كاش والماستر</p><h3 id="dash-zain" class="text-xl font-black text-blue-400 mt-1">0 د.ع</h3></div>
-        <div class="system-card p-5 rounded-3xl border border-gold/40 shadow-xl bg-gold/5"><p class="text-xs text-gold font-bold">صافي أرباح الصياغة</p><h3 id="dash-making-profit" class="text-xl font-black text-emerald-400 mt-1">0 د.ع</h3></div>
+        <div class="system-card p-5 rounded-3xl border border-slate-700/60 shadow-xl"><p id="i18n-dash-cash" class="text-xs text-slate-400">صندوق الكاش (دينار)</p><h3 id="dash-cash" class="text-xl font-black text-gold mt-1">0 د.ع</h3></div>
+        <div class="system-card p-5 rounded-3xl border border-slate-700/60 shadow-xl"><p id="i18n-dash-usd" class="text-xs text-slate-400">صندوق الدولار ($)</p><h3 id="dash-usd" class="text-xl font-black text-emerald-400 mt-1">$0</h3></div>
+        <div class="system-card p-5 rounded-3xl border border-slate-700/60 shadow-xl"><p id="i18n-dash-zain" class="text-xs text-slate-400">زين كاش والماستر</p><h3 id="dash-zain" class="text-xl font-black text-blue-400 mt-1">0 د.ع</h3></div>
+        <div class="system-card p-5 rounded-3xl border border-gold/40 shadow-xl bg-gold/5"><p id="i18n-dash-profit" class="text-xs text-gold font-bold">صافي أرباح الصياغة</p><h3 id="dash-making-profit" class="text-xl font-black text-emerald-400 mt-1">0 د.ع</h3></div>
       </div>
       <div class="system-card p-6 rounded-3xl border border-slate-700/60 shadow-xl space-y-3">
-        <h3 class="font-bold text-gold"><i class="fa-solid fa-money-bill-transfer"></i> تسجيل مصروف يومي</h3>
+        <h3 class="font-bold text-gold"><i class="fa-solid fa-money-bill-transfer"></i> <span id="i18n-exp-title">تسجيل مصروف يومي</span></h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <input type="text" id="exp-reason" placeholder="سبب المصروف" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
           <input type="number" id="exp-amount" placeholder="المبلغ (دينار)" class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
           <input type="text" id="exp-notes" placeholder="ملاحظات..." class="bg-darkbg border border-slate-700 rounded-2xl p-3 text-sm outline-none">
         </div>
-        <button onclick="addExpense()" class="w-full gold-gradient text-darkbg font-bold py-3 rounded-2xl shadow-lg">تسجيل المصروف</button>
+        <button onclick="addExpense()" class="w-full gold-gradient text-darkbg font-bold py-3 rounded-2xl shadow-lg"><span id="i18n-exp-save-btn">تسجيل المصروف</span></button>
       </div>
     </div>
 
@@ -1194,6 +1198,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 <script>
 const MITHQAL_GRAMS = 5;
 const CORE = window.ARAMKY_CORE;
+const I18N = window.ARAMKY_I18N;
 
 let activeTenantCode = 'ARAMKY-01';
 let isPublicCatalogOnly = false;
@@ -1225,6 +1230,14 @@ function handleBrandImageError(img) {
 function handleSplashLogoFallback(img) {
   if (CORE) CORE.applyImageFallback(img, 'logo');
   else if (img && img.src !== 'icon.png') { img.onerror = null; img.src = 'icon.png'; }
+}
+
+function cycleSystemLanguage() {
+  if (I18N) {
+    I18N.cycleLanguage();
+    renderAll();
+    showToast(`تم تغيير اللغة إلى: ${I18N.t('label')}`, 'info');
+  }
 }
 
 function showToast(msg, type = 'info') {
@@ -1327,7 +1340,8 @@ function defaultTenantData(code) {
       bio: 'نظام إدارة صياغة الذهب والمعرض الرقمي الذكي',
       logo: 'icon.png',
       cover: 'icon.png'
-    }
+    },
+    updatedAt: new Date().toISOString()
   };
 }
 
@@ -1347,17 +1361,22 @@ function loadTenantData(code) {
         } catch (_) { return null; }
       })();
 
-  db = Object.assign(defaultTenantData(cleanCode), loaded || {});
-  db.prices = Object.assign(defaultTenantData(cleanCode).prices, (loaded && loaded.prices) || {});
-  db.store = Object.assign(defaultTenantData(cleanCode).store, (loaded && loaded.store) || {});
-  db.inventory = Array.isArray(db.inventory) ? db.inventory : [];
-  db.debts = Array.isArray(db.debts) ? db.debts : [];
-  db.logs = Array.isArray(db.logs) ? db.logs : [];
-  db.supportTickets = Array.isArray(db.supportTickets) ? db.supportTickets : [];
+  if (CORE && typeof CORE.normalizeTenantPayload === 'function') {
+    db = CORE.normalizeTenantPayload(Object.assign(defaultTenantData(cleanCode), loaded || {}), cleanCode);
+  } else {
+    db = Object.assign(defaultTenantData(cleanCode), loaded || {});
+    db.prices = Object.assign(defaultTenantData(cleanCode).prices, (loaded && loaded.prices) || {});
+    db.store = Object.assign(defaultTenantData(cleanCode).store, (loaded && loaded.store) || {});
+    db.inventory = Array.isArray(db.inventory) ? db.inventory : [];
+    db.debts = Array.isArray(db.debts) ? db.debts : [];
+    db.logs = Array.isArray(db.logs) ? db.logs : [];
+    db.supportTickets = Array.isArray(db.supportTickets) ? db.supportTickets : [];
+  }
 }
 
 function saveTenantData() {
   if (isPublicCatalogOnly) return;
+  db.updatedAt = new Date().toISOString();
   const key = CORE ? CORE.getTenantDataKey(activeTenantCode) : `aramky_gold_data_${activeTenantCode}`;
   const ok = CORE
     ? CORE.writeSecureStorage(key, db, `TENANT_${activeTenantCode}`)
@@ -1402,10 +1421,34 @@ function saveCustomerLedgerEntry(customerName, phone, entry) {
   CORE.writeSecureStorage(ledgerKey, normalized, `CUST_${activeTenantCode}_${custKey}`);
 }
 
+function isCurrentTenantAuthorized() {
+  if (isPublicCatalogOnly) return true;
+  if (!CORE) return true;
+  if (typeof CORE.isSubscriberApproved === 'function') {
+    return CORE.isSubscriberApproved(activeTenantCode);
+  }
+  const reg = CORE.getTenantsRegistry();
+  return reg.some(t => String(t.code || '').toUpperCase() === String(activeTenantCode || '').toUpperCase());
+}
+
+function isCurrentTenantLocked() {
+  if (isPublicCatalogOnly) return false;
+  if (CORE && typeof CORE.isSubscriptionExpired === 'function') {
+    const reg = CORE.getTenantsRegistry().find(t => String(t.code || '').toUpperCase() === String(activeTenantCode || '').toUpperCase());
+    return CORE.isSubscriptionExpired(reg || db);
+  }
+  return String(db.status || '').trim() === 'متوقف';
+}
+
 function renderAll() {
+  if (I18N) I18N.applyLanguageToDom();
   if (CORE) CORE.syncAdminUiVisibility();
+
+  const locked = isCurrentTenantLocked();
   document.getElementById('header-store-name').textContent = db.store.name || 'ARAMKY';
-  document.getElementById('header-sub-status').textContent = db.status || 'نشط';
+  document.getElementById('header-sub-status').textContent = locked
+    ? (I18N ? I18N.t('statusLocked') : 'متوقف')
+    : (I18N ? I18N.t('statusActive') : (db.status || 'نشط'));
   const refTag = CORE ? CORE.encodeCatalogRef(activeTenantCode).slice(0, 8).toUpperCase() : activeTenantCode;
   document.getElementById('header-tenant-id').textContent = `REF: ${refTag}`;
   document.getElementById('sup-tenant-badge').textContent = `REF: ${refTag}`;
@@ -1418,14 +1461,6 @@ function renderAll() {
     if (masterEl) masterEl.textContent = contact.masterCardNumber;
     if (waNumEl) waNumEl.textContent = contact.supportPhone;
     if (waBtn) waBtn.href = contact.whatsappUrl;
-  }
-
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  const badge = document.getElementById('aramky-install-badge');
-  const pwaLabel = document.getElementById('pwa-install-label');
-  if (isStandalone) {
-    if (badge) badge.textContent = '⚜️ مثبت (PWA)';
-    if (pwaLabel) pwaLabel.textContent = 'مثبت على الجهاز ✓';
   }
 
   const logoSrc = db.store.logo || 'icon.png';
@@ -1465,6 +1500,11 @@ function renderAll() {
 }
 
 function switchTab(tabName) {
+  if (isCurrentTenantLocked() && tabName !== 'support') {
+    showToast('اشتراكك متوقف — متاح فقط مركز الدعم الفني', 'warning');
+    checkSubscriptionLock();
+    return;
+  }
   const tabs = ['dashboard', 'pos', 'scrap', 'inventory', 'store-settings', 'debts', 'logs', 'support'];
   tabs.forEach(t => {
     const view = document.getElementById(`view-${t}`);
@@ -1607,7 +1647,8 @@ async function addNewInventoryItem() {
     makingPerGram,
     published,
     notes,
-    images: imgs
+    images: imgs,
+    updatedAt: new Date().toISOString()
   });
 
   addLog('إضافة مخزن', `إضافة ${name} (${condition === 'used' ? 'مستعمل' : 'جديد'}) عيار ${karat} وزن ${weight}غ كمية ${qty} صياغة ${makingPerGram}/غ${notes ? ' | ملاحظة: ' + notes : ''}`, weight * qty);
@@ -1725,6 +1766,7 @@ function saveEditedInventoryItem() {
   item.notes = document.getElementById('edit-inv-notes').value.trim();
   item.published = document.getElementById('edit-inv-publish').checked;
   item.images = [...editGalleryImages];
+  item.updatedAt = new Date().toISOString();
   const reason = document.getElementById('edit-inv-reason').value.trim() || 'تعديل بيانات القطعة';
   const afterSummary = `${item.name} (${item.condition === 'used' ? 'مستعمل' : 'جديد'}, عيار ${item.karat}, ${item.weight}غ, عدد ${item.qty}, صياغة ${item.makingPerGram || 0})`;
   addLog('تعديل مخزن', `السبب: ${reason} | قبل: ${beforeSummary} → بعد: ${afterSummary}`, item.weight);
@@ -2080,6 +2122,7 @@ function completeSale(type) {
     totalIqd += lineTotal;
     totalMakingProfit += lineMaking;
     invItem.qty = Number(invItem.qty) - c.qty;
+    invItem.updatedAt = new Date().toISOString();
     soldItems.push({
       name: c.name,
       karat: c.karat,
@@ -2262,7 +2305,8 @@ function buyScrapGold() {
     makingPerGram: 0,
     published: false,
     notes: notes || `شراء كسر من ${seller} ${phone ? '(' + phone + ')' : ''}`,
-    images: []
+    images: [],
+    updatedAt: new Date().toISOString()
   });
 
   addLog('شراء كسر', `شراء كسر من ${seller} عيار ${karat} وزن ${weight}غ (خصم غرام: ${deductPerGram})${notes ? ' | ملاحظة: ' + notes : ''}`, -totalIqd);
@@ -2819,9 +2863,7 @@ function applyTestMithqalToAudit() {
   const mqPrice = parseFloat(document.getElementById('test-mq-price').value) || 0;
   document.getElementById('mithqal-audit-karat').value = karat;
   document.getElementById('selected-mithqal-filter-label').textContent = `مثقال عيار ${karat}`;
-  if (mqPrice > 0) {
-    document.getElementById('mithqal-audit-custom-price').value = mqPrice;
-  }
+  if (mqPrice > 0) document.getElementById('mithqal-audit-custom-price').value = mqPrice;
   closeLuxuryMithqalTestModal();
   renderMithqalMakingAudit();
   showToast(`تم اعتماد مثقال عيار ${karat} في الجرد`, 'success');
@@ -2829,91 +2871,66 @@ function applyTestMithqalToAudit() {
 
 function renderMithqalMakingAudit() {
   const selectedKarat = document.getElementById('mithqal-audit-karat').value || 'all';
-  const saleLogs = db.logs.filter(l => l.type === 'عملية بيع' && Array.isArray(l.items));
-  const rows = [];
-
-  saleLogs.forEach(log => {
-    log.items.forEach(item => {
-      if (selectedKarat !== 'all' && String(item.karat) !== String(selectedKarat)) return;
-      const w = Number(item.weight || 0) * Number(item.qty || 1);
-      const mqCount = w / MITHQAL_GRAMS;
-      const makingPerGram = Number(item.makingPerGram || 0);
-      const makingPerMithqal = Math.round(makingPerGram * MITHQAL_GRAMS);
-      const makingProfit = Math.round(w * makingPerGram);
-      rows.push({
-        label: `${item.name} (${log.code || log.id || ''})`,
-        karat: item.karat,
-        weight: w,
-        mqCount,
-        makingPerMithqal,
-        makingProfit
+  const soldRows = [];
+  db.logs.forEach(log => {
+    if (log.type === 'عملية بيع' && Array.isArray(log.items)) {
+      log.items.forEach(item => {
+        if (selectedKarat === 'all' || String(item.karat) === String(selectedKarat)) {
+          const w = Number(item.weight || 0) * Number(item.qty || 1);
+          const mq = w / MITHQAL_GRAMS;
+          const making = Number(item.lineMaking || (w * Number(item.makingPerGram || 0)));
+          const makingPerMq = mq > 0 ? Math.round(making / mq) : 0;
+          soldRows.push({
+            label: `${item.name} (${log.code})`,
+            karat: item.karat,
+            weight: w,
+            mithqals: mq,
+            makingPerMq,
+            making
+          });
+        }
       });
-    });
+    }
   });
 
-  const totalWeight = rows.reduce((s, r) => s + r.weight, 0);
-  const totalMq = rows.reduce((s, r) => s + r.mqCount, 0);
-  const totalProfit = rows.reduce((s, r) => s + r.makingProfit, 0);
-  const profitPerMq = totalMq > 0 ? Math.round(totalProfit / totalMq) : 0;
+  const totalCount = soldRows.length;
+  const totalWeight = soldRows.reduce((s, r) => s + r.weight, 0);
+  const totalMithqals = totalWeight / MITHQAL_GRAMS;
+  const totalMaking = soldRows.reduce((s, r) => s + r.making, 0);
+  const avgMakingPerMq = totalMithqals > 0 ? Math.round(totalMaking / totalMithqals) : 0;
 
-  document.getElementById('audit-sold-count').textContent = String(rows.length);
-  document.getElementById('audit-sold-weight').textContent = `${totalWeight.toFixed(3).replace(/\.?0+$/, '')} غ (${totalMq.toFixed(2)} مثقال)`;
-  document.getElementById('audit-making-total').textContent = formatIQD(totalProfit);
-  document.getElementById('audit-making-per-mithqal').textContent = formatIQD(profitPerMq);
+  document.getElementById('audit-sold-count').textContent = totalCount;
+  document.getElementById('audit-sold-weight').textContent = `${totalWeight.toFixed(2)} غ (${totalMithqals.toFixed(2)} مثقال)`;
+  document.getElementById('audit-making-total').textContent = formatIQD(totalMaking);
+  document.getElementById('audit-making-per-mithqal').textContent = formatIQD(avgMakingPerMq);
 
   const tbody = document.getElementById('mithqal-audit-tbody');
-  if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">لا توجد مبيعات مسجلة لهذا المثقال بعد.</td></tr>';
+  if (!soldRows.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">لا توجد مبيعات مسجلة ضمن هذا العيار بعد.</td></tr>';
     return;
   }
-  tbody.innerHTML = rows.map(r => `
+  tbody.innerHTML = soldRows.map(r => `
     <tr>
       <td class="p-2.5 font-bold text-slate-200">${r.label}</td>
       <td class="p-2.5 text-gold font-bold">عيار ${r.karat}</td>
-      <td class="p-2.5 font-mono">${r.weight.toFixed(3).replace(/\.?0+$/, '')} غ</td>
-      <td class="p-2.5 font-mono text-emerald-400">${r.mqCount.toFixed(2)}</td>
-      <td class="p-2.5 text-amber-300">${formatIQD(r.makingPerMithqal)}</td>
-      <td class="p-2.5 font-black text-emerald-400">${formatIQD(r.makingProfit)}</td>
+      <td class="p-2.5">${r.weight.toFixed(2)} غ</td>
+      <td class="p-2.5 text-emerald-400 font-mono">${r.mithqals.toFixed(2)}</td>
+      <td class="p-2.5 text-amber-300 font-bold">${formatIQD(r.makingPerMq)}</td>
+      <td class="p-2.5 text-emerald-400 font-black">${formatIQD(r.making)}</td>
     </tr>
   `).join('');
 }
 
 function addLog(type, details, amount = 0, makingProfit = 0, items = null) {
-  const now = new Date();
-  const codePrefix = {
-    'عملية بيع': 'INV',
-    'شراء كسر': 'SCR',
-    'تعديل مخزن': 'EDT',
-    'حذف مخزن': 'DEL',
-    'إضافة مخزن': 'ADD',
-    'إرجاع فاتورة': 'RTN',
-    'حركة ديون': 'DBT',
-    'صرف مصروف': 'EXP',
-    'تعديل معرض': 'STR'
-  }[type] || 'LOG';
-
   db.logs.unshift({
-    id: `${codePrefix}-${now.getTime().toString().slice(-6)}`,
-    code: `${codePrefix}-${now.getTime().toString().slice(-6)}`,
+    code: 'LOG-' + Date.now().toString().slice(-6),
     type,
     details,
-    amount: Number(amount || 0),
-    makingProfit: Number(makingProfit || 0),
-    items: items || null,
-    date: now.toISOString(),
-    dateText: now.toLocaleString('ar-IQ')
+    amount,
+    makingProfit,
+    items,
+    date: new Date().toISOString()
   });
-}
-
-function switchLogCategory(cat) {
-  activeLogCategory = cat;
-  document.querySelectorAll('.cat-btn').forEach(btn => {
-    const isActive = btn.id === `log-cat-${cat}`;
-    btn.className = isActive
-      ? 'cat-btn bg-gold text-darkbg px-3.5 py-1.5 rounded-xl font-bold'
-      : 'cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700';
-  });
-  filterLogs();
 }
 
 function setDayFilter(dayLabel) {
@@ -2921,178 +2938,211 @@ function setDayFilter(dayLabel) {
   customFilterDate = '';
   document.getElementById('search-date').value = '';
   document.querySelectorAll('.day-filter-btn').forEach(btn => {
-    btn.className = btn.id === `day-btn-${dayLabel}`
-      ? 'day-filter-btn bg-gold text-darkbg font-bold px-3 py-1.5 rounded-xl'
-      : 'day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl';
+    btn.className = 'day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl';
   });
+  const activeBtn = document.getElementById(`day-btn-${dayLabel}`);
+  if (activeBtn) activeBtn.className = 'day-filter-btn bg-gold text-darkbg font-bold px-3 py-1.5 rounded-xl';
   filterLogs();
 }
 
 function setCustomDateFilter() {
   customFilterDate = document.getElementById('search-date').value || '';
-  if (customFilterDate) {
-    activeDayFilter = 'مخصص';
-    document.querySelectorAll('.day-filter-btn').forEach(btn => {
-      btn.className = 'day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl';
-    });
-  }
   filterLogs();
 }
 
-function isLogInPeriod(log) {
-  const t = new Date(log.date || Date.now()).getTime();
+function switchLogCategory(cat) {
+  activeLogCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.className = 'cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700';
+  });
+  const btn = document.getElementById(`log-cat-${cat}`);
+  if (btn) btn.className = 'cat-btn bg-gold text-darkbg px-3.5 py-1.5 rounded-xl font-bold';
+  filterLogs();
+}
+
+function matchesDateFilter(isoStr) {
+  const d = new Date(isoStr);
+  if (isNaN(d.getTime())) return true;
+  if (customFilterDate) {
+    const localYmd = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return localYmd === customFilterDate;
+  }
   const now = new Date();
   const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   const dayMs = 86400000;
-
-  if (customFilterDate) {
-    const parts = customFilterDate.split('-').map(Number);
-    if (parts.length === 3) {
-      const s = new Date(parts[0], parts[1] - 1, parts[2]).getTime();
-      return t >= s && t < s + dayMs;
-    }
-  }
-  if (activeDayFilter === 'اليوم') return t >= startToday;
-  if (activeDayFilter === 'البارحة') return t >= startToday - dayMs && t < startToday;
-  if (activeDayFilter === 'الأسبوع') return t >= startToday - (6 * dayMs);
-  if (activeDayFilter === 'الشهر') return t >= startToday - (29 * dayMs);
+  if (activeDayFilter === 'اليوم') return d.getTime() >= startToday;
+  if (activeDayFilter === 'البارحة') return d.getTime() >= (startToday - dayMs) && d.getTime() < startToday;
+  if (activeDayFilter === 'الأسبوع') return d.getTime() >= (startToday - 7 * dayMs);
+  if (activeDayFilter === 'الشهر') return d.getTime() >= (startToday - 30 * dayMs);
   return true;
 }
 
 function filterLogs() {
-  const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
-  const matched = db.logs.filter(l => {
-    if (!isLogInPeriod(l)) return false;
-    if (activeLogCategory !== 'all' && l.type !== activeLogCategory) return false;
-    if (!q) return true;
-    return String(l.code || '').toLowerCase().includes(q)
-      || String(l.type || '').toLowerCase().includes(q)
-      || String(l.details || '').toLowerCase().includes(q);
+  const q = (document.getElementById('search-input').value || '').trim().toLowerCase();
+  const dateScoped = db.logs.filter(l => matchesDateFilter(l.date));
+
+  let salesSum = 0, profitSum = 0, scrapSum = 0, expSum = 0;
+  dateScoped.forEach(l => {
+    const amt = Number(l.amount || 0);
+    if (l.type === 'عملية بيع') {
+      salesSum += amt;
+      profitSum += Number(l.makingProfit || 0);
+    } else if (l.type === 'شراء كسر') {
+      scrapSum += Math.abs(amt);
+    } else if (l.type === 'صرف مصروف') {
+      expSum += Math.abs(amt);
+    }
   });
 
-  const salesTotal = matched.filter(l => l.type === 'عملية بيع').reduce((s, l) => s + Number(l.amount || 0), 0);
-  const profitTotal = matched.filter(l => l.type === 'عملية بيع').reduce((s, l) => s + Number(l.makingProfit || 0), 0);
-  const scrapTotal = matched.filter(l => l.type === 'شراء كسر').reduce((s, l) => s + Math.abs(Number(l.amount || 0)), 0);
-  const expTotal = matched.filter(l => l.type === 'صرف مصروف').reduce((s, l) => s + Math.abs(Number(l.amount || 0)), 0);
+  document.getElementById('period-sales-total').textContent = formatIQD(salesSum);
+  document.getElementById('period-profit-total').textContent = formatIQD(profitSum);
+  document.getElementById('period-scrap-total').textContent = formatIQD(scrapSum);
+  document.getElementById('period-exp-total').textContent = formatIQD(expSum);
 
-  document.getElementById('period-sales-total').textContent = formatIQD(salesTotal);
-  document.getElementById('period-profit-total').textContent = formatIQD(profitTotal);
-  document.getElementById('period-scrap-total').textContent = formatIQD(scrapTotal);
-  document.getElementById('period-exp-total').textContent = formatIQD(expTotal);
+  const filtered = dateScoped.filter(l => {
+    const catOk = activeLogCategory === 'all' || String(l.type) === activeLogCategory;
+    const textOk = !q || String(l.code).toLowerCase().includes(q) || String(l.type).toLowerCase().includes(q) || String(l.details).toLowerCase().includes(q);
+    return catOk && textOk;
+  });
 
   const tbody = document.getElementById('logs-table-body');
-  if (!matched.length) {
+  if (!filtered.length) {
     tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">لا توجد سجلات مطابقة.</td></tr>';
     return;
   }
 
-  tbody.innerHTML = matched.map(l => {
+  tbody.innerHTML = filtered.map(l => {
     const meta = getOperationMeta(l);
     return `
       <tr>
-        <td class="p-3 text-slate-400 font-mono text-[11px]">${l.dateText || new Date(l.date).toLocaleString('ar-IQ')}</td>
-        <td class="p-3 font-mono text-gold font-bold">${l.code || l.id}</td>
-        <td class="p-3">
-          <span class="px-2.5 py-1 rounded-full border text-[10px] font-bold ${meta.badgeClass}">${meta.category}</span>
-          <span class="block text-[10px] text-slate-400 mt-0.5">${meta.direction}</span>
-        </td>
-        <td class="p-3 text-slate-200">${l.details || ''}</td>
-        <td class="p-3 font-mono font-bold text-emerald-400">${Number(l.amount || 0).toLocaleString('en-US')}</td>
+        <td class="p-3 text-slate-400 whitespace-nowrap">${new Date(l.date).toLocaleString('ar-IQ')}</td>
+        <td class="p-3 font-mono text-gold">${l.code}</td>
+        <td class="p-3"><span class="border px-2.5 py-1 rounded-full text-[10px] font-bold ${meta.badgeClass}">${meta.category}</span></td>
+        <td class="p-3 text-slate-200">${l.details}</td>
+        <td class="p-3 font-mono font-bold ${Number(l.amount || 0) < 0 ? 'text-rose-400' : 'text-emerald-400'}">${Number(l.amount || 0).toLocaleString('en-US')}</td>
       </tr>
     `;
   }).join('');
 }
 
 function exportLogsToExcel() {
-  const rows = db.logs.map(l => {
+  const logsRows = db.logs.map(l => {
     const meta = getOperationMeta(l);
-    return `<Row ss:StyleID="${meta.xmlRow}">
-      <Cell><Data ss:Type="String">${escapeXml(l.dateText || new Date(l.date).toLocaleString('ar-IQ'))}</Data></Cell>
-      <Cell><Data ss:Type="String">${escapeXml(l.code || l.id)}</Data></Cell>
-      <Cell><Data ss:Type="String">${escapeXml(meta.category)}</Data></Cell>
-      <Cell><Data ss:Type="String">${escapeXml(meta.direction)}</Data></Cell>
-      <Cell><Data ss:Type="String">${escapeXml(l.details || '')}</Data></Cell>
-      <Cell><Data ss:Type="Number">${Number(l.amount || 0)}</Data></Cell>
-      <Cell><Data ss:Type="Number">${Number(l.makingProfit || 0)}</Data></Cell>
-    </Row>`;
+    return `
+      <Row ss:StyleID="${meta.xmlRow}">
+        <Cell><Data ss:Type="String">${escapeXml(new Date(l.date).toLocaleString('ar-IQ'))}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(l.code)}</Data></Cell>
+        <Cell ss:StyleID="${meta.xmlBadge}"><Data ss:Type="String">${escapeXml(meta.category)}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(meta.direction)}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(l.details)}</Data></Cell>
+        <Cell><Data ss:Type="Number">${Number(l.amount || 0)}</Data></Cell>
+        <Cell><Data ss:Type="Number">${Number(l.makingProfit || 0)}</Data></Cell>
+      </Row>
+    `;
   }).join('');
 
-  const invRows = db.inventory.map(item => `<Row>
-    <Cell><Data ss:Type="String">${escapeXml(item.name)}</Data></Cell>
-    <Cell><Data ss:Type="String">${escapeXml(item.condition === 'used' ? 'مستعمل' : 'جديد')}</Data></Cell>
-    <Cell><Data ss:Type="String">${escapeXml('عيار ' + item.karat)}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(item.weight || 0)}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(item.makingPerGram || 0)}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(item.qty || 0)}</Data></Cell>
-  </Row>`).join('');
+  const invRows = db.inventory.map(item => `
+    <Row>
+      <Cell><Data ss:Type="String">${escapeXml(item.id || '')}</Data></Cell>
+      <Cell><Data ss:Type="String">${escapeXml(item.name)}</Data></Cell>
+      <Cell><Data ss:Type="String">${escapeXml(item.condition === 'used' ? 'ذهب مستعمل' : 'ذهب جديد')}</Data></Cell>
+      <Cell><Data ss:Type="String">${escapeXml(item.karat)}</Data></Cell>
+      <Cell><Data ss:Type="Number">${Number(item.weight || 0)}</Data></Cell>
+      <Cell><Data ss:Type="Number">${Number(item.makingPerGram || 0)}</Data></Cell>
+      <Cell><Data ss:Type="Number">${Number(item.qty || 0)}</Data></Cell>
+      <Cell><Data ss:Type="String">${escapeXml(item.notes || '')}</Data></Cell>
+    </Row>
+  `).join('');
 
-  const debtRows = db.debts.map(d => `<Row>
-    <Cell><Data ss:Type="String">${escapeXml(d.customer)}</Data></Cell>
-    <Cell><Data ss:Type="String">${escapeXml(d.phone || '')}</Data></Cell>
-    <Cell><Data ss:Type="String">${escapeXml(d.typeValue || (Number(d.amount || 0) >= 0 ? 'تطلبهم (+)' : 'يطلبوك (-)'))}</Data></Cell>
-    <Cell><Data ss:Type="String">${escapeXml(d.unit === 'gold' ? 'غرام ذهب' : 'دينار عراقي')}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(d.amount || 0)}</Data></Cell>
-    <Cell><Data ss:Type="String">${escapeXml(d.notes || '')}</Data></Cell>
-  </Row>`).join('');
+  const debtRows = db.debts.map(d => {
+    const amt = Number(d.amount || 0);
+    const isUs = d.category === 'on_us' || amt < 0;
+    return `
+      <Row ss:StyleID="${isUs ? 'RowDebtUs' : 'RowDebtThem'}">
+        <Cell><Data ss:Type="String">${escapeXml(new Date(d.date).toLocaleString('ar-IQ'))}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(d.customer)}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(d.phone || '')}</Data></Cell>
+        <Cell ss:StyleID="${isUs ? 'BadgeDebtUs' : 'BadgeDebtThem'}"><Data ss:Type="String">${escapeXml(isUs ? 'يطلبوك (-)' : 'تطلبهم (+)')}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(d.unit === 'gold' ? 'ذهب (غرام)' : 'أموال (د.ع)')}</Data></Cell>
+        <Cell><Data ss:Type="Number">${amt}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(d.notes || '')}</Data></Cell>
+      </Row>
+    `;
+  }).join('');
 
-  const summarySheet = `<Worksheet ss:Name="ملخص الصناديق والديون">
-    <Table>
-      <Row><Cell><Data ss:Type="String">المعرض</Data></Cell><Cell><Data ss:Type="String">${escapeXml(db.store.name || activeTenantCode)}</Data></Cell></Row>
-      <Row><Cell><Data ss:Type="String">صندوق الكاش (دينار)</Data></Cell><Cell><Data ss:Type="Number">${Number(db.cash || 0)}</Data></Cell></Row>
-      <Row><Cell><Data ss:Type="String">صندوق الدولار ($)</Data></Cell><Cell><Data ss:Type="Number">${Number(db.usd || 0)}</Data></Cell></Row>
-      <Row><Cell><Data ss:Type="String">زين كاش والماستر</Data></Cell><Cell><Data ss:Type="Number">${Number(db.zain || 0)}</Data></Cell></Row>
-      <Row><Cell><Data ss:Type="String">صافي أرباح الصياغة</Data></Cell><Cell><Data ss:Type="Number">${Number(db.makingProfit || 0)}</Data></Cell></Row>
-    </Table>
-  </Worksheet>`;
+  const summarySheet = `
+    <Worksheet ss:Name="الملخص المالي">
+      <Table>
+        <Row><Cell><Data ss:Type="String">المعرض</Data></Cell><Cell><Data ss:Type="String">${escapeXml(db.store.name)}</Data></Cell></Row>
+        <Row><Cell><Data ss:Type="String">صندوق الكاش (د.ع)</Data></Cell><Cell><Data ss:Type="Number">${Number(db.cash || 0)}</Data></Cell></Row>
+        <Row><Cell><Data ss:Type="String">صندوق الدولار ($)</Data></Cell><Cell><Data ss:Type="Number">${Number(db.usd || 0)}</Data></Cell></Row>
+        <Row><Cell><Data ss:Type="String">زين كاش والماستر (د.ع)</Data></Cell><Cell><Data ss:Type="Number">${Number(db.zain || 0)}</Data></Cell></Row>
+        <Row><Cell><Data ss:Type="String">صافي أرباح الصياغة (د.ع)</Data></Cell><Cell><Data ss:Type="Number">${Number(db.makingProfit || 0)}</Data></Cell></Row>
+      </Table>
+    </Worksheet>
+  `;
 
-  const xml = `<?xml version="1.0"?>
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
   <?mso-application progid="Excel.Sheet"?>
   <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
     xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
     <Styles>
-      <Style ss:ID="Default"/>
-      <Style ss:ID="RowDebtThem"><Interior ss:Color="#DCFCE7" ss:Pattern="Solid"/></Style>
-      <Style ss:ID="RowDebtUs"><Interior ss:Color="#FEE2E2" ss:Pattern="Solid"/></Style>
-      <Style ss:ID="RowSale"><Interior ss:Color="#DBEAFE" ss:Pattern="Solid"/></Style>
-      <Style ss:ID="RowScrap"><Interior ss:Color="#FEF3C7" ss:Pattern="Solid"/></Style>
-      <Style ss:ID="RowExp"><Interior ss:Color="#F3E8FF" ss:Pattern="Solid"/></Style>
-      <Style ss:ID="RowReturn"><Interior ss:Color="#FFEDD5" ss:Pattern="Solid"/></Style>
-      <Style ss:ID="RowInv"><Interior ss:Color="#CCFBF1" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="Default"><Alignment ss:Horizontal="Right" ss:Vertical="Center"/></Style>
+      <Style ss:ID="Header"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#1E293B" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="RowDebtThem"><Interior ss:Color="#ECFDF5" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="RowDebtUs"><Interior ss:Color="#FEF2F2" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="RowSale"><Interior ss:Color="#EFF6FF" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="RowScrap"><Interior ss:Color="#FFFBEB" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="RowExp"><Interior ss:Color="#F5F3FF" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="RowReturn"><Interior ss:Color="#FFF7ED" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="RowInv"><Interior ss:Color="#F0FDFA" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="RowDefault"/>
+      <Style ss:ID="BadgeDebtThem"><Font ss:Bold="1" ss:Color="#047857"/><Interior ss:Color="#D1FAE5" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="BadgeDebtUs"><Font ss:Bold="1" ss:Color="#B91C1C"/><Interior ss:Color="#FEE2E2" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="BadgeSale"><Font ss:Bold="1" ss:Color="#1D4ED8"/><Interior ss:Color="#DBEAFE" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="BadgeScrap"><Font ss:Bold="1" ss:Color="#B45309"/><Interior ss:Color="#FEF3C7" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="BadgeExp"><Font ss:Bold="1" ss:Color="#6D28D9"/><Interior ss:Color="#EDE9FE" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="BadgeReturn"><Font ss:Bold="1" ss:Color="#C2410C"/><Interior ss:Color="#FFEDD5" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="BadgeInv"><Font ss:Bold="1" ss:Color="#0F766E"/><Interior ss:Color="#CCFBF1" ss:Pattern="Solid"/></Style>
+      <Style ss:ID="BadgeDefault"><Font ss:Bold="1" ss:Color="#334155"/><Interior ss:Color="#F1F5F9" ss:Pattern="Solid"/></Style>
     </Styles>
     ${summarySheet}
     <Worksheet ss:Name="سجل العمليات والجرد">
       <Table>
-        <Row>
+        <Row ss:StyleID="Header">
           <Cell><Data ss:Type="String">التاريخ</Data></Cell>
           <Cell><Data ss:Type="String">الرمز</Data></Cell>
-          <Cell><Data ss:Type="String">نوع العملية</Data></Cell>
+          <Cell><Data ss:Type="String">تمييز العملية</Data></Cell>
           <Cell><Data ss:Type="String">الاتجاه</Data></Cell>
-          <Cell><Data ss:Type="String">التفاصيل</Data></Cell>
-          <Cell><Data ss:Type="String">القيمة</Data></Cell>
-          <Cell><Data ss:Type="String">أرباح الصياغة</Data></Cell>
+          <Cell><Data ss:Type="String">التفاصيل الكاملة</Data></Cell>
+          <Cell><Data ss:Type="String">المبلغ</Data></Cell>
+          <Cell><Data ss:Type="String">ربح الصياغة</Data></Cell>
         </Row>
-        ${rows}
+        ${logsRows}
       </Table>
     </Worksheet>
-    <Worksheet ss:Name="المخزون الحالي">
+    <Worksheet ss:Name="المخزون">
       <Table>
-        <Row>
+        <Row ss:StyleID="Header">
+          <Cell><Data ss:Type="String">الرمز</Data></Cell>
           <Cell><Data ss:Type="String">الصنف</Data></Cell>
           <Cell><Data ss:Type="String">الحالة</Data></Cell>
           <Cell><Data ss:Type="String">العيار</Data></Cell>
           <Cell><Data ss:Type="String">الوزن (غرام)</Data></Cell>
           <Cell><Data ss:Type="String">صياغة الغرام</Data></Cell>
           <Cell><Data ss:Type="String">الكمية</Data></Cell>
+          <Cell><Data ss:Type="String">ملاحظات</Data></Cell>
         </Row>
         ${invRows}
       </Table>
     </Worksheet>
     <Worksheet ss:Name="دفتر الديون">
       <Table>
-        <Row>
+        <Row ss:StyleID="Header">
+          <Cell><Data ss:Type="String">التاريخ</Data></Cell>
           <Cell><Data ss:Type="String">الاسم</Data></Cell>
           <Cell><Data ss:Type="String">الهاتف</Data></Cell>
-          <Cell><Data ss:Type="String">النوع</Data></Cell>
+          <Cell><Data ss:Type="String">النوع (تطلبهم / يطلبوك)</Data></Cell>
           <Cell><Data ss:Type="String">الوحدة</Data></Cell>
           <Cell><Data ss:Type="String">القيمة</Data></Cell>
           <Cell><Data ss:Type="String">ملاحظات</Data></Cell>
@@ -3102,45 +3152,48 @@ function exportLogsToExcel() {
     </Worksheet>
   </Workbook>`;
 
-  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8' });
+  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `ARAMKY_Report_${activeTenantCode}_${new Date().toISOString().slice(0, 10)}.xls`;
+  a.download = `ARAMKY_${activeTenantCode}_Report_${new Date().toISOString().slice(0, 10)}.xls`;
+  document.body.appendChild(a);
   a.click();
+  a.remove();
   URL.revokeObjectURL(url);
   showToast('تم تصدير ملف Excel المنظم بنجاح', 'success');
 }
 
 function openLuxuryTransferMethodModal() { document.getElementById('luxury-transfer-method-modal').classList.remove('hidden'); }
 function closeLuxuryTransferMethodModal() { document.getElementById('luxury-transfer-method-modal').classList.add('hidden'); }
-function selectLuxuryTransferMethod(value, labelText) {
-  document.getElementById('sup-pay-method').value = value;
-  document.getElementById('selected-transfer-method-label').textContent = labelText;
+function selectLuxuryTransferMethod(val, label) {
+  document.getElementById('sup-pay-method').value = val;
+  document.getElementById('selected-transfer-method-label').textContent = label;
   closeLuxuryTransferMethodModal();
 }
 
-async function previewSupportReceipt(event) {
-  const imgs = await readFilesAsDataUrls(event.target.files);
-  const imgEl = document.getElementById('sup-receipt-preview');
-  if (imgs[0] && imgEl) {
-    delete imgEl.dataset.fallbackApplied;
-    imgEl.src = imgs[0];
-    imgEl.classList.remove('hidden');
-  }
+function previewSupportReceipt(event) {
+  const file = event.target.files && event.target.files[0];
+  const img = document.getElementById('sup-receipt-preview');
+  if (!file || !img) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    delete img.dataset.fallbackApplied;
+    img.src = reader.result;
+    img.classList.remove('hidden');
+  };
+  reader.readAsDataURL(file);
 }
 
 async function submitSupportTransfer() {
   const method = document.getElementById('sup-pay-method').value;
   const ref = document.getElementById('sup-trans-ref').value.trim();
-  const message = document.getElementById('sup-message').value.trim();
-  const files = document.getElementById('sup-receipt-img').files;
-  const imgs = files && files.length ? await readFilesAsDataUrls(files) : [];
-  const imgData = imgs[0] || document.getElementById('sup-receipt-preview').src || '';
-  const hasImg = !document.getElementById('sup-receipt-preview').classList.contains('hidden') && imgData && !imgData.startsWith('data:image/svg+xml');
+  const msg = document.getElementById('sup-message').value.trim();
+  const imgs = await readFilesAsDataUrls(document.getElementById('sup-receipt-img').files);
+  const image = imgs[0] || '';
 
-  if (!ref && !message && !hasImg) {
-    showToast('اكتب رسالة أو مرجعاً أو أرفق صورة قبل الإرسال', 'warning');
+  if (!ref && !msg && !image) {
+    showToast('اكتب رسالة أو عنواناً أو أرفق صورة قبل الإرسال', 'warning');
     return;
   }
 
@@ -3149,10 +3202,10 @@ async function submitSupportTransfer() {
     tenant: activeTenantCode,
     storeName: db.store.name || activeTenantCode,
     method,
-    ref,
-    msg: message,
-    message,
-    image: hasImg ? imgData : '',
+    ref: ref || 'بدون رقم مرجعي',
+    msg: msg || method,
+    message: msg || method,
+    image,
     time: new Date().toLocaleString('ar-IQ'),
     date: new Date().toLocaleString('ar-IQ')
   };
@@ -3169,7 +3222,8 @@ async function submitSupportTransfer() {
   document.getElementById('sup-trans-ref').value = '';
   document.getElementById('sup-message').value = '';
   document.getElementById('sup-receipt-img').value = '';
-  document.getElementById('sup-receipt-preview').classList.add('hidden');
+  const prev = document.getElementById('sup-receipt-preview');
+  if (prev) { prev.src = ''; prev.classList.add('hidden'); }
   showToast('تم إرسال رسالتك إلى لوحة الأدمن بنجاح', 'success');
 }
 
@@ -3177,18 +3231,17 @@ function renderSupportTickets() {
   const list = document.getElementById('support-tickets-list');
   if (!list) return;
   if (!db.supportTickets.length) {
-    list.innerHTML = '<p class="text-slate-500 text-xs">لا توجد رسائل أو تحويلات مرسلة بعد.</p>';
+    list.innerHTML = '<p class="text-xs text-slate-500">لا توجد رسائل أو تحويلات مسجلة بعد.</p>';
     return;
   }
   list.innerHTML = db.supportTickets.map(t => `
-    <div class="bg-darkbg border border-slate-800 p-3.5 rounded-2xl text-xs space-y-1.5">
+    <div class="bg-darkbg border border-slate-800 p-3.5 rounded-2xl text-xs space-y-2">
       <div class="flex justify-between items-center">
-        <strong class="text-gold">${t.method}</strong>
-        <span class="text-slate-500 font-mono text-[10px]">${t.time || t.date || ''}</span>
+        <strong class="text-gold">${t.method} — <span class="font-mono text-blue-300">${t.ref || t.id}</span></strong>
+        <span class="text-[10px] text-slate-500">${t.time || t.date || ''}</span>
       </div>
-      ${t.ref ? `<div class="text-emerald-400 font-mono">المرجع: ${t.ref}</div>` : ''}
-      ${(t.msg || t.message) ? `<p class="text-slate-300">${t.msg || t.message}</p>` : ''}
-      ${t.image ? `<img src="${t.image}" onerror="handleBrandImageError(this)" onclick="openImageLightbox('${t.image.replace(/'/g, "\\'")}', 'مرفق الرسالة')" class="w-24 h-24 rounded-xl object-cover border border-gold/40 cursor-pointer mt-1">` : ''}
+      <p class="text-slate-300">${t.msg || t.message || ''}</p>
+      ${t.image ? `<img src="${t.image}" onerror="handleBrandImageError(this)" onclick="openImageLightbox('${t.image.replace(/'/g, "\\'")}', '${(t.ref || t.id).replace(/'/g, "\\'")}')" class="max-h-32 rounded-xl border border-gold/40 cursor-pointer">` : ''}
     </div>
   `).join('');
 }
@@ -3203,35 +3256,39 @@ function openPriceModal() {
   document.getElementById('price-modal').classList.remove('hidden');
 }
 
-function closePriceModal() {
-  document.getElementById('price-modal').classList.add('hidden');
-}
+function closePriceModal() { document.getElementById('price-modal').classList.add('hidden'); }
 
 function saveGoldPrices() {
-  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || 0;
-  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || 0;
-  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || 0;
-  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || 0;
-  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || 0;
-  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || 0;
+  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || 150000;
+  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || 640000;
+  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || 585000;
+  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || 560000;
+  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || 480000;
+  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || 240000;
+  addLog('تحديث أسعار', `تحديث أسعار المثاقيل والدولار (الورقة: ${db.prices.usd}، عيار 21: ${db.prices.m21})`, 0);
+  saveTenantData();
+  closePriceModal();
   const scrapPriceInput = document.getElementById('scrap-mithqal-price');
   if (scrapPriceInput) delete scrapPriceInput.dataset.manual;
-  saveTenantData();
   renderAll();
-  closePriceModal();
-  showToast('تم تحديث أسعار المثاقيل الخمسة والدولار', 'success');
+  showToast('تم تحديث الأسعار بنجاح', 'success');
 }
 
 function toggleCalcModal() {
-  document.getElementById('calc-modal').classList.toggle('hidden');
+  const modal = document.getElementById('calc-modal');
+  modal.classList.toggle('hidden');
+  if (!modal.classList.contains('hidden')) {
+    document.getElementById('c-mithqal').value = db.prices.m21 || 560000;
+    calcAramkyQuick();
+  }
 }
 
 function calcAramkyQuick() {
   const mq = parseFloat(document.getElementById('c-mithqal').value) || 0;
   const w = parseFloat(document.getElementById('c-weight').value) || 0;
   const mk = parseFloat(document.getElementById('c-making').value) || 0;
-  const res = Math.round(w * ((mq / MITHQAL_GRAMS) + mk));
-  document.getElementById('c-result-iqd').textContent = formatIQD(res);
+  const total = Math.round(w * ((mq / MITHQAL_GRAMS) + mk));
+  document.getElementById('c-result-iqd').textContent = formatIQD(total);
 }
 
 function openReturnModal() {
@@ -3240,53 +3297,43 @@ function openReturnModal() {
   document.getElementById('return-modal').classList.remove('hidden');
 }
 
-function closeReturnModal() {
-  document.getElementById('return-modal').classList.add('hidden');
-}
+function closeReturnModal() { document.getElementById('return-modal').classList.add('hidden'); }
 
 function processInvoiceReturn() {
-  const code = document.getElementById('return-inv-code').value.trim().toUpperCase();
+  const code = document.getElementById('return-inv-code').value.trim();
   const reason = document.getElementById('return-reason').value.trim() || 'إرجاع فاتورة';
   if (!code) {
     showToast('أدخل رمز الفاتورة أولاً', 'error');
     return;
   }
-  const targetLog = db.logs.find(l => l.type === 'عملية بيع' && String(l.code || '').toUpperCase() === code);
-  if (targetLog) {
-    if (Array.isArray(targetLog.items)) {
-      targetLog.items.forEach(sold => {
-        const invMatch = db.inventory.find(i => i.name === sold.name && String(i.karat) === String(sold.karat));
-        if (invMatch) invMatch.qty = Number(invMatch.qty || 0) + Number(sold.qty || 1);
-      });
-    }
-    const amt = Number(targetLog.amount || 0);
-    const prof = Number(targetLog.makingProfit || 0);
-    db.cash = Number(db.cash || 0) - amt;
-    db.makingProfit = Math.max(0, Number(db.makingProfit || 0) - prof);
-    addLog('إرجاع فاتورة', `إرجاع الفاتورة ${code} بقيمة ${formatIQD(amt)} — السبب: ${reason}`, -amt, -prof);
+  const saleLog = db.logs.find(l => l.type === 'عملية بيع' && String(l.details).includes(code));
+  if (saleLog && Array.isArray(saleLog.items)) {
+    saleLog.items.forEach(sItem => {
+      const invItem = db.inventory.find(i => i.name === sItem.name && String(i.karat) === String(sItem.karat));
+      if (invItem) invItem.qty = Number(invItem.qty || 0) + Number(sItem.qty || 1);
+    });
+    const refundAmt = Number(saleLog.amount || 0);
+    const refundProfit = Number(saleLog.makingProfit || 0);
+    db.cash = Number(db.cash || 0) - refundAmt;
+    db.makingProfit = Math.max(0, Number(db.makingProfit || 0) - refundProfit);
+    addLog('إرجاع فاتورة', `إرجاع الفاتورة ${code} — السبب: ${reason}`, -refundAmt);
   } else {
-    addLog('إرجاع فاتورة', `تسجيل إرجاع برمز ${code} — السبب: ${reason}`, 0);
+    addLog('إرجاع فاتورة', `تسجيل طلب إرجاع للفاتورة ${code} — السبب: ${reason}`, 0);
   }
   saveTenantData();
   renderAll();
   closeReturnModal();
-  showToast('تم تسجيل إرجاع الفاتورة وتحديث المخزن والصندوق', 'success');
-}
-
-function openResetSystemModal() {
-  document.getElementById('reset-system-modal').classList.remove('hidden');
-}
-
-function closeResetSystemModal() {
-  document.getElementById('reset-system-modal').classList.add('hidden');
+  showToast('تم تسجيل إرجاع الفاتورة وتحديث المخزن والصندوق', 'warning');
 }
 
 function handleGlobalZeroKey(event) {
-  if (event.key === '0' && event.altKey) {
-    event.preventDefault();
+  if (event.key === '0' && ['INPUT', 'TEXTAREA', 'SELECT'].indexOf(document.activeElement.tagName) === -1) {
     openResetSystemModal();
   }
 }
+
+function openResetSystemModal() { document.getElementById('reset-system-modal').classList.remove('hidden'); }
+function closeResetSystemModal() { document.getElementById('reset-system-modal').classList.add('hidden'); }
 
 function executeSystemReset(mode) {
   if (mode === 'cash_only') {
@@ -3294,157 +3341,156 @@ function executeSystemReset(mode) {
     db.usd = 0;
     db.zain = 0;
     db.makingProfit = 0;
-    addLog('تصفير خزينة', 'تصفير صناديق الكاش والدولار والماستر وأرباح الصياغة (جرد يومي)', 0);
+    addLog('تصفير الخزينة', 'تصفير صناديق الكاش والدولار والماستر وأرباح الصياغة (جرد يومي)', 0);
     saveTenantData();
     renderAll();
     closeResetSystemModal();
     showToast('تم تصفير الخزينة والأرباح بنجاح', 'success');
   } else if (mode === 'full_factory') {
-    db = defaultTenantData(activeTenantCode);
+    const fresh = defaultTenantData(activeTenantCode);
+    fresh.store = { ...db.store };
+    fresh.prices = { ...db.prices };
+    db = fresh;
     cart = [];
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تم تصفير النظام بالكامل إلى الضبط الافتراضي', 'warning');
+    showToast('تم تصفير النظام بالكامل (ضبط مصنع)', 'warning');
   }
 }
 
 function handleInventoryAdminTrigger() {
   inventorySecretClicks += 1;
   clearTimeout(inventorySecretTimer);
-  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 1800);
-
   if (inventorySecretClicks >= 5) {
     inventorySecretClicks = 0;
-    document.getElementById('admin-secret-password').value = '';
-    document.getElementById('admin-secret-modal').classList.remove('hidden');
-    document.getElementById('admin-secret-password').focus();
+    openAdminSecretModal();
+    return;
   }
+  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 1800);
 }
 
-function closeAdminSecretModal() {
-  document.getElementById('admin-secret-modal').classList.add('hidden');
+function openAdminSecretModal() {
+  document.getElementById('admin-secret-password').value = '';
+  document.getElementById('admin-secret-modal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('admin-secret-password')?.focus(), 80);
 }
+
+function closeAdminSecretModal() { document.getElementById('admin-secret-modal').classList.add('hidden'); }
 
 function verifyAdminSecretPassword() {
-  const inputPass = document.getElementById('admin-secret-password').value;
-  const ok = CORE ? CORE.verifyAdminPassword(inputPass) : (String(inputPass || '').trim() === 'ARAMKY-ADMIN-2026');
-  if (ok) {
-    if (CORE) CORE.setAdminSessionActive(true);
+  const pass = document.getElementById('admin-secret-password').value;
+  if (CORE && CORE.verifyAdminPassword(pass)) {
+    CORE.setAdminAuthenticated(true);
     closeAdminSecretModal();
-    renderAll();
-    showToast('تم تفعيل وضع الأدمن وإظهار زر لوحة الأدمن 👑', 'success');
+    openAdminPanel();
   } else {
     showToast('كلمة مرور الأدمن غير صحيحة', 'error');
   }
 }
 
 function openAdminPanel() {
-  if (CORE) CORE.openAdminPanelModal();
-  else window.location.href = 'admin.html';
+  if (CORE && !CORE.isAdminAuthenticated()) {
+    openAdminSecretModal();
+    return;
+  }
+  window.location.href = 'admin.html';
+}
+
+function checkSubscriptionLock() {
+  if (isPublicCatalogOnly) return false;
+  const locked = isCurrentTenantLocked();
+  const lockScreen = document.getElementById('subscription-lock-screen');
+  if (locked) {
+    document.getElementById('locked-tenant-info').textContent = `المعرض: ${db.store.name || activeTenantCode} | الكود: ${activeTenantCode}`;
+    lockScreen.classList.remove('hidden');
+    return true;
+  }
+  lockScreen.classList.add('hidden');
+  return false;
+}
+
+function openSupportFromLock() {
+  document.getElementById('subscription-lock-screen').classList.add('hidden');
+  document.getElementById('tenant-login-screen').classList.add('hidden');
+  switchTab('support');
+  showToast('تم فتح قسم الدعم للتواصل أو إرسال إيصال التجديد', 'info');
 }
 
 function switchTenantPrompt() {
-  document.getElementById('login-tenant-code').value = activeTenantCode;
-  document.getElementById('login-tenant-phone').value = db.store.phone || '';
+  document.getElementById('subscription-lock-screen').classList.add('hidden');
+  document.getElementById('login-tenant-code').value = '';
+  document.getElementById('login-tenant-phone').value = '';
   document.getElementById('login-tenant-pass').value = '';
   document.getElementById('tenant-login-screen').classList.remove('hidden');
 }
 
 function loginTenant() {
-  const code = document.getElementById('login-tenant-code').value.trim().toUpperCase();
-  const phone = document.getElementById('login-tenant-phone').value.trim();
-  const pass = document.getElementById('login-tenant-pass').value.trim();
+  const code = (document.getElementById('login-tenant-code').value || '').trim().toUpperCase();
+  const phone = (document.getElementById('login-tenant-phone').value || '').trim();
+  const pass = (document.getElementById('login-tenant-pass').value || '').trim();
 
-  if (!code) {
-    showToast('يرجى إدخال معرف الحساب', 'error');
+  if (!code || !phone || !pass) {
+    showToast('يرجى إدخال معرف الحساب، رقم الهاتف، وكلمة المرور', 'error');
     return;
   }
 
-  if (CORE && typeof CORE.authenticateTenant === 'function') {
-    const auth = CORE.authenticateTenant(code, phone, pass);
+  if (CORE && typeof CORE.authenticateSubscriber === 'function') {
+    const auth = CORE.authenticateSubscriber(code, phone, pass);
     if (!auth.ok) {
-      showToast(auth.message || 'بيانات الدخول غير صحيحة', 'error');
+      showToast(auth.message || 'بيانات الحساب غير صحيحة أو الحساب غير معتمد من الأدمن', 'error');
       return;
     }
-    CORE.persistTenantSession(auth.code || code);
+    loadTenantData(auth.tenant.code);
+    db.status = auth.tenant.status || db.status || 'نشط';
+    saveTenantData();
+  } else {
+    showToast('تعذر التحقق من صلاحية الحساب — راجع الإدارة', 'error');
+    return;
   }
 
   document.getElementById('tenant-login-screen').classList.add('hidden');
-  loadTenantData(code);
-  if (CORE && typeof CORE.pullTenantFromSupabase === 'function' && CORE.isSupabaseReady()) {
-    CORE.pullTenantFromSupabase(code).then(cloudPayload => {
-      if (cloudPayload && typeof cloudPayload === 'object') {
-        db = Object.assign(defaultTenantData(code), cloudPayload);
-        saveTenantData();
-        renderAll();
-      }
-    }).catch(() => {});
-  }
-  checkSubscriptionLock();
   renderAll();
-  showToast(`تم التبديل إلى الحساب: ${code}`, 'success');
+  if (!checkSubscriptionLock()) {
+    switchTab('dashboard');
+    showToast(`تم تسجيل الدخول إلى الحساب: ${activeTenantCode}`, 'success');
+  }
 }
 
-function openSupportFromLock() {
-  document.getElementById('subscription-lock-screen').classList.add('hidden');
-  switchTab('support');
-}
-
-function checkSubscriptionLock() {
-  if (isPublicCatalogOnly) return;
-  let expired = false;
-  if (CORE) {
-    const reg = CORE.getTenantsRegistry().find(t => String(t.code || '').toUpperCase() === activeTenantCode);
-    expired = CORE.isSubscriptionExpired(reg || db);
-  } else {
-    expired = String(db.status || '').trim() === 'متوقف';
+async function refreshAppAndClearCache() {
+  showToast('جاري تحديث التطبيق ومزامنة البيانات...', 'info');
+  if (CORE && typeof CORE.syncAllFromSupabase === 'function' && CORE.isSupabaseReady()) {
+    try { await CORE.syncAllFromSupabase(); } catch (_) {}
   }
-  const lockScreen = document.getElementById('subscription-lock-screen');
-  if (expired) {
-    document.getElementById('locked-tenant-info').textContent = `رقم المعرض: ${activeTenantCode}`;
-    lockScreen.classList.remove('hidden');
-  } else {
-    lockScreen.classList.add('hidden');
+  if ('caches' in window) {
+    try {
+      const names = await caches.keys();
+      await Promise.all(names.map(n => caches.delete(n)));
+    } catch (_) {}
   }
+  if ('serviceWorker' in navigator) {
+    try {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.update()));
+    } catch (_) {}
+  }
+  const url = new URL(window.location.href);
+  url.searchParams.set('v', Date.now().toString());
+  window.location.replace(url.toString());
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  showToast('التطبيق جاهز للتثبيت على الجهاز (PWA / APK) ⚜️', 'info');
 });
 
-function installPWA() {
+async function installPWA() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
-    deferredPrompt.userChoice.finally(() => { deferredPrompt = null; });
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
   } else {
-    showToast('للتثبيت: افتح قائمة المتصفح واختر "إضافة إلى الشاشة الرئيسية"', 'info');
-  }
-}
-
-async function refreshAppAndClearCache() {
-  try {
-    if ('caches' in window) {
-      const names = await caches.keys();
-      await Promise.all(names.map(n => caches.delete(n)));
-    }
-    if (CORE && typeof CORE.hydrateCloudConfigFromServer === 'function') {
-      await CORE.hydrateCloudConfigFromServer();
-    }
-    if (CORE && typeof CORE.pullTenantFromSupabase === 'function' && CORE.isSupabaseReady()) {
-      const cloudData = await CORE.pullTenantFromSupabase(activeTenantCode);
-      if (cloudData && typeof cloudData === 'object') {
-        db = Object.assign(defaultTenantData(activeTenantCode), cloudData);
-        saveTenantData();
-      }
-    }
-    renderAll();
-    showToast('تم تحديث البيانات وتفريغ الكاش بنجاح', 'success');
-  } catch (_) {
-    renderAll();
-    showToast('تم تحديث الواجهة', 'info');
+    showToast('للتثبيت: افتح قائمة المتصفح واختر (إضافة إلى الشاشة الرئيسية)', 'info');
   }
 }
 
@@ -3454,52 +3500,69 @@ function dismissSplashScreen() {
   const splash = document.getElementById('aramky-splash-screen');
   if (!splash) return;
   splash.style.opacity = '0';
-  setTimeout(() => splash.classList.add('hidden'), 450);
+  setTimeout(() => splash.classList.add('hidden'), 650);
+}
+
+function resolveInitialPublicCatalog() {
+  const params = new URLSearchParams(window.location.search);
+  const viewParam = params.get('view');
+  const refParam = params.get('ref') || params.get('store');
+  if (viewParam === 'showcase' || refParam) {
+    isPublicCatalogOnly = true;
+    const resolvedCode = CORE
+      ? (CORE.decodeCatalogRef(refParam) || localStorage.getItem(CORE.keys.activeTenant) || 'ARAMKY-01')
+      : 'ARAMKY-01';
+    loadTenantData(resolvedCode);
+    renderAll();
+    openStorefrontView();
+    return true;
+  }
+  return false;
 }
 
 async function initApp() {
   if (appInitialized) return;
   appInitialized = true;
 
-  if (CORE && typeof CORE.hydrateCloudConfigFromServer === 'function') {
-    await CORE.hydrateCloudConfigFromServer().catch(() => {});
+  if (I18N) I18N.applyLanguageToDom();
+
+  if (CORE && typeof CORE.syncAllFromSupabase === 'function' && CORE.isSupabaseReady()) {
+    try { await CORE.syncAllFromSupabase(); } catch (_) {}
   }
 
-  const resolved = CORE && typeof CORE.resolveActiveTenantOnLoad === 'function'
-    ? CORE.resolveActiveTenantOnLoad()
-    : { code: localStorage.getItem('aramky_active_tenant') || 'ARAMKY-01', publicOnly: false };
+  if (resolveInitialPublicCatalog()) {
+    setTimeout(dismissSplashScreen, 700);
+    return;
+  }
 
-  isPublicCatalogOnly = Boolean(resolved.publicOnly);
-  loadTenantData(resolved.code || 'ARAMKY-01');
-
-  if (!isPublicCatalogOnly && CORE && typeof CORE.pullTenantFromSupabase === 'function' && CORE.isSupabaseReady()) {
-    const cloudData = await CORE.pullTenantFromSupabase(activeTenantCode).catch(() => null);
-    if (cloudData && typeof cloudData === 'object') {
-      db = Object.assign(defaultTenantData(activeTenantCode), cloudData);
+  const savedCode = localStorage.getItem(CORE ? CORE.keys.activeTenant : '') || '';
+  if (savedCode && isCurrentTenantAuthorized()) {
+    loadTenantData(savedCode);
+    renderAll();
+    if (checkSubscriptionLock()) {
+      switchTab('support');
+    } else {
+      switchTab('dashboard');
     }
-  }
-
-  if (isPublicCatalogOnly) {
-    document.getElementById('app-header')?.classList.add('hidden');
-    document.getElementById('app-ticker')?.classList.add('hidden');
-    document.getElementById('app-main')?.classList.add('hidden');
-    renderAll();
-    openStorefrontView();
   } else {
-    renderAll();
-    checkSubscriptionLock();
-  }
-
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    if (savedCode) {
+      localStorage.removeItem(CORE ? CORE.keys.activeTenant : 'aramky_active_tenant');
+    }
+    document.getElementById('tenant-login-screen').classList.remove('hidden');
   }
 
   setTimeout(dismissSplashScreen, 1100);
 }
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
-  setTimeout(dismissSplashScreen, 2500);
+  setTimeout(dismissSplashScreen, 2600);
 });
 </script>
 </body>
