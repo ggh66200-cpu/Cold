@@ -346,7 +346,6 @@
     const merged = mergeTenantDataPreferNewer(local, remote, cleanCode);
     writeSecureStorage(key, merged, `TENANT_${cleanCode}`);
 
-    // مزامنة حالة الحساب في السجل المحلي إن وجدت
     const registry = getTenantsRegistry();
     const idx = registry.findIndex(t => String(t.code || '').toUpperCase() === cleanCode);
     if (idx !== -1 && merged.status) {
@@ -538,7 +537,7 @@
     const cleanPass = String(password || '').trim();
 
     if (!cleanCode) {
-      return { ok: false, message: 'يرجى إدخال معرف الحساب' };
+      return { ok: false, reason: 'يرجى إدخال معرف الحساب', message: 'يرجى إدخال معرف الحساب' };
     }
 
     const registry = getTenantsRegistry();
@@ -564,10 +563,12 @@
     }
 
     if (found.phone && cleanPhone && found.phone !== cleanPhone) {
-      return { ok: false, message: 'رقم الهاتف غير مطابق لهذا الحساب' };
+      const msg = 'رقم الهاتف غير مطابق لهذا الحساب';
+      return { ok: false, reason: msg, message: msg };
     }
     if (found.password && cleanPass && found.password !== cleanPass) {
-      return { ok: false, message: 'كلمة المرور غير صحيحة' };
+      const msg = 'كلمة المرور غير صحيحة';
+      return { ok: false, reason: msg, message: msg };
     }
 
     persistTenantSession(cleanCode);
@@ -589,6 +590,24 @@
       sessionStorage.setItem(KEYS.tenantSession, clean);
       localStorage.setItem(KEYS.tenantSession, clean);
     } catch (_) {}
+  }
+
+  function setActiveSubscriberSession(code) {
+    persistTenantSession(code);
+  }
+
+  function clearActiveSubscriberSession() {
+    logoutTenantSession();
+  }
+
+  function getActiveSubscriberSession() {
+    try {
+      const code = sessionStorage.getItem(KEYS.tenantSession) || localStorage.getItem(KEYS.tenantSession);
+      if (!code) return null;
+      return { code: String(code).trim().toUpperCase() };
+    } catch (_) {
+      return null;
+    }
   }
 
   function logoutTenantSession() {
@@ -714,12 +733,20 @@
     } catch (_) {}
   }
 
+  function setAdminSession(active) {
+    setAdminSessionActive(active);
+  }
+
   function isAdminSessionActive() {
     try {
       return sessionStorage.getItem(KEYS.adminSession) === '1';
     } catch (_) {
       return false;
     }
+  }
+
+  function hasAdminSession() {
+    return isAdminSessionActive();
   }
 
   function isAdminAuthenticated() {
@@ -744,9 +771,37 @@
     window.location.href = 'admin.html';
   }
 
+  function openAdminDashboard() {
+    setAdminSessionActive(true);
+    navigateToAdmin();
+  }
+
   function openAdminPanelModal() {
     setAdminSessionActive(true);
     navigateToAdmin();
+  }
+
+  function submitSupportTicket(ticketObj) {
+    if (!ticketObj || typeof ticketObj !== 'object') return false;
+    const existing = readSecureStorage(KEYS.supportTickets, 'GLOBAL_TICKETS', []);
+    const list = Array.isArray(existing) ? existing : [];
+    const entry = Object.assign({
+      id: ticketObj.id || ('TKT-' + Date.now().toString().slice(-6)),
+      tenant: ticketObj.tenantCode || ticketObj.tenant || getActiveTenantCode(),
+      storeName: ticketObj.storeName || '',
+      method: ticketObj.method || 'رسالة دعم',
+      ref: ticketObj.refCode || ticketObj.ref || '',
+      msg: ticketObj.message || ticketObj.msg || '',
+      image: ticketObj.receiptImage || ticketObj.image || '',
+      time: new Date().toLocaleString('ar-IQ'),
+      date: ticketObj.createdAt || new Date().toISOString()
+    }, ticketObj);
+    list.unshift(entry);
+    writeSecureStorage(KEYS.supportTickets, list, 'GLOBAL_TICKETS');
+    if (isSupabaseReady()) {
+      syncTenantToSupabase(entry.tenant, { latestTicket: entry }).catch(() => {});
+    }
+    return true;
   }
 
   function setLanguage(lang) {
@@ -908,6 +963,7 @@
     getCloudConfig,
     saveCloudConfig,
     hydrateCloudConfigFromServer,
+    initSupabase: hydrateCloudConfigFromServer,
     isSupabaseReady,
     getRenderEndpoint,
     normalizeTenantPayload,
@@ -930,6 +986,9 @@
     authenticateSubscriber,
     authenticateTenantCredentials,
     persistTenantSession,
+    setActiveSubscriberSession,
+    clearActiveSubscriberSession,
+    getActiveSubscriberSession,
     logoutTenantSession,
     hasValidTenantSession,
     getActiveTenantCode,
@@ -940,13 +999,17 @@
     getContactInfo,
     verifyAdminPassword,
     setAdminSessionActive,
+    setAdminSession,
     isAdminSessionActive,
+    hasAdminSession,
     isAdminAuthenticated,
     setAdminAuthenticated,
     logoutAdminSession,
     syncAdminUiVisibility,
     navigateToAdmin,
+    openAdminDashboard,
     openAdminPanelModal,
+    submitSupportTicket,
     setLanguage,
     getLanguage,
     filesToDataUrls,
