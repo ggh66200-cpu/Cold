@@ -12,14 +12,12 @@ app = Flask(
 ALLOWED_STATIC_FILES = {
     "index.html",
     "admin.html",
-    "admin_3.html",
     "aramky-core.js",
     "aramky-i18n.js",
     "main.js",
     "sw.js",
     "icon.png",
     "manifest.json",
-    "manifest_5.json",
 }
 
 
@@ -44,11 +42,6 @@ def admin_page():
     return _serve_html_file("admin.html")
 
 
-@app.route("/admin_3.html")
-def admin_v3_page():
-    return _serve_html_file("admin_3.html")
-
-
 @app.route("/sw.js")
 def service_worker():
     sw_path = os.path.join(BASE_DIR, "sw.js")
@@ -61,6 +54,7 @@ def service_worker():
 
 
 @app.route("/api/supabase-config", methods=["GET"])
+@app.route("/api/config", methods=["GET"])
 def api_supabase_config():
     supabase_url = os.environ.get("SUPABASE_URL", "").strip()
     supabase_key = (
@@ -68,12 +62,15 @@ def api_supabase_config():
         or os.environ.get("SUPABASE_ANON_KEY", "").strip()
     )
     supabase_table = os.environ.get("SUPABASE_TABLE", "aramky_stores_data").strip() or "aramky_stores_data"
+    render_api_base = os.environ.get("RENDER_API_BASE", "").strip()
 
     return jsonify({
         "ok": bool(supabase_url and supabase_key),
         "supabaseUrl": supabase_url,
         "supabaseKey": supabase_key,
+        "supabaseAnonKey": supabase_key,
         "supabaseTable": supabase_table,
+        "renderApiBase": render_api_base,
     }), 200
 
 
