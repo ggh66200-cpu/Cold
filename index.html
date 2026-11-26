@@ -328,32 +328,55 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 
     <div id="dcm-inc-dec-summary" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs"></div>
 
-    <div class="bg-darkbg/90 p-4 rounded-2xl border border-gold/30 space-y-3 text-xs">
+    <div class="bg-darkbg/95 p-4 rounded-3xl border border-gold/40 space-y-3 text-xs shadow-inner">
       <div class="font-bold text-gold flex items-center justify-between flex-wrap gap-2">
         <div class="flex items-center gap-2">
-          <span>تعديل رصيد هذا الكارت بوضوح (زيادة أو خصم/تسديد):</span>
-          <span id="dcm-mode-badge" class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">زيادة (+)</span>
+          <span>تعديل رصيد هذا الكارت بواجهة فخمة واضحة:</span>
+          <span id="dcm-mode-badge" class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">زيادة أموال (+)</span>
         </div>
-        <div class="flex items-center gap-1.5">
+        <div class="flex items-center gap-1.5 flex-wrap">
           <button type="button" onclick="presetCardModalAction('inc', 'money')" class="bg-emerald-600/25 border border-emerald-500/40 text-emerald-300 px-2.5 py-1 rounded-lg text-[10px] font-bold">+ أموال</button>
           <button type="button" onclick="presetCardModalAction('dec', 'money')" class="bg-rose-600/25 border border-rose-500/40 text-rose-300 px-2.5 py-1 rounded-lg text-[10px] font-bold">- أموال</button>
           <button type="button" onclick="presetCardModalAction('inc', 'gold')" class="bg-amber-600/25 border border-amber-400/40 text-amber-300 px-2.5 py-1 rounded-lg text-[10px] font-bold">+ ذهب</button>
           <button type="button" onclick="presetCardModalAction('dec', 'gold')" class="bg-slate-800 border border-rose-500/40 text-rose-300 px-2.5 py-1 rounded-lg text-[10px] font-bold">- ذهب</button>
         </div>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
-        <select id="dcm-action-dir" onchange="syncCardModalModeBadge()" class="bg-cardbg border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none">
-          <option value="inc">زيادة الرصيد (+)</option>
-          <option value="dec">خصم / تسديد من الرصيد (-)</option>
-        </select>
-        <select id="dcm-action-unit" onchange="syncCardModalModeBadge()" class="bg-cardbg border border-slate-700 rounded-xl p-2.5 text-gold font-bold outline-none">
-          <option value="money">أموال (د.ع)</option>
-          <option value="gold">ذهب (غرام)</option>
-        </select>
-        <input type="number" step="0.001" id="dcm-action-amount" placeholder="المبلغ أو الوزن" class="bg-cardbg border border-slate-700 rounded-xl p-2.5 text-emerald-400 font-bold outline-none">
-        <button type="button" onclick="applyQuickCardAdjustment()" class="gold-gradient text-darkbg font-black rounded-xl py-2.5 px-3 shadow">تطبيق وتوثيق</button>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <div class="bg-cardbg/90 border border-slate-700/80 p-2.5 rounded-2xl space-y-1.5">
+          <span class="text-[10px] text-slate-400 font-bold block">نوع العملية على الرصيد:</span>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button type="button" id="dcm-dir-btn-inc" onclick="setCardModalDirection('inc')" class="bg-emerald-600/30 border-2 border-emerald-400 text-emerald-200 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition">
+              <i class="fa-solid fa-plus-circle"></i> <span>زيادة الرصيد (+)</span>
+            </button>
+            <button type="button" id="dcm-dir-btn-dec" onclick="setCardModalDirection('dec')" class="bg-darkbg border border-rose-500/40 text-rose-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition">
+              <i class="fa-solid fa-minus-circle"></i> <span>خصم / تسديد (-)</span>
+            </button>
+          </div>
+          <input type="hidden" id="dcm-action-dir" value="inc">
+        </div>
+
+        <div class="bg-cardbg/90 border border-slate-700/80 p-2.5 rounded-2xl space-y-1.5">
+          <span class="text-[10px] text-slate-400 font-bold block">العملة أو الوزن:</span>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button type="button" id="dcm-unit-btn-money" onclick="setCardModalUnit('money')" class="gold-gradient text-darkbg font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition">
+              <i class="fa-solid fa-coins"></i> <span>أموال (د.ع)</span>
+            </button>
+            <button type="button" id="dcm-unit-btn-gold" onclick="setCardModalUnit('gold')" class="bg-darkbg border border-amber-400/40 text-amber-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition">
+              <i class="fa-solid fa-scale-balanced"></i> <span>ذهب (غرام)</span>
+            </button>
+          </div>
+          <input type="hidden" id="dcm-action-unit" value="money">
+        </div>
       </div>
-      <input type="text" id="dcm-action-notes" placeholder="سبب التعديل أو ملاحظة الحركة (يظهر في الجرد)..." class="w-full bg-cardbg border border-slate-700 rounded-xl p-2.5 outline-none">
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <input type="number" step="0.001" id="dcm-action-amount" placeholder="أدخل المبلغ أو الوزن..." class="sm:col-span-2 bg-cardbg border border-gold/40 focus:border-gold rounded-2xl p-3 text-emerald-400 font-bold outline-none">
+        <button type="button" onclick="applyQuickCardAdjustment()" class="gold-gradient text-darkbg font-black rounded-2xl py-3 px-4 shadow-lg flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-check-double"></i> <span>تطبيق وتوثيق</span>
+        </button>
+      </div>
+      <input type="text" id="dcm-action-notes" placeholder="سبب التعديل أو ملاحظة الحركة (يظهر في الجرد)..." class="w-full bg-cardbg border border-slate-700 rounded-2xl p-2.5 outline-none">
     </div>
 
     <div class="flex-1 overflow-y-auto space-y-2">
@@ -667,7 +690,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-4 gap-3">
           <div>
             <h3 id="i18n-debts-title" class="font-black text-gold text-xl flex items-center gap-2"><i class="fa-solid fa-crown text-amber-300"></i> دفتر الديون الفخم (تطلبهم + ويطلبوك -)</h3>
-            <p id="i18n-debts-subtitle" class="text-[11px] text-slate-400 mt-0.5">تمييز بصري واضح بين (تطلبهم: لنا عند الناس +) و(يطلبوك: مطلوب منك للناس -) مع معاينة فورية للرصيد قبل الحفظ</p>
+            <p id="i18n-debts-subtitle" class="text-[11px] text-slate-400 mt-0.5">تمييز بصري واضح بين (تطلبهم +) و(يطلبوك -) و(الكارت المشترك الذي يجمع الطرفين) مع معاينة فورية للرصيد</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button onclick="setDebtFilter('all')" id="debt-filter-all" class="bg-gold text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow">الكل</button>
@@ -2368,7 +2391,7 @@ function addExpense() {
 }
 
 /* =========================================================================
-   دوال دفتر الديون الفخم (تمييز واضح بين تطلبهم ويطلبوك + زيادة ونقصان)
+   دوال دفتر الديون الفخم (تمييز واضح بين تطلبهم ويطلبوك والكروت المشتركة)
    ========================================================================= */
 function openLuxuryDebtTypeModal() { document.getElementById('luxury-debt-type-modal').classList.remove('hidden'); }
 function closeLuxuryDebtTypeModal() { document.getElementById('luxury-debt-type-modal').classList.add('hidden'); }
@@ -2483,6 +2506,8 @@ function groupDebtCards() {
         moneyMinusTotal: 0,
         goldPlusTotal: 0,
         goldMinusTotal: 0,
+        hasPlusMovement: false,
+        hasMinusMovement: false,
         movementsCount: 0,
         lastDate: d.date || new Date().toISOString(),
         lastNotes: d.notes || '',
@@ -2495,6 +2520,9 @@ function groupDebtCards() {
     const signedAmt = rawAmt !== 0
       ? rawAmt
       : (d.category === 'on_us' ? -Math.abs(Number(d.absAmount || 0)) : Math.abs(Number(d.absAmount || 0)));
+
+    if (signedAmt >= 0) card.hasPlusMovement = true;
+    else card.hasMinusMovement = true;
 
     if (unit === 'gold') {
       card.goldBalance = Number((card.goldBalance + signedAmt).toFixed(3));
@@ -2518,11 +2546,18 @@ function groupDebtCards() {
   }
 
   return Array.from(map.values()).map(card => {
+    const isShared = card.hasPlusMovement && card.hasMinusMovement;
     const isUs = card.moneyBalance < 0 || (card.moneyBalance === 0 && card.goldBalance < 0);
+    const side = isUs ? 'on_us' : 'on_them';
+    const sideLabel = isShared
+      ? (isUs ? 'كارت مشترك (الصافي يطلبوك -)' : 'كارت مشترك (الصافي تطلبهم +)')
+      : (isUs ? 'يطلبوك / مطلوب منك (-)' : 'تطلبهم / دين لك (+)');
+
     return {
       ...card,
-      side: isUs ? 'on_us' : 'on_them',
-      sideLabel: isUs ? 'يطلبوك / مطلوب منك (-)' : 'تطلبهم / دين لك (+)'
+      side,
+      isShared,
+      sideLabel
     };
   });
 }
@@ -2597,22 +2632,50 @@ function quickCardAdjust(cardKey, mode) {
   const card = cards.find(c => c.key === cardKey);
   if (!card) return;
   openDebtCardDetailsModal(cardKey);
-  const dirSelect = document.getElementById('dcm-action-dir');
-  const unitSelect = document.getElementById('dcm-action-unit');
-  if (dirSelect && unitSelect) {
-    if (mode === 'inc_money') { dirSelect.value = 'inc'; unitSelect.value = 'money'; }
-    else if (mode === 'dec_money') { dirSelect.value = 'dec'; unitSelect.value = 'money'; }
-    else if (mode === 'inc_gold') { dirSelect.value = 'inc'; unitSelect.value = 'gold'; }
-    else if (mode === 'dec_gold') { dirSelect.value = 'dec'; unitSelect.value = 'gold'; }
-    syncCardModalModeBadge();
-  }
+  if (mode === 'inc_money') { setCardModalDirection('inc'); setCardModalUnit('money'); }
+  else if (mode === 'dec_money') { setCardModalDirection('dec'); setCardModalUnit('money'); }
+  else if (mode === 'inc_gold') { setCardModalDirection('inc'); setCardModalUnit('gold'); }
+  else if (mode === 'dec_gold') { setCardModalDirection('dec'); setCardModalUnit('gold'); }
 }
 
 function presetCardModalAction(dir, unit) {
-  const dirSelect = document.getElementById('dcm-action-dir');
-  const unitSelect = document.getElementById('dcm-action-unit');
-  if (dirSelect) dirSelect.value = dir;
-  if (unitSelect) unitSelect.value = unit;
+  setCardModalDirection(dir);
+  setCardModalUnit(unit);
+}
+
+function setCardModalDirection(dir) {
+  const cleanDir = dir === 'dec' ? 'dec' : 'inc';
+  const input = document.getElementById('dcm-action-dir');
+  if (input) input.value = cleanDir;
+  const incBtn = document.getElementById('dcm-dir-btn-inc');
+  const decBtn = document.getElementById('dcm-dir-btn-dec');
+  if (incBtn && decBtn) {
+    if (cleanDir === 'dec') {
+      decBtn.className = 'bg-rose-600/35 border-2 border-rose-400 text-rose-100 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition';
+      incBtn.className = 'bg-darkbg border border-emerald-500/40 text-emerald-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
+    } else {
+      incBtn.className = 'bg-emerald-600/35 border-2 border-emerald-400 text-emerald-100 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition';
+      decBtn.className = 'bg-darkbg border border-rose-500/40 text-rose-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
+    }
+  }
+  syncCardModalModeBadge();
+}
+
+function setCardModalUnit(unit) {
+  const cleanUnit = unit === 'gold' ? 'gold' : 'money';
+  const input = document.getElementById('dcm-action-unit');
+  if (input) input.value = cleanUnit;
+  const moneyBtn = document.getElementById('dcm-unit-btn-money');
+  const goldBtn = document.getElementById('dcm-unit-btn-gold');
+  if (moneyBtn && goldBtn) {
+    if (cleanUnit === 'gold') {
+      goldBtn.className = 'gold-gradient text-darkbg font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition';
+      moneyBtn.className = 'bg-darkbg border border-gold/40 text-gold font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
+    } else {
+      moneyBtn.className = 'gold-gradient text-darkbg font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition';
+      goldBtn.className = 'bg-darkbg border border-amber-400/40 text-amber-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
+    }
+  }
   syncCardModalModeBadge();
 }
 
@@ -2645,9 +2708,11 @@ function openDebtCardDetailsModal(cardKey) {
   document.getElementById('dcm-customer-name').textContent = card.customer;
   const badge = document.getElementById('dcm-side-badge');
   badge.textContent = card.sideLabel;
-  badge.className = card.side === 'on_us'
-    ? 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/40'
-    : 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+  badge.className = card.isShared
+    ? 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-400/50'
+    : (card.side === 'on_us'
+      ? 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/40'
+      : 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40');
 
   document.getElementById('dcm-customer-meta').textContent = `${card.phone ? 'هاتف: ' + card.phone + ' • ' : ''}إجمالي الحركات: ${card.movementsCount} • آخر تحديث: ${new Date(card.lastDate).toLocaleString('ar-IQ')}`;
 
@@ -2666,19 +2731,19 @@ function openDebtCardDetailsModal(cardKey) {
 
   document.getElementById('dcm-inc-dec-summary').innerHTML = `
     <div class="bg-emerald-950/30 p-3 rounded-xl border border-emerald-500/30">
-      <span class="text-[10px] text-emerald-300 block">إجمالي زيادات الأموال (+):</span>
+      <span class="text-[10px] text-emerald-300 block">تطلبهم / زيادة أموال (+):</span>
       <strong class="text-emerald-400 font-black">${formatIQD(card.moneyPlusTotal)}</strong>
     </div>
     <div class="bg-rose-950/30 p-3 rounded-xl border border-rose-500/30">
-      <span class="text-[10px] text-rose-300 block">إجمالي نقصان الأموال (-):</span>
+      <span class="text-[10px] text-rose-300 block">يطلبوك / نقصان أموال (-):</span>
       <strong class="text-rose-400 font-black">${formatIQD(card.moneyMinusTotal)}</strong>
     </div>
     <div class="bg-amber-950/30 p-3 rounded-xl border border-amber-500/30">
-      <span class="text-[10px] text-amber-300 block">إجمالي زيادات الذهب (+):</span>
+      <span class="text-[10px] text-amber-300 block">تطلبهم / زيادة ذهب (+):</span>
       <strong class="text-amber-300 font-black">${formatGrams(card.goldPlusTotal)}</strong>
     </div>
     <div class="bg-orange-950/30 p-3 rounded-xl border border-orange-500/30">
-      <span class="text-[10px] text-orange-300 block">إجمالي نقصان الذهب (-):</span>
+      <span class="text-[10px] text-orange-300 block">يطلبوك / نقصان ذهب (-):</span>
       <strong class="text-orange-300 font-black">${formatGrams(card.goldMinusTotal)}</strong>
     </div>
   `;
@@ -2691,7 +2756,7 @@ function openDebtCardDetailsModal(cardKey) {
     return `
       <div class="bg-darkbg/90 border ${isPos ? 'border-emerald-500/30' : 'border-rose-500/30'} p-3 rounded-2xl flex items-center justify-between gap-2">
         <div>
-          <div class="font-bold ${isPos ? 'text-emerald-300' : 'text-rose-300'}">${m.typeValue || (isPos ? 'زيادة (+)' : 'نقصان (-)')}</div>
+          <div class="font-bold ${isPos ? 'text-emerald-300' : 'text-rose-300'}">${m.typeValue || (isPos ? 'تطلبهم / زيادة (+)' : 'يطلبوك / نقصان (-)')}</div>
           <div class="text-[11px] text-slate-400">${new Date(m.date || Date.now()).toLocaleString('ar-IQ')}${m.notes ? ' • ' + m.notes : ''}</div>
         </div>
         <strong class="font-mono text-sm ${isPos ? 'text-emerald-400' : 'text-rose-400'}">${valStr}</strong>
@@ -2699,7 +2764,8 @@ function openDebtCardDetailsModal(cardKey) {
     `;
   }).join('');
 
-  syncCardModalModeBadge();
+  setCardModalDirection(document.getElementById('dcm-action-dir')?.value || 'inc');
+  setCardModalUnit(document.getElementById('dcm-action-unit')?.value || 'money');
   document.getElementById('debt-card-details-modal').classList.remove('hidden');
 }
 
@@ -2739,7 +2805,7 @@ function applyQuickCardAdjustment() {
     absAmount: Math.abs(amt),
     actionKind: dir === 'dec' ? 'نقصان (-)' : 'زيادة (+)',
     typeValue,
-    notes: notes || `تعديل سريع (${dir === 'dec' ? 'نقصان -' : 'زيادة +'}) من تفاصيل الكارت`,
+    notes: notes || `تعديل سريع (${dir === 'dec' ? 'يطلبوك / نقصان -' : 'تطلبهم / زيادة +'}) من تفاصيل الكارت`,
     date: new Date().toISOString()
   });
 
@@ -2760,8 +2826,12 @@ function applyQuickCardAdjustment() {
 
 function renderDebtCardHtml(card) {
   const isUs = card.side === 'on_us';
-  const borderClass = isUs ? 'border-rose-500/45' : 'border-emerald-500/45';
-  const badgeClass = isUs ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+  const borderClass = card.isShared
+    ? 'border-amber-400/60'
+    : (isUs ? 'border-rose-500/45' : 'border-emerald-500/45');
+  const badgeClass = card.isShared
+    ? 'bg-amber-500/20 text-amber-300 border-amber-400/50'
+    : (isUs ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
   const moneyColor = card.moneyBalance < 0 ? 'text-rose-400' : 'text-emerald-400';
   const goldColor = card.goldBalance < 0 ? 'text-rose-400' : 'text-amber-300';
   const safeKey = card.key.replace(/'/g, "\\'");
@@ -2779,18 +2849,18 @@ function renderDebtCardHtml(card) {
 
         <div class="grid grid-cols-2 gap-2 bg-darkbg/90 p-3 rounded-2xl border border-slate-800 text-xs">
           <div>
-            <span class="text-[10px] text-slate-400 block">رصيد الأموال:</span>
+            <span class="text-[10px] text-slate-400 block">رصيد الأموال الصافي:</span>
             <strong class="${moneyColor} font-black text-sm">${card.moneyBalance >= 0 ? '+' : '-'}${formatIQD(Math.abs(card.moneyBalance))}</strong>
           </div>
           <div>
-            <span class="text-[10px] text-slate-400 block">رصيد الذهب:</span>
+            <span class="text-[10px] text-slate-400 block">رصيد الذهب الصافي:</span>
             <strong class="${goldColor} font-black text-sm">${card.goldBalance >= 0 ? '+' : '-'}${formatGrams(Math.abs(card.goldBalance))}</strong>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2 text-[10px] bg-cardbg/60 px-3 py-2 rounded-xl border border-slate-800/80">
-          <div class="text-emerald-300 font-mono">زيادة (+): ${formatIQD(card.moneyPlusTotal)} | ${formatGrams(card.goldPlusTotal)}</div>
-          <div class="text-rose-300 font-mono text-left">نقصان (-): ${formatIQD(card.moneyMinusTotal)} | ${formatGrams(card.goldMinusTotal)}</div>
+          <div class="text-emerald-300 font-mono">تطلبهم (+): ${formatIQD(card.moneyPlusTotal)} | ${formatGrams(card.goldPlusTotal)}</div>
+          <div class="text-rose-300 font-mono text-left">يطلبوك (-): ${formatIQD(card.moneyMinusTotal)} | ${formatGrams(card.goldMinusTotal)}</div>
         </div>
 
         ${card.lastNotes ? `<p class="text-[11px] text-slate-400 bg-darkbg/60 px-3 py-1.5 rounded-xl border border-slate-800/60 truncate">آخر ملاحظة: ${card.lastNotes}</p>` : ''}
@@ -3032,193 +3102,178 @@ function applyTestMithqalToAudit() {
 
 function renderMithqalMakingAudit() {
   const selectedKarat = document.getElementById('mithqal-audit-karat')?.value || 'all';
-  const customMqPrice = parseFloat(document.getElementById('mithqal-audit-custom-price')?.value) || 0;
-  const tbody = document.getElementById('mithqal-audit-tbody');
-  if (!tbody) return;
-
   const rows = [];
-  for (const log of (db.logs || [])) {
-    if (log.type !== 'عملية بيع' || !Array.isArray(log.soldItems)) continue;
-    for (const item of log.soldItems) {
+  let totalSoldCount = 0;
+  let totalSoldWeight = 0;
+  let totalMakingProfit = 0;
+
+  for (const log of db.logs) {
+    if (log.type !== 'عملية بيع') continue;
+    const items = Array.isArray(log.soldItems) && log.soldItems.length
+      ? log.soldItems
+      : [{ name: log.details || 'عملية بيع', karat: '21', weight: 0, qty: 1, makingPerGram: 0, lineMaking: Number(log.makingProfit || 0) }];
+
+    for (const item of items) {
       if (selectedKarat !== 'all' && String(item.karat) !== String(selectedKarat)) continue;
-      const weight = Number(item.weight || 0) * Number(item.qty || 1);
-      const mithqals = weight / MITHQAL_GRAMS;
-      const makingPerGram = Number(item.makingPerGram || 0);
-      const makingPerMithqal = makingPerGram * MITHQAL_GRAMS;
-      const netMakingProfit = Math.round(weight * makingPerGram);
+      const qty = Number(item.qty || 1);
+      const unitWeight = Number(item.weight || 0);
+      const lineWeight = unitWeight * qty;
+      const lineMaking = Number(item.lineMaking !== undefined ? item.lineMaking : (lineWeight * Number(item.makingPerGram || 0)));
+      const mithqals = lineWeight / MITHQAL_GRAMS;
+      const makingPerMithqal = mithqals > 0 ? Math.round(lineMaking / mithqals) : Math.round(Number(item.makingPerGram || 0) * MITHQAL_GRAMS);
+
+      totalSoldCount += qty;
+      totalSoldWeight += lineWeight;
+      totalMakingProfit += lineMaking;
+
       rows.push({
-        title: `${item.name} (${log.id})`,
-        karat: item.karat,
-        weight,
+        name: item.name,
+        karat: item.karat || '21',
+        lineWeight,
         mithqals,
         makingPerMithqal,
-        netMakingProfit
+        lineMaking
       });
     }
   }
 
-  const totalCount = rows.length;
-  const totalWeight = rows.reduce((s, r) => s + r.weight, 0);
-  const totalMithqals = totalWeight / MITHQAL_GRAMS;
-  const totalMaking = rows.reduce((s, r) => s + r.netMakingProfit, 0);
-  const avgMakingPerMithqal = totalMithqals > 0 ? Math.round(totalMaking / totalMithqals) : 0;
+  const totalMithqals = totalSoldWeight / MITHQAL_GRAMS;
+  const avgPerMithqal = totalMithqals > 0 ? Math.round(totalMakingProfit / totalMithqals) : 0;
 
-  document.getElementById('audit-sold-count').textContent = totalCount;
-  document.getElementById('audit-sold-weight').textContent = `${totalWeight.toFixed(3).replace(/\.?0+$/, '')} غ (${totalMithqals.toFixed(3).replace(/\.?0+$/, '')} مثقال)`;
-  document.getElementById('audit-making-total').textContent = formatIQD(totalMaking);
-  document.getElementById('audit-making-per-mithqal').textContent = formatIQD(customMqPrice > 0 ? Math.round(avgMakingPerMithqal) : avgMakingPerMithqal);
+  document.getElementById('audit-sold-count').textContent = String(totalSoldCount);
+  document.getElementById('audit-sold-weight').textContent = `${totalSoldWeight.toFixed(2)} غ (${totalMithqals.toFixed(2)} مثقال)`;
+  document.getElementById('audit-making-total').textContent = formatIQD(Math.round(totalMakingProfit));
+  document.getElementById('audit-making-per-mithqal').textContent = formatIQD(avgPerMithqal);
 
+  const tbody = document.getElementById('mithqal-audit-tbody');
+  if (!tbody) return;
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">لا توجد مبيعات مسجلة ضمن هذا المثقال بعد.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">لا توجد مبيعات ضمن العيار المحدد حالياً.</td></tr>';
     return;
   }
 
   tbody.innerHTML = rows.map(r => `
     <tr>
-      <td class="p-2.5 font-bold text-slate-200">${r.title}</td>
+      <td class="p-2.5 font-bold text-slate-200">${r.name}</td>
       <td class="p-2.5 text-gold font-bold">عيار ${r.karat}</td>
-      <td class="p-2.5 font-mono">${r.weight.toFixed(3).replace(/\.?0+$/, '')} غ</td>
-      <td class="p-2.5 font-mono text-emerald-400">${r.mithqals.toFixed(3).replace(/\.?0+$/, '')}</td>
-      <td class="p-2.5 font-mono text-amber-300">${formatIQD(Math.round(r.makingPerMithqal))}</td>
-      <td class="p-2.5 font-mono font-black text-emerald-400">${formatIQD(r.netMakingProfit)}</td>
+      <td class="p-2.5 font-mono">${r.lineWeight.toFixed(2)} غ</td>
+      <td class="p-2.5 font-mono text-emerald-400">${r.mithqals.toFixed(2)} مثقال</td>
+      <td class="p-2.5 font-mono text-amber-300">${formatIQD(r.makingPerMithqal)}</td>
+      <td class="p-2.5 font-mono font-bold text-emerald-400">${formatIQD(Math.round(r.lineMaking))}</td>
     </tr>
   `).join('');
 }
 
 function exportLogsToExcel() {
   const periodLogs = db.logs.filter(isLogInSelectedPeriod);
-  const debtCards = groupDebtCards();
+  const salesLogs = periodLogs.filter(l => l.type === 'عملية بيع');
+  const debtLogs = periodLogs.filter(l => l.type === 'حركة ديون');
+  const invLogs = periodLogs.filter(l => l.type.includes('مخزن') || l.type === 'شراء كسر' || l.type === 'إرجاع فاتورة' || l.type === 'صرف مصروف');
 
-  const logRowsXml = periodLogs.map(l => {
+  const renderLogRowsXml = (arr) => arr.map(l => {
     const meta = getOperationMeta(l);
-    return `<Row ss:StyleID="${meta.xmlRow}">
-      <Cell><Data ss:Type="String">${escapeXml(new Date(l.date || Date.now()).toLocaleString('ar-IQ'))}</Data></Cell>
-      <Cell><Data ss:Type="String">${escapeXml(l.id)}</Data></Cell>
-      <Cell ss:StyleID="${meta.xmlBadge}"><Data ss:Type="String">${escapeXml(meta.category)}</Data></Cell>
-      <Cell><Data ss:Type="String">${escapeXml(meta.direction)}</Data></Cell>
-      <Cell><Data ss:Type="String">${escapeXml(l.details || '')}</Data></Cell>
-      <Cell><Data ss:Type="Number">${Number(l.amount || 0)}</Data></Cell>
-      <Cell><Data ss:Type="Number">${Number(l.makingProfit || 0)}</Data></Cell>
-    </Row>`;
+    return `
+      <Row ss:StyleID="${meta.xmlRow}">
+        <Cell><Data ss:Type="String">${escapeXml(new Date(l.date || Date.now()).toLocaleString('ar-IQ'))}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(l.id)}</Data></Cell>
+        <Cell ss:StyleID="${meta.xmlBadge}"><Data ss:Type="String">${escapeXml(meta.category)}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(meta.direction)}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(l.details || '')}</Data></Cell>
+        <Cell><Data ss:Type="Number">${Number(l.amount || 0)}</Data></Cell>
+        <Cell><Data ss:Type="Number">${Number(l.makingProfit || 0)}</Data></Cell>
+      </Row>
+    `;
   }).join('');
 
-  const debtRowsXml = debtCards.map(c => `<Row>
-    <Cell><Data ss:Type="String">${escapeXml(c.sideLabel)}</Data></Cell>
-    <Cell><Data ss:Type="String">${escapeXml(c.customer)}</Data></Cell>
-    <Cell><Data ss:Type="String">${escapeXml(c.phone || '')}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(c.moneyBalance || 0)}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(c.goldBalance || 0)}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(c.moneyPlusTotal || 0)}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(c.moneyMinusTotal || 0)}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(c.goldPlusTotal || 0)}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(c.goldMinusTotal || 0)}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(c.movementsCount || 0)}</Data></Cell>
-  </Row>`).join('');
-
-  const invRowsXml = (db.inventory || []).map(item => `<Row>
-    <Cell><Data ss:Type="String">${escapeXml(item.id || '')}</Data></Cell>
-    <Cell><Data ss:Type="String">${escapeXml(item.name || '')}</Data></Cell>
-    <Cell><Data ss:Type="String">${escapeXml(item.condition === 'used' ? 'مستعمل' : 'جديد')}</Data></Cell>
-    <Cell><Data ss:Type="String">${escapeXml(item.karat || '21')}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(item.weight || 0)}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(item.qty || 0)}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(item.makingPerGram || 0)}</Data></Cell>
-    <Cell><Data ss:Type="String">${escapeXml(item.published ? 'منشور' : 'مخفي')}</Data></Cell>
-  </Row>`).join('');
-
-  const xml = `<?xml version="1.0"?>
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <?mso-application progid="Excel.Sheet"?>
 <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
- <Styles>
-  <Style ss:ID="Default"><Alignment ss:Horizontal="Right" ss:Vertical="Center"/></Style>
-  <Style ss:ID="Header"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#1E293B" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style>
-  <Style ss:ID="RowDebtThem"><Interior ss:Color="#ECFDF5" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="BadgeDebtThem"><Font ss:Bold="1" ss:Color="#065F46"/><Interior ss:Color="#D1FAE5" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="RowDebtUs"><Interior ss:Color="#FFF1F2" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="BadgeDebtUs"><Font ss:Bold="1" ss:Color="#9F1239"/><Interior ss:Color="#FFE4E6" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="RowSale"><Interior ss:Color="#EFF6FF" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="BadgeSale"><Font ss:Bold="1" ss:Color="#1E40AF"/><Interior ss:Color="#DBEAFE" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="RowScrap"><Interior ss:Color="#FFFBEB" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="BadgeScrap"><Font ss:Bold="1" ss:Color="#92400E"/><Interior ss:Color="#FEF3C7" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="RowExp"><Interior ss:Color="#FAF5FF" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="BadgeExp"><Font ss:Bold="1" ss:Color="#6B21A8"/><Interior ss:Color="#F3E8FF" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="RowReturn"><Interior ss:Color="#FFF7ED" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="BadgeReturn"><Font ss:Bold="1" ss:Color="#9A3412"/><Interior ss:Color="#FFEDD5" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="RowInv"><Interior ss:Color="#F0FDFA" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="BadgeInv"><Font ss:Bold="1" ss:Color="#115E59"/><Interior ss:Color="#CCFBF1" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="RowDefault"><Interior ss:Color="#F8FAFC" ss:Pattern="Solid"/></Style>
-  <Style ss:ID="BadgeDefault"><Font ss:Bold="1" ss:Color="#334155"/><Interior ss:Color="#E2E8F0" ss:Pattern="Solid"/></Style>
- </Styles>
- <Worksheet ss:Name="ملخص الخزينة">
-  <Table>
-   <Row ss:StyleID="Header">
-    <Cell><Data ss:Type="String">المعرض</Data></Cell>
-    <Cell><Data ss:Type="String">الكود</Data></Cell>
-    <Cell><Data ss:Type="String">صندوق الكاش (د.ع)</Data></Cell>
-    <Cell><Data ss:Type="String">صندوق الدولار ($)</Data></Cell>
-    <Cell><Data ss:Type="String">زين كاش والماستر (د.ع)</Data></Cell>
-    <Cell><Data ss:Type="String">صافي أرباح الصياغة (د.ع)</Data></Cell>
-   </Row>
-   <Row>
-    <Cell><Data ss:Type="String">${escapeXml(db.store.name)}</Data></Cell>
-    <Cell><Data ss:Type="String">${escapeXml(activeTenantCode)}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(db.cash || 0)}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(db.usd || 0)}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(db.zain || 0)}</Data></Cell>
-    <Cell><Data ss:Type="Number">${Number(db.makingProfit || 0)}</Data></Cell>
-   </Row>
-  </Table>
- </Worksheet>
- <Worksheet ss:Name="السجل المالي والديون">
-  <Table>
-   <Row ss:StyleID="Header">
-    <Cell><Data ss:Type="String">التاريخ</Data></Cell>
-    <Cell><Data ss:Type="String">الرمز</Data></Cell>
-    <Cell><Data ss:Type="String">نوع العملية</Data></Cell>
-    <Cell><Data ss:Type="String">الاتجاه</Data></Cell>
-    <Cell><Data ss:Type="String">التفاصيل</Data></Cell>
-    <Cell><Data ss:Type="String">المبلغ / الوزن</Data></Cell>
-    <Cell><Data ss:Type="String">ربح الصياغة</Data></Cell>
-   </Row>
-   ${logRowsXml}
-  </Table>
- </Worksheet>
- <Worksheet ss:Name="كارتات الديون">
-  <Table>
-   <Row ss:StyleID="Header">
-    <Cell><Data ss:Type="String">الجهة</Data></Cell>
-    <Cell><Data ss:Type="String">الاسم</Data></Cell>
-    <Cell><Data ss:Type="String">الهاتف</Data></Cell>
-    <Cell><Data ss:Type="String">رصيد الأموال</Data></Cell>
-    <Cell><Data ss:Type="String">رصيد الذهب</Data></Cell>
-    <Cell><Data ss:Type="String">زيادة أموال (+)</Data></Cell>
-    <Cell><Data ss:Type="String">نقصان أموال (-)</Data></Cell>
-    <Cell><Data ss:Type="String">زيادة ذهب (+)</Data></Cell>
-    <Cell><Data ss:Type="String">نقصان ذهب (-)</Data></Cell>
-    <Cell><Data ss:Type="String">عدد الحركات</Data></Cell>
-   </Row>
-   ${debtRowsXml}
-  </Table>
- </Worksheet>
- <Worksheet ss:Name="المخزون">
-  <Table>
-   <Row ss:StyleID="Header">
-    <Cell><Data ss:Type="String">المعرف</Data></Cell>
-    <Cell><Data ss:Type="String">الصنف</Data></Cell>
-    <Cell><Data ss:Type="String">الحالة</Data></Cell>
-    <Cell><Data ss:Type="String">العيار</Data></Cell>
-    <Cell><Data ss:Type="String">الوزن (غ)</Data></Cell>
-    <Cell><Data ss:Type="String">الكمية</Data></Cell>
-    <Cell><Data ss:Type="String">صياغة الغرام</Data></Cell>
-    <Cell><Data ss:Type="String">الحالة بالمعرض</Data></Cell>
-   </Row>
-   ${invRowsXml}
-  </Table>
- </Worksheet>
+  <Styles>
+    <Style ss:ID="Default" ss:Name="Normal">
+      <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+      <Font ss:FontName="Cairo" ss:Size="11"/>
+    </Style>
+    <Style ss:ID="Header">
+      <Font ss:FontName="Cairo" ss:Size="12" ss:Bold="1" ss:Color="#FFFFFF"/>
+      <Interior ss:Color="#1E293B" ss:Pattern="Solid"/>
+    </Style>
+    <Style ss:ID="RowSale"><Interior ss:Color="#EFF6FF" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="RowScrap"><Interior ss:Color="#FFFBEB" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="RowDebtThem"><Interior ss:Color="#ECFDF5" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="RowDebtUs"><Interior ss:Color="#FFF1F2" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="RowExp"><Interior ss:Color="#F5F3FF" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="RowReturn"><Interior ss:Color="#FFF7ED" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="RowInv"><Interior ss:Color="#F0FDFA" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="RowDefault"><Interior ss:Color="#F8FAFC" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="BadgeSale"><Font ss:Bold="1" ss:Color="#1D4ED8"/></Style>
+    <Style ss:ID="BadgeScrap"><Font ss:Bold="1" ss:Color="#B45309"/></Style>
+    <Style ss:ID="BadgeDebtThem"><Font ss:Bold="1" ss:Color="#047857"/></Style>
+    <Style ss:ID="BadgeDebtUs"><Font ss:Bold="1" ss:Color="#BE123C"/></Style>
+    <Style ss:ID="BadgeExp"><Font ss:Bold="1" ss:Color="#6D28D9"/></Style>
+    <Style ss:ID="BadgeReturn"><Font ss:Bold="1" ss:Color="#C2410C"/></Style>
+    <Style ss:ID="BadgeInv"><Font ss:Bold="1" ss:Color="#0F766E"/></Style>
+    <Style ss:ID="BadgeDefault"><Font ss:Bold="1" ss:Color="#334155"/></Style>
+  </Styles>
+  <Worksheet ss:Name="جميع السجلات">
+    <Table>
+      <Row ss:StyleID="Header">
+        <Cell><Data ss:Type="String">التاريخ</Data></Cell>
+        <Cell><Data ss:Type="String">الرمز</Data></Cell>
+        <Cell><Data ss:Type="String">نوع العملية</Data></Cell>
+        <Cell><Data ss:Type="String">الاتجاه</Data></Cell>
+        <Cell><Data ss:Type="String">التفاصيل</Data></Cell>
+        <Cell><Data ss:Type="String">المبلغ (د.ع)</Data></Cell>
+        <Cell><Data ss:Type="String">أرباح الصياغة (د.ع)</Data></Cell>
+      </Row>
+      ${renderLogRowsXml(periodLogs)}
+    </Table>
+  </Worksheet>
+  <Worksheet ss:Name="المبيعات والصياغة">
+    <Table>
+      <Row ss:StyleID="Header">
+        <Cell><Data ss:Type="String">التاريخ</Data></Cell>
+        <Cell><Data ss:Type="String">الرمز</Data></Cell>
+        <Cell><Data ss:Type="String">نوع العملية</Data></Cell>
+        <Cell><Data ss:Type="String">الاتجاه</Data></Cell>
+        <Cell><Data ss:Type="String">التفاصيل</Data></Cell>
+        <Cell><Data ss:Type="String">المبلغ (د.ع)</Data></Cell>
+        <Cell><Data ss:Type="String">أرباح الصياغة (د.ع)</Data></Cell>
+      </Row>
+      ${renderLogRowsXml(salesLogs)}
+    </Table>
+  </Worksheet>
+  <Worksheet ss:Name="الديون (تطلبهم ويطلبوك)">
+    <Table>
+      <Row ss:StyleID="Header">
+        <Cell><Data ss:Type="String">التاريخ</Data></Cell>
+        <Cell><Data ss:Type="String">الرمز</Data></Cell>
+        <Cell><Data ss:Type="String">نوع العملية</Data></Cell>
+        <Cell><Data ss:Type="String">الاتجاه</Data></Cell>
+        <Cell><Data ss:Type="String">التفاصيل</Data></Cell>
+        <Cell><Data ss:Type="String">المبلغ (د.ع)</Data></Cell>
+        <Cell><Data ss:Type="String">أرباح الصياغة (د.ع)</Data></Cell>
+      </Row>
+      ${renderLogRowsXml(debtLogs)}
+    </Table>
+  </Worksheet>
+  <Worksheet ss:Name="المخزن والكسر والمصاريف">
+    <Table>
+      <Row ss:StyleID="Header">
+        <Cell><Data ss:Type="String">التاريخ</Data></Cell>
+        <Cell><Data ss:Type="String">الرمز</Data></Cell>
+        <Cell><Data ss:Type="String">نوع العملية</Data></Cell>
+        <Cell><Data ss:Type="String">الاتجاه</Data></Cell>
+        <Cell><Data ss:Type="String">التفاصيل</Data></Cell>
+        <Cell><Data ss:Type="String">المبلغ (د.ع)</Data></Cell>
+        <Cell><Data ss:Type="String">أرباح الصياغة (د.ع)</Data></Cell>
+      </Row>
+      ${renderLogRowsXml(invLogs)}
+    </Table>
+  </Worksheet>
 </Workbook>`;
 
-  const blob = new Blob(['\ufeff' + xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -3226,8 +3281,8 @@ function exportLogsToExcel() {
   document.body.appendChild(a);
   a.click();
   a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  showToast('تم تصدير ملف Excel المنظم بنجاح', 'success');
+  URL.revokeObjectURL(url);
+  showToast('تم تصدير ملف Excel المنظم (4 أوراق) بنجاح', 'success');
 }
 
 function populateStoreSettingsForm() {
@@ -3237,18 +3292,20 @@ function populateStoreSettingsForm() {
   document.getElementById('store-open-time').value = db.store.openTime || '';
   document.getElementById('store-close-time').value = db.store.closeTime || '';
   document.getElementById('store-bio').value = db.store.bio || '';
-  const refCode = CORE ? CORE.encodeCatalogRef(activeTenantCode) : activeTenantCode;
+
   const baseUrl = `${window.location.origin}${window.location.pathname}`;
-  document.getElementById('store-share-link').value = `${baseUrl}?catalog=${encodeURIComponent(refCode)}`;
+  const encodedRef = CORE ? CORE.encodeCatalogRef(activeTenantCode) : activeTenantCode;
+  document.getElementById('store-share-link').value = `${baseUrl}?catalog=${encodeURIComponent(encodedRef)}`;
 }
 
 async function handleStoreLogoUpload(event) {
   const imgs = await readFilesAsDataUrls(event.target.files);
   if (!imgs.length) return;
   db.store.logo = imgs[0];
+  document.getElementById('settings-logo-preview').src = imgs[0];
+  document.getElementById('header-store-logo').src = imgs[0];
+  notifyAdminMediaChange('تحديث شعار المعرض / الصايغ', imgs[0]);
   saveTenantData();
-  renderAll();
-  notifyAdminAboutStoreAsset('شعار المعرض / الصايغ', imgs[0], 'تم تحديث شعار المعرض من قِبل المشترك');
   showToast('تم تحديث الشعار وإرسال إشعار للإدارة', 'success');
 }
 
@@ -3256,21 +3313,21 @@ async function handleStoreCoverUpload(event) {
   const imgs = await readFilesAsDataUrls(event.target.files);
   if (!imgs.length) return;
   db.store.cover = imgs[0];
+  document.getElementById('settings-cover-preview').src = imgs[0];
+  notifyAdminMediaChange('تحديث غلاف المعرض', imgs[0]);
   saveTenantData();
-  renderAll();
-  notifyAdminAboutStoreAsset('غلاف المعرض', imgs[0], 'تم تحديث غلاف المعرض من قِبل المشترك');
-  showToast('تم تحديث الغلاف وإرسال إشعار للإدارة', 'success');
+  showToast('تم تحديث صورة الغلاف وإرسال إشعار للإدارة', 'success');
 }
 
-function notifyAdminAboutStoreAsset(assetType, imageSrc, message) {
+function notifyAdminMediaChange(subject, imageDataUrl) {
   if (!CORE) return;
   CORE.submitSupportTicket({
     tenantCode: activeTenantCode,
     storeName: db.store.name,
-    method: `تحديث ${assetType}`,
-    ref: `ASSET-${Date.now().toString().slice(-5)}`,
-    message,
-    image: imageSrc
+    method: subject,
+    refCode: 'MEDIA-' + Date.now().toString().slice(-5),
+    message: `قام المشترك (${activeTenantCode}) برفع/تحديث ${subject}`,
+    receiptImage: imageDataUrl || ''
   });
 }
 
@@ -3296,9 +3353,9 @@ function copyStoreLink() {
 
 function openLuxuryTransferMethodModal() { document.getElementById('luxury-transfer-method-modal').classList.remove('hidden'); }
 function closeLuxuryTransferMethodModal() { document.getElementById('luxury-transfer-method-modal').classList.add('hidden'); }
-function selectLuxuryTransferMethod(val, label) {
+function selectLuxuryTransferMethod(val, labelText) {
   document.getElementById('sup-pay-method').value = val;
-  document.getElementById('selected-transfer-method-label').textContent = label;
+  document.getElementById('selected-transfer-method-label').textContent = labelText;
   closeLuxuryTransferMethodModal();
 }
 
@@ -3307,44 +3364,46 @@ async function previewSupportReceipt(event) {
   const imgEl = document.getElementById('sup-receipt-preview');
   if (imgs.length && imgEl) {
     imgEl.src = imgs[0];
+    imgEl.dataset.base64 = imgs[0];
     imgEl.classList.remove('hidden');
   }
 }
 
 function submitSupportTransfer() {
-  const method = document.getElementById('sup-pay-method').value || 'رسالة عامة';
-  const ref = document.getElementById('sup-trans-ref').value.trim();
+  const method = document.getElementById('sup-pay-method').value || 'رسالة عامة / استفسار للإدارة';
+  const refCode = document.getElementById('sup-trans-ref').value.trim();
   const message = document.getElementById('sup-message').value.trim();
   const imgEl = document.getElementById('sup-receipt-preview');
-  const image = (imgEl && !imgEl.classList.contains('hidden')) ? imgEl.src : '';
+  const receiptImage = (imgEl && imgEl.dataset.base64) ? imgEl.dataset.base64 : '';
 
-  if (!ref && !message && !image) {
+  if (!refCode && !message && !receiptImage) {
     showToast('يرجى كتابة رسالة أو رقم عملية أو إرفاق صورة', 'warning');
     return;
   }
 
   const ticket = {
-    id: 'TCK-' + Date.now().toString().slice(-6),
+    id: 'TKT-' + Date.now().toString().slice(-6),
     tenantCode: activeTenantCode,
     storeName: db.store.name,
     method,
-    ref,
+    refCode,
     message,
-    image,
-    status: 'بانتظار مراجعة الأدمن',
-    date: new Date().toISOString()
+    receiptImage,
+    status: 'قيد المراجعة',
+    createdAt: new Date().toISOString()
   };
 
   db.supportTickets.unshift(ticket);
-  if (CORE) CORE.submitSupportTicket(ticket);
+  if (CORE) {
+    CORE.submitSupportTicket(ticket);
+  }
   saveTenantData();
   renderSupportTickets();
-
   document.getElementById('sup-trans-ref').value = '';
   document.getElementById('sup-message').value = '';
   document.getElementById('sup-receipt-img').value = '';
-  if (imgEl) { imgEl.src = ''; imgEl.classList.add('hidden'); }
-  showToast('تم إرسال رسالتك إلى لوحة الأدمن بنجاح', 'success');
+  if (imgEl) { imgEl.src = ''; imgEl.dataset.base64 = ''; imgEl.classList.add('hidden'); }
+  showToast('تم إرسال رسالتك/إيصالك بنجاح إلى لوحة الأدمن', 'success');
 }
 
 function renderSupportTickets() {
@@ -3352,19 +3411,28 @@ function renderSupportTickets() {
   if (!list) return;
   const tickets = db.supportTickets || [];
   if (!tickets.length) {
-    list.innerHTML = '<p class="text-xs text-slate-500">لا توجد رسائل أو تحويلات سابقة.</p>';
+    list.innerHTML = '<p class="text-xs text-slate-500 text-center p-3">لا توجد رسائل أو تحويلات مرسلة بعد.</p>';
     return;
   }
   list.innerHTML = tickets.map(t => `
-    <div class="bg-darkbg border border-slate-800 p-3.5 rounded-2xl text-xs flex justify-between items-center gap-3">
+    <div class="bg-cardbg border border-slate-800 p-3.5 rounded-2xl text-xs flex items-center justify-between gap-3">
       <div>
-        <strong class="text-gold">${t.method}</strong> <span class="text-slate-400 font-mono">(${t.id})</span>
-        <p class="text-slate-300 mt-0.5">${t.message || t.ref || ''}</p>
-        <span class="text-[10px] text-slate-500">${new Date(t.date || Date.now()).toLocaleString('ar-IQ')}</span>
+        <strong class="text-gold">${t.method}</strong> • <span class="font-mono text-slate-400">${t.refCode || t.id}</span>
+        <p class="text-slate-300 mt-1">${t.message || ''}</p>
+        <span class="text-[10px] text-slate-500">${new Date(t.createdAt || Date.now()).toLocaleString('ar-IQ')}</span>
       </div>
-      <span class="px-2.5 py-1 rounded-xl bg-amber-500/15 text-amber-300 font-bold text-[10px] shrink-0">${t.status || 'مرسل'}</span>
+      <span class="px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 font-bold shrink-0">${t.status || 'مرسل'}</span>
     </div>
   `).join('');
+}
+
+function openSupportFromLock() {
+  document.getElementById('subscription-lock-screen').classList.add('hidden');
+  document.getElementById('tenant-login-screen').classList.add('hidden');
+  document.getElementById('app-header').classList.remove('hidden');
+  document.getElementById('app-ticker').classList.remove('hidden');
+  document.getElementById('app-main').classList.remove('hidden');
+  switchTab('support');
 }
 
 function openPriceModal() {
@@ -3377,76 +3445,72 @@ function openPriceModal() {
   document.getElementById('price-modal').classList.remove('hidden');
 }
 
-function closePriceModal() {
-  document.getElementById('price-modal').classList.add('hidden');
-}
+function closePriceModal() { document.getElementById('price-modal').classList.add('hidden'); }
 
 function saveGoldPrices() {
-  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || 0;
-  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || 0;
-  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || 0;
-  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || 0;
-  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || 0;
-  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || 0;
+  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || db.prices.usd;
+  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || db.prices.m24;
+  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || db.prices.m22;
+  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || db.prices.m21;
+  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || db.prices.m18;
+  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || db.prices.m9;
   const scrapPriceInput = document.getElementById('scrap-mithqal-price');
   if (scrapPriceInput) delete scrapPriceInput.dataset.manual;
+  addLog('تحديث أسعار', `تحديث أسعار المثاقيل والدولار — ورقة: ${db.prices.usd}، مثقال 21: ${db.prices.m21}`, 0);
   saveTenantData();
   renderAll();
   closePriceModal();
-  showToast('تم تحديث أسعار المثاقيل والدولار', 'success');
+  showToast('تم حفظ وتحديث أسعار الذهب والدولار', 'success');
 }
 
-function toggleCalcModal() {
-  const m = document.getElementById('calc-modal');
-  m.classList.toggle('hidden');
-  if (!m.classList.contains('hidden')) {
-    document.getElementById('c-mithqal').value = db.prices.m21 || 560000;
-    calcAramkyQuick();
-  }
-}
+function toggleCalcModal() { document.getElementById('calc-modal').classList.toggle('hidden'); }
 
 function calcAramkyQuick() {
   const mq = parseFloat(document.getElementById('c-mithqal').value) || 0;
-  const w = parseFloat(document.getElementById('c-weight').value) || 0;
+  const wt = parseFloat(document.getElementById('c-weight').value) || 0;
   const mk = parseFloat(document.getElementById('c-making').value) || 0;
-  const res = Math.round(w * ((mq / MITHQAL_GRAMS) + mk));
-  document.getElementById('c-result-iqd').textContent = formatIQD(res);
+  const total = Math.round(wt * ((mq / MITHQAL_GRAMS) + mk));
+  document.getElementById('c-result-iqd').textContent = formatIQD(total);
 }
 
 function openReturnModal() { document.getElementById('return-modal').classList.remove('hidden'); }
 function closeReturnModal() { document.getElementById('return-modal').classList.add('hidden'); }
 
 function processInvoiceReturn() {
-  const code = document.getElementById('return-inv-code').value.trim().toUpperCase();
+  const invCode = document.getElementById('return-inv-code').value.trim();
   const reason = document.getElementById('return-reason').value.trim() || 'إرجاع فاتورة';
-  if (!code) {
+  if (!invCode) {
     showToast('يرجى إدخال رمز الفاتورة', 'warning');
     return;
   }
-  const saleLog = db.logs.find(l => l.type === 'عملية بيع' && String(l.details || '').toUpperCase().includes(code));
-  const refundAmount = saleLog ? Math.abs(Number(saleLog.amount || 0)) : 0;
-  const refundProfit = saleLog ? Math.abs(Number(saleLog.makingProfit || 0)) : 0;
-
-  if (saleLog && Array.isArray(saleLog.soldItems)) {
-    for (const sItem of saleLog.soldItems) {
-      const invMatch = db.inventory.find(i => i.name === sItem.name && String(i.karat) === String(sItem.karat));
-      if (invMatch) invMatch.qty = Number(invMatch.qty || 0) + Number(sItem.qty || 1);
+  const targetLog = db.logs.find(l => l.type === 'عملية بيع' && String(l.details || '').includes(invCode));
+  const refundAmt = targetLog ? Math.abs(Number(targetLog.amount || 0)) : 0;
+  const refundProfit = targetLog ? Math.abs(Number(targetLog.makingProfit || 0)) : 0;
+  if (targetLog && Array.isArray(targetLog.soldItems)) {
+    for (const item of targetLog.soldItems) {
+      const invItem = db.inventory.find(i => i.name === item.name && String(i.karat) === String(item.karat));
+      if (invItem) invItem.qty = Number(invItem.qty || 0) + Number(item.qty || 1);
     }
   }
-
-  db.cash = Number(db.cash || 0) - refundAmount;
+  db.cash = Number(db.cash || 0) - refundAmt;
   db.makingProfit = Math.max(0, Number(db.makingProfit || 0) - refundProfit);
-  addLog('إرجاع فاتورة', `إرجاع الفاتورة ${code} — السبب: ${reason}`, -refundAmount, -refundProfit);
+  addLog('إرجاع فاتورة', `إرجاع الفاتورة ${invCode} — السبب: ${reason}`, -refundAmt, -refundProfit);
   saveTenantData();
   renderAll();
   closeReturnModal();
   document.getElementById('return-inv-code').value = '';
   document.getElementById('return-reason').value = '';
-  showToast(`تم توثيق إرجاع الفاتورة ${code}`, 'success');
+  showToast('تم تسجيل إرجاع الفاتورة وتحديث الصندوق والمخزن', 'success');
 }
 
 function openResetSystemModal() { document.getElementById('reset-system-modal').classList.remove('hidden'); }
 function closeResetSystemModal() { document.getElementById('reset-system-modal').classList.add('hidden'); }
+
+function handleGlobalZeroKey(event) {
+  if (event.key === '0' && event.altKey) {
+    openResetSystemModal();
+  }
+}
 
 function executeSystemReset(mode) {
   if (mode === 'cash_only') {
@@ -3454,39 +3518,37 @@ function executeSystemReset(mode) {
     db.usd = 0;
     db.zain = 0;
     db.makingProfit = 0;
-    addLog('تصفير خزينة', 'تصفير صناديق الكاش والدولار والماستر وأرباح الصياغة فقط', 0);
+    addLog('تصفير الخزينة', 'تصفير صناديق الكاش والدولار والماستر وأرباح الصياغة', 0);
     saveTenantData();
     renderAll();
     closeResetSystemModal();
     showToast('تم تصفير الخزينة والأرباح بنجاح', 'success');
   } else if (mode === 'full_factory') {
-    const fresh = defaultTenantData(activeTenantCode);
-    fresh.store = { ...db.store };
-    fresh.prices = { ...db.prices };
-    db = fresh;
+    db = defaultTenantData(activeTenantCode);
+    cart = [];
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تمت إعادة ضبط النظام بالكامل', 'warning');
+    showToast('تم تصفير النظام بالكامل إلى ضبط المصنع', 'warning');
   }
 }
 
-function handleGlobalZeroKey(event) {
-  if (event.key === '0' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
-    openResetSystemModal();
+function openAdminPanel() {
+  if (CORE && typeof CORE.openAdminDashboard === 'function') {
+    CORE.openAdminDashboard();
   }
 }
 
 function handleInventoryAdminTrigger() {
   inventorySecretClicks += 1;
   clearTimeout(inventorySecretTimer);
+  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 1800);
   if (inventorySecretClicks >= 5) {
     inventorySecretClicks = 0;
     document.getElementById('admin-secret-password').value = '';
     document.getElementById('admin-secret-modal').classList.remove('hidden');
-    return;
+    document.getElementById('admin-secret-password').focus();
   }
-  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 1800);
 }
 
 function closeAdminSecretModal() {
@@ -3494,64 +3556,87 @@ function closeAdminSecretModal() {
 }
 
 function verifyAdminSecretPassword() {
-  const pass = document.getElementById('admin-secret-password').value;
-  if (CORE && CORE.verifyAdminPassword(pass)) {
+  const pwd = document.getElementById('admin-secret-password').value;
+  if (CORE && CORE.verifyAdminPassword(pwd)) {
+    CORE.setAdminSession(true);
     closeAdminSecretModal();
+    showToast('تم تفعيل وضع الأدمن بنجاح', 'success');
     openAdminPanel();
-    showToast('تم تفعيل وضع الأدمن بنجاح 👑', 'success');
   } else {
     showToast('كلمة مرور الأدمن غير صحيحة', 'error');
   }
 }
 
-function openAdminPanel() {
-  if (CORE && typeof CORE.openAdminPanel === 'function') {
-    CORE.openAdminPanel();
-  }
-}
-
 function switchTenantPrompt() {
-  document.getElementById('login-tenant-code').value = activeTenantCode || '';
-  document.getElementById('login-tenant-phone').value = '';
+  if (CORE) {
+    CORE.clearActiveSubscriberSession();
+  }
+  document.getElementById('subscription-lock-screen').classList.add('hidden');
+  document.getElementById('app-header').classList.add('hidden');
+  document.getElementById('app-ticker').classList.add('hidden');
+  document.getElementById('app-main').classList.add('hidden');
   document.getElementById('login-tenant-pass').value = '';
   document.getElementById('tenant-login-screen').classList.remove('hidden');
 }
 
 function loginTenant() {
-  const code = document.getElementById('login-tenant-code').value.trim().toUpperCase();
-  const phone = document.getElementById('login-tenant-phone').value.trim();
-  const pass = document.getElementById('login-tenant-pass').value.trim();
-  if (!code || !phone || !pass) {
-    showToast('يرجى إدخال الكود ورقم الهاتف وكلمة المرور', 'error');
+  const code = (document.getElementById('login-tenant-code').value || '').trim().toUpperCase();
+  const phone = (document.getElementById('login-tenant-phone').value || '').trim();
+  const pass = document.getElementById('login-tenant-pass').value || '';
+
+  if (CORE && CORE.verifyAdminPassword(pass)) {
+    CORE.setAdminSession(true);
+    if (code) {
+      CORE.setActiveSubscriberSession(code);
+      loadTenantData(code);
+    }
+    document.getElementById('tenant-login-screen').classList.add('hidden');
+    document.getElementById('app-header').classList.remove('hidden');
+    document.getElementById('app-ticker').classList.remove('hidden');
+    document.getElementById('app-main').classList.remove('hidden');
+    renderAll();
+    openAdminPanel();
     return;
   }
-  if (CORE && typeof CORE.verifySubscriberCredentials === 'function') {
-    const res = CORE.verifySubscriberCredentials(code, phone, pass);
-    if (!res.ok) {
-      showToast(res.message || 'بيانات الدخول غير مطابقة للحسابات المعتمدة', 'error');
-      return;
-    }
+
+  if (!code || !phone || !pass) {
+    showToast('يرجى إدخال معرف الحساب ورقم الهاتف وكلمة المرور', 'error');
+    return;
   }
+
+  const check = CORE ? CORE.authenticateSubscriber(code, phone, pass) : { ok: true };
+  if (!check.ok) {
+    showToast(check.reason || 'بيانات الحساب غير معتمدة من الأدمن', 'error');
+    return;
+  }
+
+  if (CORE) CORE.setActiveSubscriberSession(code);
   loadTenantData(code);
   document.getElementById('tenant-login-screen').classList.add('hidden');
+  document.getElementById('app-header').classList.remove('hidden');
+  document.getElementById('app-ticker').classList.remove('hidden');
+  document.getElementById('app-main').classList.remove('hidden');
   checkSubscriptionLock();
   renderAll();
-  showToast(`مرحباً بك في المعرض (${code})`, 'success');
+  showToast(`تم تسجيل الدخول إلى الحساب: ${code}`, 'success');
 }
 
 function checkSubscriptionLock() {
-  const lockScreen = document.getElementById('subscription-lock-screen');
-  if (!lockScreen) return;
+  if (isPublicCatalogOnly) return;
   const locked = isCurrentTenantLocked();
-  lockScreen.classList.toggle('hidden', !locked);
+  const lockScreen = document.getElementById('subscription-lock-screen');
   if (locked) {
     document.getElementById('locked-tenant-info').textContent = `رقم المعرض: ${activeTenantCode}`;
+    lockScreen.classList.remove('hidden');
+    document.getElementById('app-header').classList.add('hidden');
+    document.getElementById('app-ticker').classList.add('hidden');
+    document.getElementById('app-main').classList.add('hidden');
+  } else {
+    lockScreen.classList.add('hidden');
+    document.getElementById('app-header').classList.remove('hidden');
+    document.getElementById('app-ticker').classList.remove('hidden');
+    document.getElementById('app-main').classList.remove('hidden');
   }
-}
-
-function openSupportFromLock() {
-  document.getElementById('subscription-lock-screen').classList.add('hidden');
-  switchTab('support');
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -3559,28 +3644,23 @@ window.addEventListener('beforeinstallprompt', (e) => {
   deferredPrompt = e;
 });
 
-function installPWA() {
+async function installPWA() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
-    deferredPrompt.userChoice.finally(() => { deferredPrompt = null; });
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
   } else {
-    showToast('يمكنك تثبيت التطبيق من قائمة المتصفح (إضافة إلى الشاشة الرئيسية)', 'info');
+    showToast('للتثبيت كـ تطبيق أو APK: افتح قائمة المتصفح واختر "إضافة إلى الشاشة الرئيسية"', 'info');
   }
 }
 
 async function refreshAppAndClearCache() {
-  try {
-    if ('caches' in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map(k => caches.delete(k)));
-    }
-    if ('serviceWorker' in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(r => r.unregister()));
-    }
-  } catch (_) {}
-  showToast('تم تفريغ الكاش وتحديث الذاكرة', 'success');
-  setTimeout(() => window.location.reload(true), 450);
+  showToast('جاري تحديث التطبيق وتفريغ الكاش...', 'info');
+  if ('caches' in window) {
+    const names = await caches.keys();
+    await Promise.all(names.map(n => caches.delete(n)));
+  }
+  window.location.reload(true);
 }
 
 function dismissSplashScreen() {
@@ -3589,50 +3669,84 @@ function dismissSplashScreen() {
   const splash = document.getElementById('aramky-splash-screen');
   if (!splash) return;
   splash.style.opacity = '0';
-  setTimeout(() => splash.classList.add('hidden'), 500);
+  splash.style.pointerEvents = 'none';
+  setTimeout(() => { splash.classList.add('hidden'); }, 450);
 }
 
-function initPublicCatalogMode(encodedRef) {
-  isPublicCatalogOnly = true;
-  document.getElementById('app-header')?.classList.add('hidden');
-  document.getElementById('app-ticker')?.classList.add('hidden');
-  document.getElementById('app-main')?.classList.add('hidden');
-  const decodedCode = CORE ? CORE.decodeCatalogRef(encodedRef) : encodedRef;
-  loadTenantData(decodedCode || 'ARAMKY-01');
-  openStorefrontView();
-  dismissSplashScreen();
-}
-
-function initApp() {
+async function initApp() {
   if (appInitialized) return;
   appInitialized = true;
 
-  if (CORE && typeof CORE.init === 'function') {
-    CORE.init();
+  const splashFallbackTimer = setTimeout(dismissSplashScreen, 1800);
+
+  if (CORE && typeof CORE.initSupabase === 'function') {
+    await CORE.initSupabase();
   }
 
   const params = new URLSearchParams(window.location.search);
-  const catalogRef = params.get('catalog');
-  if (catalogRef) {
-    initPublicCatalogMode(catalogRef);
+  const catalogParam = params.get('catalog');
+
+  if (catalogParam) {
+    isPublicCatalogOnly = true;
+    const decodedTenant = CORE ? CORE.decodeCatalogRef(catalogParam) : catalogParam;
+    loadTenantData(decodedTenant);
+    if (CORE && typeof CORE.pullTenantFromSupabase === 'function') {
+      const remoteData = await CORE.pullTenantFromSupabase(activeTenantCode);
+      if (remoteData && typeof remoteData === 'object') {
+        db = CORE.normalizeTenantPayload(Object.assign(defaultTenantData(activeTenantCode), remoteData), activeTenantCode);
+      }
+    }
+    document.getElementById('tenant-login-screen').classList.add('hidden');
+    document.getElementById('subscription-lock-screen').classList.add('hidden');
+    document.getElementById('app-header').classList.add('hidden');
+    document.getElementById('app-ticker').classList.add('hidden');
+    document.getElementById('app-main').classList.add('hidden');
+    openStorefrontView();
+    clearTimeout(splashFallbackTimer);
+    dismissSplashScreen();
     return;
   }
 
-  const savedTenant = localStorage.getItem(CORE ? CORE.keys.activeTenant : 'aramky_active_tenant') || 'ARAMKY-01';
-  loadTenantData(savedTenant);
+  const savedSession = CORE && typeof CORE.getActiveSubscriberSession === 'function'
+    ? CORE.getActiveSubscriberSession()
+    : null;
+  const hasAdminSession = CORE && typeof CORE.hasAdminSession === 'function' && CORE.hasAdminSession();
 
-  if (!isCurrentTenantAuthorized()) {
+  if (!savedSession && !hasAdminSession) {
+    document.getElementById('app-header').classList.add('hidden');
+    document.getElementById('app-ticker').classList.add('hidden');
+    document.getElementById('app-main').classList.add('hidden');
     document.getElementById('tenant-login-screen').classList.remove('hidden');
-  } else {
-    checkSubscriptionLock();
+    clearTimeout(splashFallbackTimer);
+    dismissSplashScreen();
+    return;
   }
 
+  const initialCode = savedSession
+    ? savedSession.code
+    : (localStorage.getItem(CORE ? CORE.keys.activeTenant : 'aramky_active_tenant') || 'ARAMKY-01');
+
+  loadTenantData(initialCode);
+  if (CORE && typeof CORE.pullTenantFromSupabase === 'function') {
+    const remoteData = await CORE.pullTenantFromSupabase(activeTenantCode);
+    if (remoteData && typeof remoteData === 'object') {
+      db = CORE.normalizeTenantPayload(Object.assign(defaultTenantData(activeTenantCode), remoteData), activeTenantCode);
+      saveTenantData();
+    }
+  }
+
+  document.getElementById('tenant-login-screen').classList.add('hidden');
+  checkSubscriptionLock();
   renderAll();
-  setTimeout(dismissSplashScreen, 1100);
+
+  clearTimeout(splashFallbackTimer);
+  dismissSplashScreen();
 }
 
 window.addEventListener('DOMContentLoaded', initApp);
-setTimeout(() => { if (!appInitialized) initApp(); }, 1800);
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
+  initApp();
+}
 </script>
 </body>
 </html>
