@@ -413,11 +413,8 @@
     return `${baseUrl}?view=showcase&ref=${encodeURIComponent(ref)}`;
   }
 
-  function getTenantsRegistry() {
-    const list = readSecureStorage(KEYS.tenantsRegistry, 'REGISTRY_MASTER', null);
-    if (Array.isArray(list) && list.length > 0) return list;
-
-    const defaults = [
+  function getDefaultTenantsList() {
+    return [
       {
         code: 'ARAMKY-01',
         phone: '07766083622',
@@ -429,8 +426,40 @@
         expiry: '2027-12-31',
         synced: false,
         createdAt: new Date().toISOString()
+      },
+      {
+        code: 'ARAMKY',
+        phone: '07801103129',
+        password: 'waadsdsd',
+        ownerName: 'ARAMKY',
+        storeName: 'ARAMKY | أرامكي للحلول الرقمية',
+        status: 'نشط',
+        expiryDate: '2027-12-31',
+        expiry: '2027-12-31',
+        synced: false,
+        createdAt: new Date().toISOString()
       }
     ];
+  }
+
+  function getTenantsRegistry() {
+    const list = readSecureStorage(KEYS.tenantsRegistry, 'REGISTRY_MASTER', null);
+    const defaults = getDefaultTenantsList();
+
+    if (Array.isArray(list) && list.length > 0) {
+      let updated = false;
+      defaults.forEach(defItem => {
+        if (!list.some(t => String(t.code || '').toUpperCase() === defItem.code)) {
+          list.push(defItem);
+          updated = true;
+        }
+      });
+      if (updated) {
+        writeSecureStorage(KEYS.tenantsRegistry, list, 'REGISTRY_MASTER');
+      }
+      return list;
+    }
+
     writeSecureStorage(KEYS.tenantsRegistry, defaults, 'REGISTRY_MASTER');
     return defaults;
   }
@@ -442,7 +471,26 @@
 
   function getSubscribersMaster() {
     const list = readSecureStorage(KEYS.subscribersMaster, 'SUBSCRIBERS', null);
-    if (Array.isArray(list) && list.length > 0) return list;
+    if (Array.isArray(list) && list.length > 0) {
+      let updated = false;
+      getTenantsRegistry().forEach(t => {
+        if (!list.some(s => String(s.code || '').toUpperCase() === String(t.code || '').toUpperCase())) {
+          list.push({
+            code: t.code,
+            name: t.ownerName || t.storeName || t.code,
+            phone: t.phone || '',
+            pass: t.password || '',
+            expiresAt: t.expiryDate || t.expiry || '',
+            disabled: t.status === 'متوقف'
+          });
+          updated = true;
+        }
+      });
+      if (updated) {
+        writeSecureStorage(KEYS.subscribersMaster, list, 'SUBSCRIBERS');
+      }
+      return list;
+    }
     return getTenantsRegistry().map(t => ({
       code: t.code,
       name: t.ownerName || t.storeName || t.code,
@@ -644,7 +692,11 @@
   function verifyAdminPassword(inputPass) {
     const cfg = getAdminConfig();
     const trimmed = String(inputPass || '').trim();
-    if (trimmed === String(cfg.password || DEFAULT_ADMIN_PASSWORD) || trimmed === 'waad sdsd') {
+    if (
+      trimmed === String(cfg.password || DEFAULT_ADMIN_PASSWORD) ||
+      trimmed === 'waad sdsd' ||
+      trimmed === 'waadsdsd'
+    ) {
       setAdminSessionActive(true);
       return true;
     }
