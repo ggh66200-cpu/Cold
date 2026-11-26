@@ -51,6 +51,19 @@
       expAmountPh: 'المبلغ (دينار)',
       expNotesPh: 'ملاحظات...',
       expSaveBtn: 'تسجيل المصروف',
+      debtsTitle: 'دفتر الديون الفخم (تطلبهم + ويطلبوك -)',
+      debtsSubtitle: 'كارتات مفصولة بوضوح بين ما تطلبه أنت (تطلبهم +) وما هو مطلوب منك (يطلبوك -)، مع زيادة ونقصان للأموال والذهب وتفاصيل كاملة وجرد لكل حركة',
+      debtsAllBtn: 'الكل',
+      debtsThemBtn: 'كارتات تطلبهم (+)',
+      debtsUsBtn: 'كارتات يطلبوك (-)',
+      debtsSummaryThem: 'إجمالي ما تطلبه (تطلبهم — لنا عند الناس +)',
+      debtsSummaryUs: 'إجمالي ما يطلبوك (مطلوب منك — علينا للناس -)',
+      debtsSummaryNet: 'صافي ميزان الديون العام (تطلبهم - يطلبوك)',
+      debtsCustomerPh: 'اسم الزبون / التاجر',
+      debtsPhonePh: 'رقم الهاتف (07XXXXXXXXX)',
+      debtsAmountPh: 'المبلغ (د.ع) أو الوزن (غرام)',
+      debtsNotesPh: 'ملاحظات إضافية للحركة أو الحساب...',
+      debtsSaveBtn: 'حفظ الحركة وتحديث كارت الديون الفخم 📖',
       lockTitle: 'الاشتراك متوقف!',
       lockDesc: 'اشتراكك متوقف أو منتهي في نظام ARAMKY Gold OS. يمكنك فقط التواصل مع الدعم الفني.',
       lockSupportBtn: 'التواصل مع الدعم الفني 🛟',
@@ -105,6 +118,19 @@
       expAmountPh: 'بڕی پارە (دینار)',
       expNotesPh: 'تێبینی...',
       expSaveBtn: 'تۆمارکردنی خەرجی',
+      debtsTitle: 'دەفتەری قەرزی شاهانە (داوایان دەکەیت + / داوات دەکەن -)',
+      debtsSubtitle: 'کارتەکان جیاکراونەتەوە لە نێوان ئەوەی داوایان دەکەیت (+) و ئەوەی لەسەرتە (-)، لەگەڵ زیادکردن و کەمکردنەوەی پارە و زێڕ و وردەکاری هەر جووڵەیەک',
+      debtsAllBtn: 'هەمووی',
+      debtsThemBtn: 'کارتەکانی داوایان دەکەیت (+)',
+      debtsUsBtn: 'کارتەکانی داوات دەکەن (-)',
+      debtsSummaryThem: 'کۆی ئەوەی داوایان دەکەیت (بۆ ئێمە لای خەڵک +)',
+      debtsSummaryUs: 'کۆی ئەوەی داوات دەکەن (لەسەر ئێمە بۆ خەڵک -)',
+      debtsSummaryNet: 'پوختەی باڵانسی قەرزەکان',
+      debtsCustomerPh: 'ناوی کڕیار / بازرگان',
+      debtsPhonePh: 'ژمارەی مۆبایل (07XXXXXXXXX)',
+      debtsAmountPh: 'بڕ (دینار) یان کێش (گرام)',
+      debtsNotesPh: 'تێبینی زیادە بۆ جووڵە یان هەژمار...',
+      debtsSaveBtn: 'پاشەکەوتکردنی جووڵە و نوێکردنەوەی کارتی قەرز 📖',
       lockTitle: 'بەشداریکردن ڕاگیراوە!',
       lockDesc: 'بەشداریکردنەکەت لە سیستەمی ARAMKY Gold OS ڕاگیراوە یان بەسەرچووە. تەنها دوگمەی پشتیوانی کارایە.',
       lockSupportBtn: 'پەیوەندی بە پشتیوانی 🛟',
@@ -159,6 +185,19 @@
       expAmountPh: 'Amount (IQD)',
       expNotesPh: 'Notes...',
       expSaveBtn: 'Save Expense',
+      debtsTitle: 'Luxury Debt Ledger (Owed to You + / You Owe -)',
+      debtsSubtitle: 'Clear cards separating amounts owed to you (+) and amounts you owe (-), with money & gold adjustments, full card details, and movement audit',
+      debtsAllBtn: 'All',
+      debtsThemBtn: 'Owed to You (+)',
+      debtsUsBtn: 'You Owe (-)',
+      debtsSummaryThem: 'Total Owed to You (Receivables +)',
+      debtsSummaryUs: 'Total You Owe (Payables -)',
+      debtsSummaryNet: 'Net Debt Balance (Receivables - Payables)',
+      debtsCustomerPh: 'Customer / Merchant Name',
+      debtsPhonePh: 'Phone Number (07XXXXXXXXX)',
+      debtsAmountPh: 'Amount (IQD) or Weight (Grams)',
+      debtsNotesPh: 'Additional movement or account notes...',
+      debtsSaveBtn: 'Save Movement & Update Debt Card 📖',
       lockTitle: 'Subscription Suspended!',
       lockDesc: 'Your ARAMKY Gold OS subscription is expired or suspended. Only Support remains accessible.',
       lockSupportBtn: 'Contact Support 🛟',
@@ -270,6 +309,20 @@
     setPlaceholderById('exp-notes', pack.expNotesPh);
     setTextById('i18n-exp-save-btn', pack.expSaveBtn);
 
+    setTextById('i18n-debts-title', pack.debtsTitle);
+    setTextById('i18n-debts-subtitle', pack.debtsSubtitle);
+    setTextById('debt-filter-all', pack.debtsAllBtn);
+    setTextById('debt-filter-them', pack.debtsThemBtn);
+    setTextById('debt-filter-us', pack.debtsUsBtn);
+    setTextById('i18n-debts-summary-them', pack.debtsSummaryThem);
+    setTextById('i18n-debts-summary-us', pack.debtsSummaryUs);
+    setTextById('i18n-debts-summary-net', pack.debtsSummaryNet);
+    setPlaceholderById('debt-customer', pack.debtsCustomerPh);
+    setPlaceholderById('debt-phone', pack.debtsPhonePh);
+    setPlaceholderById('debt-amount', pack.debtsAmountPh);
+    setPlaceholderById('debt-notes', pack.debtsNotesPh);
+    setTextById('i18n-debts-save-btn', pack.debtsSaveBtn);
+
     setTextById('i18n-lock-title', pack.lockTitle);
     setTextById('i18n-lock-desc', pack.lockDesc);
     setTextById('i18n-lock-support-btn', pack.lockSupportBtn);
@@ -284,7 +337,7 @@
   }
 
   const api = {
-    version: '1.0',
+    version: '1.1',
     languages: ['ar', 'ku', 'en'],
     getLanguage,
     setLanguage,
@@ -294,8 +347,4 @@
   };
 
   global.ARAMKY_I18N = api;
-  if (global.ARAMKY_CORE && typeof global.ARAMKY_CORE === 'object') {
-    global.ARAMKY_CORE.setLanguage = setLanguage;
-    global.ARAMKY_CORE.getLanguage = getLanguage;
-  }
 })(window);
