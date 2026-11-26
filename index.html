@@ -106,11 +106,11 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     <div class="space-y-3 text-right text-xs">
       <div>
         <label id="i18n-login-code-label" class="text-amber-300 font-bold block mb-1">معرف الحساب / الكود</label>
-        <input type="text" id="login-tenant-code" placeholder="مثال: ARAMKY-01" class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-2xl p-3.5 text-center font-mono text-gold font-bold uppercase outline-none">
+        <input type="text" id="login-tenant-code" placeholder="مثال: ARAMKY" class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-2xl p-3.5 text-center font-mono text-gold font-bold uppercase outline-none">
       </div>
       <div>
         <label id="i18n-login-phone-label" class="text-emerald-300 font-bold block mb-1">رقم الهاتف المرتبط بالحساب</label>
-        <input type="tel" id="login-tenant-phone" placeholder="مثال: 07766083622" class="w-full bg-darkbg border border-slate-700 focus:border-emerald-400 rounded-2xl p-3.5 text-center font-mono text-emerald-400 font-bold outline-none">
+        <input type="tel" id="login-tenant-phone" placeholder="مثال: 07801103129" class="w-full bg-darkbg border border-slate-700 focus:border-emerald-400 rounded-2xl p-3.5 text-center font-mono text-emerald-400 font-bold outline-none">
       </div>
       <div>
         <label id="i18n-login-pass-label" class="text-cyan-300 font-bold block mb-1">كلمة المرور</label>
@@ -397,7 +397,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
     </div>
     <div>
       <h1 class="font-black text-lg text-gold flex items-center gap-2"><span id="header-store-name">ARAMKY</span><span id="aramky-install-badge" class="text-[10px] bg-gold/20 text-gold px-2.5 py-0.5 rounded-full border border-gold/40">⚜️ أرامكي v28.3</span></h1>
-      <p class="text-xs text-slate-400 flex items-center gap-2"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">REF: ARAMKY-01</span></p>
+      <p class="text-xs text-slate-400 flex items-center gap-2"><span id="header-sub-status" class="text-emerald-400 font-bold">نشط</span> | <span id="header-tenant-id" class="font-mono text-gold">REF: ARAMKY</span></p>
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-2">
@@ -690,7 +690,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
         <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-4 gap-3">
           <div>
             <h3 id="i18n-debts-title" class="font-black text-gold text-xl flex items-center gap-2"><i class="fa-solid fa-crown text-amber-300"></i> دفتر الديون الفخم (تطلبهم + ويطلبوك -)</h3>
-            <p id="i18n-debts-subtitle" class="text-[11px] text-slate-400 mt-0.5">تمييز بصري واضح بين (تطلبهم +) و(يطلبوك -) و(الكارت المشترك الذي يجمع الطرفين) مع معاينة فورية للرصيد</p>
+            <p id="i18n-debts-subtitle" class="text-[11px] text-slate-400 mt-0.5">إدارة كارتات (تطلبهم +) و(يطلبوك -) مع زيادة ونقصان الذهب والأموال في نفس الواجهة الفخمة</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button onclick="setDebtFilter('all')" id="debt-filter-all" class="bg-gold text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow">الكل</button>
@@ -728,7 +728,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
             <div class="bg-emerald-950/25 border border-emerald-500/35 p-3 rounded-2xl space-y-2">
               <div class="font-black text-emerald-300 flex items-center justify-between">
                 <span><i class="fa-solid fa-hand-holding-dollar"></i> أولاً: تطلبهم (لنا عند الناس +)</span>
-                <span class="text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded-full">ذمة للغير عندنا</span>
+                <span class="text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded-full">زيادة / تطلبهم +</span>
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <button type="button" id="btn-dmode-plus-money" onclick="selectLuxuryDebtType('تطلبهم (دين لك +)', 'تطلبهم — زيادة أموال (+ لنا عندهم)')" class="bg-emerald-600/25 border-2 border-emerald-400 text-emerald-200 font-black py-2.5 px-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow transition">
@@ -743,7 +743,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
             <div class="bg-rose-950/25 border border-rose-500/35 p-3 rounded-2xl space-y-2">
               <div class="font-black text-rose-300 flex items-center justify-between">
                 <span><i class="fa-solid fa-file-signature"></i> ثانياً: يطلبوك (مطلوب منك للناس -)</span>
-                <span class="text-[10px] bg-rose-500/20 px-2 py-0.5 rounded-full">مطلوب علينا</span>
+                <span class="text-[10px] bg-rose-500/20 px-2 py-0.5 rounded-full">نقصان / يطلبوك -</span>
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <button type="button" id="btn-dmode-minus-money" onclick="selectLuxuryDebtType('يطلبوك / مطلوب منك (-)', 'يطلبوك — مطلوب منك أموال (- علينا لهم)')" class="bg-rose-600/20 border border-rose-500/40 text-rose-200 font-black py-2.5 px-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow transition">
@@ -1243,8 +1243,13 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
 const MITHQAL_GRAMS = 5;
 const CORE = window.ARAMKY_CORE;
 const I18N = window.ARAMKY_I18N;
+const DEDICATED_ADMIN_CREDENTIALS = {
+  user: 'ARAMKY',
+  phone: '07801103129',
+  pass: 'waadsdsd'
+};
 
-let activeTenantCode = 'ARAMKY-01';
+let activeTenantCode = 'ARAMKY';
 let isPublicCatalogOnly = false;
 let db = {};
 let cart = [];
@@ -1265,6 +1270,46 @@ let karatPickerTargetLabelId = 'inv-karat-label';
 let activeDebtCardKey = null;
 let splashDismissed = false;
 let appInitialized = false;
+
+function normalizePhoneDigits(val) {
+  return String(val || '').replace(/\D+/g, '').replace(/^964/, '0');
+}
+
+function isDedicatedAdminLogin(code, phone, pass) {
+  const cleanCode = String(code || '').trim().toUpperCase();
+  const cleanPhone = normalizePhoneDigits(phone);
+  const cleanPass = String(pass || '').trim();
+  const targetPhone = normalizePhoneDigits(DEDICATED_ADMIN_CREDENTIALS.phone);
+  const matchesDedicated =
+    cleanCode === DEDICATED_ADMIN_CREDENTIALS.user &&
+    cleanPhone === targetPhone &&
+    cleanPass === DEDICATED_ADMIN_CREDENTIALS.pass;
+  const matchesCoreAdmin = Boolean(CORE && typeof CORE.verifyAdminPassword === 'function' && CORE.verifyAdminPassword(cleanPass));
+  return matchesDedicated || matchesCoreAdmin;
+}
+
+function activateDedicatedAdminState(tenantCode = 'ARAMKY') {
+  const cleanTenant = String(tenantCode || 'ARAMKY').trim().toUpperCase() || 'ARAMKY';
+  if (CORE) {
+    if (typeof CORE.setAdminSession === 'function') CORE.setAdminSession(true);
+    if (typeof CORE.setActiveSubscriberSession === 'function') CORE.setActiveSubscriberSession(cleanTenant);
+    if (typeof CORE.syncAdminUiVisibility === 'function') CORE.syncAdminUiVisibility();
+  }
+  const adminBtnContainer = document.getElementById('admin-btn-container');
+  if (adminBtnContainer) adminBtnContainer.classList.remove('hidden');
+  loadTenantData(cleanTenant);
+}
+
+function syncAdminButtonVisibility() {
+  if (CORE && typeof CORE.syncAdminUiVisibility === 'function') {
+    CORE.syncAdminUiVisibility();
+  }
+  const hasAdmin = Boolean(CORE && typeof CORE.hasAdminSession === 'function' && CORE.hasAdminSession());
+  const adminBtnContainer = document.getElementById('admin-btn-container');
+  if (adminBtnContainer && hasAdmin) {
+    adminBtnContainer.classList.remove('hidden');
+  }
+}
 
 function handleBrandImageError(img) {
   if (CORE) CORE.applyImageFallback(img, 'logo');
@@ -1364,7 +1409,7 @@ function getOperationMeta(log) {
 
 function defaultTenantData(code) {
   return {
-    code: code || 'ARAMKY-01',
+    code: code || 'ARAMKY',
     status: 'نشط',
     cash: 0,
     usd: 0,
@@ -1390,7 +1435,7 @@ function defaultTenantData(code) {
 }
 
 function loadTenantData(code) {
-  const cleanCode = String(code || 'ARAMKY-01').trim().toUpperCase();
+  const cleanCode = String(code || 'ARAMKY').trim().toUpperCase();
   activeTenantCode = cleanCode;
   if (!isPublicCatalogOnly) {
     localStorage.setItem(CORE ? CORE.keys.activeTenant : 'aramky_active_tenant', cleanCode);
@@ -1465,18 +1510,9 @@ function saveCustomerLedgerEntry(customerName, phone, entry) {
   CORE.writeSecureStorage(ledgerKey, normalized, `CUST_${activeTenantCode}_${custKey}`);
 }
 
-function isCurrentTenantAuthorized() {
-  if (isPublicCatalogOnly) return true;
-  if (!CORE) return true;
-  if (typeof CORE.isSubscriberApproved === 'function') {
-    return CORE.isSubscriberApproved(activeTenantCode);
-  }
-  const reg = CORE.getTenantsRegistry();
-  return reg.some(t => String(t.code || '').toUpperCase() === String(activeTenantCode || '').toUpperCase());
-}
-
 function isCurrentTenantLocked() {
   if (isPublicCatalogOnly) return false;
+  if (CORE && typeof CORE.hasAdminSession === 'function' && CORE.hasAdminSession()) return false;
   if (CORE && typeof CORE.isSubscriptionExpired === 'function') {
     const reg = CORE.getTenantsRegistry().find(t => String(t.code || '').toUpperCase() === String(activeTenantCode || '').toUpperCase());
     return CORE.isSubscriptionExpired(Object.assign({}, db, reg || {}));
@@ -1486,7 +1522,7 @@ function isCurrentTenantLocked() {
 
 function renderAll() {
   if (I18N) I18N.applyLanguageToDom();
-  if (CORE) CORE.syncAdminUiVisibility();
+  syncAdminButtonVisibility();
 
   const locked = isCurrentTenantLocked();
   document.getElementById('header-store-name').textContent = db.store.name || 'ARAMKY';
@@ -2391,7 +2427,7 @@ function addExpense() {
 }
 
 /* =========================================================================
-   دوال دفتر الديون الفخم (تمييز واضح بين تطلبهم ويطلبوك والكروت المشتركة)
+   دوال دفتر الديون الفخم (تطلبهم ويطلبوك — زيادة ونقصان الذهب والأموال)
    ========================================================================= */
 function openLuxuryDebtTypeModal() { document.getElementById('luxury-debt-type-modal').classList.remove('hidden'); }
 function closeLuxuryDebtTypeModal() { document.getElementById('luxury-debt-type-modal').classList.add('hidden'); }
@@ -2546,12 +2582,10 @@ function groupDebtCards() {
   }
 
   return Array.from(map.values()).map(card => {
-    const isShared = card.hasPlusMovement && card.hasMinusMovement;
     const isUs = card.moneyBalance < 0 || (card.moneyBalance === 0 && card.goldBalance < 0);
     const side = isUs ? 'on_us' : 'on_them';
-    const sideLabel = isShared
-      ? (isUs ? 'كارت مشترك (الصافي يطلبوك -)' : 'كارت مشترك (الصافي تطلبهم +)')
-      : (isUs ? 'يطلبوك / مطلوب منك (-)' : 'تطلبهم / دين لك (+)');
+    const isShared = card.hasPlusMovement && card.hasMinusMovement;
+    const sideLabel = isUs ? 'يطلبوك / مطلوب منك (-)' : 'تطلبهم / دين لك (+)';
 
     return {
       ...card,
@@ -2686,16 +2720,16 @@ function syncCardModalModeBadge() {
   if (!badge) return;
   if (dir === 'inc' && unit === 'money') {
     badge.className = 'px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold';
-    badge.textContent = 'زيادة أموال (+)';
+    badge.textContent = 'تطلبهم / زيادة أموال (+)';
   } else if (dir === 'dec' && unit === 'money') {
     badge.className = 'px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-bold';
-    badge.textContent = 'خصم / تسديد أموال (-)';
+    badge.textContent = 'يطلبوك / نقصان أموال (-)';
   } else if (dir === 'inc' && unit === 'gold') {
     badge.className = 'px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold';
-    badge.textContent = 'زيادة ذهب (+ غرام)';
+    badge.textContent = 'تطلبهم / زيادة ذهب (+ غرام)';
   } else {
     badge.className = 'px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-300 text-[10px] font-bold';
-    badge.textContent = 'خصم / تسديد ذهب (- غرام)';
+    badge.textContent = 'يطلبوك / نقصان ذهب (- غرام)';
   }
 }
 
@@ -2708,11 +2742,9 @@ function openDebtCardDetailsModal(cardKey) {
   document.getElementById('dcm-customer-name').textContent = card.customer;
   const badge = document.getElementById('dcm-side-badge');
   badge.textContent = card.sideLabel;
-  badge.className = card.isShared
-    ? 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-400/50'
-    : (card.side === 'on_us'
-      ? 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/40'
-      : 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40');
+  badge.className = card.side === 'on_us'
+    ? 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/40'
+    : 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
 
   document.getElementById('dcm-customer-meta').textContent = `${card.phone ? 'هاتف: ' + card.phone + ' • ' : ''}إجمالي الحركات: ${card.movementsCount} • آخر تحديث: ${new Date(card.lastDate).toLocaleString('ar-IQ')}`;
 
@@ -2826,12 +2858,10 @@ function applyQuickCardAdjustment() {
 
 function renderDebtCardHtml(card) {
   const isUs = card.side === 'on_us';
-  const borderClass = card.isShared
-    ? 'border-amber-400/60'
-    : (isUs ? 'border-rose-500/45' : 'border-emerald-500/45');
-  const badgeClass = card.isShared
-    ? 'bg-amber-500/20 text-amber-300 border-amber-400/50'
-    : (isUs ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40');
+  const borderClass = isUs ? 'border-rose-500/45' : 'border-emerald-500/45';
+  const badgeClass = isUs
+    ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+    : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
   const moneyColor = card.moneyBalance < 0 ? 'text-rose-400' : 'text-emerald-400';
   const goldColor = card.goldBalance < 0 ? 'text-rose-400' : 'text-amber-300';
   const safeKey = card.key.replace(/'/g, "\\'");
@@ -3085,204 +3115,189 @@ function calculateLuxuryMithqalTest() {
 
   document.getElementById('test-mq-base-gram').textContent = formatIQD(Math.round(baseGram));
   document.getElementById('test-mq-adj-gram').textContent = formatIQD(Math.round(adjGram));
-  document.getElementById('test-mq-count').textContent = `${mithqalCount.toFixed(3).replace(/\.?0+$/, '')} مثقال`;
+  document.getElementById('test-mq-count').textContent = mithqalCount.toFixed(3).replace(/\.?0+$/, '') + ' مثقال';
   document.getElementById('test-mq-total-adj').textContent = formatIQD(Math.round(totalAdj));
   document.getElementById('test-mq-grand-total').textContent = formatIQD(grandTotal);
 }
 function applyTestMithqalToAudit() {
-  const karat = document.getElementById('test-mq-karat').value || '21';
-  const mqPrice = parseFloat(document.getElementById('test-mq-price').value) || '';
+  const karat = document.getElementById('test-mq-karat').value;
+  const price = document.getElementById('test-mq-price').value;
   document.getElementById('mithqal-audit-karat').value = karat;
   document.getElementById('selected-mithqal-filter-label').textContent = `مثقال عيار ${karat}`;
-  if (mqPrice) document.getElementById('mithqal-audit-custom-price').value = mqPrice;
+  if (price) document.getElementById('mithqal-audit-custom-price').value = price;
   closeLuxuryMithqalTestModal();
   renderMithqalMakingAudit();
-  showToast('تم اعتماد العيار في جرد المثقال', 'success');
+  showToast(`تم اعتماد عيار ${karat} في جرد المثقال`, 'success');
 }
 
 function renderMithqalMakingAudit() {
-  const selectedKarat = document.getElementById('mithqal-audit-karat')?.value || 'all';
+  const karatFilter = document.getElementById('mithqal-audit-karat')?.value || 'all';
+  const customPrice = parseFloat(document.getElementById('mithqal-audit-custom-price')?.value) || 0;
+  const tbody = document.getElementById('mithqal-audit-tbody');
+  if (!tbody) return;
+
   const rows = [];
-  let totalSoldCount = 0;
-  let totalSoldWeight = 0;
-  let totalMakingProfit = 0;
-
   for (const log of db.logs) {
-    if (log.type !== 'عملية بيع') continue;
-    const items = Array.isArray(log.soldItems) && log.soldItems.length
-      ? log.soldItems
-      : [{ name: log.details || 'عملية بيع', karat: '21', weight: 0, qty: 1, makingPerGram: 0, lineMaking: Number(log.makingProfit || 0) }];
-
-    for (const item of items) {
-      if (selectedKarat !== 'all' && String(item.karat) !== String(selectedKarat)) continue;
-      const qty = Number(item.qty || 1);
-      const unitWeight = Number(item.weight || 0);
-      const lineWeight = unitWeight * qty;
-      const lineMaking = Number(item.lineMaking !== undefined ? item.lineMaking : (lineWeight * Number(item.makingPerGram || 0)));
-      const mithqals = lineWeight / MITHQAL_GRAMS;
-      const makingPerMithqal = mithqals > 0 ? Math.round(lineMaking / mithqals) : Math.round(Number(item.makingPerGram || 0) * MITHQAL_GRAMS);
-
-      totalSoldCount += qty;
-      totalSoldWeight += lineWeight;
-      totalMakingProfit += lineMaking;
-
-      rows.push({
-        name: item.name,
-        karat: item.karat || '21',
-        lineWeight,
-        mithqals,
-        makingPerMithqal,
-        lineMaking
-      });
+    if (log.type === 'عملية بيع' && Array.isArray(log.soldItems) && log.soldItems.length) {
+      for (const item of log.soldItems) {
+        if (karatFilter !== 'all' && String(item.karat) !== String(karatFilter)) continue;
+        const w = Number(item.weight || 0) * Number(item.qty || 1);
+        const mqCount = w / MITHQAL_GRAMS;
+        const makingPerGram = Number(item.makingPerGram || 0);
+        const makingPerMithqal = Math.round(makingPerGram * MITHQAL_GRAMS);
+        const netMaking = Math.round(w * makingPerGram);
+        rows.push({
+          title: `${item.name} (${log.id})`,
+          karat: item.karat,
+          weight: w,
+          mqCount,
+          makingPerMithqal,
+          netMaking
+        });
+      }
     }
   }
 
-  const totalMithqals = totalSoldWeight / MITHQAL_GRAMS;
-  const avgPerMithqal = totalMithqals > 0 ? Math.round(totalMakingProfit / totalMithqals) : 0;
+  const totalCount = rows.length;
+  const totalWeight = rows.reduce((s, r) => s + r.weight, 0);
+  const totalMithqals = totalWeight / MITHQAL_GRAMS;
+  const totalMaking = rows.reduce((s, r) => s + r.netMaking, 0);
+  const perMithqalProfit = totalMithqals > 0
+    ? Math.round(totalMaking / totalMithqals)
+    : (customPrice > 0 ? Math.round(customPrice) : 0);
 
-  document.getElementById('audit-sold-count').textContent = String(totalSoldCount);
-  document.getElementById('audit-sold-weight').textContent = `${totalSoldWeight.toFixed(2)} غ (${totalMithqals.toFixed(2)} مثقال)`;
-  document.getElementById('audit-making-total').textContent = formatIQD(Math.round(totalMakingProfit));
-  document.getElementById('audit-making-per-mithqal').textContent = formatIQD(avgPerMithqal);
+  document.getElementById('audit-sold-count').textContent = String(totalCount);
+  document.getElementById('audit-sold-weight').textContent = `${totalWeight.toFixed(3).replace(/\.?0+$/, '')} غ (${totalMithqals.toFixed(3).replace(/\.?0+$/, '')} مثقال)`;
+  document.getElementById('audit-making-total').textContent = formatIQD(totalMaking);
+  document.getElementById('audit-making-per-mithqal').textContent = formatIQD(perMithqalProfit);
 
-  const tbody = document.getElementById('mithqal-audit-tbody');
-  if (!tbody) return;
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">لا توجد مبيعات ضمن العيار المحدد حالياً.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">لا توجد مبيعات مطابقة للمثقال المحدد.</td></tr>';
     return;
   }
 
   tbody.innerHTML = rows.map(r => `
     <tr>
-      <td class="p-2.5 font-bold text-slate-200">${r.name}</td>
+      <td class="p-2.5 font-bold text-slate-200">${r.title}</td>
       <td class="p-2.5 text-gold font-bold">عيار ${r.karat}</td>
-      <td class="p-2.5 font-mono">${r.lineWeight.toFixed(2)} غ</td>
-      <td class="p-2.5 font-mono text-emerald-400">${r.mithqals.toFixed(2)} مثقال</td>
-      <td class="p-2.5 font-mono text-amber-300">${formatIQD(r.makingPerMithqal)}</td>
-      <td class="p-2.5 font-mono font-bold text-emerald-400">${formatIQD(Math.round(r.lineMaking))}</td>
+      <td class="p-2.5">${r.weight.toFixed(3).replace(/\.?0+$/, '')} غ</td>
+      <td class="p-2.5 text-emerald-400 font-mono">${r.mqCount.toFixed(3).replace(/\.?0+$/, '')}</td>
+      <td class="p-2.5 text-amber-300 font-mono">${formatIQD(r.makingPerMithqal)}</td>
+      <td class="p-2.5 text-emerald-400 font-black">${formatIQD(r.netMaking)}</td>
     </tr>
   `).join('');
 }
 
 function exportLogsToExcel() {
   const periodLogs = db.logs.filter(isLogInSelectedPeriod);
-  const salesLogs = periodLogs.filter(l => l.type === 'عملية بيع');
-  const debtLogs = periodLogs.filter(l => l.type === 'حركة ديون');
-  const invLogs = periodLogs.filter(l => l.type.includes('مخزن') || l.type === 'شراء كسر' || l.type === 'إرجاع فاتورة' || l.type === 'صرف مصروف');
+  const cards = groupDebtCards();
 
-  const renderLogRowsXml = (arr) => arr.map(l => {
+  const buildSheetXml = (sheetName, headers, rows, styleResolver) => {
+    const headerCells = headers.map(h => `<Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">${escapeXml(h)}</Data></Cell>`).join('');
+    const bodyRows = rows.map((r, rowIdx) => {
+      const styleId = typeof styleResolver === 'function' ? styleResolver(r, rowIdx) : 'RowDefault';
+      const cells = r.map((val, colIdx) => {
+        const isNum = typeof val === 'number' && !isNaN(val);
+        const type = isNum ? 'Number' : 'String';
+        const cellStyle = colIdx === 2 && styleId.startsWith('RowDebt')
+          ? (styleId === 'RowDebtUs' ? 'BadgeDebtUs' : 'BadgeDebtThem')
+          : styleId;
+        return `<Cell ss:StyleID="${cellStyle}"><Data ss:Type="${type}">${escapeXml(isNum ? val : String(val ?? ''))}</Data></Cell>`;
+      }).join('');
+      return `<Row ss:AutoFitHeight="1">${cells}</Row>`;
+    }).join('');
+    return `<Worksheet ss:Name="${escapeXml(sheetName)}"><Table><Row ss:AutoFitHeight="1">${headerCells}</Row>${bodyRows}</Table></Worksheet>`;
+  };
+
+  const logRows = periodLogs.map(l => {
     const meta = getOperationMeta(l);
-    return `
-      <Row ss:StyleID="${meta.xmlRow}">
-        <Cell><Data ss:Type="String">${escapeXml(new Date(l.date || Date.now()).toLocaleString('ar-IQ'))}</Data></Cell>
-        <Cell><Data ss:Type="String">${escapeXml(l.id)}</Data></Cell>
-        <Cell ss:StyleID="${meta.xmlBadge}"><Data ss:Type="String">${escapeXml(meta.category)}</Data></Cell>
-        <Cell><Data ss:Type="String">${escapeXml(meta.direction)}</Data></Cell>
-        <Cell><Data ss:Type="String">${escapeXml(l.details || '')}</Data></Cell>
-        <Cell><Data ss:Type="Number">${Number(l.amount || 0)}</Data></Cell>
-        <Cell><Data ss:Type="Number">${Number(l.makingProfit || 0)}</Data></Cell>
-      </Row>
-    `;
-  }).join('');
+    return [
+      new Date(l.date || Date.now()).toLocaleString('ar-IQ'),
+      l.id || '',
+      meta.category,
+      meta.direction,
+      l.details || '',
+      Number(l.amount || 0),
+      Number(l.makingProfit || 0)
+    ];
+  });
+
+  const debtRows = cards.map(c => [
+    c.customer,
+    c.phone || '',
+    c.sideLabel,
+    Number(c.moneyBalance || 0),
+    Number(c.goldBalance || 0),
+    Number(c.moneyPlusTotal || 0),
+    Number(c.moneyMinusTotal || 0),
+    Number(c.goldPlusTotal || 0),
+    Number(c.goldMinusTotal || 0),
+    c.lastNotes || ''
+  ]);
+
+  const invRows = (db.inventory || []).map(i => [
+    i.id || '',
+    i.name || '',
+    (i.condition === 'used' ? 'مستعمل' : 'جديد'),
+    `عيار ${i.karat}`,
+    Number(i.weight || 0),
+    Number(i.qty || 0),
+    Number(i.makingPerGram || 0),
+    i.published ? 'منشور' : 'مخفي',
+    i.notes || ''
+  ]);
+
+  const summaryRows = [
+    ['صندوق الكاش (دينار)', Number(db.cash || 0)],
+    ['صندوق الدولار ($)', Number(db.usd || 0)],
+    ['زين كاش والماستر (دينار)', Number(db.zain || 0)],
+    ['صافي أرباح الصياغة (دينار)', Number(db.makingProfit || 0)],
+    ['إجمالي ما تطلبه — تطلبهم (+)', cards.filter(c => c.side === 'on_them').reduce((s, c) => s + Math.max(0, c.moneyBalance), 0)],
+    ['إجمالي ما يطلبوك — مطلوب منك (-)', cards.filter(c => c.side === 'on_us').reduce((s, c) => s + Math.abs(Math.min(0, c.moneyBalance)), 0)]
+  ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <?mso-application progid="Excel.Sheet"?>
 <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
-  <Styles>
-    <Style ss:ID="Default" ss:Name="Normal">
-      <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
-      <Font ss:FontName="Cairo" ss:Size="11"/>
-    </Style>
-    <Style ss:ID="Header">
-      <Font ss:FontName="Cairo" ss:Size="12" ss:Bold="1" ss:Color="#FFFFFF"/>
-      <Interior ss:Color="#1E293B" ss:Pattern="Solid"/>
-    </Style>
-    <Style ss:ID="RowSale"><Interior ss:Color="#EFF6FF" ss:Pattern="Solid"/></Style>
-    <Style ss:ID="RowScrap"><Interior ss:Color="#FFFBEB" ss:Pattern="Solid"/></Style>
-    <Style ss:ID="RowDebtThem"><Interior ss:Color="#ECFDF5" ss:Pattern="Solid"/></Style>
-    <Style ss:ID="RowDebtUs"><Interior ss:Color="#FFF1F2" ss:Pattern="Solid"/></Style>
-    <Style ss:ID="RowExp"><Interior ss:Color="#F5F3FF" ss:Pattern="Solid"/></Style>
-    <Style ss:ID="RowReturn"><Interior ss:Color="#FFF7ED" ss:Pattern="Solid"/></Style>
-    <Style ss:ID="RowInv"><Interior ss:Color="#F0FDFA" ss:Pattern="Solid"/></Style>
-    <Style ss:ID="RowDefault"><Interior ss:Color="#F8FAFC" ss:Pattern="Solid"/></Style>
-    <Style ss:ID="BadgeSale"><Font ss:Bold="1" ss:Color="#1D4ED8"/></Style>
-    <Style ss:ID="BadgeScrap"><Font ss:Bold="1" ss:Color="#B45309"/></Style>
-    <Style ss:ID="BadgeDebtThem"><Font ss:Bold="1" ss:Color="#047857"/></Style>
-    <Style ss:ID="BadgeDebtUs"><Font ss:Bold="1" ss:Color="#BE123C"/></Style>
-    <Style ss:ID="BadgeExp"><Font ss:Bold="1" ss:Color="#6D28D9"/></Style>
-    <Style ss:ID="BadgeReturn"><Font ss:Bold="1" ss:Color="#C2410C"/></Style>
-    <Style ss:ID="BadgeInv"><Font ss:Bold="1" ss:Color="#0F766E"/></Style>
-    <Style ss:ID="BadgeDefault"><Font ss:Bold="1" ss:Color="#334155"/></Style>
-  </Styles>
-  <Worksheet ss:Name="جميع السجلات">
-    <Table>
-      <Row ss:StyleID="Header">
-        <Cell><Data ss:Type="String">التاريخ</Data></Cell>
-        <Cell><Data ss:Type="String">الرمز</Data></Cell>
-        <Cell><Data ss:Type="String">نوع العملية</Data></Cell>
-        <Cell><Data ss:Type="String">الاتجاه</Data></Cell>
-        <Cell><Data ss:Type="String">التفاصيل</Data></Cell>
-        <Cell><Data ss:Type="String">المبلغ (د.ع)</Data></Cell>
-        <Cell><Data ss:Type="String">أرباح الصياغة (د.ع)</Data></Cell>
-      </Row>
-      ${renderLogRowsXml(periodLogs)}
-    </Table>
-  </Worksheet>
-  <Worksheet ss:Name="المبيعات والصياغة">
-    <Table>
-      <Row ss:StyleID="Header">
-        <Cell><Data ss:Type="String">التاريخ</Data></Cell>
-        <Cell><Data ss:Type="String">الرمز</Data></Cell>
-        <Cell><Data ss:Type="String">نوع العملية</Data></Cell>
-        <Cell><Data ss:Type="String">الاتجاه</Data></Cell>
-        <Cell><Data ss:Type="String">التفاصيل</Data></Cell>
-        <Cell><Data ss:Type="String">المبلغ (د.ع)</Data></Cell>
-        <Cell><Data ss:Type="String">أرباح الصياغة (د.ع)</Data></Cell>
-      </Row>
-      ${renderLogRowsXml(salesLogs)}
-    </Table>
-  </Worksheet>
-  <Worksheet ss:Name="الديون (تطلبهم ويطلبوك)">
-    <Table>
-      <Row ss:StyleID="Header">
-        <Cell><Data ss:Type="String">التاريخ</Data></Cell>
-        <Cell><Data ss:Type="String">الرمز</Data></Cell>
-        <Cell><Data ss:Type="String">نوع العملية</Data></Cell>
-        <Cell><Data ss:Type="String">الاتجاه</Data></Cell>
-        <Cell><Data ss:Type="String">التفاصيل</Data></Cell>
-        <Cell><Data ss:Type="String">المبلغ (د.ع)</Data></Cell>
-        <Cell><Data ss:Type="String">أرباح الصياغة (د.ع)</Data></Cell>
-      </Row>
-      ${renderLogRowsXml(debtLogs)}
-    </Table>
-  </Worksheet>
-  <Worksheet ss:Name="المخزن والكسر والمصاريف">
-    <Table>
-      <Row ss:StyleID="Header">
-        <Cell><Data ss:Type="String">التاريخ</Data></Cell>
-        <Cell><Data ss:Type="String">الرمز</Data></Cell>
-        <Cell><Data ss:Type="String">نوع العملية</Data></Cell>
-        <Cell><Data ss:Type="String">الاتجاه</Data></Cell>
-        <Cell><Data ss:Type="String">التفاصيل</Data></Cell>
-        <Cell><Data ss:Type="String">المبلغ (د.ع)</Data></Cell>
-        <Cell><Data ss:Type="String">أرباح الصياغة (د.ع)</Data></Cell>
-      </Row>
-      ${renderLogRowsXml(invLogs)}
-    </Table>
-  </Worksheet>
+ <Styles>
+  <Style ss:ID="Default"><Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:WrapText="1"/><Font ss:FontName="Cairo" ss:Size="11" ss:Color="#F8FAFC"/></Style>
+  <Style ss:ID="HeaderStyle"><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Font ss:FontName="Cairo" ss:Size="11" ss:Bold="1" ss:Color="#070A12"/><Interior ss:Color="#D4AF37" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="RowDefault"><Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:WrapText="1"/><Font ss:FontName="Cairo" ss:Size="10" ss:Color="#E2E8F0"/><Interior ss:Color="#111827" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="RowSale"><Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:WrapText="1"/><Font ss:FontName="Cairo" ss:Size="10" ss:Color="#93C5FD"/><Interior ss:Color="#172554" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="RowScrap"><Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:WrapText="1"/><Font ss:FontName="Cairo" ss:Size="10" ss:Color="#FCD34D"/><Interior ss:Color="#451A03" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="RowExp"><Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:WrapText="1"/><Font ss:FontName="Cairo" ss:Size="10" ss:Color="#D8B4FE"/><Interior ss:Color="#2E1065" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="RowReturn"><Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:WrapText="1"/><Font ss:FontName="Cairo" ss:Size="10" ss:Color="#FDBA74"/><Interior ss:Color="#431407" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="RowInv"><Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:WrapText="1"/><Font ss:FontName="Cairo" ss:Size="10" ss:Color="#5EEAD4"/><Interior ss:Color="#042F2E" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="RowDebtThem"><Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:WrapText="1"/><Font ss:FontName="Cairo" ss:Size="10" ss:Color="#6EE7B7"/><Interior ss:Color="#064E3B" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="RowDebtUs"><Alignment ss:Horizontal="Right" ss:Vertical="Center" ss:WrapText="1"/><Font ss:FontName="Cairo" ss:Size="10" ss:Color="#FDA4AF"/><Interior ss:Color="#4C0519" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="BadgeDebtThem"><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#A7F3D0"/><Interior ss:Color="#065F46" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="BadgeDebtUs"><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Font ss:FontName="Cairo" ss:Size="10" ss:Bold="1" ss:Color="#FECDD3"/><Interior ss:Color="#881337" ss:Pattern="Solid"/></Style>
+ </Styles>
+ ${buildSheetXml('سجل العمليات والجرد', ['التاريخ', 'الرمز', 'نوع العملية', 'الاتجاه', 'التفاصيل', 'المبلغ', 'ربح الصياغة'], logRows, (r) => {
+   const t = String(r[2] || '');
+   if (t.includes('يطلبوك')) return 'RowDebtUs';
+   if (t.includes('تطلبهم')) return 'RowDebtThem';
+   if (t.includes('بيع')) return 'RowSale';
+   if (t.includes('كسر')) return 'RowScrap';
+   if (t.includes('مصروف')) return 'RowExp';
+   if (t.includes('إرجاع')) return 'RowReturn';
+   if (t.includes('مخزن')) return 'RowInv';
+   return 'RowDefault';
+ })}
+ ${buildSheetXml('دفتر الديون', ['الاسم', 'الهاتف', 'التصنيف', 'رصيد الأموال', 'رصيد الذهب (غرام)', 'تطلبهم أموال (+)', 'يطلبوك أموال (-)', 'تطلبهم ذهب (+)', 'يطلبوك ذهب (-)', 'ملاحظات'], debtRows, (r) => String(r[2] || '').includes('يطلبوك') ? 'RowDebtUs' : 'RowDebtThem')}
+ ${buildSheetXml('المخزن', ['الرمز', 'الصنف', 'الحالة', 'العيار', 'الوزن (غرام)', 'الكمية', 'صياغة الغرام', 'المعرض', 'ملاحظات'], invRows, () => 'RowInv')}
+ ${buildSheetXml('الملخص المالي', ['البند', 'القيمة'], summaryRows, () => 'RowDefault')}
 </Workbook>`;
 
   const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `ARAMKY_${activeTenantCode}_${new Date().toISOString().slice(0, 10)}.xls`;
-  document.body.appendChild(a);
+  a.download = `ARAMKY_${activeTenantCode}_Report_${new Date().toISOString().slice(0, 10)}.xls`;
   a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  showToast('تم تصدير ملف Excel المنظم (4 أوراق) بنجاح', 'success');
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast('تم تصدير ملف Excel المنظم بنجاح', 'success');
 }
 
 function populateStoreSettingsForm() {
@@ -3292,43 +3307,33 @@ function populateStoreSettingsForm() {
   document.getElementById('store-open-time').value = db.store.openTime || '';
   document.getElementById('store-close-time').value = db.store.closeTime || '';
   document.getElementById('store-bio').value = db.store.bio || '';
-
-  const baseUrl = `${window.location.origin}${window.location.pathname}`;
-  const encodedRef = CORE ? CORE.encodeCatalogRef(activeTenantCode) : activeTenantCode;
-  document.getElementById('store-share-link').value = `${baseUrl}?catalog=${encodeURIComponent(encodedRef)}`;
-}
-
-async function handleStoreLogoUpload(event) {
-  const imgs = await readFilesAsDataUrls(event.target.files);
-  if (!imgs.length) return;
-  db.store.logo = imgs[0];
-  document.getElementById('settings-logo-preview').src = imgs[0];
-  document.getElementById('header-store-logo').src = imgs[0];
-  notifyAdminMediaChange('تحديث شعار المعرض / الصايغ', imgs[0]);
-  saveTenantData();
-  showToast('تم تحديث الشعار وإرسال إشعار للإدارة', 'success');
+  const shareInput = document.getElementById('store-share-link');
+  if (shareInput) {
+    const baseUrl = window.location.href.split('#')[0].split('?')[0];
+    const encodedRef = CORE ? CORE.encodeCatalogRef(activeTenantCode) : encodeURIComponent(activeTenantCode);
+    shareInput.value = `${baseUrl}?ref=${encodedRef}`;
+  }
 }
 
 async function handleStoreCoverUpload(event) {
   const imgs = await readFilesAsDataUrls(event.target.files);
-  if (!imgs.length) return;
-  db.store.cover = imgs[0];
-  document.getElementById('settings-cover-preview').src = imgs[0];
-  notifyAdminMediaChange('تحديث غلاف المعرض', imgs[0]);
-  saveTenantData();
-  showToast('تم تحديث صورة الغلاف وإرسال إشعار للإدارة', 'success');
+  if (imgs[0]) {
+    db.store.cover = imgs[0];
+    document.getElementById('settings-cover-preview').src = imgs[0];
+    saveTenantData();
+    showToast('تم تحديث صورة غلاف المعرض', 'success');
+  }
 }
 
-function notifyAdminMediaChange(subject, imageDataUrl) {
-  if (!CORE) return;
-  CORE.submitSupportTicket({
-    tenantCode: activeTenantCode,
-    storeName: db.store.name,
-    method: subject,
-    refCode: 'MEDIA-' + Date.now().toString().slice(-5),
-    message: `قام المشترك (${activeTenantCode}) برفع/تحديث ${subject}`,
-    receiptImage: imageDataUrl || ''
-  });
+async function handleStoreLogoUpload(event) {
+  const imgs = await readFilesAsDataUrls(event.target.files);
+  if (imgs[0]) {
+    db.store.logo = imgs[0];
+    document.getElementById('settings-logo-preview').src = imgs[0];
+    document.getElementById('header-store-logo').src = imgs[0];
+    saveTenantData();
+    showToast('تم تحديث شعار المعرض', 'success');
+  }
 }
 
 function saveStoreSettings() {
@@ -3344,10 +3349,10 @@ function saveStoreSettings() {
 }
 
 function copyStoreLink() {
-  const input = document.getElementById('store-share-link');
-  if (!input) return;
-  input.select();
-  navigator.clipboard?.writeText(input.value).catch(() => {});
+  const el = document.getElementById('store-share-link');
+  if (!el || !el.value) return;
+  navigator.clipboard?.writeText(el.value).catch(() => {});
+  el.select();
   showToast('تم نسخ رابط المعرض', 'success');
 }
 
@@ -3361,22 +3366,20 @@ function selectLuxuryTransferMethod(val, labelText) {
 
 async function previewSupportReceipt(event) {
   const imgs = await readFilesAsDataUrls(event.target.files);
-  const imgEl = document.getElementById('sup-receipt-preview');
-  if (imgs.length && imgEl) {
-    imgEl.src = imgs[0];
-    imgEl.dataset.base64 = imgs[0];
-    imgEl.classList.remove('hidden');
+  const prev = document.getElementById('sup-receipt-preview');
+  if (imgs[0] && prev) {
+    prev.src = imgs[0];
+    prev.classList.remove('hidden');
   }
 }
 
-function submitSupportTransfer() {
-  const method = document.getElementById('sup-pay-method').value || 'رسالة عامة / استفسار للإدارة';
-  const refCode = document.getElementById('sup-trans-ref').value.trim();
+async function submitSupportTransfer() {
+  const method = document.getElementById('sup-pay-method').value;
+  const ref = document.getElementById('sup-trans-ref').value.trim();
   const message = document.getElementById('sup-message').value.trim();
-  const imgEl = document.getElementById('sup-receipt-preview');
-  const receiptImage = (imgEl && imgEl.dataset.base64) ? imgEl.dataset.base64 : '';
+  const imgs = await readFilesAsDataUrls(document.getElementById('sup-receipt-img').files);
 
-  if (!refCode && !message && !receiptImage) {
+  if (!ref && !message && !imgs.length) {
     showToast('يرجى كتابة رسالة أو رقم عملية أو إرفاق صورة', 'warning');
     return;
   }
@@ -3384,55 +3387,47 @@ function submitSupportTransfer() {
   const ticket = {
     id: 'TKT-' + Date.now().toString().slice(-6),
     tenantCode: activeTenantCode,
-    storeName: db.store.name,
+    storeName: db.store.name || activeTenantCode,
     method,
-    refCode,
+    ref,
     message,
-    receiptImage,
-    status: 'قيد المراجعة',
-    createdAt: new Date().toISOString()
+    image: imgs[0] || '',
+    date: new Date().toISOString(),
+    status: 'مرسل للإدارة'
   };
 
   db.supportTickets.unshift(ticket);
-  if (CORE) {
-    CORE.submitSupportTicket(ticket);
+  if (CORE && typeof CORE.pushSupportTicketToAdmin === 'function') {
+    CORE.pushSupportTicketToAdmin(ticket);
   }
   saveTenantData();
   renderSupportTickets();
   document.getElementById('sup-trans-ref').value = '';
   document.getElementById('sup-message').value = '';
   document.getElementById('sup-receipt-img').value = '';
-  if (imgEl) { imgEl.src = ''; imgEl.dataset.base64 = ''; imgEl.classList.add('hidden'); }
-  showToast('تم إرسال رسالتك/إيصالك بنجاح إلى لوحة الأدمن', 'success');
+  const prev = document.getElementById('sup-receipt-preview');
+  if (prev) { prev.src = ''; prev.classList.add('hidden'); }
+  showToast('تم إرسال رسالتك إلى لوحة الأدمن بنجاح', 'success');
 }
 
 function renderSupportTickets() {
   const list = document.getElementById('support-tickets-list');
   if (!list) return;
-  const tickets = db.supportTickets || [];
-  if (!tickets.length) {
-    list.innerHTML = '<p class="text-xs text-slate-500 text-center p-3">لا توجد رسائل أو تحويلات مرسلة بعد.</p>';
+  if (!db.supportTickets.length) {
+    list.innerHTML = '<p class="text-xs text-slate-500">لا توجد رسائل أو تحويلات مسجلة حالياً.</p>';
     return;
   }
-  list.innerHTML = tickets.map(t => `
-    <div class="bg-cardbg border border-slate-800 p-3.5 rounded-2xl text-xs flex items-center justify-between gap-3">
-      <div>
-        <strong class="text-gold">${t.method}</strong> • <span class="font-mono text-slate-400">${t.refCode || t.id}</span>
-        <p class="text-slate-300 mt-1">${t.message || ''}</p>
-        <span class="text-[10px] text-slate-500">${new Date(t.createdAt || Date.now()).toLocaleString('ar-IQ')}</span>
+  list.innerHTML = db.supportTickets.map(t => `
+    <div class="bg-darkbg border border-slate-800 p-3.5 rounded-2xl text-xs space-y-1.5">
+      <div class="flex justify-between items-center">
+        <strong class="text-gold">${t.method}</strong>
+        <span class="font-mono text-[10px] text-slate-400">${new Date(t.date).toLocaleString('ar-IQ')}</span>
       </div>
-      <span class="px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 font-bold shrink-0">${t.status || 'مرسل'}</span>
+      ${t.ref ? `<div class="text-emerald-400 font-mono">المرجع: ${t.ref}</div>` : ''}
+      ${t.message ? `<p class="text-slate-200">${t.message}</p>` : ''}
+      ${t.image ? `<img src="${t.image}" onerror="handleBrandImageError(this)" onclick="openImageLightbox('${t.image.replace(/'/g, "\\'")}', '${t.method.replace(/'/g, "\\'")}')" class="max-h-28 rounded-xl border border-gold/30 cursor-pointer mt-1">` : ''}
     </div>
   `).join('');
-}
-
-function openSupportFromLock() {
-  document.getElementById('subscription-lock-screen').classList.add('hidden');
-  document.getElementById('tenant-login-screen').classList.add('hidden');
-  document.getElementById('app-header').classList.remove('hidden');
-  document.getElementById('app-ticker').classList.remove('hidden');
-  document.getElementById('app-main').classList.remove('hidden');
-  switchTab('support');
 }
 
 function openPriceModal() {
@@ -3445,72 +3440,83 @@ function openPriceModal() {
   document.getElementById('price-modal').classList.remove('hidden');
 }
 
-function closePriceModal() { document.getElementById('price-modal').classList.add('hidden'); }
+function closePriceModal() {
+  document.getElementById('price-modal').classList.add('hidden');
+}
 
 function saveGoldPrices() {
-  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || db.prices.usd;
-  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || db.prices.m24;
-  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || db.prices.m22;
-  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || db.prices.m21;
-  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || db.prices.m18;
-  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || db.prices.m9;
+  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || 0;
+  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || 0;
+  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || 0;
+  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || 0;
+  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || 0;
+  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || 0;
   const scrapPriceInput = document.getElementById('scrap-mithqal-price');
   if (scrapPriceInput) delete scrapPriceInput.dataset.manual;
-  addLog('تحديث أسعار', `تحديث أسعار المثاقيل والدولار — ورقة: ${db.prices.usd}، مثقال 21: ${db.prices.m21}`, 0);
+  addLog('تحديث أسعار', `تحديث أسعار المثاقيل والدولار (الورقة: ${db.prices.usd}، مثقال 21: ${db.prices.m21})`, db.prices.m21);
   saveTenantData();
   renderAll();
   closePriceModal();
   showToast('تم حفظ وتحديث أسعار الذهب والدولار', 'success');
 }
 
-function toggleCalcModal() { document.getElementById('calc-modal').classList.toggle('hidden'); }
+function toggleCalcModal() {
+  const modal = document.getElementById('calc-modal');
+  modal.classList.toggle('hidden');
+  if (!modal.classList.contains('hidden')) {
+    document.getElementById('c-mithqal').value = db.prices.m21 || 0;
+    calcAramkyQuick();
+  }
+}
 
 function calcAramkyQuick() {
   const mq = parseFloat(document.getElementById('c-mithqal').value) || 0;
-  const wt = parseFloat(document.getElementById('c-weight').value) || 0;
+  const w = parseFloat(document.getElementById('c-weight').value) || 0;
   const mk = parseFloat(document.getElementById('c-making').value) || 0;
-  const total = Math.round(wt * ((mq / MITHQAL_GRAMS) + mk));
-  document.getElementById('c-result-iqd').textContent = formatIQD(total);
+  const res = Math.round(w * ((mq / MITHQAL_GRAMS) + mk));
+  document.getElementById('c-result-iqd').textContent = formatIQD(res);
 }
 
 function openReturnModal() { document.getElementById('return-modal').classList.remove('hidden'); }
 function closeReturnModal() { document.getElementById('return-modal').classList.add('hidden'); }
 
 function processInvoiceReturn() {
-  const invCode = document.getElementById('return-inv-code').value.trim();
+  const code = document.getElementById('return-inv-code').value.trim();
   const reason = document.getElementById('return-reason').value.trim() || 'إرجاع فاتورة';
-  if (!invCode) {
-    showToast('يرجى إدخال رمز الفاتورة', 'warning');
+  if (!code) {
+    showToast('يرجى إدخال رمز الفاتورة', 'error');
     return;
   }
-  const targetLog = db.logs.find(l => l.type === 'عملية بيع' && String(l.details || '').includes(invCode));
-  const refundAmt = targetLog ? Math.abs(Number(targetLog.amount || 0)) : 0;
-  const refundProfit = targetLog ? Math.abs(Number(targetLog.makingProfit || 0)) : 0;
-  if (targetLog && Array.isArray(targetLog.soldItems)) {
-    for (const item of targetLog.soldItems) {
-      const invItem = db.inventory.find(i => i.name === item.name && String(i.karat) === String(item.karat));
-      if (invItem) invItem.qty = Number(invItem.qty || 0) + Number(item.qty || 1);
+  const targetLog = db.logs.find(l => l.type === 'عملية بيع' && String(l.details || '').includes(code));
+  if (targetLog) {
+    const retAmount = Number(targetLog.amount || 0);
+    const retProfit = Number(targetLog.makingProfit || 0);
+    db.cash = Number(db.cash || 0) - retAmount;
+    db.makingProfit = Math.max(0, Number(db.makingProfit || 0) - retProfit);
+    if (Array.isArray(targetLog.soldItems)) {
+      for (const sItem of targetLog.soldItems) {
+        const inv = db.inventory.find(i => i.name === sItem.name && String(i.karat) === String(sItem.karat));
+        if (inv) inv.qty = Number(inv.qty || 0) + Number(sItem.qty || 1);
+      }
     }
   }
-  db.cash = Number(db.cash || 0) - refundAmt;
-  db.makingProfit = Math.max(0, Number(db.makingProfit || 0) - refundProfit);
-  addLog('إرجاع فاتورة', `إرجاع الفاتورة ${invCode} — السبب: ${reason}`, -refundAmt, -refundProfit);
+  addLog('إرجاع فاتورة', `إرجاع الفاتورة ${code} | السبب: ${reason}`, targetLog ? -Math.abs(Number(targetLog.amount || 0)) : 0);
   saveTenantData();
   renderAll();
   closeReturnModal();
   document.getElementById('return-inv-code').value = '';
   document.getElementById('return-reason').value = '';
-  showToast('تم تسجيل إرجاع الفاتورة وتحديث الصندوق والمخزن', 'success');
+  showToast('تم توثيق إرجاع الفاتورة بنجاح', 'warning');
+}
+
+function handleGlobalZeroKey(e) {
+  if (e.key === '0' && e.altKey) {
+    openResetSystemModal();
+  }
 }
 
 function openResetSystemModal() { document.getElementById('reset-system-modal').classList.remove('hidden'); }
 function closeResetSystemModal() { document.getElementById('reset-system-modal').classList.add('hidden'); }
-
-function handleGlobalZeroKey(event) {
-  if (event.key === '0' && event.altKey) {
-    openResetSystemModal();
-  }
-}
 
 function executeSystemReset(mode) {
   if (mode === 'cash_only') {
@@ -3518,37 +3524,37 @@ function executeSystemReset(mode) {
     db.usd = 0;
     db.zain = 0;
     db.makingProfit = 0;
-    addLog('تصفير الخزينة', 'تصفير صناديق الكاش والدولار والماستر وأرباح الصياغة', 0);
+    addLog('تصفير خزينة', 'تم تصفير صناديق الكاش والدولار والماستر وأرباح الصياغة مع الإبقاء على المخزن والديون', 0);
     saveTenantData();
     renderAll();
     closeResetSystemModal();
     showToast('تم تصفير الخزينة والأرباح بنجاح', 'success');
   } else if (mode === 'full_factory') {
+    const preservedStore = Object.assign({}, db.store);
+    const preservedPrices = Object.assign({}, db.prices);
     db = defaultTenantData(activeTenantCode);
-    cart = [];
+    db.store = preservedStore;
+    db.prices = preservedPrices;
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تم تصفير النظام بالكامل إلى ضبط المصنع', 'warning');
-  }
-}
-
-function openAdminPanel() {
-  if (CORE && typeof CORE.openAdminDashboard === 'function') {
-    CORE.openAdminDashboard();
+    showToast('تم تصفير النظام بالكامل وإعادة الضبط', 'warning');
   }
 }
 
 function handleInventoryAdminTrigger() {
   inventorySecretClicks += 1;
   clearTimeout(inventorySecretTimer);
-  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 1800);
+  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 2500);
   if (inventorySecretClicks >= 5) {
     inventorySecretClicks = 0;
-    document.getElementById('admin-secret-password').value = '';
-    document.getElementById('admin-secret-modal').classList.remove('hidden');
-    document.getElementById('admin-secret-password').focus();
+    openAdminSecretModal();
   }
+}
+
+function openAdminSecretModal() {
+  document.getElementById('admin-secret-password').value = '';
+  document.getElementById('admin-secret-modal').classList.remove('hidden');
 }
 
 function closeAdminSecretModal() {
@@ -3556,9 +3562,11 @@ function closeAdminSecretModal() {
 }
 
 function verifyAdminSecretPassword() {
-  const pwd = document.getElementById('admin-secret-password').value;
-  if (CORE && CORE.verifyAdminPassword(pwd)) {
-    CORE.setAdminSession(true);
+  const pass = document.getElementById('admin-secret-password').value.trim();
+  const validCore = CORE && typeof CORE.verifyAdminPassword === 'function' && CORE.verifyAdminPassword(pass);
+  if (validCore || pass === DEDICATED_ADMIN_CREDENTIALS.pass) {
+    if (CORE && typeof CORE.setAdminSession === 'function') CORE.setAdminSession(true);
+    syncAdminButtonVisibility();
     closeAdminSecretModal();
     showToast('تم تفعيل وضع الأدمن بنجاح', 'success');
     openAdminPanel();
@@ -3567,75 +3575,120 @@ function verifyAdminSecretPassword() {
   }
 }
 
-function switchTenantPrompt() {
+function openAdminPanel() {
   if (CORE) {
-    CORE.clearActiveSubscriberSession();
+    if (typeof CORE.setAdminSession === 'function') CORE.setAdminSession(true);
+    syncAdminButtonVisibility();
+    CORE.openAdminModal({
+      activeTenantCode,
+      onTenantSwitch: (code) => {
+        loadTenantData(code);
+        renderAll();
+        checkSubscriptionLock();
+      },
+      onDataMutated: () => {
+        loadTenantData(activeTenantCode);
+        renderAll();
+      }
+    });
+  } else {
+    showToast('وحدة إدارة الأدمن غير متوفرة حالياً', 'warning');
   }
-  document.getElementById('subscription-lock-screen').classList.add('hidden');
-  document.getElementById('app-header').classList.add('hidden');
-  document.getElementById('app-ticker').classList.add('hidden');
-  document.getElementById('app-main').classList.add('hidden');
-  document.getElementById('login-tenant-pass').value = '';
+}
+
+function openTenantLoginModal(prefillCode = '') {
+  const codeInput = document.getElementById('login-tenant-code');
+  if (codeInput && prefillCode) codeInput.value = prefillCode;
   document.getElementById('tenant-login-screen').classList.remove('hidden');
 }
 
-function loginTenant() {
-  const code = (document.getElementById('login-tenant-code').value || '').trim().toUpperCase();
-  const phone = (document.getElementById('login-tenant-phone').value || '').trim();
-  const pass = document.getElementById('login-tenant-pass').value || '';
+function closeTenantLoginModal() {
+  document.getElementById('tenant-login-screen').classList.add('hidden');
+}
 
-  if (CORE && CORE.verifyAdminPassword(pass)) {
-    CORE.setAdminSession(true);
-    if (code) {
-      CORE.setActiveSubscriberSession(code);
-      loadTenantData(code);
-    }
-    document.getElementById('tenant-login-screen').classList.add('hidden');
-    document.getElementById('app-header').classList.remove('hidden');
-    document.getElementById('app-ticker').classList.remove('hidden');
-    document.getElementById('app-main').classList.remove('hidden');
-    renderAll();
-    openAdminPanel();
-    return;
-  }
+function loginTenant() {
+  const code = document.getElementById('login-tenant-code').value.trim().toUpperCase();
+  const phone = document.getElementById('login-tenant-phone').value.trim();
+  const pass = document.getElementById('login-tenant-pass').value.trim();
 
   if (!code || !phone || !pass) {
     showToast('يرجى إدخال معرف الحساب ورقم الهاتف وكلمة المرور', 'error');
     return;
   }
 
-  const check = CORE ? CORE.authenticateSubscriber(code, phone, pass) : { ok: true };
-  if (!check.ok) {
-    showToast(check.reason || 'بيانات الحساب غير معتمدة من الأدمن', 'error');
+  if (isDedicatedAdminLogin(code, phone, pass)) {
+    activateDedicatedAdminState(code);
+    closeTenantLoginModal();
+    renderAll();
+    checkSubscriptionLock();
+    showToast('مرحباً بك أدمن النظام — تم تفعيل لوحة الأدمن بنجاح 👑', 'success');
+    setTimeout(() => openAdminPanel(), 120);
     return;
   }
 
-  if (CORE) CORE.setActiveSubscriberSession(code);
-  loadTenantData(code);
-  document.getElementById('tenant-login-screen').classList.add('hidden');
-  document.getElementById('app-header').classList.remove('hidden');
-  document.getElementById('app-ticker').classList.remove('hidden');
-  document.getElementById('app-main').classList.remove('hidden');
-  checkSubscriptionLock();
-  renderAll();
-  showToast(`تم تسجيل الدخول إلى الحساب: ${code}`, 'success');
+  if (CORE && typeof CORE.authenticateSubscriber === 'function') {
+    const auth = CORE.authenticateSubscriber(code, phone, pass);
+    if (!auth.ok) {
+      showToast(auth.message || 'بيانات الدخول غير صحيحة أو الحساب غير معتمد', 'error');
+      return;
+    }
+    if (CORE.setActiveSubscriberSession) CORE.setActiveSubscriberSession(auth.tenant.code);
+    loadTenantData(auth.tenant.code);
+    closeTenantLoginModal();
+    renderAll();
+    checkSubscriptionLock();
+    showToast(`تم تسجيل الدخول إلى الحساب: ${auth.tenant.code}`, 'success');
+    return;
+  }
+
+  showToast('تعذر التحقق من بيانات الدخول', 'error');
+}
+
+function switchTenantPrompt() {
+  if (CORE && typeof CORE.clearSubscriberSession === 'function') CORE.clearSubscriberSession();
+  if (CORE && typeof CORE.setAdminSession === 'function') CORE.setAdminSession(false);
+  const adminBtnContainer = document.getElementById('admin-btn-container');
+  if (adminBtnContainer) adminBtnContainer.classList.add('hidden');
+  openTenantLoginModal('');
 }
 
 function checkSubscriptionLock() {
-  if (isPublicCatalogOnly) return;
-  const locked = isCurrentTenantLocked();
   const lockScreen = document.getElementById('subscription-lock-screen');
-  if (locked) {
-    document.getElementById('locked-tenant-info').textContent = `رقم المعرض: ${activeTenantCode}`;
+  if (!lockScreen) return;
+  if (isCurrentTenantLocked()) {
+    const refTag = CORE ? CORE.encodeCatalogRef(activeTenantCode).slice(0, 8).toUpperCase() : activeTenantCode;
+    document.getElementById('locked-tenant-info').textContent = `رقم المعرض: REF-${refTag}`;
     lockScreen.classList.remove('hidden');
-    document.getElementById('app-header').classList.add('hidden');
-    document.getElementById('app-ticker').classList.add('hidden');
-    document.getElementById('app-main').classList.add('hidden');
   } else {
     lockScreen.classList.add('hidden');
-    document.getElementById('app-header').classList.remove('hidden');
-    document.getElementById('app-ticker').classList.remove('hidden');
-    document.getElementById('app-main').classList.remove('hidden');
+  }
+}
+
+function openSupportFromLock() {
+  document.getElementById('subscription-lock-screen').classList.add('hidden');
+  switchTab('support');
+}
+
+async function refreshAppAndClearCache() {
+  try {
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+  } catch (_) {}
+  window.location.reload();
+}
+
+function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+  } else {
+    showToast('يمكنك تثبيت التطبيق من قائمة المتصفح (إضافة إلى الشاشة الرئيسية)', 'info');
   }
 }
 
@@ -3644,109 +3697,55 @@ window.addEventListener('beforeinstallprompt', (e) => {
   deferredPrompt = e;
 });
 
-async function installPWA() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-  } else {
-    showToast('للتثبيت كـ تطبيق أو APK: افتح قائمة المتصفح واختر "إضافة إلى الشاشة الرئيسية"', 'info');
-  }
-}
-
-async function refreshAppAndClearCache() {
-  showToast('جاري تحديث التطبيق وتفريغ الكاش...', 'info');
-  if ('caches' in window) {
-    const names = await caches.keys();
-    await Promise.all(names.map(n => caches.delete(n)));
-  }
-  window.location.reload(true);
-}
-
 function dismissSplashScreen() {
   if (splashDismissed) return;
   splashDismissed = true;
   const splash = document.getElementById('aramky-splash-screen');
   if (!splash) return;
   splash.style.opacity = '0';
-  splash.style.pointerEvents = 'none';
-  setTimeout(() => { splash.classList.add('hidden'); }, 450);
+  setTimeout(() => splash.remove(), 450);
 }
 
-async function initApp() {
+function initApp() {
   if (appInitialized) return;
   appInitialized = true;
-
-  const splashFallbackTimer = setTimeout(dismissSplashScreen, 1800);
-
-  if (CORE && typeof CORE.initSupabase === 'function') {
-    await CORE.initSupabase();
-  }
+  if (I18N) I18N.init();
 
   const params = new URLSearchParams(window.location.search);
-  const catalogParam = params.get('catalog');
+  const refParam = params.get('ref');
 
-  if (catalogParam) {
-    isPublicCatalogOnly = true;
-    const decodedTenant = CORE ? CORE.decodeCatalogRef(catalogParam) : catalogParam;
-    loadTenantData(decodedTenant);
-    if (CORE && typeof CORE.pullTenantFromSupabase === 'function') {
-      const remoteData = await CORE.pullTenantFromSupabase(activeTenantCode);
-      if (remoteData && typeof remoteData === 'object') {
-        db = CORE.normalizeTenantPayload(Object.assign(defaultTenantData(activeTenantCode), remoteData), activeTenantCode);
-      }
-    }
-    document.getElementById('tenant-login-screen').classList.add('hidden');
-    document.getElementById('subscription-lock-screen').classList.add('hidden');
-    document.getElementById('app-header').classList.add('hidden');
-    document.getElementById('app-ticker').classList.add('hidden');
-    document.getElementById('app-main').classList.add('hidden');
-    openStorefrontView();
-    clearTimeout(splashFallbackTimer);
-    dismissSplashScreen();
-    return;
-  }
-
-  const savedSession = CORE && typeof CORE.getActiveSubscriberSession === 'function'
-    ? CORE.getActiveSubscriberSession()
-    : null;
-  const hasAdminSession = CORE && typeof CORE.hasAdminSession === 'function' && CORE.hasAdminSession();
-
-  if (!savedSession && !hasAdminSession) {
-    document.getElementById('app-header').classList.add('hidden');
-    document.getElementById('app-ticker').classList.add('hidden');
-    document.getElementById('app-main').classList.add('hidden');
-    document.getElementById('tenant-login-screen').classList.remove('hidden');
-    clearTimeout(splashFallbackTimer);
-    dismissSplashScreen();
-    return;
-  }
-
-  const initialCode = savedSession
-    ? savedSession.code
-    : (localStorage.getItem(CORE ? CORE.keys.activeTenant : 'aramky_active_tenant') || 'ARAMKY-01');
-
-  loadTenantData(initialCode);
-  if (CORE && typeof CORE.pullTenantFromSupabase === 'function') {
-    const remoteData = await CORE.pullTenantFromSupabase(activeTenantCode);
-    if (remoteData && typeof remoteData === 'object') {
-      db = CORE.normalizeTenantPayload(Object.assign(defaultTenantData(activeTenantCode), remoteData), activeTenantCode);
-      saveTenantData();
+  if (refParam) {
+    const decodedCode = CORE ? CORE.decodeCatalogRef(refParam) : decodeURIComponent(refParam);
+    if (decodedCode) {
+      isPublicCatalogOnly = true;
+      loadTenantData(decodedCode);
+      renderAll();
+      openStorefrontView();
+      setTimeout(dismissSplashScreen, 450);
+      return;
     }
   }
 
-  document.getElementById('tenant-login-screen').classList.add('hidden');
-  checkSubscriptionLock();
+  const savedTenant = localStorage.getItem(CORE ? CORE.keys.activeTenant : 'aramky_active_tenant') || 'ARAMKY';
+  const hasSession = CORE && typeof CORE.hasActiveSubscriberSession === 'function' ? CORE.hasActiveSubscriberSession() : false;
+  const hasAdmin = CORE && typeof CORE.hasAdminSession === 'function' ? CORE.hasAdminSession() : false;
+
+  loadTenantData(savedTenant);
   renderAll();
 
-  clearTimeout(splashFallbackTimer);
-  dismissSplashScreen();
+  if (!hasSession && !hasAdmin) {
+    openTenantLoginModal(savedTenant === 'ARAMKY-01' ? 'ARAMKY' : savedTenant);
+  } else {
+    checkSubscriptionLock();
+  }
+
+  setTimeout(dismissSplashScreen, 750);
 }
 
-window.addEventListener('DOMContentLoaded', initApp);
-if (document.readyState === 'interactive' || document.readyState === 'complete') {
+window.addEventListener('DOMContentLoaded', () => {
   initApp();
-}
+  setTimeout(dismissSplashScreen, 1800);
+});
 </script>
 </body>
 </html>
