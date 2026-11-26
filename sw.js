@@ -3,10 +3,10 @@ const ASSETS = [
   "/",
   "/index.html",
   "/admin.html",
-  "/admin_3.html",
   "/manifest.json",
   "/aramky-i18n.js",
   "/aramky-core.js",
+  "/main.js",
   "/icon.png"
 ];
 
@@ -37,7 +37,6 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  // نجلب من السيرفر أولاً حتى نضمن أحدث نسخة، وإذا ماكو إنترنت نرجع للكاش
   event.respondWith(
     fetch(event.request, { cache: "no-store" })
       .then((res) => {
