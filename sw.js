@@ -1,4 +1,4 @@
-const CACHE_NAME = "aramky-gold-os-v28-2";
+const CACHE_NAME = "aramky-gold-os-v28-3";
 const ASSETS = [
   "/",
   "/index.html",
@@ -15,7 +15,7 @@ self.addEventListener("install", (event) => {
     caches.open(CACHE_NAME).then((cache) => {
       return Promise.allSettled(
         ASSETS.map((url) =>
-          fetch(url).then((res) => {
+          fetch(url, { cache: "no-store" }).then((res) => {
             if (res && res.ok) return cache.put(url, res);
           })
         )
@@ -37,18 +37,16 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
+  // نجلب من السيرفر أولاً حتى نضمن أحدث نسخة، وإذا ماكو إنترنت نرجع للكاش
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const networkFetch = fetch(event.request)
-        .then((res) => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(CACHE_NAME).then((c) => c.put(event.request, copy));
-          }
-          return res;
-        })
-        .catch(() => cached);
-      return cached || networkFetch;
-    })
+    fetch(event.request, { cache: "no-store" })
+      .then((res) => {
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put(event.request, copy));
+        }
+        return res;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
