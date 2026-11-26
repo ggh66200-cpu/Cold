@@ -1,4 +1,4 @@
-/* ARAMKY Gold OS v28.1 - Electron Desktop Entry (main.js) */
+/* ARAMKY Gold OS v28.3 - Electron Desktop Entry (main.js) */
 const { app, BrowserWindow, shell } = require('electron');
 const path = require('path');
 
@@ -10,7 +10,7 @@ function createMainWindow() {
     height: 860,
     minWidth: 960,
     minHeight: 640,
-    title: 'ARAMKY Gold OS v28.1 | نظام إدارة صياغة الذهب',
+    title: 'ARAMKY Gold OS v28.3 | نظام إدارة صياغة الذهب',
     icon: path.join(__dirname, 'icon.png'),
     backgroundColor: '#070A12',
     autoHideMenuBar: true,
@@ -21,7 +21,8 @@ function createMainWindow() {
     }
   });
 
-  mainWindow.loadFile(path.join(__dirname, 'index_5.html'));
+  // يفتح الصفحة الرئيسية بدون رقم نسخة
+  mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('http://') || url.startsWith('https://')) {
