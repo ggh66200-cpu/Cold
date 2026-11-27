@@ -391,6 +391,20 @@
     }
   }
 
+  async function startupCloudHealthCheck() {
+    const cfg = await hydrateCloudConfigFromServer();
+    const key = cfg.supabaseKey || cfg.supabaseAnonKey;
+    if (!cfg.supabaseUrl || !key) {
+      return {
+        ok: false,
+        stage: 'env_missing',
+        message: 'لم يتم العثور على SUPABASE_URL أو SUPABASE_KEY في متغيرات البيئة — يعمل النظام محلياً بأمان.'
+      };
+    }
+    const conn = await testSupabaseConnection();
+    return Object.assign({ stage: conn.ok ? 'connected' : 'unreachable' }, conn);
+  }
+
   async function postToRenderBackend(path, bodyObj) {
     const url = getRenderEndpoint(path);
     if (!url) return { ok: false, skipped: true };
@@ -441,10 +455,45 @@
     }
   }
 
+  function getOrCreateShowcaseId(tenantCode) {
+    const cleanCode = String(tenantCode || 'ARAMKY').trim().toUpperCase();
+    const mapKey = `${STORAGE_PREFIX}showcase_ids`;
+    const map = readSecureStorage(mapKey, 'SHOWCASE_IDS', {}) || {};
+    if (map[cleanCode] && /^[A-Za-z0-9_-]{6,32}$/.test(map[cleanCode])) {
+      return map[cleanCode];
+    }
+    let hash = 2166136261;
+    const seed = `ARAMKY_SHOWCASE_V28_${cleanCode}`;
+    for (let i = 0; i < seed.length; i++) {
+      hash ^= seed.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    const hexPart = (hash >>> 0).toString(36).toUpperCase().padStart(6, '0');
+    const codeHash = encodeCatalogRef(cleanCode).replace(/[^A-Za-z0-9]/g, '').slice(-8).toUpperCase() || 'GOLD88';
+    const generated = `SHW${hexPart}${codeHash}`.slice(0, 16);
+    map[cleanCode] = generated;
+    writeSecureStorage(mapKey, map, 'SHOWCASE_IDS');
+    return generated;
+  }
+
+  function resolveTenantByShowcaseId(showcaseId) {
+    const cleanId = String(showcaseId || '').trim();
+    if (!cleanId) return null;
+    const mapKey = `${STORAGE_PREFIX}showcase_ids`;
+    const map = readSecureStorage(mapKey, 'SHOWCASE_IDS', {}) || {};
+    for (const [tenantCode, id] of Object.entries(map)) {
+      if (id === cleanId) return tenantCode;
+    }
+    return null;
+  }
+
   function getPublicStorefrontUrl(tenantCode) {
-    const baseUrl = window.location.href.split('#')[0].split('?')[0];
-    const ref = encodeCatalogRef(String(tenantCode || 'ARAMKY').trim().toUpperCase());
-    return `${baseUrl}?view=showcase&ref=${encodeURIComponent(ref)}`;
+    const cleanCode = String(tenantCode || 'ARAMKY').trim().toUpperCase();
+    const showcaseId = getOrCreateShowcaseId(cleanCode);
+    const origin = (window.location.origin && window.location.origin !== 'null')
+      ? window.location.origin
+      : 'https://aramky.onrender.com';
+    return `${origin}/ARAMKY/${encodeURIComponent(showcaseId)}`;
   }
 
   function getDefaultTenantsList() {
@@ -687,6 +736,19 @@
   }
 
   function resolveActiveTenantOnLoad() {
+    const pathname = String(window.location.pathname || '');
+    const match = pathname.match(/\/ARAMKY\/([A-Za-z0-9_-]{4,48})\/?$/i);
+    if (match && match[1]) {
+      const showcaseId = match[1];
+      const mappedTenant = resolveTenantByShowcaseId(showcaseId);
+      return {
+        code: String(mappedTenant || localStorage.getItem(KEYS.activeTenant) || 'ARAMKY').toUpperCase(),
+        showcaseId,
+        publicOnly: true,
+        requireLogin: false
+      };
+    }
+
     const params = new URLSearchParams(window.location.search);
     const viewParam = params.get('view');
     const refParam = params.get('ref');
@@ -1011,11 +1073,14 @@
     pullTenantFromSupabase,
     syncAllFromSupabase,
     testSupabaseConnection,
+    startupCloudHealthCheck,
     postToRenderBackend,
     getTenantDataKey,
     getCustomerLedgerKey,
     encodeCatalogRef,
     decodeCatalogRef,
+    getOrCreateShowcaseId,
+    resolveTenantByShowcaseId,
     getPublicStorefrontUrl,
     getTenantsRegistry,
     saveTenantsRegistry,
