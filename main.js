@@ -21,7 +21,6 @@ function createMainWindow() {
     }
   });
 
-  // يفتح الصفحة الرئيسية بدون رقم نسخة
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
