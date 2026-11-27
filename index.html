@@ -1647,9 +1647,6 @@ function getSafeStorefrontUrl() {
 }
 
 function renderAll() {
-  if (I18N && typeof I18N.applyLanguageToDom === 'function') {
-    I18N.applyLanguageToDom();
-  }
   syncAdminButtonVisibility();
 
   const locked = isCurrentTenantLocked();
@@ -1707,6 +1704,10 @@ function renderAll() {
   renderCart();
   autoFillScrapMithqal();
   updateScrapPreview();
+
+  if (I18N && typeof I18N.applyLanguageToDom === 'function') {
+    I18N.applyLanguageToDom();
+  }
 }
 
 function switchTab(tabName) {
@@ -1733,6 +1734,9 @@ function switchTab(tabName) {
     applyDebtTabIsolationState();
     renderDebts();
     updateDebtLivePreview();
+  }
+  if (I18N && typeof I18N.applyLanguageToDom === 'function') {
+    I18N.applyLanguageToDom();
   }
 }
 
@@ -2700,49 +2704,50 @@ function updateScrapPreview() {
 }
 
 function buyScrapGold() {
-  const customer = document.getElementById('scrap-customer').value.trim() || 'بائع كسر';
+  const seller = document.getElementById('scrap-customer').value.trim() || 'بائع كسر';
   const phone = document.getElementById('scrap-phone').value.trim();
   const karat = document.getElementById('scrap-karat').value || '21';
-  const mqPrice = parseFloat(document.getElementById('scrap-mithqal-price').value) || 0;
-  const weight = parseFloat(document.getElementById('scrap-weight').value) || 0;
+  const mqPrice = parseFloat(document.getElementById('scrap-mithqal-price').value) || getMithqalPriceByKarat(karat);
+  const weight = parseFloat(document.getElementById('scrap-weight').value);
   const deductPerGram = parseFloat(document.getElementById('scrap-deduct').value) || 0;
   const notes = document.getElementById('scrap-notes').value.trim();
 
-  if (weight <= 0 || mqPrice <= 0) {
-    showToast('يرجى إدخال وزن الكسر وسعر المثقال بشكل صحيح', 'error');
+  if (isNaN(weight) || weight <= 0) {
+    showToast('يرجى إدخال وزن الذهب الكسر بالغرام', 'error');
     return;
   }
 
   const adjGram = Math.max(0, (mqPrice / MITHQAL_GRAMS) - deductPerGram);
   const totalIqd = Math.round(weight * adjGram);
+  db.cash = Number(db.cash || 0) - totalIqd;
 
   db.inventory.push({
     id: 'SCR-' + Date.now().toString().slice(-6),
-    name: `ذهب كسر عيار ${karat} (${customer})`,
+    name: `كسر عيار ${karat} (${seller})`,
     karat,
     condition: 'used',
     weight,
     qty: 1,
     makingPerGram: 0,
     published: false,
-    notes: `كسر من ${customer}${notes ? ' — ' + notes : ''}`,
+    notes: notes || `شراء كسر من ${seller}`,
     images: [],
     updatedAt: new Date().toISOString()
   });
 
-  db.cash = Number(db.cash || 0) - totalIqd;
-  saveCustomerLedgerEntry(customer, phone, {
+  saveCustomerLedgerEntry(seller, phone, {
     type: 'scrap_buy',
     unit: 'money',
-    karat,
-    weight,
     amount: totalIqd,
+    weight,
+    karat,
     notes
   });
 
-  addLog('شراء كسر', `شراء ذهب كسر عيار ${karat} وزن ${weight}غ من ${customer} (خصم ${deductPerGram}/غ)${notes ? ' | ' + notes : ''}`, totalIqd, {
+  addLog('شراء كسر', `شراء ذهب كسر عيار ${karat} وزن ${weight}غ من ${seller} (خصم صياغة ${deductPerGram}/غ)${notes ? ' | ' + notes : ''}`, totalIqd, {
     karat,
-    weight
+    weight,
+    totalIqd
   });
 
   saveTenantData();
@@ -2752,15 +2757,18 @@ function buyScrapGold() {
   document.getElementById('scrap-weight').value = '';
   document.getElementById('scrap-deduct').value = '';
   document.getElementById('scrap-notes').value = '';
-  showToast('تم تسجيل شراء الذهب الكسر وتحديث الصندوق', 'success');
+  delete document.getElementById('scrap-mithqal-price').dataset.manual;
+  autoFillScrapMithqal();
+  updateScrapPreview();
+  showToast('تم شراء الذهب الكسر وتحديث الصندوق والمخزن', 'success');
 }
 
 function addExpense() {
   const reason = document.getElementById('exp-reason').value.trim();
-  const amount = parseFloat(document.getElementById('exp-amount').value) || 0;
+  const amount = parseFloat(document.getElementById('exp-amount').value);
   const notes = document.getElementById('exp-notes').value.trim();
-  if (!reason || amount <= 0) {
-    showToast('يرجى إدخال سبب المصروف والمبلغ', 'error');
+  if (!reason || isNaN(amount) || amount <= 0) {
+    showToast('يرجى إدخال سبب المصروف والمبلغ بشكل صحيح', 'error');
     return;
   }
   db.cash = Number(db.cash || 0) - amount;
@@ -2770,75 +2778,168 @@ function addExpense() {
   document.getElementById('exp-reason').value = '';
   document.getElementById('exp-amount').value = '';
   document.getElementById('exp-notes').value = '';
-  showToast('تم تسجيل المصروف اليومي', 'success');
+  showToast('تم تسجيل المصروف وخصمه من صندوق الكاش', 'success');
 }
 
-function selectLuxuryDebtType(typeVal, labelText) {
-  const input = document.getElementById('debt-type');
-  const label = document.getElementById('selected-debt-type-label');
-  if (input) input.value = typeVal;
-  if (label) {
-    label.textContent = labelText;
-    const isUs = typeVal.includes('يطلبوني');
-    label.className = isUs ? 'text-rose-400 font-black' : 'text-emerald-400 font-black';
+function setDebtFilter(filter) {
+  activeDebtFilter = filter;
+  applyDebtTabIsolationState();
+  renderDebts();
+}
+
+function applyDebtTabIsolationState() {
+  const filter = activeDebtFilter || 'all';
+  const btnAll = document.getElementById('debt-filter-all');
+  const btnThem = document.getElementById('debt-filter-them');
+  const btnUs = document.getElementById('debt-filter-us');
+
+  if (btnAll) btnAll.className = filter === 'all' ? 'bg-gold text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow cursor-pointer' : 'bg-darkbg text-slate-300 border border-slate-700 px-4 py-2 rounded-2xl text-xs font-bold cursor-pointer';
+  if (btnThem) btnThem.className = filter === 'on_them' ? 'bg-emerald-500 text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow cursor-pointer' : 'bg-darkbg text-emerald-300 border border-emerald-500/50 px-4 py-2 rounded-2xl text-xs font-bold cursor-pointer';
+  if (btnUs) btnUs.className = filter === 'on_us' ? 'bg-rose-500 text-white px-4 py-2 rounded-2xl text-xs font-black shadow cursor-pointer' : 'bg-darkbg text-rose-300 border border-rose-500/50 px-4 py-2 rounded-2xl text-xs font-bold cursor-pointer';
+
+  const panelsGrid = document.getElementById('debt-action-panels-grid');
+  const panelThem = document.getElementById('debt-panel-on-them');
+  const panelUs = document.getElementById('debt-panel-on-us');
+  if (panelsGrid) {
+    panelsGrid.setAttribute('data-isolated-side', filter);
   }
-  const map = {
-    'يطلبهم أموال زيادة (+)': 'btn-dmode-plus-money',
-    'يطلبهم أموال نقصان (-)': 'btn-dmode-minus-money',
-    'يطلبهم ذهب زيادة (+)': 'btn-dmode-plus-gold',
-    'يطلبهم ذهب نقصان (-)': 'btn-dmode-minus-gold',
-    'يطلبوني أموال زيادة (+)': 'btn-dmode-us-plus-money',
-    'يطلبوني أموال نقصان (-)': 'btn-dmode-us-minus-money',
-    'يطلبوني ذهب زيادة (+)': 'btn-dmode-us-plus-gold',
-    'يطلبوني ذهب نقصان (-)': 'btn-dmode-us-minus-gold'
-  };
-  Object.entries(map).forEach(([k, id]) => {
-    const btn = document.getElementById(id);
-    if (!btn) return;
-    if (k === typeVal) {
-      btn.classList.add('ring-2', 'ring-gold', 'scale-[1.02]');
+  if (panelThem && panelUs) {
+    if (filter === 'on_them') {
+      panelThem.classList.remove('hidden');
+      panelThem.style.display = '';
+      panelUs.classList.add('hidden');
+      panelUs.style.display = 'none';
+    } else if (filter === 'on_us') {
+      panelUs.classList.remove('hidden');
+      panelUs.style.display = '';
+      panelThem.classList.add('hidden');
+      panelThem.style.display = 'none';
     } else {
-      btn.classList.remove('ring-2', 'ring-gold', 'scale-[1.02]');
+      panelThem.classList.remove('hidden');
+      panelThem.style.display = '';
+      panelUs.classList.remove('hidden');
+      panelUs.style.display = '';
     }
-  });
-  document.getElementById('luxury-debt-type-modal')?.classList.add('hidden');
-  updateDebtLivePreview();
+  }
+
+  const sectionsWrapper = document.getElementById('debt-sections-wrapper');
+  const secThem = document.getElementById('section-debts-them');
+  const secUs = document.getElementById('section-debts-us');
+  if (sectionsWrapper) {
+    sectionsWrapper.setAttribute('data-active-filter', filter);
+  }
+  if (secThem && secUs) {
+    if (filter === 'on_them') {
+      secThem.classList.remove('hidden');
+      secThem.style.display = '';
+      secUs.classList.add('hidden');
+      secUs.style.display = 'none';
+    } else if (filter === 'on_us') {
+      secUs.classList.remove('hidden');
+      secUs.style.display = '';
+      secThem.classList.add('hidden');
+      secThem.style.display = 'none';
+    } else {
+      secThem.classList.remove('hidden');
+      secThem.style.display = '';
+      secUs.classList.remove('hidden');
+      secUs.style.display = '';
+    }
+  }
+
+  const summaryBoxThem = document.getElementById('debts-summary-box-them');
+  const summaryBoxUs = document.getElementById('debts-summary-box-us');
+  if (summaryBoxThem && summaryBoxUs) {
+    summaryBoxThem.classList.toggle('ring-2', filter === 'on_them');
+    summaryBoxThem.classList.toggle('ring-emerald-400', filter === 'on_them');
+    summaryBoxUs.classList.toggle('ring-2', filter === 'on_us');
+    summaryBoxUs.classList.toggle('ring-rose-400', filter === 'on_us');
+  }
+
+  const currentType = document.getElementById('debt-type')?.value || '';
+  if (filter === 'on_them' && (currentType.includes('يطلبوني') || currentType.includes('يطلبوك'))) {
+    selectLuxuryDebtType('يطلبهم أموال زيادة (+)', 'يطلبهم — زيادة أموال (+)');
+  } else if (filter === 'on_us' && !currentType.includes('يطلبوني')) {
+    selectLuxuryDebtType('يطلبوني أموال زيادة (+)', 'يطلبوني — زيادة أموال (+)');
+  }
+}
+
+function openLuxuryDebtTypeModal() {
+  document.getElementById('luxury-debt-type-modal').classList.remove('hidden');
 }
 
 function closeLuxuryDebtTypeModal() {
-  document.getElementById('luxury-debt-type-modal')?.classList.add('hidden');
+  document.getElementById('luxury-debt-type-modal').classList.add('hidden');
+}
+
+function selectLuxuryDebtType(val, label) {
+  const typeInput = document.getElementById('debt-type');
+  const labelEl = document.getElementById('selected-debt-type-label');
+  if (typeInput) typeInput.value = val;
+  if (labelEl) {
+    labelEl.textContent = label;
+    const isUs = String(val).includes('يطلبوني');
+    const isDec = String(val).includes('نقصان');
+    labelEl.className = isUs
+      ? 'text-rose-400 font-black'
+      : (isDec ? 'text-amber-300 font-black' : 'text-emerald-400 font-black');
+  }
+  highlightActiveDebtTypeButton(val);
+  closeLuxuryDebtTypeModal();
+  updateDebtLivePreview();
+}
+
+function highlightActiveDebtTypeButton(activeVal) {
+  const buttons = [
+    { id: 'btn-dmode-plus-money', val: 'يطلبهم أموال زيادة (+)', activeClass: 'bg-emerald-500 text-darkbg border-2 border-emerald-200 font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-xl scale-[1.02] transition cursor-pointer', idleClass: 'bg-emerald-600/25 hover:bg-emerald-600/35 border-2 border-emerald-400 text-emerald-100 font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition cursor-pointer' },
+    { id: 'btn-dmode-minus-money', val: 'يطلبهم أموال نقصان (-)', activeClass: 'bg-emerald-400 text-darkbg border-2 border-white font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-xl scale-[1.02] transition cursor-pointer', idleClass: 'bg-emerald-950/75 hover:bg-emerald-900/70 border-2 border-emerald-500/45 text-emerald-200 font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition cursor-pointer' },
+    { id: 'btn-dmode-plus-gold', val: 'يطلبهم ذهب زيادة (+)', activeClass: 'bg-amber-400 text-darkbg border-2 border-white font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-xl scale-[1.02] transition cursor-pointer', idleClass: 'bg-amber-600/25 hover:bg-amber-600/35 border-2 border-amber-400/60 text-amber-200 font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition cursor-pointer' },
+    { id: 'btn-dmode-minus-gold', val: 'يطلبهم ذهب نقصان (-)', activeClass: 'bg-amber-500 text-darkbg border-2 border-amber-100 font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-xl scale-[1.02] transition cursor-pointer', idleClass: 'bg-amber-950/75 hover:bg-amber-900/70 border-2 border-amber-500/45 text-amber-200 font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition cursor-pointer' },
+    { id: 'btn-dmode-us-plus-money', val: 'يطلبوني أموال زيادة (+)', activeClass: 'bg-rose-500 text-white border-2 border-rose-200 font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-xl scale-[1.02] transition cursor-pointer', idleClass: 'bg-rose-600/25 hover:bg-rose-600/35 border-2 border-rose-400/70 text-rose-100 font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition cursor-pointer' },
+    { id: 'btn-dmode-us-minus-money', val: 'يطلبوني أموال نقصان (-)', activeClass: 'bg-rose-400 text-darkbg border-2 border-white font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-xl scale-[1.02] transition cursor-pointer', idleClass: 'bg-rose-950/75 hover:bg-rose-900/70 border-2 border-rose-500/50 text-rose-200 font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition cursor-pointer' },
+    { id: 'btn-dmode-us-plus-gold', val: 'يطلبوني ذهب زيادة (+)', activeClass: 'bg-amber-400 text-darkbg border-2 border-white font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-xl scale-[1.02] transition cursor-pointer', idleClass: 'bg-amber-600/25 hover:bg-amber-600/35 border-2 border-amber-400/60 text-amber-200 font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition cursor-pointer' },
+    { id: 'btn-dmode-us-minus-gold', val: 'يطلبوني ذهب نقصان (-)', activeClass: 'bg-rose-600 text-white border-2 border-white font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-xl scale-[1.02] transition cursor-pointer', idleClass: 'bg-slate-900/90 hover:bg-slate-800 border-2 border-rose-500/45 text-rose-200 font-black py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition cursor-pointer' }
+  ];
+  buttons.forEach(b => {
+    const el = document.getElementById(b.id);
+    if (el) el.className = b.val === activeVal ? b.activeClass : b.idleClass;
+  });
 }
 
 function updateDebtLivePreview() {
-  const previewEl = document.getElementById('debt-live-preview');
-  if (!previewEl) return;
-  const name = (document.getElementById('debt-customer')?.value || '').trim();
-  const rawAmt = parseFloat(document.getElementById('debt-amount')?.value || '0') || 0;
+  const customer = (document.getElementById('debt-customer')?.value || '').trim();
+  const rawAmt = parseFloat(document.getElementById('debt-amount')?.value) || 0;
   const typeVal = document.getElementById('debt-type')?.value || 'يطلبهم أموال زيادة (+)';
   const parsed = parseDebtMovement({ type: typeVal, amount: rawAmt });
+  const previewEl = document.getElementById('debt-live-preview');
+  if (!previewEl) return;
 
-  if (!name && !rawAmt) {
+  if (!customer && !rawAmt) {
     previewEl.textContent = 'أدخل الاسم والقيمة لمعاينة الأثر الفوري على الرصيد';
     return;
   }
-  const unitLabel = parsed.unit === 'gold' ? formatGrams(rawAmt) : formatIQD(rawAmt);
-  previewEl.textContent = `${name || 'الحساب'} • ${parsed.label} • القيمة: ${unitLabel}`;
+  const formattedVal = parsed.unit === 'gold' ? formatGrams(parsed.absAmt) : formatIQD(parsed.absAmt);
+  const signTxt = parsed.dir === 'dec' ? 'نقصان (-)' : 'زيادة (+)';
+  const sideTxt = parsed.side === 'on_us' ? 'يطلبوك' : 'تطلبهم';
+  previewEl.textContent = `${customer || 'الحساب'}: ${sideTxt} • ${parsed.unit === 'gold' ? 'ذهب' : 'أموال'} ${signTxt} بقيمة (${formattedVal})`;
 }
 
 function addDebtMovement() {
   const customer = document.getElementById('debt-customer').value.trim();
   const phone = document.getElementById('debt-phone').value.trim();
+  const type = document.getElementById('debt-type').value;
   const amount = parseFloat(document.getElementById('debt-amount').value);
-  const type = document.getElementById('debt-type').value || 'يطلبهم أموال زيادة (+)';
   const notes = document.getElementById('debt-notes').value.trim();
 
-  if (!customer || isNaN(amount) || amount <= 0) {
-    showToast('يرجى إدخال اسم الزبون / التاجر والقيمة بشكل صحيح', 'error');
+  if (!customer || isNaN(amount) || amount === 0) {
+    showToast('يرجى إدخال اسم الزبون/التاجر وقيمة المبلغ أو الوزن', 'error');
     return;
   }
 
   const parsed = parseDebtMovement({ type, amount });
-  const entry = {
+  const absAmt = Math.abs(amount);
+
+  db.debts.unshift({
     id: 'DBT-' + Date.now().toString().slice(-6),
     customer,
     phone,
@@ -2846,280 +2947,147 @@ function addDebtMovement() {
     category: parsed.side,
     unit: parsed.unit,
     dir: parsed.dir,
-    absAmount: amount,
     amount: parsed.signedEffect,
+    absAmount: absAmt,
     notes,
     date: new Date().toISOString()
-  };
+  });
 
-  db.debts.unshift(entry);
-  saveCustomerLedgerEntry(customer, phone, entry);
-  addLog('حركة ديون', `${customer} (${parsed.label}) — القيمة: ${parsed.unit === 'gold' ? formatGrams(amount) : formatIQD(amount)}${notes ? ' | ' + notes : ''}`, parsed.signedEffect);
+  saveCustomerLedgerEntry(customer, phone, {
+    type: 'debt_movement',
+    side: parsed.side,
+    unit: parsed.unit,
+    dir: parsed.dir,
+    movementType: type,
+    amount: parsed.signedEffect,
+    absAmount: absAmt,
+    notes
+  });
+
+  const valLabel = parsed.unit === 'gold' ? formatGrams(absAmt) : formatIQD(absAmt);
+  addLog('حركة ديون', `${type} — ${customer} (${valLabel})${notes ? ' | ' + notes : ''}`, parsed.signedEffect);
+
   saveTenantData();
-  renderDebts();
-  updateDebtLivePreview();
-  filterLogs();
+  renderAll();
   document.getElementById('debt-customer').value = '';
   document.getElementById('debt-phone').value = '';
   document.getElementById('debt-amount').value = '';
   document.getElementById('debt-notes').value = '';
-  showToast('تم حفظ الحركة وتحديث الكارت وجرد الحركات', 'success');
-}
-
-function applyDebtTabIsolationState() {
-  const filter = activeDebtFilter === 'on_them' || activeDebtFilter === 'on_us' ? activeDebtFilter : 'all';
-  activeDebtFilter = filter;
-
-  const wrapper = document.getElementById('debt-sections-wrapper');
-  if (wrapper) wrapper.dataset.activeFilter = filter;
-
-  const panelsGrid = document.getElementById('debt-action-panels-grid');
-  if (panelsGrid) panelsGrid.dataset.isolatedSide = filter;
-
-  const panelThem = document.getElementById('debt-panel-on-them');
-  const panelUs = document.getElementById('debt-panel-on-us');
-  const showThem = filter === 'all' || filter === 'on_them';
-  const showUs = filter === 'all' || filter === 'on_us';
-
-  if (panelThem) {
-    panelThem.classList.toggle('hidden', !showThem);
-    panelThem.style.display = showThem ? '' : 'none';
-    panelThem.setAttribute('aria-hidden', String(!showThem));
-  }
-  if (panelUs) {
-    panelUs.classList.toggle('hidden', !showUs);
-    panelUs.style.display = showUs ? '' : 'none';
-    panelUs.setAttribute('aria-hidden', String(!showUs));
-  }
-
-  const currentTypeEl = document.getElementById('debt-type');
-  const currentType = currentTypeEl ? currentTypeEl.value : '';
-  if (filter === 'on_them' && currentType.includes('يطلبوني')) {
-    selectLuxuryDebtType('يطلبهم أموال زيادة (+)', 'يطلبهم — زيادة أموال (+)');
-  } else if (filter === 'on_us' && currentType.includes('يطلبهم')) {
-    selectLuxuryDebtType('يطلبوني أموال زيادة (+)', 'يطلبوني — زيادة أموال (+)');
-  }
-
-  const allBtn = document.getElementById('debt-filter-all');
-  const themBtn = document.getElementById('debt-filter-them');
-  const usBtn = document.getElementById('debt-filter-us');
-
-  if (allBtn) {
-    allBtn.className = filter === 'all'
-      ? 'bg-gold text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow ring-2 ring-amber-200/70 cursor-pointer'
-      : 'bg-darkbg text-slate-300 border border-slate-700 px-4 py-2 rounded-2xl text-xs font-black cursor-pointer';
-    allBtn.setAttribute('aria-pressed', String(filter === 'all'));
-  }
-  if (themBtn) {
-    themBtn.className = filter === 'on_them'
-      ? 'bg-emerald-500 text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow ring-2 ring-emerald-200/70 cursor-pointer'
-      : 'bg-darkbg text-emerald-300 border border-emerald-500/50 px-4 py-2 rounded-2xl text-xs font-black cursor-pointer';
-    themBtn.setAttribute('aria-pressed', String(filter === 'on_them'));
-  }
-  if (usBtn) {
-    usBtn.className = filter === 'on_us'
-      ? 'bg-rose-500 text-white px-4 py-2 rounded-2xl text-xs font-black shadow ring-2 ring-rose-200/70 cursor-pointer'
-      : 'bg-darkbg text-rose-300 border border-rose-500/50 px-4 py-2 rounded-2xl text-xs font-black cursor-pointer';
-    usBtn.setAttribute('aria-pressed', String(filter === 'on_us'));
-  }
-
-  const secThem = document.getElementById('section-debts-them');
-  const secUs = document.getElementById('section-debts-us');
-  const gridThem = document.getElementById('grid-debts-them');
-  const gridUs = document.getElementById('grid-debts-us');
-
-  if (secThem) {
-    secThem.classList.toggle('hidden', !showThem);
-    secThem.style.display = showThem ? '' : 'none';
-    secThem.setAttribute('aria-hidden', String(!showThem));
-  }
-  if (!showThem && gridThem) gridThem.innerHTML = '';
-
-  if (secUs) {
-    secUs.classList.toggle('hidden', !showUs);
-    secUs.style.display = showUs ? '' : 'none';
-    secUs.setAttribute('aria-hidden', String(!showUs));
-  }
-  if (!showUs && gridUs) gridUs.innerHTML = '';
-
-  const boxThem = document.getElementById('debts-summary-box-them');
-  const boxUs = document.getElementById('debts-summary-box-us');
-  if (boxThem) {
-    boxThem.classList.toggle('hidden', filter === 'on_us');
-    boxThem.style.display = filter === 'on_us' ? 'none' : '';
-  }
-  if (boxUs) {
-    boxUs.classList.toggle('hidden', filter === 'on_them');
-    boxUs.style.display = filter === 'on_them' ? 'none' : '';
-  }
-}
-
-function setDebtFilter(filter) {
-  activeDebtFilter = filter === 'on_them' || filter === 'on_us' ? filter : 'all';
-  applyDebtTabIsolationState();
-  renderDebts();
   updateDebtLivePreview();
+  showToast('تم حفظ الحركة وتحديث كارت الديون الفخم', 'success');
 }
 
-function buildCustomerDebtCards() {
+function buildDebtCardsCollection() {
   const map = new Map();
-  db.debts.forEach((d, idx) => {
+  (db.debts || []).forEach(d => {
     const p = parseDebtMovement(d);
-    const cleanName = String(d.customer || 'بدون اسم').trim();
+    const cleanName = String(d.customer || 'حساب بدون اسم').trim() || 'حساب بدون اسم';
     const cleanPhone = String(d.phone || '').trim();
-    const key = `${cleanName.toLowerCase()}__${cleanPhone}__${p.side}`;
+    const key = `${p.side}__${cleanName.toLowerCase()}__${cleanPhone}`;
     if (!map.has(key)) {
       map.set(key, {
         key,
+        side: p.side,
         customer: cleanName,
         phone: cleanPhone,
-        side: p.side,
-        themMoneyInc: 0,
-        themMoneyDec: 0,
-        themGoldInc: 0,
-        themGoldDec: 0,
-        usMoneyInc: 0,
-        usMoneyDec: 0,
-        usGoldInc: 0,
-        usGoldDec: 0,
-        lastNotes: d.notes || '',
+        moneyBalance: 0,
+        goldBalance: 0,
+        moneyIncTotal: 0,
+        moneyDecTotal: 0,
+        goldIncTotal: 0,
+        goldDecTotal: 0,
         lastDate: d.date || new Date().toISOString(),
+        lastNotes: d.notes || '',
         movements: []
       });
     }
     const card = map.get(key);
-    if (d.notes) card.lastNotes = d.notes;
-    if (d.date) card.lastDate = d.date;
-
-    if (p.side === 'on_them') {
-      if (p.unit === 'gold') {
-        if (p.dir === 'dec') card.themGoldDec += p.absAmt;
-        else card.themGoldInc += p.absAmt;
-      } else {
-        if (p.dir === 'dec') card.themMoneyDec += p.absAmt;
-        else card.themMoneyInc += p.absAmt;
-      }
+    if (p.unit === 'gold') {
+      card.goldBalance += p.signedEffect;
+      if (p.dir === 'dec') card.goldDecTotal += p.absAmt;
+      else card.goldIncTotal += p.absAmt;
     } else {
-      if (p.unit === 'gold') {
-        if (p.dir === 'dec') card.usGoldDec += p.absAmt;
-        else card.usGoldInc += p.absAmt;
-      } else {
-        if (p.dir === 'dec') card.usMoneyDec += p.absAmt;
-        else card.usMoneyInc += p.absAmt;
-      }
+      card.moneyBalance += p.signedEffect;
+      if (p.dir === 'dec') card.moneyDecTotal += p.absAmt;
+      else card.moneyIncTotal += p.absAmt;
     }
-
-    card.movements.push({ ...d, rawIndex: idx, parsed: p });
+    if (new Date(d.date || 0) >= new Date(card.lastDate || 0)) {
+      card.lastDate = d.date || card.lastDate;
+      if (d.notes) card.lastNotes = d.notes;
+    }
+    card.movements.push(Object.assign({}, d, { parsed: p }));
   });
-
-  return Array.from(map.values()).map(card => {
-    const netThemMoney = card.themMoneyInc - card.themMoneyDec;
-    const netThemGold = card.themGoldInc - card.themGoldDec;
-    const netUsMoney = card.usMoneyInc - card.usMoneyDec;
-    const netUsGold = card.usGoldInc - card.usGoldDec;
-    return {
-      ...card,
-      netThemMoney,
-      netThemGold,
-      netUsMoney,
-      netUsGold
-    };
-  });
+  return Array.from(map.values());
 }
 
 function renderDebtCardHtml(card) {
-  const isThem = card.side === 'on_them';
-  const borderCls = isThem ? 'border-emerald-500/45 hover:border-emerald-400' : 'border-rose-500/45 hover:border-rose-400';
-  const badgeCls = isThem ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border-rose-500/40';
-  const titleCls = isThem ? 'text-emerald-300' : 'text-rose-300';
-  const mainMoney = isThem ? card.netThemMoney : card.netUsMoney;
-  const mainGold = isThem ? card.netThemGold : card.netUsGold;
-  const moneyInc = isThem ? card.themMoneyInc : card.usMoneyInc;
-  const moneyDec = isThem ? card.themMoneyDec : card.usMoneyDec;
-  const goldInc = isThem ? card.themGoldInc : card.usGoldInc;
-  const goldDec = isThem ? card.themGoldDec : card.usGoldDec;
-  const encodedKey = encodeURIComponent(card.key);
+  const isUs = card.side === 'on_us';
+  const borderAccent = isUs ? 'border-rose-500/45 hover:border-rose-400' : 'border-emerald-500/45 hover:border-emerald-400';
+  const badgeHtml = isUs
+    ? '<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-black">يطلبوك (علينا -)</span>'
+    : '<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-black">تطلبهم (لنا +)</span>';
+
+  const moneyColor = card.moneyBalance < 0 ? 'text-rose-400' : (isUs ? 'text-rose-300' : 'text-emerald-400');
+  const goldColor = card.goldBalance < 0 ? 'text-rose-300' : 'text-amber-300';
+  const safeKey = encodeURIComponent(card.key);
 
   return `
-    <div data-debt-side="${card.side}" class="system-card p-5 rounded-3xl border ${borderCls} flex flex-col justify-between gap-3.5 shadow-xl transition">
-      <div class="space-y-2.5">
-        <div class="flex items-start justify-between gap-2">
-          <div>
-            <h5 class="font-black text-base ${titleCls}">${card.customer}</h5>
-            <div class="text-[11px] text-slate-400 font-mono">${card.phone || 'بدون رقم هاتف'}</div>
-          </div>
-          <span class="px-2.5 py-1 rounded-full text-[10px] font-black border ${badgeCls}">
-            ${isThem ? 'تطلبهم (+)' : 'يطلبوك (-)'}
-          </span>
+    <div onclick="openDebtCardDetailsModal(decodeURIComponent('${safeKey}'))" class="system-card p-5 rounded-3xl border ${borderAccent} shadow-xl space-y-3 cursor-pointer transition transform hover:-translate-y-0.5">
+      <div class="flex items-start justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+        <div>
+          <h5 class="font-black text-white text-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-user-tie text-gold text-xs"></i>
+            <span>${escapeXml(card.customer)}</span>
+          </h5>
+          <p class="text-[11px] text-slate-400 font-mono mt-0.5">${card.phone ? escapeXml(card.phone) : 'بدون رقم هاتف'}</p>
         </div>
-
-        <div class="bg-darkbg/90 p-3 rounded-2xl border border-slate-800 space-y-1.5 text-xs">
-          <div class="flex justify-between items-center">
-            <span class="text-slate-400">صافي الأموال (${isThem ? 'تطلبهم' : 'يطلبوك'}):</span>
-            <strong class="font-black ${isThem ? 'text-emerald-400' : 'text-rose-400'}">${formatIQD(mainMoney)}</strong>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-slate-400">صافي الذهب (${isThem ? 'تطلبهم' : 'يطلبوك'}):</span>
-            <strong class="font-black text-amber-300">${formatGrams(mainGold)}</strong>
-          </div>
-        </div>
-
-        <div class="bg-darkbg/70 p-3 rounded-2xl border border-slate-800/80 space-y-1.5 text-[11px]">
-          <div class="font-bold text-gold">جرد كامل لكل حركة داخل الكارت:</div>
-          <div class="flex justify-between text-emerald-300 font-mono">
-            <span>أموال (+ زيادة / - نقصان):</span>
-            <span>+${Number(moneyInc).toLocaleString('en-US')} / -${Number(moneyDec).toLocaleString('en-US')}</span>
-          </div>
-          <div class="flex justify-between text-amber-300 font-mono">
-            <span>ذهب (+ زيادة / - نقصان):</span>
-            <span>+${Number(goldInc).toFixed(2)}غ / -${Number(goldDec).toFixed(2)}غ</span>
-          </div>
-          <div class="flex justify-between text-slate-400 pt-1 border-t border-slate-800">
-            <span>عدد الحركات الموثقة:</span>
-            <strong class="text-slate-200 font-mono">${card.movements.length} حركة</strong>
-          </div>
-        </div>
-
-        ${card.lastNotes ? `<p class="text-[11px] text-slate-300 bg-darkbg/60 px-3 py-2 rounded-xl border border-slate-800/70 truncate">آخر ملاحظة: ${card.lastNotes}</p>` : ''}
+        ${badgeHtml}
       </div>
 
-      <button type="button" onclick="openDebtCardDetailsModal('${encodedKey}')" class="w-full gold-gradient text-darkbg font-black py-2.5 rounded-2xl text-xs shadow-lg flex items-center justify-center gap-1.5 cursor-pointer">
-        <i class="fa-solid fa-list-check"></i> <span>فتح الكارت، الجرد الكامل والتعديل</span>
-      </button>
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="bg-darkbg/90 p-3 rounded-2xl border border-slate-800">
+          <span class="text-[10px] text-slate-400 block">رصيد الأموال الصافي:</span>
+          <strong class="${moneyColor} font-black text-sm block mt-0.5">${formatIQD(card.moneyBalance)}</strong>
+          <span class="text-[9px] text-slate-500 font-mono">+${Number(card.moneyIncTotal || 0).toLocaleString('en-US')} / -${Number(card.moneyDecTotal || 0).toLocaleString('en-US')}</span>
+        </div>
+        <div class="bg-darkbg/90 p-3 rounded-2xl border border-amber-500/25">
+          <span class="text-[10px] text-slate-400 block">رصيد الذهب الصافي:</span>
+          <strong class="${goldColor} font-black text-sm block mt-0.5">${formatGrams(card.goldBalance)}</strong>
+          <span class="text-[9px] text-slate-500 font-mono">+${Number(card.goldIncTotal || 0)}غ / -${Number(card.goldDecTotal || 0)}غ</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between text-[11px] pt-1 border-t border-slate-800/60">
+        <span class="text-slate-400 truncate max-w-[70%]">${card.lastNotes ? escapeXml(card.lastNotes) : `${card.movements.length} حركات مسجلة`}</span>
+        <span class="text-gold font-bold flex items-center gap-1"><span>جرد الكارت</span> <i class="fa-solid fa-arrow-up-left text-[10px]"></i></span>
+      </div>
     </div>
   `;
 }
 
 function renderDebts() {
-  applyDebtTabIsolationState();
-  const cards = buildCustomerDebtCards();
-  const themCards = cards.filter(c => c.side === 'on_them');
-  const usCards = cards.filter(c => c.side === 'on_us');
+  const allCards = buildDebtCardsCollection();
+  const themCards = allCards.filter(c => c.side === 'on_them');
+  const usCards = allCards.filter(c => c.side === 'on_us');
 
-  const showThem = activeDebtFilter === 'all' || activeDebtFilter === 'on_them';
-  const showUs = activeDebtFilter === 'all' || activeDebtFilter === 'on_us';
+  let themMoney = 0, themGold = 0;
+  let usMoney = 0, usGold = 0;
 
-  const activeThemCards = showThem ? themCards : [];
-  const activeUsCards = showUs ? usCards : [];
+  themCards.forEach(c => {
+    themMoney += Number(c.moneyBalance || 0);
+    themGold += Number(c.goldBalance || 0);
+  });
+  usCards.forEach(c => {
+    usMoney += Number(c.moneyBalance || 0);
+    usGold += Number(c.goldBalance || 0);
+  });
 
-  const totalThemMoney = activeThemCards.reduce((s, c) => s + c.netThemMoney, 0);
-  const totalThemGold = activeThemCards.reduce((s, c) => s + c.netThemGold, 0);
-  const totalUsMoney = activeUsCards.reduce((s, c) => s + c.netUsMoney, 0);
-  const totalUsGold = activeUsCards.reduce((s, c) => s + c.netUsGold, 0);
-
-  const netMoney = activeDebtFilter === 'on_them'
-    ? totalThemMoney
-    : (activeDebtFilter === 'on_us' ? -totalUsMoney : (totalThemMoney - totalUsMoney));
-  const netGold = activeDebtFilter === 'on_them'
-    ? totalThemGold
-    : (activeDebtFilter === 'on_us' ? -totalUsGold : (totalThemGold - totalUsGold));
-
-  setTextSafe('debts-summary-them', formatIQD(totalThemMoney));
-  setTextSafe('debts-summary-gold-plus', `ذهب تطلبهم: ${formatGrams(totalThemGold)}`);
-  setTextSafe('debts-summary-us', formatIQD(totalUsMoney));
-  setTextSafe('debts-summary-gold-minus', `ذهب يطلبوك: ${formatGrams(totalUsGold)}`);
-  setTextSafe('debts-summary-net', formatIQD(netMoney));
-  setTextSafe('debts-summary-gold-net', `صافي ذمة الذهب: ${formatGrams(netGold)}`);
+  setTextSafe('debts-summary-them', formatIQD(themMoney));
+  setTextSafe('debts-summary-gold-plus', `ذهب تطلبهم: ${formatGrams(themGold)}`);
+  setTextSafe('debts-summary-us', formatIQD(usMoney));
+  setTextSafe('debts-summary-gold-minus', `ذهب يطلبوك: ${formatGrams(usGold)}`);
+  setTextSafe('debts-summary-net', formatIQD(themMoney - usMoney));
+  setTextSafe('debts-summary-gold-net', `صافي ذمة الذهب: ${formatGrams(themGold - usGold)}`);
 
   setTextSafe('count-debts-them', `${themCards.length} كارت`);
   setTextSafe('count-debts-us', `${usCards.length} كارت`);
@@ -3128,56 +3096,49 @@ function renderDebts() {
   const gridUs = document.getElementById('grid-debts-us');
 
   if (gridThem) {
-    gridThem.innerHTML = showThem
-      ? (themCards.length
-          ? themCards.map(renderDebtCardHtml).join('')
-          : '<div class="md:col-span-2 lg:col-span-3 bg-darkbg/70 border border-slate-800 rounded-2xl p-5 text-center text-xs text-slate-400">لا توجد كارتات ضمن قسم (تطلبهم +) حالياً.</div>')
-      : '';
+    gridThem.innerHTML = themCards.length
+      ? themCards.map(renderDebtCardHtml).join('')
+      : '<div class="col-span-full bg-darkbg/60 border border-slate-800 p-5 rounded-2xl text-center text-xs text-slate-500">لا توجد كارتات ضمن (تطلبهم) حالياً.</div>';
   }
-
   if (gridUs) {
-    gridUs.innerHTML = showUs
-      ? (usCards.length
-          ? usCards.map(renderDebtCardHtml).join('')
-          : '<div class="md:col-span-2 lg:col-span-3 bg-darkbg/70 border border-slate-800 rounded-2xl p-5 text-center text-xs text-slate-400">لا توجد كارتات ضمن قسم (يطلبوك -) حالياً.</div>')
-      : '';
+    gridUs.innerHTML = usCards.length
+      ? usCards.map(renderDebtCardHtml).join('')
+      : '<div class="col-span-full bg-darkbg/60 border border-slate-800 p-5 rounded-2xl text-center text-xs text-slate-500">لا توجد كارتات ضمن (يطلبوك) حالياً.</div>';
   }
 }
 
 function setCardModalDirection(dir) {
   const cleanDir = dir === 'dec' ? 'dec' : 'inc';
-  const dirInput = document.getElementById('dcm-action-dir');
-  if (dirInput) dirInput.value = cleanDir;
+  const hiddenDir = document.getElementById('dcm-action-dir');
+  if (hiddenDir) hiddenDir.value = cleanDir;
 
   const btnInc = document.getElementById('dcm-dir-btn-inc');
   const btnDec = document.getElementById('dcm-dir-btn-dec');
   if (btnInc && btnDec) {
-    if (cleanDir === 'inc') {
-      btnInc.className = 'bg-emerald-600/30 border-2 border-emerald-400 text-emerald-200 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
-      btnDec.className = 'bg-darkbg border border-rose-500/40 text-rose-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
-    } else {
-      btnDec.className = 'bg-rose-600/30 border-2 border-rose-400 text-rose-200 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
-      btnInc.className = 'bg-darkbg border border-emerald-500/40 text-emerald-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
-    }
+    btnInc.className = cleanDir === 'inc'
+      ? 'bg-emerald-500 text-darkbg border-2 border-white font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow-lg transition'
+      : 'bg-darkbg border border-emerald-500/40 text-emerald-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
+    btnDec.className = cleanDir === 'dec'
+      ? 'bg-rose-500 text-white border-2 border-rose-200 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow-lg transition'
+      : 'bg-darkbg border border-rose-500/40 text-rose-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
   }
   syncCardModalModeBadge();
 }
 
 function setCardModalUnit(unit) {
   const cleanUnit = unit === 'gold' ? 'gold' : 'money';
-  const unitInput = document.getElementById('dcm-action-unit');
-  if (unitInput) unitInput.value = cleanUnit;
+  const hiddenUnit = document.getElementById('dcm-action-unit');
+  if (hiddenUnit) hiddenUnit.value = cleanUnit;
 
   const btnMoney = document.getElementById('dcm-unit-btn-money');
   const btnGold = document.getElementById('dcm-unit-btn-gold');
   if (btnMoney && btnGold) {
-    if (cleanUnit === 'gold') {
-      btnGold.className = 'gold-gradient text-darkbg font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition';
-      btnMoney.className = 'bg-darkbg border border-gold/40 text-gold font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
-    } else {
-      btnMoney.className = 'gold-gradient text-darkbg font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition';
-      btnGold.className = 'bg-darkbg border border-amber-400/40 text-amber-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
-    }
+    btnMoney.className = cleanUnit === 'money'
+      ? 'gold-gradient text-darkbg border-2 border-white font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow-lg transition'
+      : 'bg-darkbg border border-gold/40 text-gold font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
+    btnGold.className = cleanUnit === 'gold'
+      ? 'bg-amber-400 text-darkbg border-2 border-white font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow-lg transition'
+      : 'bg-darkbg border border-amber-400/40 text-amber-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
   }
   syncCardModalModeBadge();
 }
@@ -3186,13 +3147,20 @@ function syncCardModalModeBadge() {
   const dir = document.getElementById('dcm-action-dir')?.value || 'inc';
   const unit = document.getElementById('dcm-action-unit')?.value || 'money';
   const badge = document.getElementById('dcm-mode-badge');
-  if (!badge) return;
-  const dirText = dir === 'dec' ? 'نقصان (-)' : 'زيادة (+)';
-  const unitText = unit === 'gold' ? 'ذهب' : 'أموال';
-  badge.textContent = `${unitText} ${dirText}`;
-  badge.className = dir === 'dec'
-    ? 'px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-bold'
-    : 'px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold';
+  const amtInput = document.getElementById('dcm-action-amount');
+  if (badge) {
+    const unitLabel = unit === 'gold' ? 'ذهب (غرام)' : 'أموال (د.ع)';
+    const dirLabel = dir === 'dec' ? 'نقصان / خصم (-)' : 'زيادة (+)';
+    badge.textContent = `${dirLabel} • ${unitLabel}`;
+    badge.className = dir === 'dec'
+      ? 'px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-bold'
+      : 'px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold';
+  }
+  if (amtInput) {
+    amtInput.placeholder = unit === 'gold'
+      ? (dir === 'dec' ? 'وزن الذهب المراد خصمه (غرام)...' : 'وزن الذهب المراد إضافته (غرام)...')
+      : (dir === 'dec' ? 'المبلغ المراد خصمه / تسديده (د.ع)...' : 'المبلغ المراد إضافته (د.ع)...');
+  }
 }
 
 function presetCardModalAction(dir, unit) {
@@ -3202,99 +3170,73 @@ function presetCardModalAction(dir, unit) {
   if (amtInput) amtInput.focus();
 }
 
-function openDebtCardDetailsModal(encodedKey) {
-  activeDebtCardKey = decodeURIComponent(encodedKey || '');
-  const cards = buildCustomerDebtCards();
-  const card = cards.find(c => c.key === activeDebtCardKey);
-  if (!card) {
-    showToast('تعذر العثور على الكارت المطلوب', 'error');
-    return;
-  }
+function openDebtCardDetailsModal(cardKey) {
+  activeDebtCardKey = cardKey;
+  const card = buildDebtCardsCollection().find(c => c.key === cardKey);
+  if (!card) return;
 
-  const isThem = card.side === 'on_them';
+  const isUs = card.side === 'on_us';
   setTextSafe('dcm-customer-name', card.customer);
-  setTextSafe('dcm-customer-meta', `${card.phone || 'بدون رقم هاتف'} • عدد الحركات: ${card.movements.length}`);
-
-  const sideBadge = document.getElementById('dcm-side-badge');
-  if (sideBadge) {
-    sideBadge.textContent = isThem ? 'تطلبهم (+)' : 'يطلبوك (-)';
-    sideBadge.className = isThem
-      ? 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-      : 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/40';
+  setTextSafe('dcm-customer-meta', `${card.phone || 'بدون رقم هاتف'} • إجمالي الحركات: ${card.movements.length}`);
+  const badge = document.getElementById('dcm-side-badge');
+  if (badge) {
+    badge.textContent = isUs ? 'كارت يطلبوك (علينا -)' : 'كارت تطلبهم (لنا +)';
+    badge.className = isUs
+      ? 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/40'
+      : 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
   }
 
-  const mainMoney = isThem ? card.netThemMoney : card.netUsMoney;
-  const mainGold = isThem ? card.netThemGold : card.netUsGold;
-  const moneyInc = isThem ? card.themMoneyInc : card.usMoneyInc;
-  const moneyDec = isThem ? card.themMoneyDec : card.usMoneyDec;
-  const goldInc = isThem ? card.themGoldInc : card.usGoldInc;
-  const goldDec = isThem ? card.themGoldDec : card.usGoldDec;
+  document.getElementById('dcm-balances-summary').innerHTML = `
+    <div class="bg-darkbg p-3.5 rounded-2xl border border-slate-800">
+      <span class="text-[10px] text-slate-400 block">رصيد الأموال النهائي في الكارت:</span>
+      <strong class="text-base font-black ${card.moneyBalance < 0 ? 'text-rose-400' : 'text-emerald-400'}">${formatIQD(card.moneyBalance)}</strong>
+    </div>
+    <div class="bg-darkbg p-3.5 rounded-2xl border border-amber-500/30">
+      <span class="text-[10px] text-slate-400 block">رصيد الذهب النهائي في الكارت:</span>
+      <strong class="text-base font-black text-amber-300">${formatGrams(card.goldBalance)}</strong>
+    </div>
+  `;
 
-  const balancesBox = document.getElementById('dcm-balances-summary');
-  if (balancesBox) {
-    balancesBox.innerHTML = `
-      <div class="bg-darkbg/90 border border-gold/30 p-3.5 rounded-2xl">
-        <span class="text-slate-400 block text-[11px]">الرصيد الصافي للأموال (${isThem ? 'تطلبهم' : 'يطلبوك'}):</span>
-        <strong class="text-base font-black ${isThem ? 'text-emerald-400' : 'text-rose-400'}">${formatIQD(mainMoney)}</strong>
-      </div>
-      <div class="bg-darkbg/90 border border-amber-500/30 p-3.5 rounded-2xl">
-        <span class="text-slate-400 block text-[11px]">الرصيد الصافي للذهب (${isThem ? 'تطلبهم' : 'يطلبوك'}):</span>
-        <strong class="text-base font-black text-amber-300">${formatGrams(mainGold)}</strong>
-      </div>
-    `;
-  }
-
-  const incDecBox = document.getElementById('dcm-inc-dec-summary');
-  if (incDecBox) {
-    incDecBox.innerHTML = `
-      <div class="bg-emerald-950/35 border border-emerald-500/30 p-3 rounded-2xl">
-        <span class="text-[10px] text-emerald-300 block">إجمالي زيادة الأموال (+)</span>
-        <strong class="text-xs font-black text-emerald-300">${formatIQD(moneyInc)}</strong>
-      </div>
-      <div class="bg-rose-950/35 border border-rose-500/30 p-3 rounded-2xl">
-        <span class="text-[10px] text-rose-300 block">إجمالي نقصان الأموال (-)</span>
-        <strong class="text-xs font-black text-rose-300">${formatIQD(moneyDec)}</strong>
-      </div>
-      <div class="bg-amber-950/35 border border-amber-500/30 p-3 rounded-2xl">
-        <span class="text-[10px] text-amber-300 block">إجمالي زيادة الذهب (+)</span>
-        <strong class="text-xs font-black text-amber-300">${formatGrams(goldInc)}</strong>
-      </div>
-      <div class="bg-slate-900/90 border border-slate-700 p-3 rounded-2xl">
-        <span class="text-[10px] text-slate-300 block">إجمالي نقصان الذهب (-)</span>
-        <strong class="text-xs font-black text-slate-200">${formatGrams(goldDec)}</strong>
-      </div>
-    `;
-  }
+  document.getElementById('dcm-inc-dec-summary').innerHTML = `
+    <div class="bg-emerald-950/35 p-3 rounded-2xl border border-emerald-500/30">
+      <span class="text-[10px] text-emerald-300 block">إجمالي زيادات الأموال (+):</span>
+      <strong class="text-xs font-black text-emerald-300 font-mono">${formatIQD(card.moneyIncTotal)}</strong>
+    </div>
+    <div class="bg-rose-950/35 p-3 rounded-2xl border border-rose-500/30">
+      <span class="text-[10px] text-rose-300 block">إجمالي نقصان الأموال (-):</span>
+      <strong class="text-xs font-black text-rose-300 font-mono">${formatIQD(card.moneyDecTotal)}</strong>
+    </div>
+    <div class="bg-amber-950/35 p-3 rounded-2xl border border-amber-500/30">
+      <span class="text-[10px] text-amber-300 block">إجمالي زيادات الذهب (+):</span>
+      <strong class="text-xs font-black text-amber-300 font-mono">${formatGrams(card.goldIncTotal)}</strong>
+    </div>
+    <div class="bg-slate-900 p-3 rounded-2xl border border-slate-700">
+      <span class="text-[10px] text-slate-300 block">إجمالي نقصان الذهب (-):</span>
+      <strong class="text-xs font-black text-rose-300 font-mono">${formatGrams(card.goldDecTotal)}</strong>
+    </div>
+  `;
 
   setCardModalDirection('inc');
   setCardModalUnit('money');
-  const amtInput = document.getElementById('dcm-action-amount');
-  const notesInput = document.getElementById('dcm-action-notes');
-  if (amtInput) amtInput.value = '';
-  if (notesInput) notesInput.value = '';
+  document.getElementById('dcm-action-amount').value = '';
+  document.getElementById('dcm-action-notes').value = '';
 
   const histEl = document.getElementById('dcm-history-list');
-  if (histEl) {
-    histEl.innerHTML = card.movements.map(m => {
-      const sign = m.parsed.dir === 'dec' ? '-' : '+';
-      const valText = m.parsed.unit === 'gold'
-        ? `${sign}${Number(m.parsed.absAmt).toFixed(3).replace(/\.?0+$/, '')} غرام`
-        : `${sign}${Number(m.parsed.absAmt).toLocaleString('en-US')} د.ع`;
-      const colorCls = m.parsed.dir === 'dec' ? 'text-rose-300' : 'text-emerald-300';
-      return `
-        <div class="bg-darkbg/90 border border-slate-800 p-3 rounded-2xl flex items-center justify-between gap-2">
-          <div>
-            <div class="font-bold text-slate-100">${m.type || m.parsed.label}</div>
-            <div class="text-[10px] text-slate-400 font-mono">${m.date ? new Date(m.date).toLocaleString('ar-IQ') : '--'}${m.notes ? ' • ' + m.notes : ''}</div>
-          </div>
-          <div class="flex items-center gap-2.5">
-            <strong class="font-mono ${colorCls}">${valText}</strong>
-            <button type="button" onclick="deleteDebtEntry(${m.rawIndex})" class="text-rose-400 hover:text-rose-300 text-xs" title="حذف الحركة"><i class="fa-solid fa-trash"></i></button>
-          </div>
+  histEl.innerHTML = card.movements.map(m => {
+    const p = m.parsed || parseDebtMovement(m);
+    const valStr = p.unit === 'gold' ? formatGrams(p.absAmt) : formatIQD(p.absAmt);
+    const signStr = p.dir === 'dec' ? '-' : '+';
+    return `
+      <div class="bg-darkbg p-3 rounded-2xl border border-slate-800 flex items-center justify-between gap-2">
+        <div>
+          <strong class="${p.dir === 'dec' ? 'text-rose-300' : 'text-emerald-300'}">${escapeXml(m.type || p.label)}</strong>
+          ${m.notes ? `<p class="text-[11px] text-slate-300 mt-0.5">${escapeXml(m.notes)}</p>` : ''}
+          <span class="text-[10px] text-slate-500 font-mono">${new Date(m.date || Date.now()).toLocaleString('ar-IQ')}</span>
         </div>
-      `;
-    }).join('');
-  }
+        <strong class="font-mono text-xs ${p.dir === 'dec' ? 'text-rose-400' : 'text-gold'}">${signStr}${valStr}</strong>
+      </div>
+    `;
+  }).join('');
 
   document.getElementById('debt-card-details-modal').classList.remove('hidden');
 }
@@ -3306,27 +3248,25 @@ function closeDebtCardDetailsModal() {
 
 function applyQuickCardAdjustment() {
   if (!activeDebtCardKey) return;
-  const cards = buildCustomerDebtCards();
-  const card = cards.find(c => c.key === activeDebtCardKey);
+  const card = buildDebtCardsCollection().find(c => c.key === activeDebtCardKey);
   if (!card) return;
+  const dir = document.getElementById('dcm-action-dir').value;
+  const unit = document.getElementById('dcm-action-unit').value;
+  const absAmt = Math.abs(parseFloat(document.getElementById('dcm-action-amount').value) || 0);
+  const notes = document.getElementById('dcm-action-notes').value.trim();
 
-  const dir = document.getElementById('dcm-action-dir')?.value || 'inc';
-  const unit = document.getElementById('dcm-action-unit')?.value || 'money';
-  const amount = parseFloat(document.getElementById('dcm-action-amount')?.value || '0');
-  const notes = (document.getElementById('dcm-action-notes')?.value || '').trim();
-
-  if (isNaN(amount) || amount <= 0) {
-    showToast('يرجى إدخال قيمة صحيحة أكبر من صفر', 'error');
+  if (!absAmt) {
+    showToast('أدخل قيمة المبلغ أو الوزن أولاً', 'error');
     return;
   }
 
-  const sidePrefix = card.side === 'on_us' ? 'يطلبوني' : 'يطلبهم';
-  const unitName = unit === 'gold' ? 'ذهب' : 'أموال';
-  const dirName = dir === 'dec' ? 'نقصان (-)' : 'زيادة (+)';
-  const fullType = `${sidePrefix} ${unitName} ${dirName}`;
-  const signedVal = dir === 'dec' ? -amount : amount;
+  const sideLabel = card.side === 'on_us' ? 'يطلبوني' : 'يطلبهم';
+  const unitLabel = unit === 'gold' ? 'ذهب' : 'أموال';
+  const dirLabel = dir === 'dec' ? 'نقصان (-)' : 'زيادة (+)';
+  const fullType = `${sideLabel} ${unitLabel} ${dirLabel}`;
+  const signedEffect = dir === 'dec' ? -absAmt : absAmt;
 
-  const entry = {
+  db.debts.unshift({
     id: 'DBT-' + Date.now().toString().slice(-6),
     customer: card.customer,
     phone: card.phone,
@@ -3334,36 +3274,28 @@ function applyQuickCardAdjustment() {
     category: card.side,
     unit,
     dir,
-    absAmount: amount,
-    amount: signedVal,
-    notes,
+    amount: signedEffect,
+    absAmount: absAmt,
+    notes: notes || `تعديل مباشر من كارت ${card.customer}`,
     date: new Date().toISOString()
-  };
+  });
 
-  db.debts.unshift(entry);
-  saveCustomerLedgerEntry(card.customer, card.phone, entry);
-  addLog('حركة ديون', `${card.customer} (${fullType}) — القيمة: ${unit === 'gold' ? formatGrams(amount) : formatIQD(amount)}${notes ? ' | ' + notes : ''}`, signedVal);
-  saveTenantData();
-  renderDebts();
-  filterLogs();
-  openDebtCardDetailsModal(encodeURIComponent(activeDebtCardKey));
-  showToast('تم تطبيق الحركة وتحديث الكارت بنجاح', 'success');
-}
+  saveCustomerLedgerEntry(card.customer, card.phone, {
+    type: 'debt_card_adjustment',
+    side: card.side,
+    unit,
+    dir,
+    movementType: fullType,
+    amount: signedEffect,
+    absAmount: absAmt,
+    notes
+  });
 
-function deleteDebtEntry(rawIndex) {
-  if (rawIndex < 0 || rawIndex >= db.debts.length) return;
-  const removed = db.debts[rawIndex];
-  db.debts.splice(rawIndex, 1);
-  addLog('حركة ديون', `حذف حركة ديون: ${removed.customer || ''} (${removed.type || ''})`, 0);
+  addLog('حركة ديون', `${fullType} — ${card.customer} (${unit === 'gold' ? formatGrams(absAmt) : formatIQD(absAmt)})${notes ? ' | ' + notes : ''}`, signedEffect);
   saveTenantData();
-  renderDebts();
-  filterLogs();
-  if (activeDebtCardKey) {
-    const stillExists = buildCustomerDebtCards().some(c => c.key === activeDebtCardKey);
-    if (stillExists) openDebtCardDetailsModal(encodeURIComponent(activeDebtCardKey));
-    else closeDebtCardDetailsModal();
-  }
-  showToast('تم حذف الحركة وتحديث الكارت', 'warning');
+  renderAll();
+  openDebtCardDetailsModal(activeDebtCardKey);
+  showToast('تم تحديث رصيد الكارت وتوثيق الحركة', 'success');
 }
 
 function openLuxuryMithqalFilterModal() {
@@ -3374,16 +3306,15 @@ function closeLuxuryMithqalFilterModal() {
   document.getElementById('luxury-mithqal-filter-modal').classList.add('hidden');
 }
 
-function selectLuxuryMithqalFilter(val, labelText) {
+function selectLuxuryMithqalFilter(val, label) {
   document.getElementById('mithqal-audit-karat').value = val;
-  document.getElementById('selected-mithqal-filter-label').textContent = labelText;
+  document.getElementById('selected-mithqal-filter-label').textContent = label;
   closeLuxuryMithqalFilterModal();
   renderMithqalMakingAudit();
 }
 
 function openLuxuryMithqalTestModal() {
-  const karat = document.getElementById('test-mq-karat').value || '21';
-  document.getElementById('test-mq-price').value = getMithqalPriceByKarat(karat);
+  syncTestMithqalDefault();
   calculateLuxuryMithqalTest();
   document.getElementById('luxury-mithqal-test-modal').classList.remove('hidden');
 }
@@ -3393,37 +3324,37 @@ function closeLuxuryMithqalTestModal() {
 }
 
 function syncTestMithqalDefault() {
-  const karat = document.getElementById('test-mq-karat').value || '21';
-  document.getElementById('test-mq-price').value = getMithqalPriceByKarat(karat);
+  const karat = document.getElementById('test-mq-karat')?.value || '21';
+  const priceInput = document.getElementById('test-mq-price');
+  if (priceInput) priceInput.value = getMithqalPriceByKarat(karat);
 }
 
 function calculateLuxuryMithqalTest() {
   const mqPrice = parseFloat(document.getElementById('test-mq-price')?.value) || 0;
   const weight = parseFloat(document.getElementById('test-mq-weight')?.value) || 0;
   const gramAdj = parseFloat(document.getElementById('test-mq-gram-adj')?.value) || 0;
-
   const baseGram = mqPrice / MITHQAL_GRAMS;
-  const adjGram = baseGram + gramAdj;
-  const mqCount = weight / MITHQAL_GRAMS;
-  const totalAdj = weight * gramAdj;
+  const adjGram = Math.max(0, baseGram + gramAdj);
+  const mithqalCount = weight / MITHQAL_GRAMS;
+  const totalAdj = Math.round(weight * gramAdj);
   const grandTotal = Math.round(weight * adjGram);
 
   setTextSafe('test-mq-base-gram', formatIQD(Math.round(baseGram)));
   setTextSafe('test-mq-adj-gram', formatIQD(Math.round(adjGram)));
-  setTextSafe('test-mq-count', mqCount.toFixed(3).replace(/\.?0+$/, '') + ' مثقال');
-  setTextSafe('test-mq-total-adj', formatIQD(Math.round(totalAdj)));
+  setTextSafe('test-mq-count', mithqalCount.toFixed(3).replace(/\.?0+$/, '') + ' مثقال');
+  setTextSafe('test-mq-total-adj', formatIQD(totalAdj));
   setTextSafe('test-mq-grand-total', formatIQD(grandTotal));
 }
 
 function applyTestMithqalToAudit() {
-  const karat = document.getElementById('test-mq-karat').value || 'all';
-  const mqPrice = parseFloat(document.getElementById('test-mq-price').value) || 0;
+  const karat = document.getElementById('test-mq-karat')?.value || 'all';
+  const mqPrice = parseFloat(document.getElementById('test-mq-price')?.value) || '';
   document.getElementById('mithqal-audit-karat').value = karat;
   document.getElementById('selected-mithqal-filter-label').textContent = karat === 'all' ? 'جميع المثاقيل (كل العيارات)' : `مثقال عيار ${karat}`;
-  if (mqPrice > 0) document.getElementById('mithqal-audit-custom-price').value = mqPrice;
+  if (mqPrice) document.getElementById('mithqal-audit-custom-price').value = mqPrice;
   closeLuxuryMithqalTestModal();
   renderMithqalMakingAudit();
-  showToast('تم اعتماد العيار والسعر في جرد المثاقيل', 'success');
+  showToast('تم تطبيق إعدادات المثقال في الجرد', 'success');
 }
 
 function renderMithqalMakingAudit() {
@@ -3432,54 +3363,56 @@ function renderMithqalMakingAudit() {
   const tbody = document.getElementById('mithqal-audit-tbody');
   if (!tbody) return;
 
-  const saleLogs = db.logs.filter(l => l.type === 'عملية بيع' && l.meta && Array.isArray(l.meta.items) && (!l.meta.returned));
+  const saleLogs = (db.logs || []).filter(l => l.type === 'عملية بيع' && l.meta && Array.isArray(l.meta.items) && !l.meta.returned);
   const rows = [];
+  let totalSoldCount = 0;
+  let totalSoldWeight = 0;
+  let totalMakingProfit = 0;
 
   saleLogs.forEach(log => {
     (log.meta.items || []).forEach(it => {
       if (selectedKarat !== 'all' && String(it.karat) !== String(selectedKarat)) return;
-      const weight = Number(it.weight || 0) * Number(it.qty || 1);
-      const mithqals = weight / MITHQAL_GRAMS;
-      const makingPerGram = Number(it.makingPerGram || 0);
-      const makingPerMithqal = Math.round(makingPerGram * MITHQAL_GRAMS);
-      const netMaking = Math.round(weight * makingPerGram);
+      const qty = Number(it.qty || 1);
+      const w = Number(it.weight || 0) * qty;
+      const mPerGram = Number(it.makingPerGram || 0);
+      const makingProfit = Math.round(w * mPerGram);
+      const mithqalCount = w / MITHQAL_GRAMS;
+      const makingPerMithqal = Math.round(mPerGram * MITHQAL_GRAMS);
+
+      totalSoldCount += qty;
+      totalSoldWeight += w;
+      totalMakingProfit += makingProfit;
+
       rows.push({
-        invoiceCode: log.meta.invoiceCode || log.id,
-        name: it.name,
+        title: `${it.name} (${log.meta.invoiceCode || ''})`,
         karat: it.karat,
-        qty: Number(it.qty || 1),
-        weight,
-        mithqals,
+        weight: w,
+        mithqalCount,
         makingPerMithqal,
-        netMaking
+        makingProfit
       });
     });
   });
 
-  const totalCount = rows.reduce((s, r) => s + r.qty, 0);
-  const totalWeight = rows.reduce((s, r) => s + r.weight, 0);
-  const totalMithqals = totalWeight / MITHQAL_GRAMS;
-  const totalMaking = rows.reduce((s, r) => s + r.netMaking, 0);
-  const avgMakingPerMithqal = totalMithqals > 0 ? Math.round(totalMaking / totalMithqals) : (customPrice > 0 ? Math.round(customPrice) : 0);
-
-  setTextSafe('audit-sold-count', String(totalCount));
-  setTextSafe('audit-sold-weight', `${totalWeight.toFixed(2)} غ (${totalMithqals.toFixed(2)} مثقال)`);
-  setTextSafe('audit-making-total', formatIQD(totalMaking));
-  setTextSafe('audit-making-per-mithqal', formatIQD(avgMakingPerMithqal));
+  setTextSafe('audit-sold-count', String(totalSoldCount));
+  setTextSafe('audit-sold-weight', `${totalSoldWeight.toFixed(3).replace(/\.?0+$/, '')} غ (${(totalSoldWeight / MITHQAL_GRAMS).toFixed(3).replace(/\.?0+$/, '')} مثقال)`);
+  setTextSafe('audit-making-total', formatIQD(totalMakingProfit));
+  const avgPerMithqal = totalSoldWeight > 0 ? Math.round(totalMakingProfit / (totalSoldWeight / MITHQAL_GRAMS)) : (customPrice || 0);
+  setTextSafe('audit-making-per-mithqal', formatIQD(avgPerMithqal));
 
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">لا توجد مبيعات مطابقة للمثقال المحدد.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">لا توجد مبيعات مسجلة ضمن هذا المثقال حالياً.</td></tr>';
     return;
   }
 
   tbody.innerHTML = rows.map(r => `
     <tr>
-      <td class="p-2.5 font-bold text-slate-100">${r.name} ×${r.qty} <span class="text-[10px] text-slate-400 font-mono">(${r.invoiceCode})</span></td>
+      <td class="p-2.5 font-bold text-slate-100">${r.title}</td>
       <td class="p-2.5 text-gold font-bold">عيار ${r.karat}</td>
-      <td class="p-2.5">${r.weight.toFixed(2)} غ</td>
-      <td class="p-2.5 text-emerald-400 font-mono">${r.mithqals.toFixed(2)}</td>
+      <td class="p-2.5">${r.weight.toFixed(3).replace(/\.?0+$/, '')} غ</td>
+      <td class="p-2.5 text-emerald-400 font-mono">${r.mithqalCount.toFixed(3).replace(/\.?0+$/, '')}</td>
       <td class="p-2.5 text-amber-300 font-bold">${formatIQD(r.makingPerMithqal)}</td>
-      <td class="p-2.5 text-emerald-400 font-black">${formatIQD(r.netMaking)}</td>
+      <td class="p-2.5 text-emerald-400 font-black">${formatIQD(r.makingProfit)}</td>
     </tr>
   `).join('');
 }
@@ -3489,21 +3422,32 @@ function addLog(type, details, amount = 0, meta = null) {
     id: 'LOG-' + Date.now().toString().slice(-6),
     type,
     details,
-    amount: Number(amount || 0),
+    amount,
     meta,
     date: new Date().toISOString(),
-    time: new Date().toLocaleString('ar-IQ')
+    timeLabel: new Date().toLocaleString('ar-IQ')
   });
+}
+
+function switchLogCategory(cat) {
+  activeLogCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    const isSelected = btn.id === `log-cat-${cat}`;
+    btn.className = isSelected
+      ? 'cat-btn bg-gold text-darkbg px-3.5 py-1.5 rounded-xl font-bold'
+      : 'cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700';
+  });
+  filterLogs();
 }
 
 function setDayFilter(label) {
   activeDayFilter = label;
   customFilterDate = '';
-  const dateInput = document.getElementById('search-date');
-  if (dateInput) dateInput.value = '';
+  const dateInp = document.getElementById('search-date');
+  if (dateInp) dateInp.value = '';
   document.querySelectorAll('.day-filter-btn').forEach(btn => {
-    const active = btn.id === `day-btn-${label}`;
-    btn.className = active
+    const isActive = btn.id === `day-btn-${label}`;
+    btn.className = isActive
       ? 'day-filter-btn bg-gold text-darkbg font-bold px-3 py-1.5 rounded-xl'
       : 'day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl';
   });
@@ -3512,46 +3456,36 @@ function setDayFilter(label) {
 
 function setCustomDateFilter() {
   customFilterDate = document.getElementById('search-date')?.value || '';
-  if (customFilterDate) {
-    activeDayFilter = 'مخصص';
-    document.querySelectorAll('.day-filter-btn').forEach(btn => {
-      btn.className = 'day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl';
-    });
-  }
+  if (customFilterDate) activeDayFilter = 'مخصص';
   filterLogs();
 }
 
-function switchLogCategory(cat) {
-  activeLogCategory = cat;
-  document.querySelectorAll('.cat-btn').forEach(btn => {
-    const isSel = btn.id === `log-cat-${cat}`;
-    if (isSel) {
-      btn.className = 'cat-btn bg-gold text-darkbg px-3.5 py-1.5 rounded-xl font-bold';
-    } else if (cat === 'تعديل مخزن' && btn.id === 'log-cat-تعديل مخزن') {
-      btn.className = 'cat-btn bg-darkbg text-amber-300 px-3.5 py-1.5 rounded-xl border border-amber-500/40';
-    } else if (cat === 'حذف مخزن' && btn.id === 'log-cat-حذف مخزن') {
-      btn.className = 'cat-btn bg-darkbg text-rose-300 px-3.5 py-1.5 rounded-xl border border-rose-500/40';
-    } else {
-      btn.className = 'cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700';
-    }
-  });
-  filterLogs();
-}
-
-function isLogInPeriod(log) {
-  const d = new Date(log.date || Date.now());
+function matchesDateFilter(isoDate) {
+  if (!isoDate) return true;
+  const d = new Date(isoDate);
   if (isNaN(d.getTime())) return true;
-  if (customFilterDate) {
-    const isoDay = d.toISOString().slice(0, 10);
-    return isoDay === customFilterDate;
-  }
   const now = new Date();
-  const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const oneDay = 86400000;
-  if (activeDayFilter === 'اليوم') return d.getTime() >= startToday;
-  if (activeDayFilter === 'البارحة') return d.getTime() >= (startToday - oneDay) && d.getTime() < startToday;
-  if (activeDayFilter === 'الأسبوع') return d.getTime() >= (startToday - 7 * oneDay);
-  if (activeDayFilter === 'الشهر') return d.getTime() >= (startToday - 30 * oneDay);
+  if (customFilterDate) {
+    const target = customFilterDate;
+    const localIso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return localIso === target;
+  }
+  if (activeDayFilter === 'اليوم') {
+    return d.toDateString() === now.toDateString();
+  }
+  if (activeDayFilter === 'البارحة') {
+    const y = new Date(now);
+    y.setDate(now.getDate() - 1);
+    return d.toDateString() === y.toDateString();
+  }
+  if (activeDayFilter === 'الأسبوع') {
+    const diffDays = (now - d) / (1000 * 60 * 60 * 24);
+    return diffDays <= 7;
+  }
+  if (activeDayFilter === 'الشهر') {
+    const diffDays = (now - d) / (1000 * 60 * 60 * 24);
+    return diffDays <= 30;
+  }
   return true;
 }
 
@@ -3560,13 +3494,10 @@ function filterLogs() {
   const tbody = document.getElementById('logs-table-body');
   if (!tbody) return;
 
-  const periodLogs = db.logs.filter(isLogInPeriod);
-  let salesSum = 0;
-  let profitSum = 0;
-  let scrapSum = 0;
-  let expSum = 0;
+  const dateFiltered = (db.logs || []).filter(l => matchesDateFilter(l.date));
+  let salesSum = 0, profitSum = 0, scrapSum = 0, expSum = 0;
 
-  periodLogs.forEach(l => {
+  dateFiltered.forEach(l => {
     if (l.type === 'عملية بيع' && !(l.meta && l.meta.returned)) {
       salesSum += Number(l.amount || 0);
       profitSum += Number((l.meta && l.meta.totalMaking) || 0);
@@ -3582,101 +3513,82 @@ function filterLogs() {
   setTextSafe('period-scrap-total', formatIQD(scrapSum));
   setTextSafe('period-exp-total', formatIQD(expSum));
 
-  const filtered = periodLogs.filter(l => {
-    const matchCat = activeLogCategory === 'all' || String(l.type || '') === activeLogCategory;
-    const matchQ = !q ||
-      String(l.id || '').toLowerCase().includes(q) ||
-      String(l.type || '').toLowerCase().includes(q) ||
-      String(l.details || '').toLowerCase().includes(q);
-    return matchCat && matchQ;
+  const visible = dateFiltered.filter(l => {
+    const catMatch = activeLogCategory === 'all' || String(l.type || '').includes(activeLogCategory) || String(l.details || '').includes(activeLogCategory);
+    const qMatch = !q || String(l.id || '').toLowerCase().includes(q) || String(l.type || '').toLowerCase().includes(q) || String(l.details || '').toLowerCase().includes(q);
+    return catMatch && qMatch;
   });
 
-  if (!filtered.length) {
+  if (!visible.length) {
     tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">لا توجد سجلات مطابقة.</td></tr>';
     return;
   }
 
-  tbody.innerHTML = filtered.map(l => {
+  tbody.innerHTML = visible.map(l => {
     const meta = getOperationMeta(l);
-    const amtText = l.type === 'حركة ديون'
-      ? `${Number(l.amount || 0) >= 0 ? '+' : ''}${Number(l.amount || 0).toLocaleString('en-US')}`
-      : formatIQD(l.amount || 0);
     return `
       <tr>
-        <td class="p-3 font-mono text-[11px] text-slate-400">${l.time || '--'}</td>
-        <td class="p-3 font-mono text-gold">${l.id || '--'}</td>
-        <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${meta.badgeClass}">${meta.category}</span></td>
+        <td class="p-3 text-slate-400 font-mono text-[11px]">${l.timeLabel || new Date(l.date || Date.now()).toLocaleString('ar-IQ')}</td>
+        <td class="p-3 font-mono text-gold text-[11px]">${l.id || '--'}</td>
+        <td class="p-3"><span class="border px-2.5 py-1 rounded-full text-[10px] font-bold ${meta.badgeClass}">${meta.category}</span></td>
         <td class="p-3 text-slate-200">${l.details || '--'}</td>
-        <td class="p-3 font-bold text-emerald-400">${amtText}</td>
+        <td class="p-3 font-bold font-mono text-emerald-400">${Number(l.amount || 0).toLocaleString('en-US')}</td>
       </tr>
     `;
   }).join('');
 }
 
-function exportLogsToExcel() {
-  const rows = db.logs.map(l => {
-    const meta = getOperationMeta(l);
-    return [l.time || '--', l.id || '--', meta.category, meta.direction, l.details || '--', Number(l.amount || 0)];
-  });
-  const xmlRows = rows.map(r => `
-    <Row>
-      <Cell><Data ss:Type="String">${escapeXml(r[0])}</Data></Cell>
-      <Cell><Data ss:Type="String">${escapeXml(r[1])}</Data></Cell>
-      <Cell><Data ss:Type="String">${escapeXml(r[2])}</Data></Cell>
-      <Cell><Data ss:Type="String">${escapeXml(r[3])}</Data></Cell>
-      <Cell><Data ss:Type="String">${escapeXml(r[4])}</Data></Cell>
-      <Cell><Data ss:Type="Number">${Number(r[5] || 0)}</Data></Cell>
-    </Row>
-  `).join('');
+function buildWorksheetXml(sheetName, rows) {
+  const xmlRows = rows.map(r => {
+    const cells = r.map(val => {
+      const isNum = typeof val === 'number' && !isNaN(val);
+      return `<Cell><Data ss:Type="${isNum ? 'Number' : 'String'}">${escapeXml(val)}</Data></Cell>`;
+    }).join('');
+    return `<Row>${cells}</Row>`;
+  }).join('');
+  return `<Worksheet ss:Name="${escapeXml(sheetName)}"><Table>${xmlRows}</Table></Worksheet>`;
+}
 
-  const workbook = `<?xml version="1.0"?>
+function exportLogsToExcel() {
+  const logsRows = [['التاريخ', 'الرمز', 'نوع العملية', 'التفاصيل', 'القيمة']]
+    .concat((db.logs || []).map(l => [l.timeLabel || l.date || '', l.id || '', l.type || '', l.details || '', Number(l.amount || 0)]));
+
+  const debtsRows = [['الرمز', 'الاسم', 'الهاتف', 'النوع', 'الرصيد/القيمة', 'ملاحظات', 'التاريخ']]
+    .concat((db.debts || []).map(d => [d.id || '', d.customer || '', d.phone || '', d.type || '', Number(d.amount || 0), d.notes || '', d.date || '']));
+
+  const invRows = [['الرمز', 'الصنف', 'الحالة', 'العيار', 'الوزن (غرام)', 'الكمية', 'صياغة الغرام', 'منشور']]
+    .concat((db.inventory || []).map(it => [it.id || '', it.name || '', it.condition === 'used' ? 'مستعمل' : 'جديد', it.karat || '', Number(it.weight || 0), Number(it.qty || 0), Number(it.makingPerGram || 0), it.published ? 'نعم' : 'لا']));
+
+  const summaryRows = [
+    ['البند', 'القيمة'],
+    ['اسم المعرض', (db.store && db.store.name) || 'ARAMKY'],
+    ['كود الحساب', activeTenantCode],
+    ['صندوق الكاش (د.ع)', Number(db.cash || 0)],
+    ['صندوق الدولار ($)', Number(db.usd || 0)],
+    ['زين كاش والماستر (د.ع)', Number(db.zain || 0)],
+    ['صافي أرباح الصياغة (د.ع)', Number(db.makingProfit || 0)]
+  ];
+
+  const workbookXml = `<?xml version="1.0" encoding="UTF-8"?>
 <?mso-application progid="Excel.Sheet"?>
 <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
-  <Worksheet ss:Name="سجل_العمليات">
-    <Table>
-      <Row>
-        <Cell><Data ss:Type="String">التاريخ</Data></Cell>
-        <Cell><Data ss:Type="String">الرمز</Data></Cell>
-        <Cell><Data ss:Type="String">النوع</Data></Cell>
-        <Cell><Data ss:Type="String">الاتجاه</Data></Cell>
-        <Cell><Data ss:Type="String">التفاصيل</Data></Cell>
-        <Cell><Data ss:Type="String">القيمة</Data></Cell>
-      </Row>
-      ${xmlRows}
-    </Table>
-  </Worksheet>
-  <Worksheet ss:Name="المخزن">
-    <Table>
-      <Row><Cell><Data ss:Type="String">الصنف</Data></Cell><Cell><Data ss:Type="String">العيار</Data></Cell><Cell><Data ss:Type="String">الوزن</Data></Cell><Cell><Data ss:Type="String">الكمية</Data></Cell></Row>
-      ${db.inventory.map(it => `<Row><Cell><Data ss:Type="String">${escapeXml(it.name)}</Data></Cell><Cell><Data ss:Type="String">${escapeXml(it.karat)}</Data></Cell><Cell><Data ss:Type="Number">${Number(it.weight || 0)}</Data></Cell><Cell><Data ss:Type="Number">${Number(it.qty || 0)}</Data></Cell></Row>`).join('')}
-    </Table>
-  </Worksheet>
-  <Worksheet ss:Name="الديون">
-    <Table>
-      <Row><Cell><Data ss:Type="String">الاسم</Data></Cell><Cell><Data ss:Type="String">النوع</Data></Cell><Cell><Data ss:Type="String">القيمة</Data></Cell></Row>
-      ${db.debts.map(d => `<Row><Cell><Data ss:Type="String">${escapeXml(d.customer)}</Data></Cell><Cell><Data ss:Type="String">${escapeXml(d.type)}</Data></Cell><Cell><Data ss:Type="Number">${Number(d.amount || 0)}</Data></Cell></Row>`).join('')}
-    </Table>
-  </Worksheet>
-  <Worksheet ss:Name="الخزينة">
-    <Table>
-      <Row><Cell><Data ss:Type="String">البند</Data></Cell><Cell><Data ss:Type="String">القيمة</Data></Cell></Row>
-      <Row><Cell><Data ss:Type="String">صندوق الكاش</Data></Cell><Cell><Data ss:Type="Number">${Number(db.cash || 0)}</Data></Row>
-      <Row><Cell><Data ss:Type="String">صندوق الدولار</Data></Cell><Cell><Data ss:Type="Number">${Number(db.usd || 0)}</Data></Row>
-      <Row><Cell><Data ss:Type="String">زين كاش والماستر</Data></Cell><Cell><Data ss:Type="Number">${Number(db.zain || 0)}</Data></Row>
-      <Row><Cell><Data ss:Type="String">أرباح الصياغة</Data></Cell><Cell><Data ss:Type="Number">${Number(db.makingProfit || 0)}</Data></Row>
-    </Table>
-  </Worksheet>
+  ${buildWorksheetXml('الملخص المالي', summaryRows)}
+  ${buildWorksheetXml('سجل العمليات', logsRows)}
+  ${buildWorksheetXml('دفتر الديون', debtsRows)}
+  ${buildWorksheetXml('المخزون', invRows)}
 </Workbook>`;
 
-  const blob = new Blob([workbook], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const blob = new Blob([workbookXml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = `ARAMKY_${activeTenantCode}_${new Date().toISOString().slice(0, 10)}.xls`;
+  document.body.appendChild(a);
   a.click();
+  a.remove();
   URL.revokeObjectURL(url);
-  showToast('تم تصدير ملف Excel المنظم بنجاح', 'success');
+  showToast('تم تصدير ملف Excel بنجاح (4 أوراق)', 'success');
 }
 
 function openLuxuryTransferMethodModal() {
@@ -3687,22 +3599,22 @@ function closeLuxuryTransferMethodModal() {
   document.getElementById('luxury-transfer-method-modal').classList.add('hidden');
 }
 
-function selectLuxuryTransferMethod(val, labelText) {
+function selectLuxuryTransferMethod(val, label) {
   document.getElementById('sup-pay-method').value = val;
-  document.getElementById('selected-transfer-method-label').textContent = labelText;
+  document.getElementById('selected-transfer-method-label').textContent = label;
   closeLuxuryTransferMethodModal();
 }
 
 async function previewSupportReceipt(event) {
   const imgs = await readFilesAsDataUrls(event.target.files);
-  const prev = document.getElementById('sup-receipt-preview');
-  if (!prev) return;
+  const preview = document.getElementById('sup-receipt-preview');
+  if (!preview) return;
   if (imgs.length) {
-    prev.src = imgs[0];
-    prev.classList.remove('hidden');
+    preview.src = imgs[0];
+    preview.classList.remove('hidden');
   } else {
-    prev.src = '';
-    prev.classList.add('hidden');
+    preview.src = '';
+    preview.classList.add('hidden');
   }
 }
 
@@ -3710,56 +3622,57 @@ async function submitSupportTransfer() {
   const method = document.getElementById('sup-pay-method').value || 'رسالة عامة / استفسار للإدارة';
   const ref = document.getElementById('sup-trans-ref').value.trim();
   const msg = document.getElementById('sup-message').value.trim();
-  const imgs = await readFilesAsDataUrls(document.getElementById('sup-receipt-img').files);
-  const imgData = imgs[0] || '';
+  const fileInput = document.getElementById('sup-receipt-img');
+  const imgs = await readFilesAsDataUrls(fileInput.files);
+  const imageUrl = imgs[0] || '';
 
-  if (!ref && !msg && !imgData) {
-    showToast('يرجى كتابة رسالة أو رقم عملية أو إرفاق صورة', 'warning');
+  if (!ref && !msg && !imageUrl) {
+    showToast('يرجى كتابة رسالة أو إدخال مرجع أو إرفاق صورة', 'error');
     return;
   }
 
   const ticket = {
-    id: 'SUP-' + Date.now().toString().slice(-6),
+    id: 'TKT-' + Date.now().toString().slice(-6),
     tenant: activeTenantCode,
     storeName: (db.store && db.store.name) || activeTenantCode,
     method,
     ref,
     msg,
-    image: imgData,
+    image: imageUrl,
     time: new Date().toLocaleString('ar-IQ'),
     date: new Date().toISOString()
   };
 
   db.supportTickets.unshift(ticket);
-  saveTenantData();
   if (CORE && typeof CORE.pushSupportTicketToAdmin === 'function') {
     CORE.pushSupportTicketToAdmin(ticket);
   }
+  saveTenantData();
   renderSupportTickets();
   document.getElementById('sup-trans-ref').value = '';
   document.getElementById('sup-message').value = '';
-  document.getElementById('sup-receipt-img').value = '';
+  fileInput.value = '';
   const prev = document.getElementById('sup-receipt-preview');
   if (prev) { prev.src = ''; prev.classList.add('hidden'); }
   showToast('تم إرسال رسالتك إلى لوحة الأدمن بنجاح', 'success');
 }
 
 function renderSupportTickets() {
-  const list = document.getElementById('support-tickets-list');
-  if (!list) return;
-  if (!db.supportTickets.length) {
-    list.innerHTML = '<p class="text-xs text-slate-500 bg-darkbg p-4 rounded-2xl border border-slate-800">لا توجد رسائل أو تحويلات مرسلة بعد.</p>';
+  const container = document.getElementById('support-tickets-list');
+  if (!container) return;
+  const list = db.supportTickets || [];
+  if (!list.length) {
+    container.innerHTML = '<div class="bg-darkbg p-4 rounded-2xl border border-slate-800 text-xs text-slate-500 text-center">لا توجد رسائل مرسلة بعد.</div>';
     return;
   }
-  list.innerHTML = db.supportTickets.map(t => `
-    <div class="bg-darkbg border border-slate-800 p-4 rounded-2xl text-xs space-y-2">
+  container.innerHTML = list.map(t => `
+    <div class="bg-darkbg p-4 rounded-2xl border border-slate-800 text-xs space-y-2">
       <div class="flex justify-between items-center">
-        <strong class="text-gold">${t.method}</strong>
-        <span class="text-[10px] text-slate-400 font-mono">${t.time || '--'}</span>
+        <strong class="text-gold">${escapeXml(t.method || 'رسالة')} ${t.ref ? `— <span class="font-mono text-emerald-400">${escapeXml(t.ref)}</span>` : ''}</strong>
+        <span class="text-[10px] text-slate-400 font-mono">${escapeXml(t.time || '')}</span>
       </div>
-      ${t.ref ? `<div class="text-slate-300 font-mono">المرجع: ${t.ref}</div>` : ''}
-      ${t.msg ? `<p class="text-slate-200">${t.msg}</p>` : ''}
-      ${t.image ? `<img src="${t.image}" onerror="handleBrandImageError(this)" onclick="openImageLightbox('${String(t.image).replace(/'/g, "\\'")}', '${String(t.method || '').replace(/'/g, "\\'")}')" class="max-h-32 rounded-xl border border-gold/40 cursor-pointer">` : ''}
+      ${t.msg ? `<p class="text-slate-200">${escapeXml(t.msg)}</p>` : ''}
+      ${t.image ? `<img src="${t.image}" onclick="openImageLightbox('${t.image.replace(/'/g, "\\'")}', '${escapeXml(t.method || 'مرفق')}')" class="max-h-36 rounded-xl border border-gold/40 cursor-pointer">` : ''}
     </div>
   `).join('');
 }
@@ -3779,35 +3692,33 @@ function closePriceModal() {
 }
 
 function saveGoldPrices() {
-  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || 0;
-  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || 0;
-  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || 0;
-  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || 0;
-  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || 0;
-  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || 0;
-  const scrapPriceInput = document.getElementById('scrap-mithqal-price');
-  if (scrapPriceInput) delete scrapPriceInput.dataset.manual;
+  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || db.prices.usd;
+  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || db.prices.m24;
+  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || db.prices.m22;
+  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || db.prices.m21;
+  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || db.prices.m18;
+  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || db.prices.m9;
+  addLog('تحديث الأسعار', `تحديث أسعار المثاقيل والدولار (الورقة: ${db.prices.usd}، عيار 21: ${db.prices.m21})`, db.prices.m21);
   saveTenantData();
   renderAll();
   closePriceModal();
-  showToast('تم تحديث أسعار المثاقيل والدولار بنجاح', 'success');
+  showToast('تم حفظ وتحديث أسعار الذهب والدولار', 'success');
 }
 
 function toggleCalcModal() {
-  const modal = document.getElementById('calc-modal');
-  modal.classList.toggle('hidden');
-  if (!modal.classList.contains('hidden')) {
-    if (!document.getElementById('c-mithqal').value) {
-      document.getElementById('c-mithqal').value = db.prices.m21 || 560000;
-    }
+  const m = document.getElementById('calc-modal');
+  if (!m) return;
+  m.classList.toggle('hidden');
+  if (!m.classList.contains('hidden')) {
+    document.getElementById('c-mithqal').value = db.prices.m21 || 560000;
     calcAramkyQuick();
   }
 }
 
 function calcAramkyQuick() {
-  const mq = parseFloat(document.getElementById('c-mithqal').value) || 0;
-  const w = parseFloat(document.getElementById('c-weight').value) || 0;
-  const mk = parseFloat(document.getElementById('c-making').value) || 0;
+  const mq = parseFloat(document.getElementById('c-mithqal')?.value) || 0;
+  const w = parseFloat(document.getElementById('c-weight')?.value) || 0;
+  const mk = parseFloat(document.getElementById('c-making')?.value) || 0;
   const total = Math.round(w * ((mq / MITHQAL_GRAMS) + mk));
   setTextSafe('c-result-iqd', formatIQD(total));
 }
@@ -3820,40 +3731,41 @@ function closeResetSystemModal() {
   document.getElementById('reset-system-modal').classList.add('hidden');
 }
 
+function handleGlobalZeroKey(event) {
+  if (event.key === '0' && (event.altKey || event.ctrlKey)) {
+    event.preventDefault();
+    openResetSystemModal();
+  }
+}
+
 function executeSystemReset(mode) {
   if (mode === 'cash_only') {
     db.cash = 0;
     db.usd = 0;
     db.zain = 0;
     db.makingProfit = 0;
-    addLog('تصفير الخزينة', 'تصفير صناديق الكاش والدولار والماستر وأرباح الصياغة (جرد يومي)', 0);
+    addLog('تصفير الخزينة', 'تصفير صناديق الكاش والدولار والماستر وأرباح الصياغة مع بقاء المخزن والديون', 0);
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تم تصفير الخزينة والأرباح مع بقاء المخزن والديون', 'warning');
+    showToast('تم تصفير الخزينة والأرباح بنجاح', 'warning');
   } else if (mode === 'full_factory') {
-    const keepPrices = Object.assign({}, db.prices);
-    const keepStore = Object.assign({}, db.store);
-    db = defaultTenantData(activeTenantCode);
-    db.prices = keepPrices;
-    db.store = keepStore;
+    const fresh = defaultTenantData(activeTenantCode);
+    fresh.store = Object.assign({}, db.store);
+    fresh.prices = Object.assign({}, db.prices);
+    db = fresh;
+    cart = [];
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تم تصفير النظام بالكامل وإعادة ضبطه', 'warning');
-  }
-}
-
-function handleGlobalZeroKey(event) {
-  if (event.key === '0' && event.altKey) {
-    openResetSystemModal();
+    showToast('تمت إعادة ضبط النظام بالكامل', 'warning');
   }
 }
 
 function handleInventoryAdminTrigger() {
   inventorySecretClicks += 1;
-  clearTimeout(inventorySecretTimer);
-  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 1800);
+  if (inventorySecretTimer) clearTimeout(inventorySecretTimer);
+  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 1600);
   if (inventorySecretClicks >= 5) {
     inventorySecretClicks = 0;
     openAdminSecretModal();
@@ -3864,7 +3776,7 @@ function openAdminSecretModal() {
   const inp = document.getElementById('admin-secret-password');
   if (inp) inp.value = '';
   document.getElementById('admin-secret-modal').classList.remove('hidden');
-  setTimeout(() => inp?.focus(), 60);
+  setTimeout(() => inp && inp.focus(), 50);
 }
 
 function closeAdminSecretModal() {
@@ -3872,11 +3784,10 @@ function closeAdminSecretModal() {
 }
 
 function verifyAdminSecretPassword() {
-  const pass = (document.getElementById('admin-secret-password')?.value || '').trim();
-  const valid = Boolean(
-    pass === DEDICATED_ADMIN_CREDENTIALS.pass ||
-    (CORE && typeof CORE.verifyAdminPassword === 'function' && CORE.verifyAdminPassword(pass))
-  );
+  const pass = document.getElementById('admin-secret-password').value.trim();
+  const valid = CORE && typeof CORE.verifyAdminPassword === 'function'
+    ? CORE.verifyAdminPassword(pass)
+    : (pass === DEDICATED_ADMIN_CREDENTIALS.pass);
   if (!valid) {
     showToast('كلمة مرور الأدمن غير صحيحة', 'error');
     return;
@@ -3884,87 +3795,86 @@ function verifyAdminSecretPassword() {
   closeAdminSecretModal();
   activateDedicatedAdminState(activeTenantCode || 'ARAMKY');
   renderAll();
-  showToast('تم تفعيل وضع الأدمن بنجاح', 'success');
+  if (typeof window.openAdminDashboard === 'function') {
+    window.openAdminDashboard();
+  }
+  showToast('تم تفعيل وضع الأدمن وفتح لوحة الإدارة', 'success');
 }
 
 function openAdminPanel() {
-  if (CORE && typeof CORE.setAdminSession === 'function') {
-    CORE.setAdminSession(true);
-  }
-  if (typeof window.openAdminDashboard === 'function') {
+  syncAdminButtonVisibility();
+  const hasSession = CORE && typeof CORE.hasAdminSession === 'function' && CORE.hasAdminSession();
+  if (hasSession && typeof window.openAdminDashboard === 'function') {
     window.openAdminDashboard();
-    return;
-  }
-  if (typeof window.openAdminModal === 'function') {
-    window.openAdminModal();
     return;
   }
   openAdminSecretModal();
 }
 
-function switchTenantPrompt() {
-  const loginScreen = document.getElementById('tenant-login-screen');
-  if (loginScreen) {
-    const codeInp = document.getElementById('login-tenant-code');
-    const phoneInp = document.getElementById('login-tenant-phone');
-    const passInp = document.getElementById('login-tenant-pass');
-    if (codeInp) codeInp.value = activeTenantCode || 'ARAMKY';
-    if (phoneInp) phoneInp.value = '';
-    if (passInp) passInp.value = '';
-    loginScreen.classList.remove('hidden');
-  }
-}
-
 function loginTenant() {
-  const codeInp = document.getElementById('login-tenant-code');
-  const phoneInp = document.getElementById('login-tenant-phone');
-  const passInp = document.getElementById('login-tenant-pass');
-  const code = (codeInp?.value || '').trim().toUpperCase() || 'ARAMKY';
-  const phone = (phoneInp?.value || '').trim();
-  const pass = (passInp?.value || '').trim();
+  const code = document.getElementById('login-tenant-code').value.trim().toUpperCase();
+  const phone = document.getElementById('login-tenant-phone').value.trim();
+  const pass = document.getElementById('login-tenant-pass').value.trim();
+  if (!code || !phone || !pass) {
+    showToast('يرجى إدخال معرف الحساب، رقم الهاتف، وكلمة المرور', 'error');
+    return;
+  }
 
   if (isDedicatedAdminLogin(code, phone, pass)) {
-    document.getElementById('tenant-login-screen')?.classList.add('hidden');
-    document.getElementById('subscription-lock-screen')?.classList.add('hidden');
-    activateDedicatedAdminState(code);
-    renderAll();
+    const targetCode = code === DEDICATED_ADMIN_CREDENTIALS.user ? 'ARAMKY' : code;
+    activateDedicatedAdminState(targetCode);
+    document.getElementById('tenant-login-screen').classList.add('hidden');
     checkSubscriptionLock();
-    showToast('تم تسجيل الدخول كأدمن بنجاح', 'success');
-    return;
-  }
-
-  if (CORE && typeof CORE.authenticateSubscriber === 'function') {
-    const auth = CORE.authenticateSubscriber(code, phone, pass);
-    if (!auth || !auth.ok) {
-      showToast((auth && auth.message) || 'بيانات الدخول غير صحيحة', 'error');
-      return;
+    renderAll();
+    if (typeof window.openAdminDashboard === 'function') {
+      window.openAdminDashboard();
     }
-    if (typeof CORE.setActiveSubscriberSession === 'function') CORE.setActiveSubscriberSession(code);
-    document.getElementById('tenant-login-screen')?.classList.add('hidden');
-    loadTenantData(code);
-    renderAll();
-    checkSubscriptionLock();
-    showToast('تم تسجيل الدخول بنجاح', 'success');
+    showToast('تم تسجيل دخول الأدمن وتفعيل لوحة الإدارة بنجاح', 'success');
     return;
   }
 
-  document.getElementById('tenant-login-screen')?.classList.add('hidden');
-  loadTenantData(code);
-  renderAll();
+  if (!CORE || typeof CORE.authenticateSubscriber !== 'function') {
+    showToast('تعذر التحقق من بيانات الحساب المعتمد', 'error');
+    return;
+  }
+  const auth = CORE.authenticateSubscriber(code, phone, pass);
+  if (!auth || !auth.ok) {
+    showToast((auth && auth.message) || 'بيانات الدخول غير مطابقة لحساب معتمد من الأدمن', 'error');
+    return;
+  }
+  if (CORE && typeof CORE.setActiveSubscriberSession === 'function') {
+    CORE.setActiveSubscriberSession(auth.tenant.code);
+  }
+  loadTenantData(auth.tenant.code);
+  if (auth.tenant.storeName) db.store.name = auth.tenant.storeName;
+  if (auth.tenant.phone) db.store.phone = auth.tenant.phone;
+  if (auth.tenant.status) db.status = auth.tenant.status;
+  saveTenantData();
+  document.getElementById('tenant-login-screen').classList.add('hidden');
   checkSubscriptionLock();
-  showToast('تم تحميل الحساب بنجاح', 'success');
+  renderAll();
+  showToast(`تم تسجيل الدخول إلى الحساب (${auth.tenant.code})`, 'success');
 }
 
-function openSupportFromLock() {
-  document.getElementById('subscription-lock-screen')?.classList.add('hidden');
-  document.getElementById('tenant-login-screen')?.classList.add('hidden');
-  switchTab('support');
+function switchTenantPrompt() {
+  if (isPublicCatalogOnly) return;
+  if (CORE && typeof CORE.setAdminSession === 'function') CORE.setAdminSession(false);
+  document.getElementById('subscription-lock-screen').classList.add('hidden');
+  document.getElementById('login-tenant-code').value = activeTenantCode || '';
+  document.getElementById('login-tenant-phone').value = '';
+  document.getElementById('login-tenant-pass').value = '';
+  document.getElementById('tenant-login-screen').classList.remove('hidden');
 }
 
 function checkSubscriptionLock() {
+  if (isPublicCatalogOnly) {
+    document.getElementById('subscription-lock-screen').classList.add('hidden');
+    return;
+  }
+  const locked = isCurrentTenantLocked();
   const lockScreen = document.getElementById('subscription-lock-screen');
   if (!lockScreen) return;
-  if (isCurrentTenantLocked()) {
+  if (locked) {
     setTextSafe('locked-tenant-info', `رقم المعرض: ${activeTenantCode}`);
     lockScreen.classList.remove('hidden');
   } else {
@@ -3972,17 +3882,17 @@ function checkSubscriptionLock() {
   }
 }
 
-async function refreshAppAndClearCache() {
-  try {
-    if ('caches' in window) {
-      const names = await caches.keys();
-      await Promise.all(names.map(n => caches.delete(n)));
-    }
-  } catch (_) {}
-  showToast('جاري تحديث الذاكرة وإعادة التحميل...', 'info');
-  setTimeout(() => {
-    window.location.reload();
-  }, 300);
+function openSupportFromLock() {
+  document.getElementById('subscription-lock-screen').classList.add('hidden');
+  switchTab('support');
+}
+
+function refreshAppAndClearCache() {
+  if ('caches' in window) {
+    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).catch(() => {});
+  }
+  renderAll();
+  showToast('تم تحديث الذاكرة وإعادة تحميل البيانات', 'success');
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -3990,64 +3900,47 @@ window.addEventListener('beforeinstallprompt', (e) => {
   deferredPrompt = e;
 });
 
-async function installPWA() {
+function installPWA() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
-    await deferredPrompt.userChoice.catch(() => {});
-    deferredPrompt = null;
-    showToast('تم تشغيل نافذة تثبيت التطبيق', 'success');
-    return;
+    deferredPrompt.userChoice.finally(() => { deferredPrompt = null; });
+  } else {
+    showToast('يمكنك تثبيت التطبيق من قائمة المتصفح (إضافة إلى الشاشة الرئيسية)', 'info');
   }
-  showToast('لتثبيت التطبيق: افتح قائمة المتصفح واختر (إضافة إلى الشاشة الرئيسية)', 'info');
-}
-
-function applyPublicCatalogOnlyMode(tenantCode) {
-  isPublicCatalogOnly = true;
-  activeTenantCode = String(tenantCode || 'ARAMKY').trim().toUpperCase() || 'ARAMKY';
-  loadTenantData(activeTenantCode);
-  ['app-header', 'app-ticker', 'app-main'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.add('hidden');
-  });
-  openStorefrontView();
 }
 
 function initApp() {
   if (appInitialized) return;
   appInitialized = true;
-  dismissSplashScreen();
+  syncAdminButtonVisibility();
 
-  try {
-    const params = new URLSearchParams(window.location.search);
-    const storeParam = params.get('store');
-    if (storeParam) {
-      applyPublicCatalogOnlyMode(storeParam);
-      return;
-    }
+  const urlParams = new URLSearchParams(window.location.search);
+  const storeParam = urlParams.get('store');
 
-    const storedTenant = (() => {
-      try {
-        return localStorage.getItem((CORE && CORE.keys && CORE.keys.activeTenant) || 'aramky_active_tenant') || 'ARAMKY';
-      } catch (_) { return 'ARAMKY'; }
-    })();
-
-    loadTenantData(storedTenant);
-    renderAll();
-    checkSubscriptionLock();
-  } catch (err) {
-    console.error('Init error:', err);
-    if (!db || !db.prices) db = defaultTenantData('ARAMKY');
-    try { renderAll(); } catch (_) {}
-  } finally {
-    dismissSplashScreen();
+  if (storeParam) {
+    isPublicCatalogOnly = true;
+    loadTenantData(storeParam.toUpperCase());
+    document.querySelectorAll('header, #app-ticker, main, #tenant-login-screen, #subscription-lock-screen').forEach(el => {
+      if (el) el.classList.add('hidden');
+    });
+    openStorefrontView();
+    return;
   }
+
+  let savedTenant = 'ARAMKY';
+  try {
+    savedTenant = localStorage.getItem((CORE && CORE.keys && CORE.keys.activeTenant) || 'aramky_active_tenant') || 'ARAMKY';
+  } catch (_) {}
+  loadTenantData(savedTenant);
+  renderAll();
+  checkSubscriptionLock();
+  dismissSplashScreen();
 }
 
-document.addEventListener('DOMContentLoaded', initApp);
-window.addEventListener('load', () => {
+window.addEventListener('DOMContentLoaded', initApp);
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
   initApp();
-  dismissSplashScreen();
-});
+}
 </script>
 </body>
 </html>
