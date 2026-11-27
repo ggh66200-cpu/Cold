@@ -12,12 +12,26 @@ app = Flask(
 ALLOWED_STATIC_FILES = {
     "index.html",
     "admin.html",
+    "admin_3.html",
     "aramky-core.js",
     "aramky-i18n.js",
     "main.js",
     "sw.js",
     "icon.png",
     "manifest.json",
+    "manifest_5.json",
+}
+
+MIME_OVERRIDES = {
+    ".js": "application/javascript; charset=utf-8",
+    ".css": "text/css; charset=utf-8",
+    ".html": "text/html; charset=utf-8",
+    ".json": "application/json; charset=utf-8",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".svg": "image/svg+xml",
+    ".ico": "image/x-icon",
 }
 
 
@@ -26,10 +40,14 @@ def _serve_html_file(filename):
     if not os.path.isfile(filepath):
         abort(404)
     with open(filepath, "r", encoding="utf-8") as f:
-        return f.read(), 200, {"Content-Type": "text/html; charset=utf-8"}
+        content = f.read()
+    resp = make_response(content, 200)
+    resp.headers["Content-Type"] = "text/html; charset=utf-8"
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return resp
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "HEAD"])
 def home():
     index_path = os.path.join(BASE_DIR, "index.html")
     if os.path.isfile(index_path):
@@ -37,24 +55,36 @@ def home():
     return "ARAMKY Gold OS Online", 200, {"Content-Type": "text/plain; charset=utf-8"}
 
 
-@app.route("/admin.html")
+@app.route("/health", methods=["GET", "HEAD"])
+def health_check():
+    return jsonify({"ok": True, "service": "ARAMKY Gold OS v28.3"}), 200
+
+
+@app.route("/admin.html", methods=["GET", "HEAD"])
 def admin_page():
-    return _serve_html_file("admin.html")
+    filepath = os.path.join(BASE_DIR, "admin.html")
+    if os.path.isfile(filepath):
+        return _serve_html_file("admin.html")
+    return _serve_html_file("admin_3.html")
 
 
-@app.route("/sw.js")
+@app.route("/admin_3.html", methods=["GET", "HEAD"])
+def admin_v3_page():
+    return _serve_html_file("admin_3.html")
+
+
+@app.route("/sw.js", methods=["GET", "HEAD"])
 def service_worker():
     sw_path = os.path.join(BASE_DIR, "sw.js")
     if not os.path.isfile(sw_path):
         abort(404)
-    resp = make_response(send_from_directory(BASE_DIR, "sw.js", mimetype="application/javascript"))
+    resp = make_response(send_from_directory(BASE_DIR, "sw.js", mimetype="application/javascript; charset=utf-8"))
     resp.headers["Service-Worker-Allowed"] = "/"
-    resp.headers["Cache-Control"] = "no-cache"
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return resp
 
 
-@app.route("/api/supabase-config", methods=["GET"])
-@app.route("/api/config", methods=["GET"])
+@app.route("/api/supabase-config", methods=["GET", "HEAD"])
 def api_supabase_config():
     supabase_url = os.environ.get("SUPABASE_URL", "").strip()
     supabase_key = (
@@ -62,19 +92,16 @@ def api_supabase_config():
         or os.environ.get("SUPABASE_ANON_KEY", "").strip()
     )
     supabase_table = os.environ.get("SUPABASE_TABLE", "aramky_stores_data").strip() or "aramky_stores_data"
-    render_api_base = os.environ.get("RENDER_API_BASE", "").strip()
 
     return jsonify({
         "ok": bool(supabase_url and supabase_key),
         "supabaseUrl": supabase_url,
         "supabaseKey": supabase_key,
-        "supabaseAnonKey": supabase_key,
         "supabaseTable": supabase_table,
-        "renderApiBase": render_api_base,
     }), 200
 
 
-@app.route("/<path:filename>")
+@app.route("/<path:filename>", methods=["GET", "HEAD"])
 def serve_static_asset(filename):
     clean_name = os.path.basename(filename)
     if clean_name not in ALLOWED_STATIC_FILES:
@@ -82,7 +109,14 @@ def serve_static_asset(filename):
     filepath = os.path.join(BASE_DIR, clean_name)
     if not os.path.isfile(filepath):
         abort(404)
-    return send_from_directory(BASE_DIR, clean_name)
+    if clean_name.endswith(".html"):
+        return _serve_html_file(clean_name)
+    ext = os.path.splitext(clean_name)[1].lower()
+    mimetype = MIME_OVERRIDES.get(ext)
+    resp = make_response(send_from_directory(BASE_DIR, clean_name, mimetype=mimetype))
+    if clean_name in {"aramky-core.js", "aramky-i18n.js", "manifest.json", "manifest_5.json"}:
+        resp.headers["Cache-Control"] = "no-cache, must-revalidate"
+    return resp
 
 
 if __name__ == "__main__":
