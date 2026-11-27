@@ -130,17 +130,36 @@
         <div id="stat-tickets-count" class="text-2xl font-black font-mono text-gold">0</div>
       </div>
       <div class="glass-card rounded-2xl p-4 space-y-1">
-        <span class="text-[11px] text-slate-400 font-bold">حالة السحابة (Supabase)</span>
+        <span class="text-[11px] text-slate-400 font-bold">حالة السحابة</span>
         <div id="stat-cloud-status" class="text-sm font-extrabold text-amber-300 pt-1.5">جاري الفحص...</div>
       </div>
     </section>
 
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
       <div class="lg:col-span-5 glass-card rounded-3xl p-5 space-y-4">
-        <h2 class="text-base font-black text-gold flex items-center gap-2">
-          <span>➕</span>
-          <span>إضافة أو تحديث حساب مشترك</span>
-        </h2>
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <h2 class="text-base font-black text-gold flex items-center gap-2">
+            <span>➕</span>
+            <span>إضافة أو تحديث حساب مشترك</span>
+          </h2>
+          <div class="flex items-center gap-1.5 bg-darkbg p-1 rounded-xl border border-slate-800 text-[11px]">
+            <button type="button" id="btn-user-mode-auto" onclick="setUserEntryMode('auto')" class="px-2.5 py-1 rounded-lg bg-gold text-slate-950 font-black transition cursor-pointer">
+              وضع ذاتي ⚡
+            </button>
+            <button type="button" id="btn-user-mode-manual" onclick="setUserEntryMode('manual')" class="px-2.5 py-1 rounded-lg text-slate-300 hover:text-white font-bold transition cursor-pointer">
+              وضع يدوي ✍️
+            </button>
+            <input type="hidden" id="sub-entry-mode" value="auto" />
+          </div>
+        </div>
+
+        <div id="auto-user-helper" class="bg-darkbg/90 border border-gold/25 rounded-2xl p-3 flex items-center justify-between gap-2 text-[11px]">
+          <span class="text-slate-300">توليد تلقائي ذكي للكود وكلمة المرور دون كشف أي بيانات حساسة.</span>
+          <button type="button" onclick="generateAutoCredentials()" class="px-3 py-1.5 rounded-xl bg-gold/15 text-gold border border-gold/40 font-extrabold hover:bg-gold/25 shrink-0 cursor-pointer">
+            توليد الآن 🔄
+          </button>
+        </div>
+
         <form id="subscriber-form" class="space-y-3 text-xs">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -164,9 +183,26 @@
             </div>
           </div>
 
-          <div>
-            <label class="block text-slate-300 font-bold mb-1">تاريخ انتهاء الاشتراك</label>
-            <input id="sub-expiry" type="date" class="w-full bg-darkbg border border-slate-700 focus:border-gold rounded-xl px-3 py-2.5 font-mono outline-none text-white" />
+          <div class="bg-darkbg/90 border border-gold/25 rounded-2xl p-3 space-y-2.5">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <span class="text-slate-300 font-bold">مدة الاشتراك والعدّاد الدقيق:</span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" id="btn-plan-monthly" onclick="applySubscriptionPlan('monthly')" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-black text-[11px] transition cursor-pointer">
+                  شهري (30 يوم) 📅
+                </button>
+                <button type="button" id="btn-plan-yearly" onclick="applySubscriptionPlan('yearly')" class="px-3 py-1.5 rounded-xl bg-gold/20 text-gold border border-gold/40 font-black text-[11px] transition cursor-pointer">
+                  سنوي (365 يوم) 👑
+                </button>
+                <input type="hidden" id="sub-plan-type" value="monthly" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-slate-400 font-bold mb-1">تاريخ انتهاء الاشتراك</label>
+              <input id="sub-expiry" type="date" onchange="handleManualExpiryChange()" class="w-full bg-cardbg border border-slate-700 focus:border-gold rounded-xl px-3 py-2.5 font-mono outline-none text-white" />
+            </div>
+            <div id="sub-countdown-live" class="text-[11px] font-mono text-emerald-300 bg-cardbg/90 border border-slate-800 rounded-xl px-3 py-2">
+              العدّاد: جاري الحساب...
+            </div>
           </div>
 
           <div class="flex items-center gap-2 pt-1">
@@ -184,7 +220,7 @@
         <div class="flex items-center justify-between gap-2 flex-wrap">
           <h2 class="text-base font-black text-gold flex items-center gap-2">
             <span>☁️</span>
-            <span>إعدادات الربط السحابي (Supabase & Render)</span>
+            <span>إعدادات الربط السحابي</span>
           </h2>
           <span id="cloud-diag-badge" class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300">جاهز</span>
         </div>
@@ -245,6 +281,7 @@
               <th class="py-3 px-3">الكود</th>
               <th class="py-3 px-3">اسم المحل</th>
               <th class="py-3 px-3">الهاتف</th>
+              <th class="py-3 px-3">الباقة والعدّاد</th>
               <th class="py-3 px-3">الانتهاء</th>
               <th class="py-3 px-3">الحالة</th>
               <th class="py-3 px-3">إجراءات</th>
@@ -270,6 +307,7 @@
   <script>
     const CORE = window.ARAMKY_CORE;
     const ADMIN_AUTH_SESSION_KEY = 'ARAMKY_ADMIN_AUTH_V28_3';
+    let subCountdownTimer = null;
 
     function showAdminToast(message, type = 'info') {
       const host = document.getElementById('admin-toast-host');
@@ -289,6 +327,112 @@
         el.style.transition = 'opacity 0.2s ease';
         setTimeout(() => el.remove(), 220);
       }, 2800);
+    }
+
+    function computeExpiryDateByPlan(planType) {
+      const now = new Date();
+      const days = planType === 'yearly' ? 365 : 30;
+      const target = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+      return target.toISOString().slice(0, 10);
+    }
+
+    function formatCountdownDetailed(expiresAtStr) {
+      if (!expiresAtStr) return 'غير محدد';
+      const endMs = Date.parse(`${String(expiresAtStr).slice(0, 10)}T23:59:59`);
+      if (isNaN(endMs)) return String(expiresAtStr);
+      const diff = endMs - Date.now();
+      if (diff <= 0) return 'منتهي (00ي 00س 00د 00ث)';
+      const totalSec = Math.floor(diff / 1000);
+      const days = Math.floor(totalSec / 86400);
+      const hours = Math.floor((totalSec % 86400) / 3600);
+      const mins = Math.floor((totalSec % 3600) / 60);
+      const secs = totalSec % 60;
+      const pad = n => String(n).padStart(2, '0');
+      return `${days}ي ${pad(hours)}س ${pad(mins)}د ${pad(secs)}ث`;
+    }
+
+    function updatePlanButtonsUi(planType) {
+      const mBtn = document.getElementById('btn-plan-monthly');
+      const yBtn = document.getElementById('btn-plan-yearly');
+      const pInput = document.getElementById('sub-plan-type');
+      const clean = planType === 'yearly' ? 'yearly' : 'monthly';
+      if (pInput) pInput.value = clean;
+      if (mBtn && yBtn) {
+        mBtn.className = clean === 'monthly'
+          ? 'px-3 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-black text-[11px] shadow transition cursor-pointer'
+          : 'px-3 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 font-bold text-[11px] transition cursor-pointer';
+        yBtn.className = clean === 'yearly'
+          ? 'px-3 py-1.5 rounded-xl bg-gold text-slate-950 font-black text-[11px] shadow transition cursor-pointer'
+          : 'px-3 py-1.5 rounded-xl bg-gold/15 text-gold border border-gold/40 font-bold text-[11px] transition cursor-pointer';
+      }
+      refreshLiveFormCountdown();
+    }
+
+    function applySubscriptionPlan(planType) {
+      const dateStr = computeExpiryDateByPlan(planType);
+      const expInput = document.getElementById('sub-expiry');
+      if (expInput) expInput.value = dateStr;
+      updatePlanButtonsUi(planType);
+    }
+
+    function handleManualExpiryChange() {
+      const expVal = document.getElementById('sub-expiry')?.value || '';
+      if (!expVal) {
+        refreshLiveFormCountdown();
+        return;
+      }
+      const endMs = Date.parse(`${expVal}T23:59:59`);
+      const daysLeft = Math.ceil((endMs - Date.now()) / 86400000);
+      updatePlanButtonsUi(daysLeft > 60 ? 'yearly' : 'monthly');
+    }
+
+    function refreshLiveFormCountdown() {
+      const box = document.getElementById('sub-countdown-live');
+      if (!box) return;
+      const expVal = document.getElementById('sub-expiry')?.value || '';
+      const plan = document.getElementById('sub-plan-type')?.value || 'monthly';
+      const planLabel = plan === 'yearly' ? 'سنوي (365 يوم)' : 'شهري (30 يوم)';
+      box.textContent = `الباقة: ${planLabel} • العدّاد: ${formatCountdownDetailed(expVal)}`;
+    }
+
+    function setUserEntryMode(mode) {
+      const clean = mode === 'manual' ? 'manual' : 'auto';
+      const modeInput = document.getElementById('sub-entry-mode');
+      const autoBtn = document.getElementById('btn-user-mode-auto');
+      const manualBtn = document.getElementById('btn-user-mode-manual');
+      const helper = document.getElementById('auto-user-helper');
+      const codeInput = document.getElementById('sub-code');
+      const passInput = document.getElementById('sub-pass');
+
+      if (modeInput) modeInput.value = clean;
+      if (autoBtn && manualBtn) {
+        autoBtn.className = clean === 'auto'
+          ? 'px-2.5 py-1 rounded-lg bg-gold text-slate-950 font-black transition cursor-pointer'
+          : 'px-2.5 py-1 rounded-lg text-slate-300 hover:text-white font-bold transition cursor-pointer';
+        manualBtn.className = clean === 'manual'
+          ? 'px-2.5 py-1 rounded-lg bg-emerald-400 text-slate-950 font-black transition cursor-pointer'
+          : 'px-2.5 py-1 rounded-lg text-slate-300 hover:text-white font-bold transition cursor-pointer';
+      }
+
+      if (helper) helper.classList.toggle('hidden', clean !== 'auto');
+      if (codeInput) codeInput.readOnly = (clean === 'auto');
+      if (passInput) passInput.readOnly = (clean === 'auto');
+
+      if (clean === 'auto') {
+        generateAutoCredentials();
+      }
+    }
+
+    function generateAutoCredentials() {
+      const randNum = Math.floor(1000 + Math.random() * 9000);
+      const randPass = Math.floor(100000 + Math.random() * 900000);
+      const codeInput = document.getElementById('sub-code');
+      const passInput = document.getElementById('sub-pass');
+      if (codeInput) codeInput.value = `GOLD-${randNum}`;
+      if (passInput) passInput.value = String(randPass);
+      if (!document.getElementById('sub-expiry')?.value) {
+        applySubscriptionPlan('monthly');
+      }
     }
 
     function isAdminAuthenticated() {
@@ -321,9 +465,20 @@
       }
 
       loadCloudConfigForm();
+      setUserEntryMode(document.getElementById('sub-entry-mode')?.value || 'auto');
+      if (!document.getElementById('sub-expiry')?.value) {
+        applySubscriptionPlan('monthly');
+      }
       renderSubscribersTable();
       renderAdminTickets();
       updateCloudStatusBadge();
+
+      if (!subCountdownTimer) {
+        subCountdownTimer = setInterval(() => {
+          refreshLiveFormCountdown();
+          renderSubscribersTable();
+        }, 1000);
+      }
     }
 
     document.getElementById('admin-login-form').addEventListener('submit', async function (e) {
@@ -362,15 +517,17 @@
     async function pushSubscriberStateToCloud(subscriber) {
       if (!CORE || !subscriber || !subscriber.code) return;
       const code = String(subscriber.code).trim().toUpperCase();
-      const nextStatus = subscriber.disabled ? 'متوقف' : 'نشط';
+      const isExpired = subscriber.expiresAt ? Date.now() > Date.parse(`${String(subscriber.expiresAt).slice(0, 10)}T23:59:59`) : false;
+      const nextStatus = (subscriber.disabled || isExpired) ? 'متوقف' : 'نشط';
 
       const tenantKey = CORE.getTenantDataKey(code);
       const existingTenant = CORE.readSecureStorage(tenantKey, `TENANT_${code}`, {});
       const updatedTenant = CORE.normalizeTenantPayload(Object.assign({}, existingTenant || {}, {
         code,
         status: nextStatus,
-        expiryDate: subscriber.expiresAt || (existingTenant && existingTenant.expiryDate) || '2027-12-31',
-        expiry: subscriber.expiresAt || (existingTenant && existingTenant.expiry) || '2027-12-31',
+        planType: subscriber.planType || 'monthly',
+        expiryDate: subscriber.expiresAt || (existingTenant && existingTenant.expiryDate) || computeExpiryDateByPlan('monthly'),
+        expiry: subscriber.expiresAt || (existingTenant && existingTenant.expiry) || computeExpiryDateByPlan('monthly'),
         updatedAt: new Date().toISOString()
       }), code);
 
@@ -383,6 +540,9 @@
 
     function resetSubscriberForm() {
       document.getElementById('subscriber-form').reset();
+      const mode = document.getElementById('sub-entry-mode')?.value || 'auto';
+      setUserEntryMode(mode);
+      applySubscriptionPlan('monthly');
     }
 
     document.getElementById('subscriber-form').addEventListener('submit', async function (e) {
@@ -391,7 +551,9 @@
       const name = document.getElementById('sub-name').value.trim();
       const phone = document.getElementById('sub-phone').value.trim();
       const pass = document.getElementById('sub-pass').value.trim() || '1234';
-      const expiresAt = document.getElementById('sub-expiry').value || '2027-12-31';
+      const planType = document.getElementById('sub-plan-type').value || 'monthly';
+      const expiresAt = document.getElementById('sub-expiry').value || computeExpiryDateByPlan(planType);
+      const entryMode = document.getElementById('sub-entry-mode').value || 'auto';
 
       if (!code || !name) {
         showAdminToast('يرجى إدخال كود الاشتراك واسم المحل', 'warning');
@@ -405,6 +567,8 @@
         name,
         phone,
         pass,
+        planType,
+        entryMode,
         expiresAt,
         disabled: existingIdx >= 0 ? Boolean(list[existingIdx].disabled) : false,
         updatedAt: new Date().toISOString()
@@ -420,19 +584,21 @@
       await pushSubscriberStateToCloud(record);
       renderSubscribersTable();
       resetSubscriberForm();
-      showAdminToast('تم حفظ بيانات المشترك ومزامنتها', 'success');
+      showAdminToast('تم حفظ بيانات المشترك والعدّاد ومزامنتها', 'success');
     });
 
     function editSubscriberRow(idx) {
       const list = getSubscribersListSafe();
       const s = list[idx];
       if (!s) return;
+      setUserEntryMode('manual');
       document.getElementById('sub-code').value = s.code || '';
       document.getElementById('sub-name').value = s.name || '';
       document.getElementById('sub-phone').value = s.phone || '';
       document.getElementById('sub-pass').value = s.pass || '';
-      document.getElementById('sub-expiry').value = s.expiresAt || '';
-      showAdminToast(`تم تحميل بيانات ${s.code} للتعديل`, 'info');
+      document.getElementById('sub-expiry').value = s.expiresAt || computeExpiryDateByPlan('monthly');
+      updatePlanButtonsUi(s.planType || 'monthly');
+      showAdminToast(`تم تحميل بيانات ${s.code} للتعديل اليدوي`, 'info');
     }
 
     async function toggleSubscriberStatus(idx) {
@@ -456,10 +622,15 @@
 
     function renderSubscribersTable() {
       const tbody = document.getElementById('subscribers-table-body');
-      const query = (document.getElementById('sub-search-input').value || '').trim().toLowerCase();
+      if (!tbody) return;
+      const query = (document.getElementById('sub-search-input')?.value || '').trim().toLowerCase();
       const all = getSubscribersListSafe();
 
-      const activeCount = all.filter(s => !s.disabled).length;
+      const activeCount = all.filter(s => {
+        const expMs = s.expiresAt ? Date.parse(`${String(s.expiresAt).slice(0, 10)}T23:59:59`) : Infinity;
+        return !s.disabled && (isNaN(expMs) || Date.now() <= expMs);
+      }).length;
+
       document.getElementById('stat-total-subs').textContent = String(all.length);
       document.getElementById('stat-active-subs').textContent = String(activeCount);
 
@@ -473,20 +644,26 @@
         });
 
       if (!filtered.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-slate-500">لا توجد حسابات مشتركين مطابقة.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="py-6 text-center text-slate-500">لا توجد حسابات مشتركين مطابقة.</td></tr>';
         return;
       }
 
       tbody.innerHTML = filtered.map(({ item, idx }) => {
-        const statusBadge = item.disabled
-          ? '<span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-bold">متوقف</span>'
-          : '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">نشط</span>';
+        const expMs = item.expiresAt ? Date.parse(`${String(item.expiresAt).slice(0, 10)}T23:59:59`) : Infinity;
+        const isExpired = !isNaN(expMs) && Date.now() > expMs;
+        const effectivelyActive = !item.disabled && !isExpired;
+        const statusBadge = effectivelyActive
+          ? '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">نشط</span>'
+          : '<span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-bold">' + (isExpired ? 'منتهي' : 'متوقف') + '</span>';
+        const planTag = item.planType === 'yearly' ? 'سنوي' : 'شهري';
+        const timerTxt = formatCountdownDetailed(item.expiresAt);
 
         return `
           <tr class="hover:bg-white/[0.02]">
             <td class="py-3 px-3 font-mono font-bold text-gold">${item.code || ''}</td>
             <td class="py-3 px-3 font-bold text-white">${item.name || ''}</td>
             <td class="py-3 px-3 font-mono text-slate-300">${item.phone || '—'}</td>
+            <td class="py-3 px-3 font-mono text-[11px]"><span class="text-gold font-bold">[${planTag}]</span> <span class="text-emerald-300">${timerTxt}</span></td>
             <td class="py-3 px-3 font-mono text-slate-300">${item.expiresAt || '—'}</td>
             <td class="py-3 px-3">${statusBadge}</td>
             <td class="py-3 px-3">
@@ -597,12 +774,12 @@
         showAdminToast('أداة الفحص غير متاحة', 'warning');
         return;
       }
-      showAdminToast('جاري اختبار الاتصال بـ Supabase...', 'info');
+      showAdminToast('جاري اختبار الاتصال بالسحابة...', 'info');
       const res = await CORE.testSupabaseConnection();
       if (res && res.ok) {
-        showAdminToast('الاتصال بـ Supabase ناجح ومستقر', 'success');
+        showAdminToast('الاتصال السحابي ناجح ومستقر', 'success');
       } else {
-        showAdminToast((res && res.message) || 'تعذر الاتصال بـ Supabase، راجع الرابط والمفتاح', 'error');
+        showAdminToast((res && res.message) || 'تعذر الاتصال السحابي، راجع الرابط والمفتاح', 'error');
       }
     }
 
