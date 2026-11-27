@@ -699,18 +699,18 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="bg-emerald-950/35 border border-emerald-500/40 p-4 rounded-2xl shadow-lg">
+        <div id="debts-summary-cards" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div id="debts-summary-box-them" class="bg-emerald-950/35 border border-emerald-500/40 p-4 rounded-2xl shadow-lg">
             <span id="i18n-debts-summary-them" class="text-xs text-emerald-300 font-bold block">إجمالي ما يطلبهم (لنا عند الناس +)</span>
             <strong id="debts-summary-them" class="text-xl font-black text-emerald-400 mt-1 block">0 د.ع</strong>
             <span id="debts-summary-gold-plus" class="text-[11px] text-amber-300 font-mono">ذهب يطلبهم: 0 غرام</span>
           </div>
-          <div class="bg-rose-950/35 border border-rose-500/40 p-4 rounded-2xl shadow-lg">
+          <div id="debts-summary-box-us" class="bg-rose-950/35 border border-rose-500/40 p-4 rounded-2xl shadow-lg">
             <span id="i18n-debts-summary-us" class="text-xs text-rose-300 font-bold block">إجمالي ما يطلبوني (علينا للناس -)</span>
             <strong id="debts-summary-us" class="text-xl font-black text-rose-400 mt-1 block">0 د.ع</strong>
             <span id="debts-summary-gold-minus" class="text-[11px] text-amber-300 font-mono">ذهب يطلبوني: 0 غرام</span>
           </div>
-          <div class="bg-amber-950/30 border border-gold/40 p-4 rounded-2xl shadow-lg">
+          <div id="debts-summary-box-net" class="bg-amber-950/30 border border-gold/40 p-4 rounded-2xl shadow-lg">
             <span id="i18n-debts-summary-net" class="text-xs text-gold font-bold block">صافي ميزان الديون العام (يطلبهم - يطلبوني)</span>
             <strong id="debts-summary-net" class="text-xl font-black text-gold mt-1 block">0 د.ع</strong>
             <span id="debts-summary-gold-net" class="text-[11px] text-slate-300 font-mono">صافي ذمة الذهب: 0 غرام</span>
@@ -778,7 +778,7 @@ body { font-family: 'Cairo', sans-serif; background-color: #070A12; color: #F8FA
           <button onclick="addDebtMovement()" class="w-full gold-gradient text-darkbg font-black py-3.5 rounded-2xl shadow-xl text-sm"><span id="i18n-debts-save-btn">حفظ الحركة وتحديث كارت الديون الفخم 📖</span></button>
         </div>
 
-        <div id="debt-sections-wrapper" class="space-y-6 pt-2">
+        <div id="debt-sections-wrapper" data-active-filter="all" class="space-y-6 pt-2">
           <div id="section-debts-them" class="space-y-3">
             <div class="flex items-center justify-between border-b border-emerald-500/30 pb-2">
               <h4 id="heading-debts-them" class="font-black text-emerald-400 text-base flex items-center gap-2"><i class="fa-solid fa-hand-holding-dollar"></i> كارتات تطلبهم (لنا عند الناس — زيادة + ونقصان - ذهب وأموال)</h4>
@@ -1675,6 +1675,7 @@ function renderAll() {
 
   renderInventoryTable();
   populateStoreSettingsForm();
+  applyDebtTabIsolationState();
   renderDebts();
   updateDebtLivePreview();
   renderMithqalMakingAudit();
@@ -1706,7 +1707,11 @@ function switchTab(tabName) {
     }
   });
   if (tabName === 'logs') renderMithqalMakingAudit();
-  if (tabName === 'debts') { renderDebts(); updateDebtLivePreview(); }
+  if (tabName === 'debts') {
+    applyDebtTabIsolationState();
+    renderDebts();
+    updateDebtLivePreview();
+  }
 }
 
 function openLuxuryKaratPicker(inputId, labelId) {
@@ -2837,14 +2842,73 @@ function addDebtMovement() {
   showToast('تم حفظ الحركة وتحديث الكارت وجرد الحركات', 'success');
 }
 
-function setDebtFilter(filter) {
-  activeDebtFilter = filter === 'on_them' || filter === 'on_us' ? filter : 'all';
+function applyDebtTabIsolationState() {
+  const filter = activeDebtFilter === 'on_them' || activeDebtFilter === 'on_us' ? activeDebtFilter : 'all';
+  activeDebtFilter = filter;
+
+  const wrapper = document.getElementById('debt-sections-wrapper');
+  if (wrapper) wrapper.dataset.activeFilter = filter;
+
   const allBtn = document.getElementById('debt-filter-all');
   const themBtn = document.getElementById('debt-filter-them');
   const usBtn = document.getElementById('debt-filter-us');
-  if (allBtn) allBtn.className = activeDebtFilter === 'all' ? 'bg-gold text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow cursor-pointer' : 'bg-darkbg text-slate-300 border border-slate-700 px-4 py-2 rounded-2xl text-xs font-black cursor-pointer';
-  if (themBtn) themBtn.className = activeDebtFilter === 'on_them' ? 'bg-emerald-500 text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow cursor-pointer' : 'bg-darkbg text-emerald-300 border border-emerald-500/50 px-4 py-2 rounded-2xl text-xs font-black cursor-pointer';
-  if (usBtn) usBtn.className = activeDebtFilter === 'on_us' ? 'bg-rose-500 text-white px-4 py-2 rounded-2xl text-xs font-black shadow cursor-pointer' : 'bg-darkbg text-rose-300 border border-rose-500/50 px-4 py-2 rounded-2xl text-xs font-black cursor-pointer';
+
+  if (allBtn) {
+    allBtn.className = filter === 'all'
+      ? 'bg-gold text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow ring-2 ring-amber-200/70 cursor-pointer'
+      : 'bg-darkbg text-slate-300 border border-slate-700 px-4 py-2 rounded-2xl text-xs font-black cursor-pointer';
+    allBtn.setAttribute('aria-pressed', String(filter === 'all'));
+  }
+  if (themBtn) {
+    themBtn.className = filter === 'on_them'
+      ? 'bg-emerald-500 text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow ring-2 ring-emerald-200/70 cursor-pointer'
+      : 'bg-darkbg text-emerald-300 border border-emerald-500/50 px-4 py-2 rounded-2xl text-xs font-black cursor-pointer';
+    themBtn.setAttribute('aria-pressed', String(filter === 'on_them'));
+  }
+  if (usBtn) {
+    usBtn.className = filter === 'on_us'
+      ? 'bg-rose-500 text-white px-4 py-2 rounded-2xl text-xs font-black shadow ring-2 ring-rose-200/70 cursor-pointer'
+      : 'bg-darkbg text-rose-300 border border-rose-500/50 px-4 py-2 rounded-2xl text-xs font-black cursor-pointer';
+    usBtn.setAttribute('aria-pressed', String(filter === 'on_us'));
+  }
+
+  const secThem = document.getElementById('section-debts-them');
+  const secUs = document.getElementById('section-debts-us');
+  const gridThem = document.getElementById('grid-debts-them');
+  const gridUs = document.getElementById('grid-debts-us');
+
+  const showThem = filter === 'all' || filter === 'on_them';
+  const showUs = filter === 'all' || filter === 'on_us';
+
+  if (secThem) {
+    secThem.classList.toggle('hidden', !showThem);
+    secThem.style.display = showThem ? '' : 'none';
+    secThem.setAttribute('aria-hidden', String(!showThem));
+  }
+  if (!showThem && gridThem) gridThem.innerHTML = '';
+
+  if (secUs) {
+    secUs.classList.toggle('hidden', !showUs);
+    secUs.style.display = showUs ? '' : 'none';
+    secUs.setAttribute('aria-hidden', String(!showUs));
+  }
+  if (!showUs && gridUs) gridUs.innerHTML = '';
+
+  const boxThem = document.getElementById('debts-summary-box-them');
+  const boxUs = document.getElementById('debts-summary-box-us');
+  if (boxThem) {
+    boxThem.classList.toggle('hidden', filter === 'on_us');
+    boxThem.style.display = filter === 'on_us' ? 'none' : '';
+  }
+  if (boxUs) {
+    boxUs.classList.toggle('hidden', filter === 'on_them');
+    boxUs.style.display = filter === 'on_them' ? 'none' : '';
+  }
+}
+
+function setDebtFilter(filter) {
+  activeDebtFilter = filter === 'on_them' || filter === 'on_us' ? filter : 'all';
+  applyDebtTabIsolationState();
   renderDebts();
 }
 
@@ -2928,7 +2992,7 @@ function renderDebtCardHtml(card) {
   const encodedKey = encodeURIComponent(card.key);
 
   return `
-    <div class="system-card p-5 rounded-3xl border ${borderCls} flex flex-col justify-between gap-3.5 shadow-xl transition">
+    <div data-debt-side="${card.side}" class="system-card p-5 rounded-3xl border ${borderCls} flex flex-col justify-between gap-3.5 shadow-xl transition">
       <div class="space-y-2.5">
         <div class="flex items-start justify-between gap-2">
           <div>
@@ -2978,20 +3042,28 @@ function renderDebtCardHtml(card) {
 }
 
 function renderDebts() {
+  applyDebtTabIsolationState();
   const cards = buildCustomerDebtCards();
   const themCards = cards.filter(c => c.side === 'on_them');
   const usCards = cards.filter(c => c.side === 'on_us');
 
-  const activeThemCards = activeDebtFilter === 'on_us' ? [] : themCards;
-  const activeUsCards = activeDebtFilter === 'on_them' ? [] : usCards;
+  const showThem = activeDebtFilter === 'all' || activeDebtFilter === 'on_them';
+  const showUs = activeDebtFilter === 'all' || activeDebtFilter === 'on_us';
+
+  const activeThemCards = showThem ? themCards : [];
+  const activeUsCards = showUs ? usCards : [];
 
   const totalThemMoney = activeThemCards.reduce((s, c) => s + c.netThemMoney, 0);
   const totalThemGold = activeThemCards.reduce((s, c) => s + c.netThemGold, 0);
   const totalUsMoney = activeUsCards.reduce((s, c) => s + c.netUsMoney, 0);
   const totalUsGold = activeUsCards.reduce((s, c) => s + c.netUsGold, 0);
 
-  const netMoney = totalThemMoney - totalUsMoney;
-  const netGold = totalThemGold - totalUsGold;
+  const netMoney = activeDebtFilter === 'on_them'
+    ? totalThemMoney
+    : (activeDebtFilter === 'on_us' ? -totalUsMoney : (totalThemMoney - totalUsMoney));
+  const netGold = activeDebtFilter === 'on_them'
+    ? totalThemGold
+    : (activeDebtFilter === 'on_us' ? -totalUsGold : (totalThemGold - totalUsGold));
 
   setTextSafe('debts-summary-them', formatIQD(totalThemMoney));
   setTextSafe('debts-summary-gold-plus', `ذهب تطلبهم: ${formatGrams(totalThemGold)}`);
@@ -3003,24 +3075,23 @@ function renderDebts() {
   setTextSafe('count-debts-them', `${themCards.length} كارت`);
   setTextSafe('count-debts-us', `${usCards.length} كارت`);
 
-  const secThem = document.getElementById('section-debts-them');
-  const secUs = document.getElementById('section-debts-us');
-  if (secThem) secThem.classList.toggle('hidden', activeDebtFilter === 'on_us');
-  if (secUs) secUs.classList.toggle('hidden', activeDebtFilter === 'on_them');
-
   const gridThem = document.getElementById('grid-debts-them');
   const gridUs = document.getElementById('grid-debts-us');
 
   if (gridThem) {
-    gridThem.innerHTML = themCards.length
-      ? themCards.map(renderDebtCardHtml).join('')
-      : '<div class="md:col-span-2 lg:col-span-3 bg-darkbg/70 border border-slate-800 rounded-2xl p-6 text-center text-xs text-slate-500">لا توجد كارتات في خانة (تطلبهم) حالياً.</div>';
+    gridThem.innerHTML = showThem
+      ? (themCards.length
+          ? themCards.map(renderDebtCardHtml).join('')
+          : '<div class="md:col-span-2 lg:col-span-3 bg-darkbg/70 border border-slate-800 rounded-2xl p-6 text-center text-xs text-slate-500">لا توجد كارتات في خانة (تطلبهم) حالياً.</div>')
+      : '';
   }
 
   if (gridUs) {
-    gridUs.innerHTML = usCards.length
-      ? usCards.map(renderDebtCardHtml).join('')
-      : '<div class="md:col-span-2 lg:col-span-3 bg-darkbg/70 border border-slate-800 rounded-2xl p-6 text-center text-xs text-slate-500">لا توجد كارتات في خانة (يطلبوك) حالياً.</div>';
+    gridUs.innerHTML = showUs
+      ? (usCards.length
+          ? usCards.map(renderDebtCardHtml).join('')
+          : '<div class="md:col-span-2 lg:col-span-3 bg-darkbg/70 border border-slate-800 rounded-2xl p-6 text-center text-xs text-slate-500">لا توجد كارتات في خانة (يطلبوك) حالياً.</div>')
+      : '';
   }
 }
 
@@ -3129,15 +3200,12 @@ function setCardModalDirection(dir) {
   if (btnInc && btnDec) {
     btnInc.className = cleanDir === 'inc'
       ? 'bg-emerald-600/35 border-2 border-emerald-400 text-emerald-200 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition'
-      : 'bg-darkbg border border-emerald-500/30 text-emerald-400/70 font-bold py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
+      : 'bg-darkbg border border-emerald-500/30 text-emerald-300 font-bold py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
     btnDec.className = cleanDir === 'dec'
       ? 'bg-rose-600/35 border-2 border-rose-400 text-rose-200 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition'
-      : 'bg-darkbg border border-rose-500/30 text-rose-400/70 font-bold py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
+      : 'bg-darkbg border border-rose-500/30 text-rose-300 font-bold py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
   }
-  const badge = document.getElementById('dcm-mode-badge');
-  if (badge) {
-    badge.textContent = `${cleanDir === 'dec' ? 'نقصان' : 'زيادة'} ${unit === 'gold' ? 'ذهب' : 'أموال'} (${cleanDir === 'dec' ? '-' : '+'})`;
-  }
+  updateCardModalModeBadge(cleanDir, unit);
 }
 
 function setCardModalUnit(unit) {
@@ -3149,15 +3217,23 @@ function setCardModalUnit(unit) {
   if (btnMoney && btnGold) {
     btnMoney.className = cleanUnit === 'money'
       ? 'gold-gradient text-darkbg font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition'
-      : 'bg-darkbg border border-slate-700 text-slate-300 font-bold py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
+      : 'bg-darkbg border border-gold/30 text-gold font-bold py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
     btnGold.className = cleanUnit === 'gold'
-      ? 'gold-gradient text-darkbg font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition'
+      ? 'bg-amber-500 text-darkbg font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition'
       : 'bg-darkbg border border-amber-400/40 text-amber-300 font-bold py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
   }
+  updateCardModalModeBadge(dir, cleanUnit);
+}
+
+function updateCardModalModeBadge(dir, unit) {
   const badge = document.getElementById('dcm-mode-badge');
-  if (badge) {
-    badge.textContent = `${dir === 'dec' ? 'نقصان' : 'زيادة'} ${cleanUnit === 'gold' ? 'ذهب' : 'أموال'} (${dir === 'dec' ? '-' : '+'})`;
-  }
+  if (!badge) return;
+  const uLabel = unit === 'gold' ? 'ذهب' : 'أموال';
+  const dLabel = dir === 'dec' ? 'نقصان (-)' : 'زيادة (+)';
+  badge.textContent = `${dLabel} ${uLabel}`;
+  badge.className = dir === 'dec'
+    ? 'px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-bold'
+    : 'px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold';
 }
 
 function presetCardModalAction(dir, unit) {
@@ -3166,7 +3242,6 @@ function presetCardModalAction(dir, unit) {
 }
 
 function applyQuickCardAdjustment() {
-  if (!activeDebtCardKey) return;
   const card = buildCustomerDebtCards().find(c => c.key === activeDebtCardKey);
   if (!card) return;
   const dir = document.getElementById('dcm-action-dir').value === 'dec' ? 'dec' : 'inc';
@@ -3179,10 +3254,11 @@ function applyQuickCardAdjustment() {
     return;
   }
 
-  const sideText = card.side === 'on_us' ? 'يطلبوني' : 'يطلبهم';
-  const unitText = unit === 'gold' ? 'ذهب' : 'أموال';
-  const dirText = dir === 'dec' ? 'نقصان (-)' : 'زيادة (+)';
-  const fullType = `${sideText} ${unitText} ${dirText}`;
+  const sidePrefix = card.side === 'on_us' ? 'يطلبوني' : 'يطلبهم';
+  const unitLabel = unit === 'gold' ? 'ذهب' : 'أموال';
+  const dirLabel = dir === 'dec' ? 'نقصان (-)' : 'زيادة (+)';
+  const fullType = `${sidePrefix} ${unitLabel} ${dirLabel}`;
+  const signedEffect = dir === 'dec' ? -amount : amount;
 
   const entry = {
     id: 'DBT-' + Date.now().toString().slice(-6),
@@ -3193,30 +3269,31 @@ function applyQuickCardAdjustment() {
     unit,
     dir,
     absAmount: amount,
-    amount: dir === 'dec' ? -amount : amount,
-    notes: notes || 'تعديل مباشر من داخل الكارت',
+    amount: signedEffect,
+    notes,
     date: new Date().toISOString()
   };
 
   db.debts.unshift(entry);
   saveCustomerLedgerEntry(card.customer, card.phone, entry);
-  addLog('حركة ديون', `${card.customer} (${fullType}) — ${unit === 'gold' ? formatGrams(amount) : formatIQD(amount)} | ${entry.notes}`, entry.amount);
+  addLog('حركة ديون', `${card.customer} (${sidePrefix} • ${unitLabel} • ${dirLabel}) — القيمة: ${unit === 'gold' ? formatGrams(amount) : formatIQD(amount)}${notes ? ' | ' + notes : ''}`, signedEffect);
   saveTenantData();
   renderDebts();
-  openDebtCardDetailsModal(encodeURIComponent(card.key));
-  document.getElementById('dcm-action-amount').value = '';
-  document.getElementById('dcm-action-notes').value = '';
-  showToast('تم تحديث رصيد الكارت وتوثيق الحركة', 'success');
+  filterLogs();
+  const reEncoded = encodeURIComponent(card.key);
+  openDebtCardDetailsModal(reEncoded);
+  showToast('تمت إضافة الحركة وتحديث الكارت بنجاح', 'success');
 }
 
-function deleteDebtMovementByIndex(rawIndex) {
-  if (isNaN(rawIndex) || !db.debts[rawIndex]) return;
-  const removed = db.debts.splice(rawIndex, 1)[0];
-  addLog('حذف حركة ديون', `حذف حركة ديون لـ ${removed.customer || ''} (${removed.type || ''})`, Number(removed.amount || 0));
+function deleteDebtMovementByIndex(rawIdx) {
+  if (rawIdx < 0 || rawIdx >= db.debts.length) return;
+  const currentKey = activeDebtCardKey;
+  db.debts.splice(rawIdx, 1);
   saveTenantData();
   renderDebts();
-  if (activeDebtCardKey && buildCustomerDebtCards().some(c => c.key === activeDebtCardKey)) {
-    openDebtCardDetailsModal(encodeURIComponent(activeDebtCardKey));
+  filterLogs();
+  if (currentKey && buildCustomerDebtCards().some(c => c.key === currentKey)) {
+    openDebtCardDetailsModal(encodeURIComponent(currentKey));
   } else {
     closeDebtCardDetailsModal();
   }
@@ -3239,7 +3316,8 @@ function selectLuxuryMithqalFilter(val, label) {
 }
 
 function openLuxuryMithqalTestModal() {
-  syncTestMithqalDefault();
+  const karat = document.getElementById('test-mq-karat').value || '21';
+  document.getElementById('test-mq-price').value = getMithqalPriceByKarat(karat);
   calculateLuxuryMithqalTest();
   document.getElementById('luxury-mithqal-test-modal').classList.remove('hidden');
 }
@@ -3249,115 +3327,104 @@ function closeLuxuryMithqalTestModal() {
 }
 
 function syncTestMithqalDefault() {
-  const karat = document.getElementById('test-mq-karat')?.value || '21';
-  const priceInput = document.getElementById('test-mq-price');
-  if (priceInput) priceInput.value = getMithqalPriceByKarat(karat);
+  const karat = document.getElementById('test-mq-karat').value || '21';
+  document.getElementById('test-mq-price').value = getMithqalPriceByKarat(karat);
 }
 
 function calculateLuxuryMithqalTest() {
-  const mqPrice = parseFloat(document.getElementById('test-mq-price')?.value) || 0;
-  const weight = parseFloat(document.getElementById('test-mq-weight')?.value) || 0;
-  const gramAdj = parseFloat(document.getElementById('test-mq-gram-adj')?.value) || 0;
-
+  const mqPrice = parseFloat(document.getElementById('test-mq-price').value) || 0;
+  const weight = parseFloat(document.getElementById('test-mq-weight').value) || 0;
+  const gramAdj = parseFloat(document.getElementById('test-mq-gram-adj').value) || 0;
   const baseGram = mqPrice / MITHQAL_GRAMS;
-  const adjGram = baseGram + gramAdj;
+  const adjGram = Math.max(0, baseGram + gramAdj);
   const mqCount = weight / MITHQAL_GRAMS;
-  const totalAdj = Math.round(weight * gramAdj);
+  const totalAdj = Math.round(gramAdj * weight);
   const grandTotal = Math.round(weight * adjGram);
 
   setTextSafe('test-mq-base-gram', formatIQD(Math.round(baseGram)));
   setTextSafe('test-mq-adj-gram', formatIQD(Math.round(adjGram)));
-  setTextSafe('test-mq-count', mqCount.toFixed(3).replace(/\.?0+$/, '') + ' مثقال');
+  setTextSafe('test-mq-count', mqCount.toFixed(2) + ' مثقال');
   setTextSafe('test-mq-total-adj', formatIQD(totalAdj));
   setTextSafe('test-mq-grand-total', formatIQD(grandTotal));
 }
 
 function applyTestMithqalToAudit() {
-  const karat = document.getElementById('test-mq-karat')?.value || 'all';
-  const mqPrice = parseFloat(document.getElementById('test-mq-price')?.value) || '';
+  const karat = document.getElementById('test-mq-karat').value || '21';
+  const price = parseFloat(document.getElementById('test-mq-price').value) || 0;
   document.getElementById('mithqal-audit-karat').value = karat;
-  document.getElementById('selected-mithqal-filter-label').textContent = karat === 'all' ? 'جميع المثاقيل (كل العيارات)' : `مثقال عيار ${karat}`;
-  if (mqPrice) document.getElementById('mithqal-audit-custom-price').value = mqPrice;
+  document.getElementById('selected-mithqal-filter-label').textContent = `مثقال عيار ${karat}`;
+  if (price > 0) document.getElementById('mithqal-audit-custom-price').value = price;
   closeLuxuryMithqalTestModal();
   renderMithqalMakingAudit();
-  showToast('تم اعتماد العيار في جرد المثقال', 'success');
 }
 
 function renderMithqalMakingAudit() {
   const tbody = document.getElementById('mithqal-audit-tbody');
   if (!tbody) return;
-  const filterKarat = document.getElementById('mithqal-audit-karat')?.value || 'all';
-  const customPrice = parseFloat(document.getElementById('mithqal-audit-custom-price')?.value) || 0;
+  const selectedKarat = document.getElementById('mithqal-audit-karat')?.value || 'all';
 
-  const soldLines = [];
+  const soldRows = [];
   db.logs.forEach(l => {
-    if (l.type === 'عملية بيع' && l.meta && !l.meta.returned && Array.isArray(l.meta.items)) {
+    if (l.type === 'عملية بيع' && l.meta && Array.isArray(l.meta.items) && !l.meta.returned) {
       l.meta.items.forEach(it => {
-        if (filterKarat !== 'all' && String(it.karat) !== String(filterKarat)) return;
-        const lineWeight = Number(it.weight || 0) * Number(it.qty || 1);
-        const lineMaking = Number(it.lineMaking || Math.round(lineWeight * Number(it.makingPerGram || 0)));
-        const mqCount = lineWeight / MITHQAL_GRAMS;
-        const makingPerMq = Number(it.makingPerGram || 0) * MITHQAL_GRAMS;
-        soldLines.push({
-          title: `${it.name} (${l.meta.invoiceCode || ''})`,
-          karat: it.karat,
-          weight: lineWeight,
-          mqCount,
-          makingPerMq,
-          makingTotal: lineMaking
-        });
+        if (selectedKarat === 'all' || String(it.karat) === String(selectedKarat)) {
+          const w = Number(it.weight || 0) * Number(it.qty || 1);
+          const mq = w / MITHQAL_GRAMS;
+          const makingPerGram = Number(it.makingPerGram || 0);
+          const makingPerMithqal = Math.round(makingPerGram * MITHQAL_GRAMS);
+          const totalMaking = Math.round(w * makingPerGram);
+          soldRows.push({
+            name: `${it.name} (${l.meta.invoiceCode})`,
+            karat: it.karat,
+            weight: w,
+            mithqals: mq,
+            makingPerMithqal,
+            totalMaking
+          });
+        }
       });
     }
   });
 
-  const totalCount = soldLines.length;
-  const totalWeight = soldLines.reduce((s, x) => s + x.weight, 0);
-  const totalMq = totalWeight / MITHQAL_GRAMS;
-  const totalMaking = soldLines.reduce((s, x) => s + x.makingTotal, 0);
-  const avgMakingPerMq = totalMq > 0 ? Math.round(totalMaking / totalMq) : 0;
+  const totalCount = soldRows.length;
+  const totalWeight = soldRows.reduce((s, r) => s + r.weight, 0);
+  const totalMithqals = totalWeight / MITHQAL_GRAMS;
+  const totalMaking = soldRows.reduce((s, r) => s + r.totalMaking, 0);
+  const avgMakingPerMq = totalMithqals > 0 ? Math.round(totalMaking / totalMithqals) : 0;
 
   setTextSafe('audit-sold-count', String(totalCount));
-  setTextSafe('audit-sold-weight', `${totalWeight.toFixed(2)} غ (${totalMq.toFixed(2)} مثقال)`);
+  setTextSafe('audit-sold-weight', `${totalWeight.toFixed(2)} غ (${totalMithqals.toFixed(2)} مثقال)`);
   setTextSafe('audit-making-total', formatIQD(totalMaking));
-  setTextSafe('audit-making-per-mithqal', formatIQD(customPrice > 0 ? Math.round(avgMakingPerMq + (customPrice * 0)) : avgMakingPerMq));
+  setTextSafe('audit-making-per-mithqal', formatIQD(avgMakingPerMq));
 
-  if (!soldLines.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">لا توجد مبيعات مطابقة للمثقال المحدد.</td></tr>';
+  if (!soldRows.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">لا توجد مبيعات مسجلة ضمن هذا المثقال حالياً.</td></tr>';
     return;
   }
 
-  tbody.innerHTML = soldLines.map(r => `
+  tbody.innerHTML = soldRows.map(r => `
     <tr>
-      <td class="p-2.5 font-bold text-slate-100">${r.title}</td>
+      <td class="p-2.5 font-bold text-slate-100">${r.name}</td>
       <td class="p-2.5 text-gold font-bold">عيار ${r.karat}</td>
       <td class="p-2.5">${r.weight.toFixed(2)} غ</td>
-      <td class="p-2.5 font-mono text-emerald-400">${r.mqCount.toFixed(2)} مثقال</td>
-      <td class="p-2.5 text-amber-300">${formatIQD(Math.round(r.makingPerMq))}</td>
-      <td class="p-2.5 text-emerald-400 font-bold">${formatIQD(r.makingTotal)}</td>
+      <td class="p-2.5 text-emerald-400 font-mono">${r.mithqals.toFixed(2)}</td>
+      <td class="p-2.5 text-amber-300 font-bold">${formatIQD(r.makingPerMithqal)}</td>
+      <td class="p-2.5 text-emerald-400 font-black">${formatIQD(r.totalMaking)}</td>
     </tr>
   `).join('');
 }
 
-function addLog(type, details, amount = 0, meta = null) {
+function addLog(type, details, amount, meta = null) {
+  if (!Array.isArray(db.logs)) db.logs = [];
   db.logs.unshift({
     id: 'LOG-' + Date.now().toString().slice(-6),
+    date: new Date().toISOString(),
+    dateText: new Date().toLocaleString('ar-IQ'),
     type,
     details,
-    amount,
-    meta,
-    date: new Date().toISOString()
+    amount: Number(amount || 0),
+    meta
   });
-}
-
-function switchLogCategory(cat) {
-  activeLogCategory = cat;
-  document.querySelectorAll('.cat-btn').forEach(btn => {
-    const isActive = btn.id === `log-cat-${cat}`;
-    btn.className = isActive
-      ? 'cat-btn bg-gold text-darkbg px-3.5 py-1.5 rounded-xl font-bold'
-      : 'cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700';
-  });
-  filterLogs();
 }
 
 function setDayFilter(day) {
@@ -3376,107 +3443,222 @@ function setDayFilter(day) {
 
 function setCustomDateFilter() {
   customFilterDate = document.getElementById('search-date')?.value || '';
-  if (customFilterDate) activeDayFilter = 'مخصص';
+  if (customFilterDate) {
+    activeDayFilter = 'مخصص';
+    document.querySelectorAll('.day-filter-btn').forEach(btn => {
+      btn.className = 'day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl';
+    });
+  } else {
+    activeDayFilter = 'الكل';
+  }
   filterLogs();
 }
 
-function matchesDateFilter(isoStr) {
-  if (!isoStr) return true;
-  const d = new Date(isoStr);
-  if (isNaN(d.getTime())) return true;
+function switchLogCategory(cat) {
+  activeLogCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    const isActive = btn.id === `log-cat-${cat}`;
+    if (isActive) {
+      btn.className = 'cat-btn bg-gold text-darkbg px-3.5 py-1.5 rounded-xl font-bold';
+    } else if (btn.id === 'log-cat-تعديل مخزن') {
+      btn.className = 'cat-btn bg-darkbg text-amber-300 px-3.5 py-1.5 rounded-xl border border-amber-500/40';
+    } else if (btn.id === 'log-cat-حذف مخزن') {
+      btn.className = 'cat-btn bg-darkbg text-rose-300 px-3.5 py-1.5 rounded-xl border border-rose-500/40';
+    } else {
+      btn.className = 'cat-btn bg-darkbg text-slate-300 px-3.5 py-1.5 rounded-xl border border-slate-700';
+    }
+  });
+  filterLogs();
+}
+
+function isLogInActivePeriod(log) {
+  const d = new Date(log.date || Date.now());
   const now = new Date();
-  const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const startYesterday = new Date(startToday.getTime() - 86400000);
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const oneDay = 86400000;
 
   if (customFilterDate) {
-    const localDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    return localDate === customFilterDate;
+    const parts = customFilterDate.split('-');
+    if (parts.length === 3) {
+      return d.getFullYear() === parseInt(parts[0], 10) &&
+        (d.getMonth() + 1) === parseInt(parts[1], 10) &&
+        d.getDate() === parseInt(parts[2], 10);
+    }
   }
-  if (activeDayFilter === 'اليوم') return d >= startToday;
-  if (activeDayFilter === 'البارحة') return d >= startYesterday && d < startToday;
-  if (activeDayFilter === 'الأسبوع') return d >= new Date(startToday.getTime() - 7 * 86400000);
-  if (activeDayFilter === 'الشهر') return d >= new Date(startToday.getTime() - 30 * 86400000);
+  if (activeDayFilter === 'اليوم') return d.getTime() >= startOfToday;
+  if (activeDayFilter === 'البارحة') return d.getTime() >= (startOfToday - oneDay) && d.getTime() < startOfToday;
+  if (activeDayFilter === 'الأسبوع') return d.getTime() >= (startOfToday - 7 * oneDay);
+  if (activeDayFilter === 'الشهر') return d.getTime() >= (startOfToday - 30 * oneDay);
   return true;
 }
 
 function filterLogs() {
-  const tbody = document.getElementById('logs-table-body');
-  if (!tbody) return;
   const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
+  const periodLogs = db.logs.filter(isLogInActivePeriod);
 
-  const dateFiltered = db.logs.filter(l => matchesDateFilter(l.date));
-  const salesSum = dateFiltered.filter(l => l.type === 'عملية بيع' && !(l.meta && l.meta.returned)).reduce((s, l) => s + Number(l.amount || 0), 0);
-  const profitSum = dateFiltered.filter(l => l.type === 'عملية بيع' && !(l.meta && l.meta.returned)).reduce((s, l) => s + Number((l.meta && l.meta.totalMaking) || 0), 0);
-  const scrapSum = dateFiltered.filter(l => l.type === 'شراء كسر').reduce((s, l) => s + Number(l.amount || 0), 0);
-  const expSum = dateFiltered.filter(l => l.type === 'صرف مصروف').reduce((s, l) => s + Number(l.amount || 0), 0);
+  let salesSum = 0;
+  let profitSum = 0;
+  let scrapSum = 0;
+  let expSum = 0;
+
+  periodLogs.forEach(l => {
+    if (l.type === 'عملية بيع' && !(l.meta && l.meta.returned)) {
+      salesSum += Number(l.amount || 0);
+      profitSum += Number((l.meta && l.meta.totalMaking) || 0);
+    } else if (l.type === 'شراء كسر') {
+      scrapSum += Number(l.amount || 0);
+    } else if (l.type === 'صرف مصروف') {
+      expSum += Number(l.amount || 0);
+    }
+  });
 
   setTextSafe('period-sales-total', formatIQD(salesSum));
   setTextSafe('period-profit-total', formatIQD(profitSum));
   setTextSafe('period-scrap-total', formatIQD(scrapSum));
   setTextSafe('period-exp-total', formatIQD(expSum));
 
-  const rows = dateFiltered.filter(l => {
-    if (activeLogCategory !== 'all' && l.type !== activeLogCategory) return false;
-    if (!q) return true;
-    return String(l.id || '').toLowerCase().includes(q)
-      || String(l.type || '').toLowerCase().includes(q)
-      || String(l.details || '').toLowerCase().includes(q);
+  const filtered = periodLogs.filter(l => {
+    const catMatch = activeLogCategory === 'all' || l.type === activeLogCategory;
+    const textMatch = !q ||
+      String(l.id || '').toLowerCase().includes(q) ||
+      String(l.type || '').toLowerCase().includes(q) ||
+      String(l.details || '').toLowerCase().includes(q);
+    return catMatch && textMatch;
   });
 
-  if (!rows.length) {
+  const tbody = document.getElementById('logs-table-body');
+  if (!tbody) return;
+  if (!filtered.length) {
     tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">لا توجد سجلات مطابقة.</td></tr>';
     return;
   }
 
-  tbody.innerHTML = rows.map(l => {
+  tbody.innerHTML = filtered.map(l => {
     const meta = getOperationMeta(l);
-    const dt = l.date ? new Date(l.date).toLocaleString('ar-IQ') : '--';
-    const isWeightType = String(l.type || '').includes('مخزن') || String(l.details || '').includes('ذهب');
-    const amtDisplay = isWeightType && !String(l.type || '').includes('بيع') && !String(l.type || '').includes('مصروف') && !String(l.type || '').includes('كسر')
-      ? formatGrams(Math.abs(Number(l.amount || 0)))
-      : formatIQD(Number(l.amount || 0));
     return `
       <tr>
-        <td class="p-3 font-mono text-[11px] text-slate-400">${dt}</td>
+        <td class="p-3 text-slate-400 font-mono whitespace-nowrap">${l.dateText || new Date(l.date || Date.now()).toLocaleString('ar-IQ')}</td>
         <td class="p-3 font-mono text-gold">${l.id || '--'}</td>
-        <td class="p-3"><span class="border px-2.5 py-1 rounded-full text-[10px] font-bold ${meta.badgeClass}">${meta.category}</span></td>
-        <td class="p-3 text-slate-200">${l.details || ''}</td>
-        <td class="p-3 font-mono font-bold text-emerald-400">${amtDisplay}</td>
+        <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${meta.badgeClass}">${meta.category}</span></td>
+        <td class="p-3 text-slate-200">${l.details || '--'}</td>
+        <td class="p-3 font-mono font-bold text-emerald-400 whitespace-nowrap">${Number(l.amount || 0).toLocaleString('en-US')}</td>
       </tr>
     `;
   }).join('');
 }
 
 function exportLogsToExcel() {
-  const debtsRows = db.debts.map(d => {
-    const p = parseDebtMovement(d);
-    return `<Row><Cell><Data ss:Type="String">${escapeXml(d.customer || '')}</Data></Cell><Cell><Data ss:Type="String">${escapeXml(d.phone || '')}</Data></Cell><Cell><Data ss:Type="String">${escapeXml(p.label)}</Data></Cell><Cell><Data ss:Type="String">${escapeXml(p.unit === 'gold' ? formatGrams(p.absAmt) : formatIQD(p.absAmt))}</Data></Cell><Cell><Data ss:Type="String">${escapeXml(d.notes || '')}</Data></Cell></Row>`;
-  }).join('');
+  const rows = db.logs.map(l => {
+    const meta = getOperationMeta(l);
+    return [
+      l.dateText || new Date(l.date || Date.now()).toLocaleString('ar-IQ'),
+      l.id || '--',
+      meta.category,
+      meta.direction,
+      l.details || '--',
+      Number(l.amount || 0)
+    ];
+  });
 
-  const invRows = db.inventory.map(it => {
-    const pr = calculateItemPricing(it);
-    return `<Row><Cell><Data ss:Type="String">${escapeXml(it.name)}</Data></Cell><Cell><Data ss:Type="String">${escapeXml(it.condition === 'used' ? 'مستعمل' : 'جديد')}</Data></Cell><Cell><Data ss:Type="String">${escapeXml(it.karat)}</Data></Cell><Cell><Data ss:Type="Number">${Number(it.weight || 0)}</Data></Cell><Cell><Data ss:Type="Number">${Number(it.qty || 0)}</Data></Cell><Cell><Data ss:Type="Number">${Number(pr.pieceIqd || 0)}</Data></Cell></Row>`;
-  }).join('');
+  const xmlRows = rows.map(r => `
+    <Row>
+      ${r.map((cell, i) => `<Cell><Data ss:Type="${i === 5 ? 'Number' : 'String'}">${escapeXml(cell)}</Data></Cell>`).join('')}
+    </Row>
+  `).join('');
 
-  const logRows = db.logs.map(l => {
-    const m = getOperationMeta(l);
-    return `<Row><Cell><Data ss:Type="String">${escapeXml(l.date || '')}</Data></Cell><Cell><Data ss:Type="String">${escapeXml(l.id || '')}</Data></Cell><Cell><Data ss:Type="String">${escapeXml(m.category)}</Data></Cell><Cell><Data ss:Type="String">${escapeXml(l.details || '')}</Data></Cell><Cell><Data ss:Type="Number">${Number(l.amount || 0)}</Data></Cell></Row>`;
-  }).join('');
+  const invRows = db.inventory.map(it => `
+    <Row>
+      <Cell><Data ss:Type="String">${escapeXml(it.id || '')}</Data></Cell>
+      <Cell><Data ss:Type="String">${escapeXml(it.name || '')}</Data></Cell>
+      <Cell><Data ss:Type="String">${escapeXml(it.condition === 'used' ? 'مستعمل' : 'جديد')}</Data></Cell>
+      <Cell><Data ss:Type="String">${escapeXml(it.karat || '')}</Data></Cell>
+      <Cell><Data ss:Type="Number">${Number(it.weight || 0)}</Data></Cell>
+      <Cell><Data ss:Type="Number">${Number(it.makingPerGram || 0)}</Data></Cell>
+      <Cell><Data ss:Type="Number">${Number(it.qty || 0)}</Data></Cell>
+    </Row>
+  `).join('');
 
-  const summarySheet = `<Worksheet ss:Name="الملخص_والخزينة"><Table><Row><Cell><Data ss:Type="String">المعرض</Data></Cell><Cell><Data ss:Type="String">${escapeXml(db.store.name)}</Data></Cell></Row><Row><Cell><Data ss:Type="String">صندوق الكاش</Data></Cell><Cell><Data ss:Type="Number">${Number(db.cash || 0)}</Data></Cell></Row><Row><Cell><Data ss:Type="String">صندوق الدولار</Data></Cell><Cell><Data ss:Type="Number">${Number(db.usd || 0)}</Data></Cell></Row><Row><Cell><Data ss:Type="String">زين كاش والماستر</Data></Cell><Cell><Data ss:Type="Number">${Number(db.zain || 0)}</Data></Cell></Row><Row><Cell><Data ss:Type="String">أرباح الصياغة</Data></Cell><Cell><Data ss:Type="Number">${Number(db.makingProfit || 0)}</Data></Cell></Row></Table></Worksheet>`;
-  const xml = `<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">${summarySheet}<Worksheet ss:Name="سجل_العمليات"><Table>${logRows}</Table></Worksheet><Worksheet ss:Name="المخزون"><Table>${invRows}</Table></Worksheet><Worksheet ss:Name="دفتر_الديون"><Table>${debtsRows}</Table></Worksheet></Workbook>`;
-  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const debtRows = buildCustomerDebtCards().map(c => `
+    <Row>
+      <Cell><Data ss:Type="String">${escapeXml(c.customer)}</Data></Cell>
+      <Cell><Data ss:Type="String">${escapeXml(c.phone || '')}</Data></Cell>
+      <Cell><Data ss:Type="String">${escapeXml(c.side === 'on_them' ? 'تطلبهم (+)' : 'يطلبوك (-)')}</Data></Cell>
+      <Cell><Data ss:Type="Number">${Number(c.side === 'on_them' ? c.netThemMoney : c.netUsMoney)}</Data></Cell>
+      <Cell><Data ss:Type="Number">${Number(c.side === 'on_them' ? c.netThemGold : c.netUsGold)}</Data></Cell>
+    </Row>
+  `).join('');
+
+  const workbookXml = `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+  <Worksheet ss:Name="العمليات والجرد">
+    <Table>
+      <Row>
+        <Cell><Data ss:Type="String">التاريخ</Data></Cell>
+        <Cell><Data ss:Type="String">الرمز</Data></Cell>
+        <Cell><Data ss:Type="String">النوع</Data></Cell>
+        <Cell><Data ss:Type="String">الاتجاه</Data></Cell>
+        <Cell><Data ss:Type="String">التفاصيل</Data></Cell>
+        <Cell><Data ss:Type="String">القيمة</Data></Cell>
+      </Row>
+      ${xmlRows}
+    </Table>
+  </Worksheet>
+  <Worksheet ss:Name="المخزن">
+    <Table>
+      <Row>
+        <Cell><Data ss:Type="String">الرمز</Data></Cell>
+        <Cell><Data ss:Type="String">الصنف</Data></Cell>
+        <Cell><Data ss:Type="String">الحالة</Data></Cell>
+        <Cell><Data ss:Type="String">العيار</Data></Cell>
+        <Cell><Data ss:Type="String">الوزن</Data></Cell>
+        <Cell><Data ss:Type="String">صياغة الغرام</Data></Cell>
+        <Cell><Data ss:Type="String">الكمية</Data></Cell>
+      </Row>
+      ${invRows}
+    </Table>
+  </Worksheet>
+  <Worksheet ss:Name="الديون">
+    <Table>
+      <Row>
+        <Cell><Data ss:Type="String">الاسم</Data></Cell>
+        <Cell><Data ss:Type="String">الهاتف</Data></Cell>
+        <Cell><Data ss:Type="String">القسم</Data></Cell>
+        <Cell><Data ss:Type="String">صافي الأموال</Data></Cell>
+        <Cell><Data ss:Type="String">صافي الذهب</Data></Cell>
+      </Row>
+      ${debtRows}
+    </Table>
+  </Worksheet>
+  <Worksheet ss:Name="ملخص الخزينة">
+    <Table>
+      <Row><Cell><Data ss:Type="String">صندوق الكاش</Data></Cell><Cell><Data ss:Type="Number">${Number(db.cash || 0)}</Data></Cell></Row>
+      <Row><Cell><Data ss:Type="String">صندوق الدولار</Data></Cell><Cell><Data ss:Type="Number">${Number(db.usd || 0)}</Data></Cell></Row>
+      <Row><Cell><Data ss:Type="String">زين كاش والماستر</Data></Cell><Cell><Data ss:Type="Number">${Number(db.zain || 0)}</Data></Cell></Row>
+      <Row><Cell><Data ss:Type="String">أرباح الصياغة</Data></Cell><Cell><Data ss:Type="Number">${Number(db.makingProfit || 0)}</Data></Cell></Row>
+    </Table>
+  </Worksheet>
+</Workbook>`;
+
+  const blob = new Blob([workbookXml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = `ARAMKY_${activeTenantCode}_${new Date().toISOString().slice(0, 10)}.xls`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast('تم تصدير ملف Excel بنجاح', 'success');
+  showToast('تم تصدير ملف Excel (4 أوراق) بنجاح', 'success');
 }
 
-function openLuxuryTransferMethodModal() { document.getElementById('luxury-transfer-method-modal').classList.remove('hidden'); }
-function closeLuxuryTransferMethodModal() { document.getElementById('luxury-transfer-method-modal').classList.add('hidden'); }
+function openLuxuryTransferMethodModal() {
+  document.getElementById('luxury-transfer-method-modal').classList.remove('hidden');
+}
+
+function closeLuxuryTransferMethodModal() {
+  document.getElementById('luxury-transfer-method-modal').classList.add('hidden');
+}
+
 function selectLuxuryTransferMethod(val, label) {
   document.getElementById('sup-pay-method').value = val;
   document.getElementById('selected-transfer-method-label').textContent = label;
@@ -3489,66 +3671,69 @@ async function previewSupportReceipt(event) {
   if (!preview) return;
   if (imgs.length) {
     preview.src = imgs[0];
+    preview.dataset.imgData = imgs[0];
     preview.classList.remove('hidden');
   } else {
     preview.src = '';
+    delete preview.dataset.imgData;
     preview.classList.add('hidden');
   }
 }
 
-async function submitSupportTransfer() {
-  const method = document.getElementById('sup-pay-method').value || 'رسالة عامة';
+function submitSupportTransfer() {
+  const method = document.getElementById('sup-pay-method').value || 'رسالة عامة / استفسار للإدارة';
   const ref = document.getElementById('sup-trans-ref').value.trim();
   const msg = document.getElementById('sup-message').value.trim();
-  const imgs = await readFilesAsDataUrls(document.getElementById('sup-receipt-img').files);
-  const image = imgs[0] || '';
+  const preview = document.getElementById('sup-receipt-preview');
+  const imgData = (preview && preview.dataset && preview.dataset.imgData) || '';
 
-  if (!ref && !msg && !image) {
-    showToast('يرجى كتابة رسالة أو مرجع أو إرفاق صورة', 'warning');
+  if (!ref && !msg && !imgData) {
+    showToast('يرجى كتابة رسالة أو رقم عملية أو إرفاق صورة', 'error');
     return;
   }
 
   const ticket = {
     id: 'TKT-' + Date.now().toString().slice(-6),
     tenant: activeTenantCode,
-    storeName: db.store.name,
+    storeName: (db.store && db.store.name) || activeTenantCode,
     method,
-    ref,
-    msg,
-    image,
+    ref: ref || '--',
+    msg: msg || method,
+    image: imgData,
     time: new Date().toLocaleString('ar-IQ'),
     date: new Date().toISOString()
   };
 
+  if (!Array.isArray(db.supportTickets)) db.supportTickets = [];
   db.supportTickets.unshift(ticket);
-  if (CORE) CORE.pushSupportTicketToAdmin(ticket);
   saveTenantData();
+  if (CORE) {
+    CORE.pushSupportTicketToAdmin(ticket);
+  }
   renderSupportTickets();
   document.getElementById('sup-trans-ref').value = '';
   document.getElementById('sup-message').value = '';
   document.getElementById('sup-receipt-img').value = '';
-  const prev = document.getElementById('sup-receipt-preview');
-  if (prev) { prev.src = ''; prev.classList.add('hidden'); }
-  showToast('تم إرسال الرسالة إلى لوحة الأدمن بنجاح', 'success');
+  if (preview) { preview.src = ''; delete preview.dataset.imgData; preview.classList.add('hidden'); }
+  showToast('تم إرسال الرسالة / الطلب إلى لوحة الأدمن بنجاح', 'success');
 }
 
 function renderSupportTickets() {
   const list = document.getElementById('support-tickets-list');
   if (!list) return;
-  const tickets = db.supportTickets || [];
+  const tickets = Array.isArray(db.supportTickets) ? db.supportTickets : [];
   if (!tickets.length) {
-    list.innerHTML = '<p class="text-xs text-slate-500">لا توجد رسائل مرسلة بعد.</p>';
+    list.innerHTML = '<p class="text-xs text-slate-500 text-center p-3">لا توجد رسائل مرسلة بعد.</p>';
     return;
   }
   list.innerHTML = tickets.map(t => `
-    <div class="bg-darkbg border border-slate-800 p-3.5 rounded-2xl text-xs space-y-1">
+    <div class="bg-darkbg border border-slate-800 p-3.5 rounded-2xl text-xs space-y-1.5">
       <div class="flex justify-between items-center">
-        <strong class="text-gold">${t.method}</strong>
-        <span class="font-mono text-[10px] text-slate-400">${t.time || ''}</span>
+        <strong class="text-gold">${t.method || 'رسالة'} • <span class="font-mono text-emerald-400">${t.ref || '--'}</span></strong>
+        <span class="text-[10px] text-slate-400 font-mono">${t.time || ''}</span>
       </div>
-      ${t.ref ? `<div class="text-emerald-400 font-mono">المرجع: ${t.ref}</div>` : ''}
-      ${t.msg ? `<p class="text-slate-200">${t.msg}</p>` : ''}
-      ${t.image ? `<img src="${t.image}" onerror="handleBrandImageError(this)" onclick="openImageLightbox('${String(t.image).replace(/'/g, "\\'")}', 'مرفق رسالة')" class="w-20 h-20 rounded-xl object-cover border border-gold/40 mt-1 cursor-pointer">` : ''}
+      <p class="text-slate-300">${t.msg || ''}</p>
+      ${t.image ? `<img src="${t.image}" onclick="openImageLightbox('${String(t.image).replace(/'/g, "\\'")}', '${String(t.ref || 'مرفق').replace(/'/g, "\\'")}')" class="h-20 rounded-xl border border-gold/30 object-cover cursor-pointer">` : ''}
     </div>
   `).join('');
 }
@@ -3579,14 +3764,14 @@ function saveGoldPrices() {
   saveTenantData();
   renderAll();
   closePriceModal();
-  showToast('تم تحديث أسعار المثاقيل والدولار', 'success');
+  showToast('تم تحديث أسعار المثاقيل الخمسة والدولار', 'success');
 }
 
 function toggleCalcModal() {
   const m = document.getElementById('calc-modal');
   m.classList.toggle('hidden');
   if (!m.classList.contains('hidden')) {
-    document.getElementById('c-mithqal').value = db.prices.m21 || '';
+    document.getElementById('c-mithqal').value = db.prices.m21 || 0;
     calcAramkyQuick();
   }
 }
@@ -3613,107 +3798,42 @@ function executeSystemReset(mode) {
     db.usd = 0;
     db.zain = 0;
     db.makingProfit = 0;
-    addLog('تصفير خزينة', 'تصفير صناديق الكاش والدولار والماستر وأرباح الصياغة', 0);
+    addLog('تصفير خزينة', 'تصفير صناديق الكاش، الدولار، الماستر، وأرباح الصياغة', 0);
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تم تصفير الخزينة والأرباح بنجاح', 'success');
+    showToast('تم تصفير الخزينة والأرباح بنجاح', 'warning');
   } else if (mode === 'full_factory') {
-    const keepStore = Object.assign({}, db.store);
-    db = defaultTenantData(activeTenantCode);
-    db.store = keepStore;
+    const fresh = defaultTenantData(activeTenantCode);
+    fresh.store = Object.assign({}, db.store);
+    db = fresh;
     cart = [];
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تمت إعادة ضبط النظام بالكامل (0)', 'warning');
+    showToast('تم تصفير النظام بالكامل', 'warning');
   }
 }
 
-function handleGlobalZeroKey(e) {
-  if (e.key === '0' && e.altKey && e.shiftKey) {
+function handleGlobalZeroKey(event) {
+  if (event.key === '0' && event.altKey) {
     openResetSystemModal();
   }
-}
-
-function checkSubscriptionLock() {
-  if (isPublicCatalogOnly) return;
-  const lockScreen = document.getElementById('subscription-lock-screen');
-  if (!lockScreen) return;
-  if (isCurrentTenantLocked()) {
-    setTextSafe('locked-tenant-info', `رقم المعرض: ${activeTenantCode}`);
-    lockScreen.classList.remove('hidden');
-  } else {
-    lockScreen.classList.add('hidden');
-  }
-}
-
-function openSupportFromLock() {
-  document.getElementById('subscription-lock-screen').classList.add('hidden');
-  switchTab('support');
-}
-
-function switchTenantPrompt() {
-  if (CORE && typeof CORE.clearActiveSubscriberSession === 'function') CORE.clearActiveSubscriberSession();
-  const loginScreen = document.getElementById('tenant-login-screen');
-  if (loginScreen) {
-    document.getElementById('login-tenant-code').value = activeTenantCode === 'ARAMKY' ? '' : activeTenantCode;
-    document.getElementById('login-tenant-phone').value = '';
-    document.getElementById('login-tenant-pass').value = '';
-    loginScreen.classList.remove('hidden');
-  }
-}
-
-function loginTenant() {
-  const codeInput = document.getElementById('login-tenant-code').value.trim().toUpperCase();
-  const phoneInput = document.getElementById('login-tenant-phone').value.trim();
-  const passInput = document.getElementById('login-tenant-pass').value.trim();
-
-  if (!codeInput || !phoneInput || !passInput) {
-    showToast('يرجى إدخال معرف الحساب ورقم الهاتف وكلمة المرور', 'error');
-    return;
-  }
-
-  if (isDedicatedAdminLogin(codeInput, phoneInput, passInput)) {
-    activateDedicatedAdminState(codeInput || 'ARAMKY');
-    document.getElementById('tenant-login-screen').classList.add('hidden');
-    checkSubscriptionLock();
-    renderAll();
-    showToast('تم تسجيل دخول الأدمن وتفعيل لوحة الإدارة بنجاح', 'success');
-    return;
-  }
-
-  if (CORE && typeof CORE.authenticateSubscriberLogin === 'function') {
-    const auth = CORE.authenticateSubscriberLogin(codeInput, phoneInput, passInput);
-    if (!auth.ok) {
-      showToast(auth.message || 'بيانات الدخول غير مطابقة للحسابات المعتمدة', 'error');
-      return;
-    }
-    CORE.setActiveSubscriberSession(auth.tenant.code);
-    loadTenantData(auth.tenant.code);
-    document.getElementById('tenant-login-screen').classList.add('hidden');
-    checkSubscriptionLock();
-    renderAll();
-    showToast(`مرحباً بك في ${auth.tenant.storeName || auth.tenant.code}`, 'success');
-    return;
-  }
-
-  showToast('تعذر التحقق من بيانات الدخول', 'error');
 }
 
 function handleInventoryAdminTrigger() {
   inventorySecretClicks += 1;
   clearTimeout(inventorySecretTimer);
-  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 1800);
+  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 1600);
   if (inventorySecretClicks >= 5) {
     inventorySecretClicks = 0;
-    if (CORE && typeof CORE.hasAdminSession === 'function' && CORE.hasAdminSession()) {
-      openAdminPanel();
-      return;
-    }
-    document.getElementById('admin-secret-password').value = '';
-    document.getElementById('admin-secret-modal').classList.remove('hidden');
+    openAdminSecretModal();
   }
+}
+
+function openAdminSecretModal() {
+  document.getElementById('admin-secret-password').value = '';
+  document.getElementById('admin-secret-modal').classList.remove('hidden');
 }
 
 function closeAdminSecretModal() {
@@ -3722,23 +3842,81 @@ function closeAdminSecretModal() {
 
 function verifyAdminSecretPassword() {
   const pass = document.getElementById('admin-secret-password').value.trim();
-  const ok = CORE && typeof CORE.verifyAdminPassword === 'function'
-    ? CORE.verifyAdminPassword(pass)
-    : pass === DEDICATED_ADMIN_CREDENTIALS.pass;
-  if (!ok) {
+  const valid = (CORE && CORE.verifyAdminPassword(pass)) || pass === DEDICATED_ADMIN_CREDENTIALS.pass;
+  if (!valid) {
     showToast('كلمة مرور الأدمن غير صحيحة', 'error');
     return;
   }
-  if (CORE && typeof CORE.setAdminSession === 'function') CORE.setAdminSession(true);
   closeAdminSecretModal();
-  syncAdminButtonVisibility();
-  openAdminPanel();
+  activateDedicatedAdminState(activeTenantCode || 'ARAMKY');
+  window.location.href = 'admin.html';
 }
 
 function openAdminPanel() {
-  if (CORE && typeof CORE.setAdminSession === 'function') CORE.setAdminSession(true);
-  syncAdminButtonVisibility();
-  window.location.href = './admin.html';
+  activateDedicatedAdminState(activeTenantCode || 'ARAMKY');
+  window.location.href = 'admin.html';
+}
+
+function switchTenantPrompt() {
+  document.getElementById('login-tenant-code').value = activeTenantCode || 'ARAMKY';
+  document.getElementById('login-tenant-phone').value = '';
+  document.getElementById('login-tenant-pass').value = '';
+  document.getElementById('subscription-lock-screen').classList.add('hidden');
+  document.getElementById('tenant-login-screen').classList.remove('hidden');
+}
+
+function loginTenant() {
+  const codeInput = document.getElementById('login-tenant-code').value.trim().toUpperCase();
+  const phoneInput = document.getElementById('login-tenant-phone').value.trim();
+  const passInput = document.getElementById('login-tenant-pass').value.trim();
+
+  if (!codeInput) {
+    showToast('يرجى إدخال معرف الحساب / الكود', 'error');
+    return;
+  }
+
+  if (isDedicatedAdminLogin(codeInput, phoneInput, passInput)) {
+    activateDedicatedAdminState(codeInput || 'ARAMKY');
+    document.getElementById('tenant-login-screen').classList.add('hidden');
+    renderAll();
+    checkSubscriptionLock();
+    showToast('تم تسجيل دخول الأدمن بنجاح 👑', 'success');
+    return;
+  }
+
+  if (CORE) {
+    const auth = CORE.authenticateSubscriber(codeInput, phoneInput, passInput);
+    if (!auth.ok) {
+      showToast(auth.reason || 'بيانات الدخول غير صحيحة', 'error');
+      return;
+    }
+    CORE.setActiveSubscriberSession(auth.code);
+    loadTenantData(auth.code);
+  } else {
+    loadTenantData(codeInput);
+  }
+
+  document.getElementById('tenant-login-screen').classList.add('hidden');
+  renderAll();
+  checkSubscriptionLock();
+  showToast('تم تسجيل الدخول بنجاح', 'success');
+}
+
+function checkSubscriptionLock() {
+  if (isPublicCatalogOnly) return;
+  const locked = isCurrentTenantLocked();
+  const lockScreen = document.getElementById('subscription-lock-screen');
+  if (locked) {
+    setTextSafe('locked-tenant-info', `رقم المعرض: ${activeTenantCode}`);
+    if (lockScreen) lockScreen.classList.remove('hidden');
+  } else if (lockScreen) {
+    lockScreen.classList.add('hidden');
+  }
+}
+
+function openSupportFromLock() {
+  document.getElementById('subscription-lock-screen').classList.add('hidden');
+  switchTab('support');
 }
 
 async function refreshAppAndClearCache() {
@@ -3752,10 +3930,17 @@ async function refreshAppAndClearCache() {
       await Promise.all(regs.map(r => r.unregister()));
     }
   } catch (_) {}
-  showToast('تم تفريغ الذاكرة المؤقتة وجاري إعادة التحميل...', 'info');
-  setTimeout(() => {
-    window.location.reload();
-  }, 450);
+  showToast('جاري تحديث التطبيق وتفريغ الكاش...', 'info');
+  setTimeout(() => window.location.reload(), 400);
+}
+
+function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.finally(() => { deferredPrompt = null; });
+  } else {
+    showToast('يمكنك تثبيت النظام من قائمة المتصفح (إضافة إلى الشاشة الرئيسية)', 'info');
+  }
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -3763,66 +3948,44 @@ window.addEventListener('beforeinstallprompt', (e) => {
   deferredPrompt = e;
 });
 
-async function installPWA() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice.catch(() => {});
-    deferredPrompt = null;
-    return;
-  }
-  showToast('للتثبيت: من قائمة المتصفح اختر "إضافة إلى الشاشة الرئيسية / تثبيت التطبيق"', 'info');
-}
-
-function applyPublicStorefrontOnlyMode() {
-  isPublicCatalogOnly = true;
-  document.querySelectorAll('header, section#app-ticker, main, #tenant-login-screen, #subscription-lock-screen, #admin-secret-modal, #reset-system-modal, #edit-inventory-modal, #delete-inventory-modal').forEach(el => {
-    if (el) el.classList.add('hidden');
-  });
-  openStorefrontView();
-}
-
-async function initApp() {
+function initApp() {
   if (appInitialized) return;
   appInitialized = true;
 
-  if (CORE && typeof CORE.hydrateCloudConfigFromServer === 'function') {
-    await CORE.hydrateCloudConfigFromServer().catch(() => {});
+  if (CORE && typeof CORE.ensureSystemInitialized === 'function') {
+    CORE.ensureSystemInitialized();
   }
 
   const params = new URLSearchParams(window.location.search);
   const storeParam = params.get('store');
-  const catalogRefParam = params.get('catalogRef');
 
-  if (storeParam || catalogRefParam) {
-    const resolved = CORE && typeof CORE.resolveTenantFromPublicParam === 'function'
-      ? CORE.resolveTenantFromPublicParam(storeParam || catalogRefParam)
-      : 'ARAMKY';
-    loadTenantData(resolved);
-    applyPublicStorefrontOnlyMode();
+  if (storeParam) {
+    isPublicCatalogOnly = true;
+    const targetCode = CORE ? CORE.resolveStoreParam(storeParam) : storeParam.trim().toUpperCase();
+    loadTenantData(targetCode);
+    document.getElementById('app-header')?.classList.add('hidden');
+    document.getElementById('app-ticker')?.classList.add('hidden');
+    document.getElementById('app-main')?.classList.add('hidden');
+    document.getElementById('tenant-login-screen')?.classList.add('hidden');
+    document.getElementById('subscription-lock-screen')?.classList.add('hidden');
+    openStorefrontView();
     dismissSplashScreen();
     return;
   }
 
-  const savedTenant = localStorage.getItem(CORE ? CORE.keys.activeTenant : 'aramky_active_tenant') || 'ARAMKY';
+  const savedTenant = (CORE && CORE.getActiveSubscriberSession && CORE.getActiveSubscriberSession()) ||
+    localStorage.getItem(CORE ? CORE.keys.activeTenant : 'aramky_active_tenant') ||
+    'ARAMKY';
   loadTenantData(savedTenant);
-
-  if (CORE && typeof CORE.isSupabaseReady === 'function' && CORE.isSupabaseReady() && typeof CORE.pullTenantFromSupabase === 'function') {
-    const cloudTenant = await CORE.pullTenantFromSupabase(activeTenantCode).catch(() => null);
-    if (cloudTenant && typeof cloudTenant === 'object') {
-      db = CORE.normalizeTenantPayload(Object.assign(defaultTenantData(activeTenantCode), cloudTenant), activeTenantCode);
-      saveTenantData();
-    }
-  }
-
-  syncAdminButtonVisibility();
-  checkSubscriptionLock();
   renderAll();
+  checkSubscriptionLock();
   dismissSplashScreen();
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', initApp);
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
   initApp();
-});
+}
 </script>
 </body>
 </html>
