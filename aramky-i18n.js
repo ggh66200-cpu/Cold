@@ -260,89 +260,100 @@
   }
 
   function applyLanguageToDom(lang) {
-    const code = normalizeLang(lang || getLanguage());
-    const pack = DICTIONARY[code] || DICTIONARY.ar;
+    try {
+      const code = normalizeLang(lang || getLanguage());
+      const pack = DICTIONARY[code] || DICTIONARY.ar;
 
-    document.documentElement.setAttribute('lang', pack.langTag);
-    document.documentElement.setAttribute('dir', pack.dir);
-    document.body.setAttribute('dir', pack.dir);
+      document.documentElement.setAttribute('lang', pack.langTag);
+      document.documentElement.setAttribute('dir', pack.dir);
+      if (document.body) {
+        document.body.setAttribute('dir', pack.dir);
+      }
 
-    setTextById('aramky-install-badge', pack.badge);
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    setTextById('pwa-install-label', isStandalone ? pack.installedBtn : pack.installBtn);
+      setTextById('aramky-install-badge', pack.badge);
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      setTextById('pwa-install-label', isStandalone ? pack.installedBtn : pack.installBtn);
 
-    setTextById('i18n-refresh-label', pack.refreshBtn);
-    setTextById('i18n-admin-label', pack.adminBtn);
-    setTextById('i18n-switch-label', pack.switchTenantBtn);
-    setTextById('i18n-storefront-label', pack.storefrontBtn);
-    setTextById('i18n-return-label', pack.returnBtn);
-    setTextById('i18n-calc-label', pack.calcBtn);
-    setTextById('i18n-prices-label', pack.pricesBtn);
-    setTextById('i18n-reset-label', pack.resetBtn);
-    setTextById('i18n-lang-label', `${pack.label} (${pack.shortCode})`);
+      setTextById('i18n-refresh-label', pack.refreshBtn);
+      setTextById('i18n-admin-label', pack.adminBtn);
+      setTextById('i18n-switch-label', pack.switchTenantBtn);
+      setTextById('i18n-storefront-label', pack.storefrontBtn);
+      setTextById('i18n-return-label', pack.returnBtn);
+      setTextById('i18n-calc-label', pack.calcBtn);
+      setTextById('i18n-prices-label', pack.pricesBtn);
+      setTextById('i18n-reset-label', pack.resetBtn);
+      setTextById('i18n-lang-label', `${pack.label} (${pack.shortCode})`);
 
-    setTextById('i18n-ticker-title', pack.tickerTitle);
-    setTextById('i18n-ticker-usd', pack.tickerUsd);
-    setTextById('i18n-ticker-m24', pack.tickerM24);
-    setTextById('i18n-ticker-m22', pack.tickerM22);
-    setTextById('i18n-ticker-m21', pack.tickerM21);
-    setTextById('i18n-ticker-m18', pack.tickerM18);
-    setTextById('i18n-ticker-m9', pack.tickerM9);
+      setTextById('i18n-ticker-title', pack.tickerTitle);
+      setTextById('i18n-ticker-usd', pack.tickerUsd);
+      setTextById('i18n-ticker-m24', pack.tickerM24);
+      setTextById('i18n-ticker-m22', pack.tickerM22);
+      setTextById('i18n-ticker-m21', pack.tickerM21);
+      setTextById('i18n-ticker-m18', pack.tickerM18);
+      setTextById('i18n-ticker-m9', pack.tickerM9);
 
-    setTextById('i18n-sidebar-title', pack.sidebarTitle);
-    setTextById('i18n-tab-dashboard', pack.tabDashboard);
-    setTextById('i18n-tab-pos', pack.tabPos);
-    setTextById('i18n-tab-scrap', pack.tabScrap);
-    setTextById('i18n-tab-inventory', pack.tabInventory);
-    setTextById('i18n-tab-store-settings', pack.tabStoreSettings);
-    setTextById('i18n-tab-debts', pack.tabDebts);
-    setTextById('i18n-tab-logs', pack.tabLogs);
-    setTextById('i18n-tab-support', pack.tabSupport);
+      setTextById('i18n-sidebar-title', pack.sidebarTitle);
+      setTextById('i18n-tab-dashboard', pack.tabDashboard);
+      setTextById('i18n-tab-pos', pack.tabPos);
+      setTextById('i18n-tab-scrap', pack.tabScrap);
+      setTextById('i18n-tab-inventory', pack.tabInventory);
+      setTextById('i18n-tab-store-settings', pack.tabStoreSettings);
+      setTextById('i18n-tab-debts', pack.tabDebts);
+      setTextById('i18n-tab-logs', pack.tabLogs);
+      setTextById('i18n-tab-support', pack.tabSupport);
 
-    setTextById('i18n-dash-cash', pack.dashCash);
-    setTextById('i18n-dash-usd', pack.dashUsd);
-    setTextById('i18n-dash-zain', pack.dashZain);
-    setTextById('i18n-dash-profit', pack.dashProfit);
-    setTextById('i18n-exp-title', pack.expTitle);
-    setPlaceholderById('exp-reason', pack.expReasonPh);
-    setPlaceholderById('exp-amount', pack.expAmountPh);
-    setPlaceholderById('exp-notes', pack.expNotesPh);
-    setTextById('i18n-exp-save-btn', pack.expSaveBtn);
+      setTextById('i18n-dash-cash', pack.dashCash);
+      setTextById('i18n-dash-usd', pack.dashUsd);
+      setTextById('i18n-dash-zain', pack.dashZain);
+      setTextById('i18n-dash-profit', pack.dashProfit);
+      setTextById('i18n-exp-title', pack.expTitle);
+      setPlaceholderById('exp-reason', pack.expReasonPh);
+      setPlaceholderById('exp-amount', pack.expAmountPh);
+      setPlaceholderById('exp-notes', pack.expNotesPh);
+      setTextById('i18n-exp-save-btn', pack.expSaveBtn);
 
-    setTextById('i18n-debts-title', pack.debtsTitle);
-    setTextById('i18n-debts-subtitle', pack.debtsSubtitle);
-    setTextById('debt-filter-all', pack.debtsAllBtn);
-    setTextById('debt-filter-them', pack.debtsThemBtn);
-    setTextById('debt-filter-us', pack.debtsUsBtn);
-    setTextById('i18n-debts-summary-them', pack.debtsSummaryThem);
-    setTextById('i18n-debts-summary-us', pack.debtsSummaryUs);
-    setTextById('i18n-debts-summary-net', pack.debtsSummaryNet);
-    setPlaceholderById('debt-customer', pack.debtsCustomerPh);
-    setPlaceholderById('debt-phone', pack.debtsPhonePh);
-    setPlaceholderById('debt-amount', pack.debtsAmountPh);
-    setPlaceholderById('debt-notes', pack.debtsNotesPh);
-    setTextById('i18n-debts-save-btn', pack.debtsSaveBtn);
+      setTextById('i18n-debts-title', pack.debtsTitle);
+      setTextById('i18n-debts-subtitle', pack.debtsSubtitle);
+      setTextById('debt-filter-all', pack.debtsAllBtn);
+      setTextById('debt-filter-them', pack.debtsThemBtn);
+      setTextById('debt-filter-us', pack.debtsUsBtn);
+      setTextById('i18n-debts-summary-them', pack.debtsSummaryThem);
+      setTextById('i18n-debts-summary-us', pack.debtsSummaryUs);
+      setTextById('i18n-debts-summary-net', pack.debtsSummaryNet);
+      setPlaceholderById('debt-customer', pack.debtsCustomerPh);
+      setPlaceholderById('debt-phone', pack.debtsPhonePh);
+      setPlaceholderById('debt-amount', pack.debtsAmountPh);
+      setPlaceholderById('debt-notes', pack.debtsNotesPh);
+      setTextById('i18n-debts-save-btn', pack.debtsSaveBtn);
 
-    setTextById('i18n-lock-title', pack.lockTitle);
-    setTextById('i18n-lock-desc', pack.lockDesc);
-    setTextById('i18n-lock-support-btn', pack.lockSupportBtn);
-    setTextById('i18n-lock-switch-btn', pack.lockSwitchBtn);
+      setTextById('i18n-lock-title', pack.lockTitle);
+      setTextById('i18n-lock-desc', pack.lockDesc);
+      setTextById('i18n-lock-support-btn', pack.lockSupportBtn);
+      setTextById('i18n-lock-switch-btn', pack.lockSwitchBtn);
 
-    setTextById('i18n-login-title', pack.loginTitle);
-    setTextById('i18n-login-desc', pack.loginDesc);
-    setTextById('i18n-login-code-label', pack.loginCodeLabel);
-    setTextById('i18n-login-phone-label', pack.loginPhoneLabel);
-    setTextById('i18n-login-pass-label', pack.loginPassLabel);
-    setTextById('i18n-login-submit-btn', pack.loginSubmitBtn);
+      setTextById('i18n-login-title', pack.loginTitle);
+      setTextById('i18n-login-desc', pack.loginDesc);
+      setTextById('i18n-login-code-label', pack.loginCodeLabel);
+      setTextById('i18n-login-phone-label', pack.loginPhoneLabel);
+      setTextById('i18n-login-pass-label', pack.loginPassLabel);
+      setTextById('i18n-login-submit-btn', pack.loginSubmitBtn);
+    } catch (_) {}
+  }
+
+  function init() {
+    getLanguage();
+    applyLanguageToDom(activeLang);
+    return activeLang;
   }
 
   const api = {
-    version: '1.1',
+    version: '1.2',
     languages: ['ar', 'ku', 'en'],
     getLanguage,
     setLanguage,
     cycleLanguage,
     applyLanguageToDom,
+    init,
     t
   };
 
