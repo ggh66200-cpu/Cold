@@ -323,8 +323,8 @@
       document.getElementById('admin-login-gate').classList.add('hidden');
       document.getElementById('admin-workspace').classList.remove('hidden');
 
-      if (CORE && typeof CORE.hydrateRuntimeConfigFromServer === 'function') {
-        await CORE.hydrateRuntimeConfigFromServer().catch(() => {});
+      if (CORE && typeof CORE.hydrateCloudConfigFromServer === 'function') {
+        await CORE.hydrateCloudConfigFromServer().catch(() => {});
       }
 
       loadCloudConfigForm();
@@ -624,8 +624,8 @@
     }
 
     (async function initAdminPage() {
-      if (CORE && typeof CORE.hydrateRuntimeConfigFromServer === 'function') {
-        await CORE.hydrateRuntimeConfigFromServer().catch(() => {});
+      if (CORE && typeof CORE.hydrateCloudConfigFromServer === 'function') {
+        await CORE.hydrateCloudConfigFromServer().catch(() => {});
       }
       if (isAdminAuthenticated()) {
         await unlockAdminWorkspace();
