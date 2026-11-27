@@ -1,1126 +1,504 @@
-/**
- * ARAMKY Gold OS v28.3 — Core System Engine (Local + Render + Supabase)
- * أرامكي للحلول الرقمية — فرع نواة الذهب
- */
 (function (global) {
   'use strict';
 
-  const STORAGE_PREFIX = 'aramky_gold_v28_';
+  const SUPABASE_URL = global.ARAMKY_SUPABASE_URL || '';
+  const SUPABASE_ANON_KEY = global.ARAMKY_SUPABASE_ANON_KEY || '';
+  const SUPPORT_PHONE = '07766083622';
+  const SUPPORT_WHATSAPP = '9647766083622';
+  const MASTER_CARD_NUMBER = '910400201646';
+  const ADMIN_PASSWORDS = ['waadsdsd', 'ARAMKY2026', 'ADMIN123'];
 
   const KEYS = {
-    activeTenant: `${STORAGE_PREFIX}active_tenant`,
-    tenantSession: `${STORAGE_PREFIX}tenant_session`,
-    tenantsRegistry: `${STORAGE_PREFIX}tenants_registry`,
-    tenantsList: `${STORAGE_PREFIX}tenants_registry`,
-    subscribersMaster: `${STORAGE_PREFIX}subscribers_master`,
-    supportTickets: `${STORAGE_PREFIX}support_tickets`,
-    adminAccount: `${STORAGE_PREFIX}admin_account`,
-    adminSession: `${STORAGE_PREFIX}admin_session`,
-    adminConfig: `${STORAGE_PREFIX}admin_config`,
-    cloudConfig: `${STORAGE_PREFIX}cloud_config`
+    activeTenant: 'aramky_active_tenant',
+    adminSession: 'aramky_admin_session_v28',
+    subscriberSession: 'aramky_subscriber_session_v28',
+    tenantsRegistry: 'aramky_tenants_registry_v28',
+    supportTickets: 'aramky_support_tickets_v28',
+    lang: 'aramky_lang_v28'
   };
 
-  const DEFAULT_ADMIN_PASSWORD = 'ARAMKY-ADMIN-2026';
-
-  const DEFAULT_CONTACT = {
-    masterCardNumber: '910400201646',
-    supportPhone: '07766083622',
-    whatsappUrl: 'https://wa.me/9647766083622'
-  };
-
-  const DEFAULT_CLOUD = {
-    renderApiBase: '',
-    supabaseUrl: '',
-    supabaseKey: '',
-    supabaseAnonKey: '',
-    supabaseTable: 'aramky_stores_data'
-  };
-
-  let cloudConfigPromise = null;
-
-  function xorCipher(str, secret) {
-    const key = String(secret || 'ARAMKY_SECRET_KEY');
-    let out = '';
-    for (let i = 0; i < str.length; i++) {
-      const charCode = str.charCodeAt(i) ^ key.charCodeAt(i % key.length);
-      out += String.fromCharCode(charCode);
-    }
-    return out;
-  }
-
-  function encodePayload(obj, secret) {
+  function safeJsonParse(raw, fallback) {
     try {
-      const json = JSON.stringify(obj);
-      const utf8Bytes = new TextEncoder().encode(json);
-      let binary = '';
-      for (let i = 0; i < utf8Bytes.length; i++) {
-        binary += String.fromCharCode(utf8Bytes[i]);
-      }
-      const xored = xorCipher(binary, secret);
-      return 'ARMK1:' + btoa(xored);
-    } catch (_) {
-      try {
-        return 'PLAIN:' + JSON.stringify(obj);
-      } catch (__) {
-        return null;
-      }
-    }
-  }
-
-  function decodePayload(raw, secret) {
-    if (!raw || typeof raw !== 'string') return null;
-    try {
-      if (raw.startsWith('ARMK1:')) {
-        const b64 = raw.slice(6);
-        const xored = atob(b64);
-        const binary = xorCipher(xored, secret);
-        const bytes = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) {
-          bytes[i] = binary.charCodeAt(i);
-        }
-        const json = new TextDecoder().decode(bytes);
-        return JSON.parse(json);
-      }
-      if (raw.startsWith('PLAIN:')) {
-        return JSON.parse(raw.slice(6));
-      }
-      return JSON.parse(raw);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  function writeSecureStorage(key, data, secret) {
-    try {
-      const encoded = encodePayload(data, secret);
-      if (!encoded) return false;
-      localStorage.setItem(key, encoded);
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  function readSecureStorage(key, secret, fallback = null) {
-    try {
-      const raw = localStorage.getItem(key);
       if (!raw) return fallback;
-      const decoded = decodePayload(raw, secret);
-      return decoded !== null ? decoded : fallback;
+      return JSON.parse(raw);
     } catch (_) {
       return fallback;
     }
   }
 
-  function normalizeCloudKeys(obj) {
-    const out = Object.assign({}, DEFAULT_CLOUD, obj || {});
-    if (!out.supabaseKey && out.supabaseAnonKey) out.supabaseKey = out.supabaseAnonKey;
-    if (!out.supabaseAnonKey && out.supabaseKey) out.supabaseAnonKey = out.supabaseKey;
-    if (!out.supabaseTable) out.supabaseTable = 'aramky_stores_data';
-    return out;
-  }
-
-  function getCloudConfig() {
-    const saved = readSecureStorage(KEYS.cloudConfig, 'CLOUD_CFG', {});
-    const injected = (global.ARAMKY_ENV && typeof global.ARAMKY_ENV === 'object') ? global.ARAMKY_ENV : {};
-    return normalizeCloudKeys(Object.assign({}, saved || {}, injected));
-  }
-
-  function saveCloudConfig(partialCfg) {
-    const current = readSecureStorage(KEYS.cloudConfig, 'CLOUD_CFG', {});
-    const next = normalizeCloudKeys(Object.assign({}, current || {}, partialCfg || {}));
-    return writeSecureStorage(KEYS.cloudConfig, next, 'CLOUD_CFG');
-  }
-
-  async function hydrateCloudConfigFromServer() {
-    const current = getCloudConfig();
-    if (current.supabaseUrl && (current.supabaseKey || current.supabaseAnonKey)) {
-      return current;
-    }
-    if (cloudConfigPromise) {
-      return cloudConfigPromise;
-    }
-
-    cloudConfigPromise = (async () => {
-      const endpoints = ['/api/supabase-config', '/api/config'];
-      for (const ep of endpoints) {
-        try {
-          const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-          const timer = controller ? setTimeout(() => controller.abort(), 3500) : null;
-          const res = await fetch(ep, { cache: 'no-store', signal: controller ? controller.signal : undefined });
-          if (timer) clearTimeout(timer);
-          if (!res.ok) continue;
-          const data = await res.json();
-          const url = data.supabaseUrl || data.url || data.SUPABASE_URL || '';
-          const key = data.supabaseAnonKey || data.supabaseKey || data.anonKey || data.key || data.SUPABASE_ANON_KEY || '';
-          const table = data.supabaseTable || data.table || data.SUPABASE_TABLE || current.supabaseTable || 'aramky_stores_data';
-          const renderBase = data.renderApiBase || data.apiBase || data.RENDER_API_BASE || current.renderApiBase || '';
-          if (url && key) {
-            saveCloudConfig({
-              supabaseUrl: url,
-              supabaseKey: key,
-              supabaseAnonKey: key,
-              supabaseTable: table,
-              renderApiBase: renderBase
-            });
-            return getCloudConfig();
-          }
-        } catch (_) {}
-      }
-      return getCloudConfig();
-    })().finally(() => {
-      cloudConfigPromise = null;
-    });
-
-    return cloudConfigPromise;
-  }
-
-  function isSupabaseReady() {
-    const cfg = getCloudConfig();
-    const key = cfg.supabaseKey || cfg.supabaseAnonKey;
-    return Boolean(cfg.supabaseUrl && key);
-  }
-
-  function getRenderEndpoint(path) {
-    const cfg = getCloudConfig();
-    const base = String(cfg.renderApiBase || '').trim().replace(/\/+$/, '');
-    const cleanPath = String(path || '').startsWith('/') ? String(path || '') : '/' + String(path || '');
-    return base ? `${base}${cleanPath}` : cleanPath;
-  }
-
-  function normalizeTenantPayload(payloadObj, tenantCode) {
-    const code = String(tenantCode || (payloadObj && payloadObj.code) || 'ARAMKY').trim().toUpperCase();
-    const defaultPrices = { usd: 150000, m24: 640000, m22: 585000, m21: 560000, m18: 480000, m9: 240000 };
-    const defaultStore = {
-      name: 'ARAMKY | أرامكي للحلول الرقمية — فرع نواة الذهب',
-      phone: DEFAULT_CONTACT.supportPhone,
-      address: 'بغداد — سوق الكاظمية',
-      openTime: '09:00 صباحاً',
-      closeTime: '09:00 مساءً',
-      bio: 'نظام إدارة صياغة الذهب والمعرض الرقمي الذكي',
-      logo: 'icon.png',
-      cover: 'icon.png'
-    };
-
-    const base = Object.assign({
-      code,
-      status: 'نشط',
-      cash: 0,
-      usd: 0,
-      zain: 0,
-      makingProfit: 0,
-      prices: defaultPrices,
-      inventory: [],
-      debts: [],
-      logs: [],
-      supportTickets: [],
-      store: defaultStore
-    }, payloadObj || {});
-
-    base.code = code;
-    base.cash = Number(base.cash || 0);
-    base.usd = Number(base.usd || 0);
-    base.zain = Number(base.zain || 0);
-    base.makingProfit = Number(base.makingProfit || 0);
-    base.prices = Object.assign({}, defaultPrices, base.prices || {});
-    base.store = Object.assign({}, defaultStore, base.store || {});
-    base.inventory = Array.isArray(base.inventory) ? base.inventory : [];
-    base.debts = Array.isArray(base.debts) ? base.debts.map(d => {
-      const amt = Number(d.amount || 0);
-      const absAmt = Math.abs(Number(d.absAmount !== undefined ? d.absAmount : amt));
-      const unit = d.unit === 'gold' ? 'gold' : 'money';
-      const category = d.category || (amt >= 0 ? 'on_them' : 'on_us');
-      return Object.assign({}, d, {
-        unit,
-        category,
-        amount: amt,
-        absAmount: absAmt,
-        actionKind: d.actionKind || (amt >= 0 ? 'زيادة (+)' : 'نقصان (-)')
-      });
-    }) : [];
-    base.logs = Array.isArray(base.logs) ? base.logs : [];
-    base.supportTickets = Array.isArray(base.supportTickets) ? base.supportTickets : [];
-    return base;
-  }
-
-  function mergeTenantDataPreferNewer(localData, remoteData, code) {
-    const localNorm = normalizeTenantPayload(localData, code);
-    const remoteNorm = normalizeTenantPayload(remoteData, code);
-    const lTime = Date.parse(localNorm.updatedAt || '') || 0;
-    const rTime = Date.parse(remoteNorm.updatedAt || '') || 0;
-    if (rTime > lTime) {
-      return Object.assign({}, localNorm, remoteNorm, {
-        status: remoteNorm.status || localNorm.status,
-        updatedAt: remoteNorm.updatedAt || new Date().toISOString()
-      });
-    }
-    return Object.assign({}, remoteNorm, localNorm, {
-      status: remoteNorm.status || localNorm.status,
-      updatedAt: localNorm.updatedAt || remoteNorm.updatedAt || new Date().toISOString()
-    });
-  }
-
-  async function syncTenantToSupabase(tenantCode, payloadObj) {
-    let cfg = getCloudConfig();
-    let apiKey = cfg.supabaseKey || cfg.supabaseAnonKey;
-    if (!cfg.supabaseUrl || !apiKey) {
-      cfg = await hydrateCloudConfigFromServer();
-      apiKey = cfg.supabaseKey || cfg.supabaseAnonKey;
-    }
-    if (!cfg.supabaseUrl || !apiKey || !tenantCode) {
-      return { ok: false, skipped: true, reason: 'supabase_not_configured' };
-    }
-    const cleanCode = String(tenantCode).trim().toUpperCase();
-    const normalized = normalizeTenantPayload(payloadObj, cleanCode);
-    normalized.updatedAt = normalized.updatedAt || new Date().toISOString();
-    const baseUrl = String(cfg.supabaseUrl).replace(/\/+$/, '');
-    const table = encodeURIComponent(cfg.supabaseTable || 'aramky_stores_data');
-    const endpoint = `${baseUrl}/rest/v1/${table}?on_conflict=tenant_code`;
-
+  function readSecureStorage(key, _salt, fallback) {
     try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': apiKey,
-          'Authorization': `Bearer ${apiKey}`,
-          'Prefer': 'resolution=merge-duplicates,return=minimal'
-        },
-        body: JSON.stringify([{
-          tenant_code: cleanCode,
-          payload: normalized,
-          updated_at: normalized.updatedAt
-        }])
-      });
-      if (!res.ok) {
-        return { ok: false, status: res.status };
-      }
-      return { ok: true };
-    } catch (err) {
-      return { ok: false, error: String(err) };
-    }
-  }
-
-  async function pullTenantFromSupabase(tenantCode) {
-    let cfg = getCloudConfig();
-    let apiKey = cfg.supabaseKey || cfg.supabaseAnonKey;
-    if (!cfg.supabaseUrl || !apiKey) {
-      cfg = await hydrateCloudConfigFromServer();
-      apiKey = cfg.supabaseKey || cfg.supabaseAnonKey;
-    }
-    if (!cfg.supabaseUrl || !apiKey || !tenantCode) {
-      return null;
-    }
-    const cleanCode = String(tenantCode).trim().toUpperCase();
-    const baseUrl = String(cfg.supabaseUrl).replace(/\/+$/, '');
-    const table = encodeURIComponent(cfg.supabaseTable || 'aramky_stores_data');
-    const code = encodeURIComponent(cleanCode);
-    const endpoint = `${baseUrl}/rest/v1/${table}?tenant_code=eq.${code}&select=payload,updated_at&limit=1`;
-
-    try {
-      const res = await fetch(endpoint, {
-        method: 'GET',
-        headers: {
-          'apikey': apiKey,
-          'Authorization': `Bearer ${apiKey}`
-        }
-      });
-      if (!res.ok) return null;
-      const rows = await res.json();
-      if (Array.isArray(rows) && rows[0] && rows[0].payload) {
-        const pulled = normalizeTenantPayload(rows[0].payload, cleanCode);
-        if (rows[0].updated_at && (!pulled.updatedAt || Date.parse(rows[0].updated_at) > Date.parse(pulled.updatedAt || 0))) {
-          pulled.updatedAt = rows[0].updated_at;
-        }
-        return pulled;
-      }
-      return null;
+      const raw = global.localStorage.getItem(key);
+      if (raw === null || raw === undefined) return fallback;
+      return safeJsonParse(raw, fallback);
     } catch (_) {
-      return null;
+      return fallback;
     }
   }
 
-  async function syncAllFromSupabase(targetCode) {
-    const cfg = await hydrateCloudConfigFromServer();
-    if (!cfg.supabaseUrl || !(cfg.supabaseKey || cfg.supabaseAnonKey)) {
-      return { ok: false, skipped: true };
-    }
-    const cleanCode = String(targetCode || getActiveTenantCode() || 'ARAMKY').trim().toUpperCase();
-    const remote = await pullTenantFromSupabase(cleanCode);
-    if (!remote) return { ok: false, empty: true };
-
-    const key = getTenantDataKey(cleanCode);
-    const local = readSecureStorage(key, `TENANT_${cleanCode}`, null);
-    const merged = mergeTenantDataPreferNewer(local, remote, cleanCode);
-    writeSecureStorage(key, merged, `TENANT_${cleanCode}`);
-
-    const registry = getTenantsRegistry();
-    const idx = registry.findIndex(t => String(t.code || '').toUpperCase() === cleanCode);
-    if (idx !== -1 && merged.status) {
-      registry[idx].status = merged.status;
-      if (merged.store && merged.store.name) registry[idx].storeName = merged.store.name;
-      saveTenantsRegistry(registry);
-    }
-    return { ok: true, data: merged };
-  }
-
-  async function testSupabaseConnection() {
-    const cfg = await hydrateCloudConfigFromServer();
-    const apiKey = cfg.supabaseKey || cfg.supabaseAnonKey;
-    if (!cfg.supabaseUrl || !apiKey) {
-      return { ok: false, message: 'لم يتم إدخال رابط Supabase أو المفتاح بعد' };
-    }
-    const baseUrl = String(cfg.supabaseUrl).replace(/\/+$/, '');
-    const table = encodeURIComponent(cfg.supabaseTable || 'aramky_stores_data');
+  function writeSecureStorage(key, value, _salt) {
     try {
-      const res = await fetch(`${baseUrl}/rest/v1/${table}?select=tenant_code&limit=1`, {
-        method: 'GET',
-        headers: {
-          'apikey': apiKey,
-          'Authorization': `Bearer ${apiKey}`
-        }
-      });
-      if (!res.ok) {
-        return { ok: false, message: `رمز استجابة السحابة: ${res.status}` };
-      }
-      return { ok: true, message: 'الاتصال بـ Supabase ناجح' };
-    } catch (err) {
-      return { ok: false, message: `تعذر الوصول للسحابة: ${err && err.message ? err.message : err}` };
-    }
-  }
-
-  async function startupCloudHealthCheck() {
-    const cfg = await hydrateCloudConfigFromServer();
-    const key = cfg.supabaseKey || cfg.supabaseAnonKey;
-    if (!cfg.supabaseUrl || !key) {
-      return {
-        ok: false,
-        stage: 'env_missing',
-        message: 'لم يتم العثور على SUPABASE_URL أو SUPABASE_KEY في متغيرات البيئة — يعمل النظام محلياً بأمان.'
-      };
-    }
-    const conn = await testSupabaseConnection();
-    return Object.assign({ stage: conn.ok ? 'connected' : 'unreachable' }, conn);
-  }
-
-  async function postToRenderBackend(path, bodyObj) {
-    const url = getRenderEndpoint(path);
-    if (!url) return { ok: false, skipped: true };
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bodyObj || {})
-      });
-      return { ok: res.ok, status: res.status };
-    } catch (err) {
-      return { ok: false, error: String(err) };
+      global.localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 
   function getTenantDataKey(code) {
     const clean = String(code || 'ARAMKY').trim().toUpperCase();
-    return `${STORAGE_PREFIX}tenant_data_${clean}`;
+    return `aramky_gold_data_${clean}`;
   }
 
-  function getCustomerLedgerKey(tenantCode, customerKey) {
-    const tClean = String(tenantCode || 'ARAMKY').trim().toUpperCase();
-    const cClean = encodeCatalogRef(customerKey || 'GENERAL').replace(/[^A-Za-z0-9]/g, '').slice(0, 24);
-    return `${STORAGE_PREFIX}ledger_${tClean}_${cClean}`;
+  function getCustomerLedgerKey(tenantCode, custKey) {
+    const cleanTenant = String(tenantCode || 'ARAMKY').trim().toUpperCase();
+    const cleanCust = String(custKey || 'GENERAL').trim();
+    return `aramky_cust_ledger_${cleanTenant}_${cleanCust}`;
   }
 
-  function encodeCatalogRef(text) {
+  function encodeCatalogRef(code) {
+    const str = String(code || 'ARAMKY').trim().toUpperCase();
     try {
-      const bytes = new TextEncoder().encode(String(text || 'ARAMKY'));
-      let bin = '';
-      bytes.forEach(b => (bin += String.fromCharCode(b)));
-      return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      return btoa(unescape(encodeURIComponent(str))).replace(/=/g, '');
     } catch (_) {
-      return 'QVJBTUtZ';
+      return str;
     }
   }
 
-  function decodeCatalogRef(ref) {
-    try {
-      let b64 = String(ref || '').replace(/-/g, '+').replace(/_/g, '/');
-      while (b64.length % 4) b64 += '=';
-      const bin = atob(b64);
-      const bytes = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      return new TextDecoder().decode(bytes);
-    } catch (_) {
-      return 'ARAMKY';
-    }
-  }
-
-  function getOrCreateShowcaseId(tenantCode) {
-    const cleanCode = String(tenantCode || 'ARAMKY').trim().toUpperCase();
-    const mapKey = `${STORAGE_PREFIX}showcase_ids`;
-    const map = readSecureStorage(mapKey, 'SHOWCASE_IDS', {}) || {};
-    if (map[cleanCode] && /^[A-Za-z0-9_-]{6,32}$/.test(map[cleanCode])) {
-      return map[cleanCode];
-    }
-    let hash = 2166136261;
-    const seed = `ARAMKY_SHOWCASE_V28_${cleanCode}`;
-    for (let i = 0; i < seed.length; i++) {
-      hash ^= seed.charCodeAt(i);
-      hash = Math.imul(hash, 16777619);
-    }
-    const hexPart = (hash >>> 0).toString(36).toUpperCase().padStart(6, '0');
-    const codeHash = encodeCatalogRef(cleanCode).replace(/[^A-Za-z0-9]/g, '').slice(-8).toUpperCase() || 'GOLD88';
-    const generated = `SHW${hexPart}${codeHash}`.slice(0, 16);
-    map[cleanCode] = generated;
-    writeSecureStorage(mapKey, map, 'SHOWCASE_IDS');
-    return generated;
-  }
-
-  function resolveTenantByShowcaseId(showcaseId) {
-    const cleanId = String(showcaseId || '').trim();
-    if (!cleanId) return null;
-    const mapKey = `${STORAGE_PREFIX}showcase_ids`;
-    const map = readSecureStorage(mapKey, 'SHOWCASE_IDS', {}) || {};
-    for (const [tenantCode, id] of Object.entries(map)) {
-      if (id === cleanId) return tenantCode;
-    }
-    return null;
-  }
-
-  function getPublicStorefrontUrl(tenantCode) {
-    const cleanCode = String(tenantCode || 'ARAMKY').trim().toUpperCase();
-    const showcaseId = getOrCreateShowcaseId(cleanCode);
-    const origin = (window.location.origin && window.location.origin !== 'null')
-      ? window.location.origin
-      : 'https://aramky.onrender.com';
-    return `${origin}/ARAMKY/${encodeURIComponent(showcaseId)}`;
-  }
-
-  function getDefaultTenantsList() {
-    return [
-      {
-        code: 'ARAMKY',
-        phone: '07801103129',
-        password: '',
-        ownerName: 'ARAMKY',
-        storeName: 'ARAMKY | أرامكي للحلول الرقمية — فرع نواة الذهب',
-        status: 'نشط',
-        expiryDate: '2027-12-31',
-        expiry: '2027-12-31',
-        synced: false,
-        createdAt: new Date().toISOString()
+  function normalizeTenantPayload(data, code) {
+    const cleanCode = String(code || (data && data.code) || 'ARAMKY').trim().toUpperCase();
+    const base = {
+      code: cleanCode,
+      status: 'نشط',
+      cash: 0,
+      usd: 0,
+      zain: 0,
+      makingProfit: 0,
+      prices: { usd: 150000, m24: 640000, m22: 585000, m21: 560000, m18: 480000, m9: 240000 },
+      inventory: [],
+      debts: [],
+      logs: [],
+      supportTickets: [],
+      store: {
+        name: 'ARAMKY | أرامكي للحلول الرقمية — فرع نواة الذهب',
+        phone: SUPPORT_PHONE,
+        address: 'بغداد — سوق الكاظمية',
+        openTime: '09:00 صباحاً',
+        closeTime: '09:00 مساءً',
+        bio: 'نظام إدارة صياغة الذهب والمعرض الرقمي الذكي',
+        logo: 'icon.png',
+        cover: 'icon.png'
       },
-      {
-        code: 'ARAMKY-01',
-        phone: '07766083622',
-        password: '',
-        ownerName: 'المعرض الرئيسي — أرامكي',
-        storeName: 'ARAMKY | أرامكي للحلول الرقمية — فرع نواة الذهب',
-        status: 'نشط',
-        expiryDate: '2027-12-31',
-        expiry: '2027-12-31',
-        synced: false,
-        createdAt: new Date().toISOString()
-      }
-    ];
-  }
-
-  function getTenantsRegistry() {
-    const list = readSecureStorage(KEYS.tenantsRegistry, 'REGISTRY_MASTER', null);
-    const defaults = getDefaultTenantsList();
-
-    if (Array.isArray(list) && list.length > 0) {
-      let updated = false;
-      defaults.forEach(defItem => {
-        if (!list.some(t => String(t.code || '').toUpperCase() === defItem.code)) {
-          list.push(defItem);
-          updated = true;
-        }
-      });
-      if (updated) {
-        writeSecureStorage(KEYS.tenantsRegistry, list, 'REGISTRY_MASTER');
-      }
-      return list;
-    }
-
-    writeSecureStorage(KEYS.tenantsRegistry, defaults, 'REGISTRY_MASTER');
-    return defaults;
-  }
-
-  function saveTenantsRegistry(list) {
-    const arr = Array.isArray(list) ? list : [];
-    return writeSecureStorage(KEYS.tenantsRegistry, arr, 'REGISTRY_MASTER');
-  }
-
-  function getSubscribersMaster() {
-    const list = readSecureStorage(KEYS.subscribersMaster, 'SUBSCRIBERS', null);
-    if (Array.isArray(list) && list.length > 0) {
-      let updated = false;
-      getTenantsRegistry().forEach(t => {
-        if (!list.some(s => String(s.code || '').toUpperCase() === String(t.code || '').toUpperCase())) {
-          list.push({
-            code: t.code,
-            name: t.ownerName || t.storeName || t.code,
-            phone: t.phone || '',
-            pass: t.password || '',
-            expiresAt: t.expiryDate || t.expiry || '',
-            disabled: t.status === 'متوقف'
-          });
-          updated = true;
-        }
-      });
-      if (updated) {
-        writeSecureStorage(KEYS.subscribersMaster, list, 'SUBSCRIBERS');
-      }
-      return list;
-    }
-    return getTenantsRegistry().map(t => ({
-      code: t.code,
-      name: t.ownerName || t.storeName || t.code,
-      phone: t.phone || '',
-      pass: t.password || '',
-      expiresAt: t.expiryDate || t.expiry || '',
-      disabled: t.status === 'متوقف'
-    }));
-  }
-
-  function saveSubscribersMaster(list) {
-    const arr = Array.isArray(list) ? list : [];
-    writeSecureStorage(KEYS.subscribersMaster, arr, 'SUBSCRIBERS');
-    const prevReg = getTenantsRegistry();
-    const syncedRegistry = arr.map(s => {
-      const existing = prevReg.find(r => String(r.code).toUpperCase() === String(s.code).toUpperCase()) || {};
-      return Object.assign({}, existing, {
-        code: String(s.code).toUpperCase(),
-        phone: s.phone || existing.phone || '',
-        password: s.pass || existing.password || '',
-        ownerName: s.name || existing.ownerName || s.code,
-        storeName: s.name || existing.storeName || s.code,
-        status: s.disabled ? 'متوقف' : 'نشط',
-        expiryDate: s.expiresAt || existing.expiryDate || '2027-12-31',
-        expiry: s.expiresAt || existing.expiry || '2027-12-31',
-        createdAt: existing.createdAt || new Date().toISOString()
-      });
-    });
-    saveTenantsRegistry(syncedRegistry);
-    return true;
-  }
-
-  function isSubscriberApproved(code) {
-    const cleanCode = String(code || '').trim().toUpperCase();
-    if (!cleanCode) return false;
-    const registry = getTenantsRegistry();
-    if (registry.some(t => String(t.code || '').toUpperCase() === cleanCode)) return true;
-    const subs = getSubscribersMaster();
-    return subs.some(s => String(s.code || '').toUpperCase() === cleanCode);
-  }
-
-  function authenticateTenant(code, phone, password) {
-    const cleanCode = String(code || '').trim().toUpperCase();
-    const cleanPhone = String(phone || '').trim();
-    const cleanPass = String(password || '').trim();
-
-    if (!cleanCode) {
-      return { ok: false, reason: 'يرجى إدخال معرف الحساب', message: 'يرجى إدخال معرف الحساب' };
-    }
-
-    const registry = getTenantsRegistry();
-    const found = registry.find(t => String(t.code || '').toUpperCase() === cleanCode);
-
-    if (!found) {
-      const newTenant = {
-        code: cleanCode,
-        phone: cleanPhone,
-        password: cleanPass,
-        ownerName: `معرض ${cleanCode}`,
-        storeName: `معرض ${cleanCode}`,
-        status: 'نشط',
-        expiryDate: '2027-12-31',
-        expiry: '2027-12-31',
-        synced: false,
-        createdAt: new Date().toISOString()
-      };
-      registry.push(newTenant);
-      saveTenantsRegistry(registry);
-      persistTenantSession(cleanCode);
-      return { ok: true, code: cleanCode, tenant: newTenant };
-    }
-
-    if (found.phone && cleanPhone && found.phone !== cleanPhone) {
-      const msg = 'رقم الهاتف غير مطابق لهذا الحساب';
-      return { ok: false, reason: msg, message: msg };
-    }
-    if (found.password && cleanPass && found.password !== cleanPass) {
-      const msg = 'كلمة المرور غير صحيحة';
-      return { ok: false, reason: msg, message: msg };
-    }
-
-    persistTenantSession(cleanCode);
-    return { ok: true, code: cleanCode, tenant: found };
-  }
-
-  function authenticateSubscriber(code, phone, password) {
-    return authenticateTenant(code, phone, password);
-  }
-
-  function authenticateTenantCredentials(code, phone, password) {
-    return authenticateTenant(code, phone, password);
-  }
-
-  function persistTenantSession(code) {
-    const clean = String(code || 'ARAMKY').trim().toUpperCase();
-    try {
-      localStorage.setItem(KEYS.activeTenant, clean);
-      sessionStorage.setItem(KEYS.tenantSession, clean);
-      localStorage.setItem(KEYS.tenantSession, clean);
-    } catch (_) {}
-  }
-
-  function setActiveSubscriberSession(code) {
-    persistTenantSession(code);
-  }
-
-  function clearActiveSubscriberSession() {
-    logoutTenantSession();
-  }
-
-  function getActiveSubscriberSession() {
-    try {
-      const code = sessionStorage.getItem(KEYS.tenantSession) || localStorage.getItem(KEYS.tenantSession);
-      if (!code) return null;
-      return { code: String(code).trim().toUpperCase() };
-    } catch (_) {
-      return null;
-    }
-  }
-
-  function logoutTenantSession() {
-    try {
-      sessionStorage.removeItem(KEYS.tenantSession);
-      localStorage.removeItem(KEYS.tenantSession);
-    } catch (_) {}
-  }
-
-  function hasValidTenantSession() {
-    try {
-      return Boolean(sessionStorage.getItem(KEYS.tenantSession) || localStorage.getItem(KEYS.tenantSession));
-    } catch (_) {
-      return false;
-    }
-  }
-
-  function getActiveTenantCode() {
-    try {
-      return String(
-        sessionStorage.getItem(KEYS.tenantSession) ||
-        localStorage.getItem(KEYS.activeTenant) ||
-        'ARAMKY'
-      ).trim().toUpperCase();
-    } catch (_) {
-      return 'ARAMKY';
-    }
-  }
-
-  function isSubscriptionExpired(tenantObj) {
-    if (!tenantObj) return false;
-    if (String(tenantObj.status || '').trim() === 'متوقف') return true;
-    const registry = getTenantsRegistry();
-    const regMatch = registry.find(t => String(t.code || '').toUpperCase() === String(tenantObj.code || '').toUpperCase());
-    if (regMatch && String(regMatch.status || '').trim() === 'متوقف') return true;
-    const expStr = (regMatch && (regMatch.expiryDate || regMatch.expiry)) || tenantObj.expiryDate || tenantObj.expiry;
-    if (expStr) {
-      const expTime = new Date(expStr).getTime();
-      if (!isNaN(expTime) && Date.now() > expTime + 86400000) return true;
-    }
-    return false;
-  }
-
-  function resolveActiveTenantOnLoad() {
-    const pathname = String(window.location.pathname || '');
-    const match = pathname.match(/\/ARAMKY\/([A-Za-z0-9_-]{4,48})\/?$/i);
-    if (match && match[1]) {
-      const showcaseId = match[1];
-      const mappedTenant = resolveTenantByShowcaseId(showcaseId);
-      return {
-        code: String(mappedTenant || localStorage.getItem(KEYS.activeTenant) || 'ARAMKY').toUpperCase(),
-        showcaseId,
-        publicOnly: true,
-        requireLogin: false
-      };
-    }
-
-    const params = new URLSearchParams(window.location.search);
-    const viewParam = params.get('view');
-    const refParam = params.get('ref');
-
-    if (viewParam === 'showcase') {
-      const decodedCode = refParam ? decodeCatalogRef(refParam) : (localStorage.getItem(KEYS.activeTenant) || 'ARAMKY');
-      return {
-        code: String(decodedCode || 'ARAMKY').toUpperCase(),
-        publicOnly: true,
-        requireLogin: false
-      };
-    }
-
-    const saved = localStorage.getItem(KEYS.activeTenant);
-    if (saved) {
-      return {
-        code: saved.toUpperCase(),
-        publicOnly: false,
-        requireLogin: false
-      };
-    }
-
-    localStorage.setItem(KEYS.activeTenant, 'ARAMKY');
-    return {
-      code: 'ARAMKY',
-      publicOnly: false,
-      requireLogin: false
+      updatedAt: new Date().toISOString()
     };
+
+    const merged = Object.assign({}, base, data || {});
+    merged.code = cleanCode;
+    merged.prices = Object.assign({}, base.prices, (data && data.prices) || {});
+    merged.store = Object.assign({}, base.store, (data && data.store) || {});
+    merged.inventory = Array.isArray(merged.inventory) ? merged.inventory : [];
+    merged.debts = Array.isArray(merged.debts) ? merged.debts : [];
+    merged.logs = Array.isArray(merged.logs) ? merged.logs : [];
+    merged.supportTickets = Array.isArray(merged.supportTickets) ? merged.supportTickets : [];
+    return merged;
   }
 
-  function getAdminConfig() {
-    const cfg = readSecureStorage(KEYS.adminConfig, 'ADMIN_CFG', null);
-    return Object.assign({
-      password: DEFAULT_ADMIN_PASSWORD,
-      masterCardNumber: DEFAULT_CONTACT.masterCardNumber,
-      supportPhone: DEFAULT_CONTACT.supportPhone
-    }, cfg || {});
-  }
-
-  function saveAdminConfig(newCfg) {
-    const current = getAdminConfig();
-    const merged = Object.assign(current, newCfg || {});
-    return writeSecureStorage(KEYS.adminConfig, merged, 'ADMIN_CFG');
-  }
-
-  function getContactInfo() {
-    const cfg = getAdminConfig();
-    const cleanPhone = String(cfg.supportPhone || DEFAULT_CONTACT.supportPhone).replace(/\D/g, '');
-    const intlPhone = cleanPhone.startsWith('0') ? '964' + cleanPhone.slice(1) : cleanPhone;
-    return {
-      masterCardNumber: cfg.masterCardNumber || DEFAULT_CONTACT.masterCardNumber,
-      supportPhone: cfg.supportPhone || DEFAULT_CONTACT.supportPhone,
-      whatsappUrl: `https://wa.me/${intlPhone}`
-    };
-  }
-
-  function verifyAdminPassword(inputPass) {
-    const cfg = getAdminConfig();
-    const trimmed = String(inputPass || '').trim();
-    if (
-      trimmed === String(cfg.password || DEFAULT_ADMIN_PASSWORD) ||
-      trimmed === 'waad sdsd' ||
-      trimmed === 'waadsdsd'
-    ) {
-      setAdminSessionActive(true);
-      return true;
-    }
-    return false;
-  }
-
-  function setAdminSessionActive(active) {
-    try {
-      if (active) {
-        sessionStorage.setItem(KEYS.adminSession, '1');
-      } else {
-        sessionStorage.removeItem(KEYS.adminSession);
-      }
-      syncAdminUiVisibility();
-    } catch (_) {}
+  function verifyAdminPassword(pass) {
+    const clean = String(pass || '').trim();
+    return ADMIN_PASSWORDS.includes(clean);
   }
 
   function setAdminSession(active) {
-    setAdminSessionActive(active);
+    try {
+      if (active) global.localStorage.setItem(KEYS.adminSession, '1');
+      else global.localStorage.removeItem(KEYS.adminSession);
+    } catch (_) {}
+    syncAdminUiVisibility();
   }
 
-  function isAdminSessionActive() {
+  function hasAdminSession() {
     try {
-      return sessionStorage.getItem(KEYS.adminSession) === '1';
+      return global.localStorage.getItem(KEYS.adminSession) === '1';
     } catch (_) {
       return false;
     }
   }
 
-  function hasAdminSession() {
-    return isAdminSessionActive();
-  }
-
-  function isAdminAuthenticated() {
-    return isAdminSessionActive();
-  }
-
-  function setAdminAuthenticated(auth) {
-    setAdminSessionActive(Boolean(auth));
-  }
-
-  function logoutAdminSession() {
-    setAdminSessionActive(false);
+  function setActiveSubscriberSession(code) {
+    try {
+      global.localStorage.setItem(KEYS.subscriberSession, String(code || 'ARAMKY').trim().toUpperCase());
+      global.localStorage.setItem(KEYS.activeTenant, String(code || 'ARAMKY').trim().toUpperCase());
+    } catch (_) {}
   }
 
   function syncAdminUiVisibility() {
-    const container = document.getElementById('admin-btn-container');
-    if (!container) return;
-    container.classList.toggle('hidden', !isAdminSessionActive());
-  }
-
-  function navigateToAdmin() {
-    window.location.href = 'admin.html';
-  }
-
-  function openAdminDashboard() {
-    setAdminSessionActive(true);
-    navigateToAdmin();
-  }
-
-  function openAdminPanelModal() {
-    setAdminSessionActive(true);
-    navigateToAdmin();
-  }
-
-  function pushSupportTicketToAdmin(ticketObj) {
-    return submitSupportTicket(ticketObj);
-  }
-
-  function submitSupportTicket(ticketObj) {
-    if (!ticketObj || typeof ticketObj !== 'object') return false;
-    const existing = readSecureStorage(KEYS.supportTickets, 'GLOBAL_TICKETS', []);
-    const list = Array.isArray(existing) ? existing : [];
-    const entry = Object.assign({
-      id: ticketObj.id || ('TKT-' + Date.now().toString().slice(-6)),
-      tenant: ticketObj.tenantCode || ticketObj.tenant || getActiveTenantCode(),
-      storeName: ticketObj.storeName || '',
-      method: ticketObj.method || 'رسالة دعم',
-      ref: ticketObj.refCode || ticketObj.ref || '',
-      msg: ticketObj.message || ticketObj.msg || '',
-      image: ticketObj.receiptImage || ticketObj.image || '',
-      time: new Date().toLocaleString('ar-IQ'),
-      date: ticketObj.createdAt || new Date().toISOString()
-    }, ticketObj);
-    list.unshift(entry);
-    writeSecureStorage(KEYS.supportTickets, list, 'GLOBAL_TICKETS');
-    if (isSupabaseReady()) {
-      syncTenantToSupabase(entry.tenant, { latestTicket: entry }).catch(() => {});
+    const container = global.document && global.document.getElementById('admin-btn-container');
+    const btn = global.document && global.document.getElementById('header-admin-btn');
+    if (container) {
+      container.classList.remove('hidden');
+      container.style.display = 'flex';
     }
+    if (btn) {
+      btn.classList.remove('hidden');
+      btn.style.display = 'inline-flex';
+    }
+  }
+
+  function getTenantsRegistry() {
+    const list = readSecureStorage(KEYS.tenantsRegistry, 'REG', []);
+    return Array.isArray(list) ? list : [];
+  }
+
+  function saveTenantsRegistry(list) {
+    return writeSecureStorage(KEYS.tenantsRegistry, Array.isArray(list) ? list : [], 'REG');
+  }
+
+  function authenticateSubscriber(code, phone, pass) {
+    const cleanCode = String(code || '').trim().toUpperCase();
+    const cleanPhone = String(phone || '').replace(/\D+/g, '');
+    const cleanPass = String(pass || '').trim();
+    const reg = getTenantsRegistry();
+    const found = reg.find(t => String(t.code || '').toUpperCase() === cleanCode);
+    if (!found) {
+      return { ok: false, message: 'الحساب غير مسجل في قائمة المشتركين' };
+    }
+    const foundPhone = String(found.phone || '').replace(/\D+/g, '');
+    if (foundPhone && cleanPhone && foundPhone !== cleanPhone) {
+      return { ok: false, message: 'رقم الهاتف لا يطابق الحساب' };
+    }
+    if (found.password && cleanPass !== String(found.password)) {
+      return { ok: false, message: 'كلمة المرور غير صحيحة' };
+    }
+    return { ok: true, tenant: found };
+  }
+
+  function isSubscriptionExpired(obj) {
+    if (!obj) return false;
+    if (String(obj.status || '').trim() === 'متوقف') return true;
+    if (obj.expiresAt) {
+      const exp = new Date(obj.expiresAt).getTime();
+      if (!isNaN(exp) && Date.now() > exp) return true;
+    }
+    return false;
+  }
+
+  function getContactInfo() {
+    return {
+      masterCardNumber: MASTER_CARD_NUMBER,
+      supportPhone: SUPPORT_PHONE,
+      whatsappUrl: `https://wa.me/${SUPPORT_WHATSAPP}`
+    };
+  }
+
+  function pushSupportTicketToAdmin(ticket) {
+    const current = readSecureStorage(KEYS.supportTickets, 'SUP', []);
+    const arr = Array.isArray(current) ? current : [];
+    arr.unshift(ticket);
+    writeSecureStorage(KEYS.supportTickets, arr, 'SUP');
     return true;
   }
 
-  function setLanguage(lang) {
-    if (global.ARAMKY_I18N && typeof global.ARAMKY_I18N.setLanguage === 'function') {
-      return global.ARAMKY_I18N.setLanguage(lang);
-    }
-    return lang || 'ar';
+  function getAdminSupportTickets() {
+    const current = readSecureStorage(KEYS.supportTickets, 'SUP', []);
+    return Array.isArray(current) ? current : [];
   }
 
-  function getLanguage() {
-    if (global.ARAMKY_I18N && typeof global.ARAMKY_I18N.getLanguage === 'function') {
-      return global.ARAMKY_I18N.getLanguage();
-    }
-    return 'ar';
+  function applyImageFallback(img, _variant) {
+    if (!img) return;
+    if (img.dataset.fallbackApplied === '1') return;
+    img.dataset.fallbackApplied = '1';
+    img.src = 'icon.png';
   }
 
-  function compressImageFile(file, options = {}) {
-    const maxWidth = options.maxWidth || 1024;
-    const maxHeight = options.maxHeight || 1024;
-    const quality = options.quality || 0.78;
-
-    return new Promise((resolve) => {
-      if (!file || !file.type || !file.type.startsWith('image/')) {
-        resolve(null);
-        return;
-      }
+  function filesToDataUrls(fileList, options) {
+    const opts = Object.assign({ maxWidth: 1024, maxHeight: 1024, quality: 0.78 }, options || {});
+    const files = Array.from(fileList || []);
+    return Promise.all(files.map(file => new Promise(resolve => {
       const reader = new FileReader();
-      reader.onerror = () => resolve(null);
-      reader.onload = (ev) => {
+      reader.onload = () => {
+        const rawUrl = String(reader.result || '');
+        if (!rawUrl.startsWith('data:image/')) {
+          resolve(rawUrl || null);
+          return;
+        }
         const img = new Image();
-        img.onerror = () => resolve(ev.target.result);
         img.onload = () => {
-          let w = img.width;
-          let h = img.height;
-          if (w > maxWidth || h > maxHeight) {
-            const ratio = Math.min(maxWidth / w, maxHeight / h);
-            w = Math.round(w * ratio);
-            h = Math.round(h * ratio);
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
+          let w = img.width || opts.maxWidth;
+          let h = img.height || opts.maxHeight;
+          const ratio = Math.min(opts.maxWidth / w, opts.maxHeight / h, 1);
+          w = Math.max(1, Math.round(w * ratio));
+          h = Math.max(1, Math.round(h * ratio));
           try {
-            const mime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
-            resolve(canvas.toDataURL(mime, quality));
+            const canvas = global.document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', opts.quality));
           } catch (_) {
-            resolve(ev.target.result);
+            resolve(rawUrl);
           }
         };
-        img.src = ev.target.result;
+        img.onerror = () => resolve(rawUrl);
+        img.src = rawUrl;
       };
+      reader.onerror = () => resolve(null);
       reader.readAsDataURL(file);
-    });
+    }))).then(list => list.filter(Boolean));
   }
 
-  async function filesToDataUrls(fileList, options = {}) {
-    const files = Array.from(fileList || []);
-    const results = await Promise.all(files.map(f => compressImageFile(f, options)));
-    return results.filter(Boolean);
-  }
-
-  function applyImageFallback(imgEl, variant = 'logo') {
-    if (!imgEl || imgEl.dataset.fallbackApplied === '1') return;
-    const nextSrc = imgEl.getAttribute('data-next-src');
-    if (nextSrc && imgEl.src && !imgEl.src.endsWith(nextSrc)) {
-      imgEl.removeAttribute('data-next-src');
-      imgEl.src = nextSrc;
+  function renderGalleryThumbnails(container, images, config) {
+    if (!container) return;
+    const cfg = Object.assign({ onRemoveFn: null }, config || {});
+    const arr = Array.isArray(images) ? images : [];
+    if (!arr.length) {
+      container.innerHTML = '<span class="text-slate-500 text-[11px]">لا توجد صور مرفقة حالياً.</span>';
       return;
     }
-    imgEl.dataset.fallbackApplied = '1';
-    const label = variant === 'cover' ? 'ARAMKY GOLD OS' : 'ARAMKY';
-    const fontSize = variant === 'cover' ? '22' : '28';
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-      <defs>
-        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#BF953F"/>
-          <stop offset="50%" stop-color="#FCF6BA"/>
-          <stop offset="100%" stop-color="#AA771C"/>
-        </linearGradient>
-      </defs>
-      <rect width="200" height="200" rx="36" fill="#070A12"/>
-      <circle cx="100" cy="100" r="78" fill="none" stroke="url(#g)" stroke-width="5"/>
-      <text x="100" y="108" text-anchor="middle" fill="url(#g)" font-family="sans-serif" font-weight="900" font-size="${fontSize}">${label}</text>
-    </svg>`;
-    imgEl.src = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
-  }
-
-  function renderGalleryThumbnails(containerEl, images, options = {}) {
-    if (!containerEl) return;
-    const list = Array.isArray(images) ? images : [];
-    const onRemoveFn = options.onRemoveFn || 'removeEditGalleryImage';
-    if (!list.length) {
-      containerEl.innerHTML = '<span class="text-slate-500 text-[11px]">لا توجد صور مرفقة حالياً.</span>';
-      return;
-    }
-    containerEl.innerHTML = list.map((src, idx) => `
+    container.innerHTML = arr.map((src, idx) => `
       <div class="relative w-16 h-16 rounded-xl overflow-hidden border border-gold/40 bg-darkbg">
-        <img src="${src}" onerror="window.ARAMKY_CORE.applyImageFallback(this, 'logo')" class="w-full h-full object-cover">
-        <button type="button" onclick="${onRemoveFn}(${idx})" class="absolute top-0.5 left-0.5 bg-rose-600 text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center shadow">✕</button>
+        <img src="${src}" class="w-full h-full object-cover">
+        ${cfg.onRemoveFn
+          ? `<button type="button" onclick="${cfg.onRemoveFn}(${idx})" class="absolute top-0.5 left-0.5 bg-rose-600 text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center">✕</button>`
+          : ''}
       </div>
     `).join('');
   }
 
-  function openLightbox(src, title, options = {}) {
-    const modal = document.getElementById('image-lightbox-modal');
-    const img = document.getElementById('lightbox-img');
-    const lbl = document.getElementById('lightbox-title');
+  function openLightbox(src, title, opts) {
+    const modal = global.document.getElementById('image-lightbox-modal');
+    const img = global.document.getElementById('lightbox-img');
+    const lbl = global.document.getElementById('lightbox-title');
     if (!modal || !img) return;
     delete img.dataset.fallbackApplied;
-    img.onerror = function () { applyImageFallback(img, options.fallbackVariant || 'logo'); };
+    img.onerror = () => applyImageFallback(img, (opts && opts.fallbackVariant) || 'logo');
     img.src = src || 'icon.png';
     if (lbl) lbl.textContent = title || 'معاينة الصورة';
     modal.classList.remove('hidden');
   }
 
-  function closeLightbox(modalId = 'image-lightbox-modal') {
-    const modal = document.getElementById(modalId);
-    if (modal) modal.classList.add('hidden');
+  function closeLightbox(modalId) {
+    const el = global.document.getElementById(modalId || 'image-lightbox-modal');
+    if (el) el.classList.add('hidden');
   }
 
-  function printReceiptOnly(paperWidthMm = 80) {
-    const widthCss = paperWidthMm === 58 ? '58mm' : '80mm';
-    let styleTag = document.getElementById('aramky-dynamic-print-style');
-    if (!styleTag) {
-      styleTag = document.createElement('style');
-      styleTag.id = 'aramky-dynamic-print-style';
-      document.head.appendChild(styleTag);
+  function printReceiptOnly(widthMm) {
+    const modalBox = global.document.querySelector('#invoice-modal > div');
+    if (modalBox) {
+      modalBox.style.maxWidth = Number(widthMm) === 58 ? '22rem' : '32rem';
     }
-    styleTag.textContent = `
-      @media print {
-        @page { size: ${widthCss} auto; margin: 2mm; }
-        body * { visibility: hidden !important; }
-        #invoice-modal, #invoice-modal * { visibility: visible !important; }
-        #invoice-modal {
-          position: fixed !important;
-          inset: 0 !important;
-          width: ${widthCss} !important;
-          max-width: ${widthCss} !important;
-          margin: 0 auto !important;
-          padding: 4px !important;
-          background: #ffffff !important;
-          color: #000000 !important;
-          box-shadow: none !important;
-        }
-        #invoice-modal .no-print { display: none !important; }
-      }
-    `;
-    window.print();
+    global.print();
   }
+
+  function isSupabaseReady() {
+    return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+  }
+
+  async function syncTenantToSupabase(code, payload) {
+    if (!isSupabaseReady()) return false;
+    try {
+      const cleanCode = String(code || 'ARAMKY').trim().toUpperCase();
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/tenants?on_conflict=code`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Prefer': 'resolution=merge-duplicates'
+        },
+        body: JSON.stringify({
+          code: cleanCode,
+          data: payload,
+          updated_at: new Date().toISOString()
+        })
+      });
+      return res.ok;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function ensureAdminModalDom() {
+    if (global.document.getElementById('aramky-admin-dashboard-modal')) return;
+    const modal = global.document.createElement('div');
+    modal.id = 'aramky-admin-dashboard-modal';
+    modal.className = 'fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[330] flex items-center justify-center hidden p-4';
+    modal.innerHTML = `
+      <div class="bg-slate-900 border border-amber-400/50 rounded-3xl w-full max-w-3xl p-6 space-y-5 text-right shadow-2xl max-h-[88vh] overflow-y-auto">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div>
+            <h3 class="text-lg font-black text-amber-300"><i class="fa-solid fa-crown"></i> لوحة إدارة الأدمن — ARAMKY Gold OS</h3>
+            <p class="text-[11px] text-slate-400">إدارة الحسابات، حالة الاشتراك، ورسائل الدعم الفني الواردة</p>
+          </div>
+          <button type="button" onclick="closeAdminDashboard()" class="bg-slate-800 text-slate-300 px-3.5 py-1.5 rounded-xl text-xs font-bold">إغلاق ✕</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs bg-slate-950/70 p-4 rounded-2xl border border-slate-800">
+          <input type="text" id="adm-new-code" placeholder="كود المعرض (مثال: BAGHDAD01)" class="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-amber-300 font-mono uppercase outline-none">
+          <input type="text" id="adm-new-name" placeholder="اسم المعرض" class="bg-slate-900 border border-slate-700 rounded-xl p-2.5 outline-none">
+          <input type="tel" id="adm-new-phone" placeholder="رقم الهاتف" class="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-emerald-400 font-mono outline-none">
+          <button type="button" onclick="aramkyAdminCreateSubscriber()" class="bg-amber-400 text-slate-950 font-black rounded-xl p-2.5">إضافة / تحديث حساب</button>
+        </div>
+
+        <div class="space-y-2">
+          <h4 class="text-xs font-bold text-amber-300">قائمة المشتركين والحسابات:</h4>
+          <div id="adm-subscribers-list" class="space-y-2 text-xs"></div>
+        </div>
+
+        <div class="space-y-2">
+          <h4 class="text-xs font-bold text-sky-300">رسائل وطلبات الدعم الفني الواردة:</h4>
+          <div id="adm-tickets-list" class="space-y-2 text-xs"></div>
+        </div>
+      </div>
+    `;
+    global.document.body.appendChild(modal);
+  }
+
+  function renderAdminDashboardContent() {
+    const subsEl = global.document.getElementById('adm-subscribers-list');
+    const tixEl = global.document.getElementById('adm-tickets-list');
+    const reg = getTenantsRegistry();
+
+    if (subsEl) {
+      if (!reg.length) {
+        subsEl.innerHTML = '<div class="bg-slate-950/60 border border-slate-800 p-3 rounded-xl text-slate-400">الحساب الافتراضي النشط: ARAMKY (أدمن / رئيسي). يمكنك إضافة حسابات جديدة من الأعلى.</div>';
+      } else {
+        subsEl.innerHTML = reg.map((t, idx) => {
+          const isLocked = String(t.status || '') === 'متوقف';
+          return `
+            <div class="bg-slate-950/80 border border-slate-800 p-3 rounded-2xl flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <strong class="text-amber-300 font-mono">${t.code}</strong>
+                <span class="text-slate-200 mr-2">${t.storeName || '--'}</span>
+                <span class="text-[11px] text-slate-400 font-mono mr-2">${t.phone || ''}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isLocked ? 'bg-rose-500/20 text-rose-300' : 'bg-emerald-500/20 text-emerald-300'}">${isLocked ? 'متوقف' : 'نشط'}</span>
+                <button type="button" onclick="aramkyAdminToggleTenantStatus(${idx})" class="bg-slate-800 text-amber-300 px-2.5 py-1 rounded-lg font-bold">${isLocked ? 'تفعيل' : 'إيقاف'}</button>
+                <button type="button" onclick="aramkyAdminLoadTenant('${String(t.code || '').replace(/'/g, "\\'")}')" class="bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-lg font-bold">فتح الحساب</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    if (tixEl) {
+      const tickets = getAdminSupportTickets();
+      if (!tickets.length) {
+        tixEl.innerHTML = '<div class="bg-slate-950/60 border border-slate-800 p-3 rounded-xl text-slate-500">لا توجد رسائل دعم واردة حالياً.</div>';
+      } else {
+        tixEl.innerHTML = tickets.slice(0, 20).map(tk => `
+          <div class="bg-slate-950/80 border border-slate-800 p-3 rounded-2xl space-y-1">
+            <div class="flex justify-between">
+              <strong class="text-sky-300">${tk.method || 'رسالة'} — <span class="font-mono text-amber-300">${tk.tenant || ''}</span></strong>
+              <span class="text-[10px] text-slate-400 font-mono">${tk.time || ''}</span>
+            </div>
+            ${tk.msg ? `<p class="text-slate-200">${tk.msg}</p>` : ''}
+          </div>
+        `).join('');
+      }
+    }
+  }
+
+  global.aramkyAdminCreateSubscriber = function () {
+    const codeInp = global.document.getElementById('adm-new-code');
+    const nameInp = global.document.getElementById('adm-new-name');
+    const phoneInp = global.document.getElementById('adm-new-phone');
+    const code = (codeInp && codeInp.value || '').trim().toUpperCase();
+    const storeName = (nameInp && nameInp.value || '').trim() || `معرض ${code}`;
+    const phone = (phoneInp && phoneInp.value || '').trim();
+    if (!code) {
+      if (typeof global.showToast === 'function') global.showToast('أدخل كود المعرض أولاً', 'warning');
+      return;
+    }
+    const reg = getTenantsRegistry();
+    const idx = reg.findIndex(t => String(t.code || '').toUpperCase() === code);
+    const record = { code, storeName, phone, status: 'نشط', updatedAt: new Date().toISOString() };
+    if (idx !== -1) reg[idx] = Object.assign({}, reg[idx], record);
+    else reg.push(record);
+    saveTenantsRegistry(reg);
+    if (codeInp) codeInp.value = '';
+    if (nameInp) nameInp.value = '';
+    if (phoneInp) phoneInp.value = '';
+    renderAdminDashboardContent();
+    if (typeof global.showToast === 'function') global.showToast('تم حفظ بيانات المشترك بنجاح', 'success');
+  };
+
+  global.aramkyAdminToggleTenantStatus = function (idx) {
+    const reg = getTenantsRegistry();
+    if (!reg[idx]) return;
+    const nextStatus = reg[idx].status === 'متوقف' ? 'نشط' : 'متوقف';
+    reg[idx].status = nextStatus;
+    saveTenantsRegistry(reg);
+    const tKey = getTenantDataKey(reg[idx].code);
+    const tData = readSecureStorage(tKey, `TENANT_${reg[idx].code}`, null);
+    if (tData) {
+      tData.status = nextStatus;
+      writeSecureStorage(tKey, tData, `TENANT_${reg[idx].code}`);
+    }
+    renderAdminDashboardContent();
+    if (typeof global.loadTenantData === 'function' && typeof global.renderAll === 'function') {
+      global.loadTenantData(global.activeTenantCode || 'ARAMKY');
+      global.renderAll();
+    }
+  };
+
+  global.aramkyAdminLoadTenant = function (code) {
+    if (!code) return;
+    setActiveSubscriberSession(code);
+    if (typeof global.loadTenantData === 'function') global.loadTenantData(code);
+    if (typeof global.renderAll === 'function') global.renderAll();
+    global.closeAdminDashboard();
+    if (typeof global.showToast === 'function') global.showToast(`تم تحميل الحساب ${code}`, 'success');
+  };
+
+  global.openAdminDashboard = function () {
+    setAdminSession(true);
+    ensureAdminModalDom();
+    renderAdminDashboardContent();
+    const modal = global.document.getElementById('aramky-admin-dashboard-modal');
+    if (modal) modal.classList.remove('hidden');
+  };
+
+  global.openAdminModal = global.openAdminDashboard;
+
+  global.closeAdminDashboard = function () {
+    const modal = global.document.getElementById('aramky-admin-dashboard-modal');
+    if (modal) modal.classList.add('hidden');
+  };
 
   global.ARAMKY_CORE = {
-    version: '28.3',
     keys: KEYS,
-    supportPhone: DEFAULT_CONTACT.supportPhone,
-    writeSecureStorage,
+    supportPhone: SUPPORT_PHONE,
+    whatsappNumber: SUPPORT_WHATSAPP,
+    masterCardNumber: MASTER_CARD_NUMBER,
+    safeJsonParse,
     readSecureStorage,
-    getCloudConfig,
-    saveCloudConfig,
-    hydrateCloudConfigFromServer,
-    initSupabase: hydrateCloudConfigFromServer,
-    isSupabaseReady,
-    getRenderEndpoint,
-    normalizeTenantPayload,
-    mergeTenantDataPreferNewer,
-    syncTenantToSupabase,
-    pullTenantFromSupabase,
-    syncAllFromSupabase,
-    testSupabaseConnection,
-    startupCloudHealthCheck,
-    postToRenderBackend,
+    writeSecureStorage,
     getTenantDataKey,
     getCustomerLedgerKey,
     encodeCatalogRef,
-    decodeCatalogRef,
-    getOrCreateShowcaseId,
-    resolveTenantByShowcaseId,
-    getPublicStorefrontUrl,
+    normalizeTenantPayload,
+    verifyAdminPassword,
+    setAdminSession,
+    hasAdminSession,
+    setActiveSubscriberSession,
+    syncAdminUiVisibility,
     getTenantsRegistry,
     saveTenantsRegistry,
-    getSubscribersMaster,
-    saveSubscribersMaster,
-    isSubscriberApproved,
-    authenticateTenant,
     authenticateSubscriber,
-    authenticateTenantCredentials,
-    persistTenantSession,
-    setActiveSubscriberSession,
-    clearActiveSubscriberSession,
-    getActiveSubscriberSession,
-    logoutTenantSession,
-    hasValidTenantSession,
-    getActiveTenantCode,
     isSubscriptionExpired,
-    resolveActiveTenantOnLoad,
-    getAdminConfig,
-    saveAdminConfig,
     getContactInfo,
-    verifyAdminPassword,
-    setAdminSessionActive,
-    setAdminSession,
-    isAdminSessionActive,
-    hasAdminSession,
-    isAdminAuthenticated,
-    setAdminAuthenticated,
-    logoutAdminSession,
-    syncAdminUiVisibility,
-    navigateToAdmin,
-    openAdminDashboard,
-    openAdminPanelModal,
     pushSupportTicketToAdmin,
-    submitSupportTicket,
-    setLanguage,
-    getLanguage,
-    filesToDataUrls,
+    getAdminSupportTickets,
     applyImageFallback,
+    filesToDataUrls,
     renderGalleryThumbnails,
     openLightbox,
     closeLightbox,
-    printReceiptOnly
+    printReceiptOnly,
+    isSupabaseReady,
+    syncTenantToSupabase
   };
 })(window);
