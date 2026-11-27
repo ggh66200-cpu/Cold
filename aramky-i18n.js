@@ -211,6 +211,51 @@
     }
   };
 
+  const PHRASE_MAP = {
+    ku: {
+      'نظام إدارة صياغة الذهب والمعرض الرقمي الذكي': 'سیستەمی بەڕێوەبردنی زێڕنگەری و پێشانگای زیرەکی دیجیتاڵی',
+      'إضافة أو تحديث حساب مشترك': 'زیادکردن یان نوێکردنەوەی هەژماری بەشداربوو',
+      'حفظ المشترك': 'پاشەکەوتکردنی بەشداربوو',
+      'تفريغ': 'بەتاڵکردنەوە',
+      'إغلاق': 'داخستن',
+      'نسخ': 'لەبەرگرتنەوە',
+      'تعديل': 'دەستکاری',
+      'حذف': 'سڕینەوە',
+      'تفعيل': 'چالاککردن',
+      'إيقاف': 'ڕاگرتن',
+      'إضافة للسلة': 'زیادکردن بۆ سەبەتە',
+      'تصفح المخزن': 'گەڕان لە کۆگا',
+      'إتمام البيع النقدي وطباعة': 'تەواوکردنی فرۆشتنی کاش و چاپکردن',
+      'تسجيل آجل (تطلبهم +)': 'تۆمارکردنی قەرز (داوایان دەکەیت +)',
+      'إتمام شراء الكسر وتسجيله': 'تەواوکردنی کڕینی زێڕی شکاو و تۆمارکردنی',
+      'حفظ وإضافة للمخزن والمعرض 📦': 'پاشەکەوت و زیادکردن بۆ کۆگا و پێشانگا 📦',
+      'حفظ الإعدادات وإشعار الإدارة بالتحديث 🌐': 'پاشەکەوتکردنی ڕێکخستنەکان و ئاگادارکردنەوەی بەڕێوەبەر 🌐',
+      'إرسال مباشر إلى لوحة الأدمن': 'ناردنی ڕاستەوخۆ بۆ پانێڵی ئەدمین',
+      'إرسال عبر واتساب': 'ناردن لە ڕێگەی وەتسئەپ'
+    },
+    en: {
+      'نظام إدارة صياغة الذهب والمعرض الرقمي الذكي': 'Gold Craftsmanship Management & Smart Showcase OS',
+      'إضافة أو تحديث حساب مشترك': 'Add or Update Subscriber Account',
+      'حفظ المشترك': 'Save Subscriber',
+      'تفريغ': 'Clear',
+      'إغلاق': 'Close',
+      'نسخ': 'Copy',
+      'تعديل': 'Edit',
+      'حذف': 'Delete',
+      'تفعيل': 'Enable',
+      'إيقاف': 'Disable',
+      'إضافة للسلة': 'Add to Cart',
+      'تصفح المخزن': 'Browse Inventory',
+      'إتمام البيع النقدي وطباعة': 'Complete Cash Sale & Print',
+      'تسجيل آجل (تطلبهم +)': 'Record Credit (Owed to You +)',
+      'إتمام شراء الكسر وتسجيله': 'Complete Scrap Purchase & Save',
+      'حفظ وإضافة للمخزن والمعرض 📦': 'Save & Add to Inventory & Showcase 📦',
+      'حفظ الإعدادات وإشعار الإدارة بالتحديث 🌐': 'Save Settings & Notify Admin 🌐',
+      'إرسال مباشر إلى لوحة الأدمن': 'Send Directly to Admin Panel',
+      'إرسال عبر واتساب': 'Send via WhatsApp'
+    }
+  };
+
   let activeLang = 'ar';
 
   function normalizeLang(lang) {
@@ -249,6 +294,32 @@
     return pack[key] !== undefined ? pack[key] : (DICTIONARY.ar[key] !== undefined ? DICTIONARY.ar[key] : fallback);
   }
 
+  function translatePhrase(text) {
+    const code = normalizeLang(getLanguage());
+    if (code === 'ar' || !text) return text;
+    const dict = PHRASE_MAP[code] || {};
+    const trimmed = String(text).trim();
+    return dict[trimmed] || text;
+  }
+
+  function translateDomNodes() {
+    const code = normalizeLang(getLanguage());
+    if (code === 'ar' || !document.body) return;
+    const dict = PHRASE_MAP[code] || {};
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      const parent = node.parentElement;
+      if (!parent || ['SCRIPT', 'STYLE', 'INPUT', 'TEXTAREA'].includes(parent.tagName)) continue;
+      const raw = node.nodeValue;
+      if (!raw) continue;
+      const trimmed = raw.trim();
+      if (dict[trimmed]) {
+        node.nodeValue = raw.replace(trimmed, dict[trimmed]);
+      }
+    }
+  }
+
   function setTextById(id, value) {
     const el = document.getElementById(id);
     if (el && value) el.textContent = value;
@@ -260,100 +331,98 @@
   }
 
   function applyLanguageToDom(lang) {
-    try {
-      const code = normalizeLang(lang || getLanguage());
-      const pack = DICTIONARY[code] || DICTIONARY.ar;
+    const code = normalizeLang(lang || getLanguage());
+    const pack = DICTIONARY[code] || DICTIONARY.ar;
 
-      document.documentElement.setAttribute('lang', pack.langTag);
-      document.documentElement.setAttribute('dir', pack.dir);
-      if (document.body) {
-        document.body.setAttribute('dir', pack.dir);
-      }
+    document.documentElement.setAttribute('lang', pack.langTag);
+    document.documentElement.setAttribute('dir', pack.dir);
+    document.body.setAttribute('dir', pack.dir);
 
-      setTextById('aramky-install-badge', pack.badge);
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-      setTextById('pwa-install-label', isStandalone ? pack.installedBtn : pack.installBtn);
+    setTextById('aramky-install-badge', pack.badge);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    setTextById('pwa-install-label', isStandalone ? pack.installedBtn : pack.installBtn);
 
-      setTextById('i18n-refresh-label', pack.refreshBtn);
-      setTextById('i18n-admin-label', pack.adminBtn);
-      setTextById('i18n-switch-label', pack.switchTenantBtn);
-      setTextById('i18n-storefront-label', pack.storefrontBtn);
-      setTextById('i18n-return-label', pack.returnBtn);
-      setTextById('i18n-calc-label', pack.calcBtn);
-      setTextById('i18n-prices-label', pack.pricesBtn);
-      setTextById('i18n-reset-label', pack.resetBtn);
-      setTextById('i18n-lang-label', `${pack.label} (${pack.shortCode})`);
+    setTextById('i18n-refresh-label', pack.refreshBtn);
+    setTextById('i18n-admin-label', pack.adminBtn);
+    setTextById('i18n-switch-label', pack.switchTenantBtn);
+    setTextById('i18n-storefront-label', pack.storefrontBtn);
+    setTextById('i18n-return-label', pack.returnBtn);
+    setTextById('i18n-calc-label', pack.calcBtn);
+    setTextById('i18n-prices-label', pack.pricesBtn);
+    setTextById('i18n-reset-label', pack.resetBtn);
+    setTextById('i18n-lang-label', `${pack.label} (${pack.shortCode})`);
 
-      setTextById('i18n-ticker-title', pack.tickerTitle);
-      setTextById('i18n-ticker-usd', pack.tickerUsd);
-      setTextById('i18n-ticker-m24', pack.tickerM24);
-      setTextById('i18n-ticker-m22', pack.tickerM22);
-      setTextById('i18n-ticker-m21', pack.tickerM21);
-      setTextById('i18n-ticker-m18', pack.tickerM18);
-      setTextById('i18n-ticker-m9', pack.tickerM9);
+    setTextById('i18n-ticker-title', pack.tickerTitle);
+    setTextById('i18n-ticker-usd', pack.tickerUsd);
+    setTextById('i18n-ticker-m24', pack.tickerM24);
+    setTextById('i18n-ticker-m22', pack.tickerM22);
+    setTextById('i18n-ticker-m21', pack.tickerM21);
+    setTextById('i18n-ticker-m18', pack.tickerM18);
+    setTextById('i18n-ticker-m9', pack.tickerM9);
 
-      setTextById('i18n-sidebar-title', pack.sidebarTitle);
-      setTextById('i18n-tab-dashboard', pack.tabDashboard);
-      setTextById('i18n-tab-pos', pack.tabPos);
-      setTextById('i18n-tab-scrap', pack.tabScrap);
-      setTextById('i18n-tab-inventory', pack.tabInventory);
-      setTextById('i18n-tab-store-settings', pack.tabStoreSettings);
-      setTextById('i18n-tab-debts', pack.tabDebts);
-      setTextById('i18n-tab-logs', pack.tabLogs);
-      setTextById('i18n-tab-support', pack.tabSupport);
+    setTextById('i18n-sidebar-title', pack.sidebarTitle);
+    setTextById('i18n-tab-dashboard', pack.tabDashboard);
+    setTextById('i18n-tab-pos', pack.tabPos);
+    setTextById('i18n-tab-scrap', pack.tabScrap);
+    setTextById('i18n-tab-inventory', pack.tabInventory);
+    setTextById('i18n-tab-store-settings', pack.tabStoreSettings);
+    setTextById('i18n-tab-debts', pack.tabDebts);
+    setTextById('i18n-tab-logs', pack.tabLogs);
+    setTextById('i18n-tab-support', pack.tabSupport);
 
-      setTextById('i18n-dash-cash', pack.dashCash);
-      setTextById('i18n-dash-usd', pack.dashUsd);
-      setTextById('i18n-dash-zain', pack.dashZain);
-      setTextById('i18n-dash-profit', pack.dashProfit);
-      setTextById('i18n-exp-title', pack.expTitle);
-      setPlaceholderById('exp-reason', pack.expReasonPh);
-      setPlaceholderById('exp-amount', pack.expAmountPh);
-      setPlaceholderById('exp-notes', pack.expNotesPh);
-      setTextById('i18n-exp-save-btn', pack.expSaveBtn);
+    setTextById('i18n-dash-cash', pack.dashCash);
+    setTextById('i18n-dash-usd', pack.dashUsd);
+    setTextById('i18n-dash-zain', pack.dashZain);
+    setTextById('i18n-dash-profit', pack.dashProfit);
+    setTextById('i18n-exp-title', pack.expTitle);
+    setPlaceholderById('exp-reason', pack.expReasonPh);
+    setPlaceholderById('exp-amount', pack.expAmountPh);
+    setPlaceholderById('exp-notes', pack.expNotesPh);
+    setTextById('i18n-exp-save-btn', pack.expSaveBtn);
 
-      setTextById('i18n-debts-title', pack.debtsTitle);
-      setTextById('i18n-debts-subtitle', pack.debtsSubtitle);
-      setTextById('debt-filter-all', pack.debtsAllBtn);
-      setTextById('debt-filter-them', pack.debtsThemBtn);
-      setTextById('debt-filter-us', pack.debtsUsBtn);
-      setTextById('i18n-debts-summary-them', pack.debtsSummaryThem);
-      setTextById('i18n-debts-summary-us', pack.debtsSummaryUs);
-      setTextById('i18n-debts-summary-net', pack.debtsSummaryNet);
-      setPlaceholderById('debt-customer', pack.debtsCustomerPh);
-      setPlaceholderById('debt-phone', pack.debtsPhonePh);
-      setPlaceholderById('debt-amount', pack.debtsAmountPh);
-      setPlaceholderById('debt-notes', pack.debtsNotesPh);
-      setTextById('i18n-debts-save-btn', pack.debtsSaveBtn);
+    setTextById('i18n-debts-title', pack.debtsTitle);
+    setTextById('i18n-debts-subtitle', pack.debtsSubtitle);
+    setTextById('debt-filter-all', pack.debtsAllBtn);
+    setTextById('debt-filter-them', pack.debtsThemBtn);
+    setTextById('debt-filter-us', pack.debtsUsBtn);
+    setTextById('i18n-debts-summary-them', pack.debtsSummaryThem);
+    setTextById('i18n-debts-summary-us', pack.debtsSummaryUs);
+    setTextById('i18n-debts-summary-net', pack.debtsSummaryNet);
+    setPlaceholderById('debt-customer', pack.debtsCustomerPh);
+    setPlaceholderById('debt-phone', pack.debtsPhonePh);
+    setPlaceholderById('debt-amount', pack.debtsAmountPh);
+    setPlaceholderById('debt-notes', pack.debtsNotesPh);
+    setTextById('i18n-debts-save-btn', pack.debtsSaveBtn);
 
-      setTextById('i18n-lock-title', pack.lockTitle);
-      setTextById('i18n-lock-desc', pack.lockDesc);
-      setTextById('i18n-lock-support-btn', pack.lockSupportBtn);
-      setTextById('i18n-lock-switch-btn', pack.lockSwitchBtn);
+    setTextById('i18n-lock-title', pack.lockTitle);
+    setTextById('i18n-lock-desc', pack.lockDesc);
+    setTextById('i18n-lock-support-btn', pack.lockSupportBtn);
+    setTextById('i18n-lock-switch-btn', pack.lockSwitchBtn);
 
-      setTextById('i18n-login-title', pack.loginTitle);
-      setTextById('i18n-login-desc', pack.loginDesc);
-      setTextById('i18n-login-code-label', pack.loginCodeLabel);
-      setTextById('i18n-login-phone-label', pack.loginPhoneLabel);
-      setTextById('i18n-login-pass-label', pack.loginPassLabel);
-      setTextById('i18n-login-submit-btn', pack.loginSubmitBtn);
-    } catch (_) {}
+    setTextById('i18n-login-title', pack.loginTitle);
+    setTextById('i18n-login-desc', pack.loginDesc);
+    setTextById('i18n-login-code-label', pack.loginCodeLabel);
+    setTextById('i18n-login-phone-label', pack.loginPhoneLabel);
+    setTextById('i18n-login-pass-label', pack.loginPassLabel);
+    setTextById('i18n-login-submit-btn', pack.loginSubmitBtn);
+
+    translateDomNodes();
   }
 
   function init() {
-    getLanguage();
-    applyLanguageToDom(activeLang);
-    return activeLang;
+    applyLanguageToDom(getLanguage());
   }
 
   const api = {
     version: '1.2',
     languages: ['ar', 'ku', 'en'],
+    init,
     getLanguage,
     setLanguage,
     cycleLanguage,
     applyLanguageToDom,
-    init,
+    translatePhrase,
+    translateDomNodes,
     t
   };
 
