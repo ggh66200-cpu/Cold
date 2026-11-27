@@ -1,6 +1,6 @@
 import os
 import re
-from flask import Flask, jsonify, send_from_directory, abort, make_response, request
+from flask import Flask, jsonify, send_from_directory, abort, make_response
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
