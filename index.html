@@ -2362,62 +2362,9 @@ function addInventoryIndexToCart(idx) {
       qty: 1
     });
   }
+  closeLuxuryItemModal();
   renderCart();
-  showToast(`تمت إضافة "${it.name}" إلى السلة`, 'success');
-}
-
-function renderCart() {
-  const container = document.getElementById('cart-items-container');
-  const q = (document.getElementById('cart-search-input')?.value || '').trim().toLowerCase();
-  const filtered = cart
-    .map((c, i) => ({ c, i }))
-    .filter(({ c }) => !q || String(c.name || '').toLowerCase().includes(q) || String(c.karat || '').includes(q));
-
-  if (!filtered.length) {
-    container.innerHTML = '<p class="text-center text-slate-500 text-xs p-3">السلة فارغة.</p>';
-  } else {
-    container.innerHTML = filtered.map(({ c, i }) => {
-      const p = calculateItemPricing(c);
-      const lineTotal = p.pieceIqd * c.qty;
-      return `
-        <div class="bg-cardbg border border-slate-700 p-3 rounded-2xl flex items-center justify-between gap-2 text-xs">
-          <div>
-            <div class="font-bold text-slate-100">${c.name} <span class="text-gold">(عيار ${c.karat} • ${c.weight}غ)</span></div>
-            <div class="text-[11px] text-emerald-400 font-bold">الكمية: ${c.qty} • الإجمالي: ${formatIQD(lineTotal)}</div>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <button onclick="changeCartQty(${i}, -1)" class="bg-slate-800 text-white w-7 h-7 rounded-lg font-bold">-</button>
-            <button onclick="changeCartQty(${i}, 1)" class="bg-slate-800 text-white w-7 h-7 rounded-lg font-bold">+</button>
-            <button onclick="removeCartItem(${i})" class="bg-rose-600/30 text-rose-300 border border-rose-500/40 px-2.5 h-7 rounded-lg font-bold">✕</button>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  const totalIqd = cart.reduce((sum, c) => sum + calculateItemPricing(c).pieceIqd * c.qty, 0);
-  const usdRate = Number(db.prices.usd || 150000) || 150000;
-  setTextSafe('cart-total-price', formatIQD(totalIqd));
-  setTextSafe('cart-total-alt', currencyMode === 'iraqi'
-    ? ((totalIqd / usdRate / 100).toFixed(2) + ' ورقة')
-    : ('$' + (totalIqd / (usdRate / 100)).toFixed(2)));
-}
-
-function changeCartQty(i, delta) {
-  const item = cart[i];
-  if (!item) return;
-  const invItem = db.inventory[item.invIndex];
-  const maxQty = invItem ? Number(invItem.qty || 1) : item.qty;
-  const nextQty = item.qty + delta;
-  if (nextQty <= 0) {
-    cart.splice(i, 1);
-  } else if (nextQty > maxQty) {
-    showToast('لا توجد كمية كافية في المخزن', 'warning');
-    return;
-  } else {
-    item.qty = nextQty;
-  }
-  renderCart();
+  showToast(`تمت إضافة (${it.name}) إلى السلة`, 'success');
 }
 
 function removeCartItem(i) {
@@ -2425,125 +2372,172 @@ function removeCartItem(i) {
   renderCart();
 }
 
-function payFullAction(method) {
-  const totalIqd = cart.reduce((sum, c) => sum + calculateItemPricing(c).pieceIqd * c.qty, 0);
+function getCartTotals() {
+  let totalIqd = 0;
+  let totalMaking = 0;
+  let totalWeight = 0;
+  cart.forEach(c => {
+    const linePricing = calculateItemPricing({ karat: c.karat, weight: c.weight, makingPerGram: c.makingPerGram, qty: c.qty });
+    totalIqd += linePricing.pieceIqd * Number(c.qty || 1);
+    totalMaking += Math.round(Number(c.weight || 0) * Number(c.makingPerGram || 0) * Number(c.qty || 1));
+    totalWeight += Number(c.weight || 0) * Number(c.qty || 1);
+  });
+  return { totalIqd, totalMaking, totalWeight };
+}
+
+function renderCart() {
+  const container = document.getElementById('cart-items-container');
+  const q = (document.getElementById('cart-search-input')?.value || '').trim().toLowerCase();
+  if (!container) return;
+  const rows = cart
+    .map((item, idx) => ({ item, idx }))
+    .filter(({ item }) => !q || String(item.name || '').toLowerCase().includes(q));
+
+  if (!rows.length) {
+    container.innerHTML = '<p class="text-center text-slate-500 text-xs p-3">السلة فارغة.</p>';
+  } else {
+    container.innerHTML = rows.map(({ item, idx }) => {
+      const p = calculateItemPricing(item);
+      const lineTotal = p.pieceIqd * Number(item.qty || 1);
+      return `
+        <div class="bg-darkbg border border-slate-800 p-3 rounded-2xl flex items-center justify-between gap-2 text-xs">
+          <div>
+            <strong class="text-slate-100">${item.name}</strong>
+            <span class="text-gold mr-2">عيار ${item.karat} • ${item.weight}غ × ${item.qty}</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-emerald-400 font-bold">${formatIQD(lineTotal)}</span>
+            <button onclick="removeCartItem(${idx})" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  const totals = getCartTotals();
+  setTextSafe('cart-total-price', formatIQD(totals.totalIqd));
   const usdRate = Number(db.prices.usd || 150000) || 150000;
-  const perDollar = usdRate / 100;
+  setTextSafe('cart-total-alt', currencyMode === 'iraqi'
+    ? ((totals.totalIqd / usdRate / 100).toFixed(2) + ' ورقة')
+    : ('$' + (totals.totalIqd / (usdRate / 100)).toFixed(2)));
+}
+
+function payFullAction(method) {
+  const { totalIqd } = getCartTotals();
+  const usdRate = Number(db.prices.usd || 150000) || 150000;
+  const singleUsd = usdRate / 100;
   document.getElementById('pay-iqd').value = '';
   document.getElementById('pay-usd').value = '';
   document.getElementById('pay-card').value = '';
   if (method === 'iqd') {
     document.getElementById('pay-iqd').value = totalIqd;
   } else if (method === 'usd') {
-    document.getElementById('pay-usd').value = (totalIqd / perDollar).toFixed(2);
+    document.getElementById('pay-usd').value = (totalIqd / singleUsd).toFixed(2);
   } else if (method === 'card') {
     document.getElementById('pay-card').value = totalIqd;
   }
 }
 
-function completeSale(mode = 'cash') {
+function completeSale(saleType) {
   if (!cart.length) {
-    showToast('السلة فارغة! يرجى إضافة قطعة واحدة على الأقل', 'error');
+    showToast('السلة فارغة! أضف قطعة أولاً', 'error');
     return;
   }
-  const customer = document.getElementById('pos-customer').value.trim();
+  const customer = document.getElementById('pos-customer').value.trim() || 'زبون نقدي';
   const phone = document.getElementById('pos-phone').value.trim();
   const notes = document.getElementById('pos-notes').value.trim();
-
-  if (mode === 'debt' && !customer) {
-    showToast('يرجى إدخال اسم الزبون لتسجيل الفاتورة بالآجل', 'error');
+  if (saleType === 'debt' && !document.getElementById('pos-customer').value.trim()) {
+    showToast('يرجى إدخال اسم الزبون لتسجيل البيع بالآجل', 'error');
     return;
   }
 
-  const totalIqd = cart.reduce((sum, c) => sum + calculateItemPricing(c).pieceIqd * c.qty, 0);
-  const totalMakingProfit = cart.reduce((sum, c) => sum + Math.round(Number(c.weight || 0) * Number(c.makingPerGram || 0) * c.qty), 0);
+  const { totalIqd, totalMaking, totalWeight } = getCartTotals();
   const usdRate = Number(db.prices.usd || 150000) || 150000;
-  const perDollar = usdRate / 100;
-
+  const singleUsd = usdRate / 100;
   const payIqd = parseFloat(document.getElementById('pay-iqd').value) || 0;
   const payUsd = parseFloat(document.getElementById('pay-usd').value) || 0;
   const payCard = parseFloat(document.getElementById('pay-card').value) || 0;
-  const paidIqdTotal = Math.round(payIqd + (payUsd * perDollar) + payCard);
-  const remainingDebtIqd = Math.max(0, totalIqd - paidIqdTotal);
 
-  if (mode === 'cash' && paidIqdTotal < totalIqd) {
-    showToast(`المدفوع (${formatIQD(paidIqdTotal)}) أقل من الإجمالي (${formatIQD(totalIqd)}) — اختر "تسجيل آجل" أو أكمل الدفع`, 'warning');
-    return;
-  }
+  const paidInIqd = payIqd + (payUsd * singleUsd) + payCard;
+  const remaining = Math.max(0, Math.round(totalIqd - paidInIqd));
 
-  cart.forEach(c => {
-    const invItem = db.inventory[c.invIndex];
+  const soldItemsSnapshot = cart.map(c => {
+    const p = calculateItemPricing(c);
+    return {
+      invIndex: c.invIndex,
+      id: c.id,
+      name: c.name,
+      karat: c.karat,
+      weight: Number(c.weight || 0),
+      makingPerGram: Number(c.makingPerGram || 0),
+      qty: Number(c.qty || 1),
+      lineTotal: p.pieceIqd * Number(c.qty || 1),
+      lineMaking: Math.round(Number(c.weight || 0) * Number(c.makingPerGram || 0) * Number(c.qty || 1))
+    };
+  });
+
+  soldItemsSnapshot.forEach(s => {
+    const invItem = db.inventory[s.invIndex];
     if (invItem) {
-      invItem.qty = Math.max(0, Number(invItem.qty || 0) - c.qty);
+      invItem.qty = Math.max(0, Number(invItem.qty || 0) - s.qty);
     }
   });
 
   db.cash = Number(db.cash || 0) + payIqd;
   db.usd = Number(db.usd || 0) + payUsd;
   db.zain = Number(db.zain || 0) + payCard;
-  db.makingProfit = Number(db.makingProfit || 0) + totalMakingProfit;
+  db.makingProfit = Number(db.makingProfit || 0) + totalMaking;
 
-  const invId = 'INV-' + Date.now().toString().slice(-7);
-  const itemsSnapshot = cart.map(c => ({
-    invIndex: c.invIndex,
-    id: c.id,
-    name: c.name,
-    karat: c.karat,
-    weight: c.weight,
-    makingPerGram: c.makingPerGram,
-    qty: c.qty,
-    lineIqd: calculateItemPricing(c).pieceIqd * c.qty,
-    lineMaking: Math.round(Number(c.weight || 0) * Number(c.makingPerGram || 0) * c.qty)
-  }));
-
-  if (mode === 'debt' || remainingDebtIqd > 0) {
-    db.debts.unshift({
-      id: 'DBT-' + Date.now().toString().slice(-6),
-      customer: customer || 'زبون آجل',
-      phone,
-      type: 'يطلبهم أموال زيادة (+)',
-      unit: 'money',
-      category: 'on_them',
-      amount: remainingDebtIqd,
-      absAmount: remainingDebtIqd,
-      actionKind: 'زيادة (+)',
-      notes: `فاتورة ${invId}${notes ? ' — ' + notes : ''}`,
-      time: new Date().toLocaleString('ar-IQ'),
-      date: new Date().toISOString()
-    });
+  const invCode = 'INV-' + Date.now().toString().slice(-7);
+  if (saleType === 'debt' || remaining > 0) {
+    const debtVal = saleType === 'debt' && paidInIqd === 0 ? totalIqd : remaining;
+    if (debtVal > 0) {
+      db.debts.unshift({
+        id: 'DBT-' + Date.now().toString().slice(-6),
+        customer,
+        phone,
+        type: 'يطلبهم أموال زيادة (+)',
+        category: 'on_them',
+        unit: 'money',
+        amount: debtVal,
+        notes: `فاتورة ${invCode}${notes ? ' — ' + notes : ''}`,
+        date: new Date().toISOString()
+      });
+    }
   }
 
-  saveCustomerLedgerEntry(customer || 'زبون نقدي', phone, {
-    type: mode === 'debt' ? 'debt' : 'sale',
+  saveCustomerLedgerEntry(customer, phone, {
+    type: saleType === 'debt' ? 'debt' : 'sale',
     unit: 'money',
-    invoiceId: invId,
-    totalIqd,
-    paidIqdTotal,
-    remainingDebtIqd,
-    items: itemsSnapshot,
+    invoiceCode: invCode,
+    amount: totalIqd,
+    paidInIqd: Math.round(paidInIqd),
+    remainingDebtIqd: saleType === 'debt' ? (paidInIqd === 0 ? totalIqd : remaining) : remaining,
+    items: soldItemsSnapshot,
     notes
   });
 
-  const soldSummary = itemsSnapshot.map(x => `${x.name} (${x.qty}×${x.weight}غ عيار${x.karat})`).join('، ');
-  addLog(
-    'عملية بيع',
-    `فاتورة ${invId} | الزبون: ${customer || 'نقدي'} | القطع: ${soldSummary} | صياغة: ${formatIQD(totalMakingProfit)}${remainingDebtIqd > 0 ? ' | آجل: ' + formatIQD(remainingDebtIqd) : ''}${notes ? ' | ' + notes : ''}`,
-    totalIqd,
-    { invoiceId: invId, items: itemsSnapshot, makingProfit: totalMakingProfit, remainingDebtIqd }
-  );
+  addLog('عملية بيع', `فاتورة ${invCode} للزبون ${customer} (${soldItemsSnapshot.map(x => `${x.name} ×${x.qty}`).join('، ')}) — صياغة: ${formatIQD(totalMaking)}${notes ? ' | ' + notes : ''}`, totalIqd, {
+    invoiceCode: invCode,
+    items: soldItemsSnapshot,
+    totalWeight,
+    totalMaking
+  });
 
   saveTenantData();
   openInvoiceModal({
-    id: invId,
+    id: invCode,
     date: new Date().toLocaleString('ar-IQ'),
-    customer: customer || 'زبون نقدي',
-    phone: phone || '--',
-    items: itemsSnapshot,
+    customer,
+    phone,
+    items: soldItemsSnapshot,
     totalIqd,
+    totalMaking,
     payIqd,
     payUsd,
     payCard,
-    remainingDebtIqd,
+    remaining,
+    saleType,
     notes
   });
 
@@ -2557,54 +2551,53 @@ function completeSale(mode = 'cash') {
   document.getElementById('selected-preview-index').value = '';
   document.getElementById('selected-preview-label').textContent = '-- اختر قطعة للمعاينة الفورية (اضغط للبحث) --';
   renderAll();
-  showToast('تم إتمام البيع وتسجيل الفاتورة بنجاح', 'success');
+  showToast('تم إتمام عملية البيع وتوثيق الفاتورة', 'success');
+}
+
+function setInvoicePaperWidth(width) {
+  invoicePaperWidth = width === 58 ? 58 : 80;
+  const b80 = document.getElementById('paper-btn-80');
+  const b58 = document.getElementById('paper-btn-58');
+  if (b80 && b58) {
+    b80.className = invoicePaperWidth === 80 ? 'bg-slate-900 text-amber-300 px-2.5 py-1.5 rounded-lg font-bold' : 'bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-lg font-bold';
+    b58.className = invoicePaperWidth === 58 ? 'bg-slate-900 text-amber-300 px-2.5 py-1.5 rounded-lg font-bold' : 'bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-lg font-bold';
+  }
+  const modalBox = document.querySelector('#invoice-modal > div');
+  if (modalBox) {
+    modalBox.style.maxWidth = invoicePaperWidth === 58 ? '22rem' : '32rem';
+  }
 }
 
 function openInvoiceModal(inv) {
-  const tplNames = {
-    detailed: 'فاتورة رسمية مفصلة (أرامكي)',
-    compact: 'فاتورة مختصرة سريعة',
-    jeweler: 'نظام الصايغ المؤسسي المطور'
-  };
   setTextSafe('inv-store-name', (db.store && db.store.name) || 'ARAMKY');
-  setTextSafe('inv-template-badge', tplNames[invoiceTemplate] || tplNames.detailed);
+  const tplNames = { detailed: 'فاتورة رسمية مفصلة', compact: 'فاتورة مختصرة سريعة', jeweler: 'نظام الصايغ المؤسسي المطور' };
+  setTextSafe('inv-template-badge', `${tplNames[invoiceTemplate] || tplNames.detailed} (${invoicePaperWidth}mm)`);
   setTextSafe('inv-id', inv.id);
   setTextSafe('inv-date', inv.date);
-  setTextSafe('inv-customer', inv.customer);
-  setTextSafe('inv-phone', inv.phone);
+  setTextSafe('inv-customer', inv.customer || '--');
+  setTextSafe('inv-phone', inv.phone || '--');
 
-  const bodyEl = document.getElementById('inv-items-body');
-  if (bodyEl) {
-    bodyEl.innerHTML = (inv.items || []).map(it => {
-      if (invoiceTemplate === 'compact') {
-        return `<div class="flex justify-between"><span>${it.name} × ${it.qty}</span><strong>${formatIQD(it.lineIqd)}</strong></div>`;
-      }
-      return `
-        <div class="flex justify-between items-center border-b border-slate-200 pb-1">
-          <div>
-            <div class="font-bold">${it.name} (عيار ${it.karat})</div>
-            <div class="text-[11px] text-slate-600">الوزن: ${it.weight}غ × ${it.qty}${invoiceTemplate === 'jeweler' ? ` • صياغة الغرام: ${formatIQD(it.makingPerGram)}` : ''}</div>
-          </div>
-          <strong class="font-mono">${formatIQD(it.lineIqd)}</strong>
+  const body = document.getElementById('inv-items-body');
+  body.innerHTML = (inv.items || []).map(it => {
+    if (invoiceTemplate === 'compact') {
+      return `<div class="flex justify-between"><span>${it.name} ×${it.qty}</span><strong>${formatIQD(it.lineTotal)}</strong></div>`;
+    }
+    return `
+      <div class="flex justify-between items-start border-b border-dashed border-slate-200 pb-1.5">
+        <div>
+          <div class="font-bold text-slate-900">${it.name} ×${it.qty}</div>
+          <div class="text-[11px] text-slate-600">عيار ${it.karat} • وزن ${it.weight}غ${invoiceTemplate === 'jeweler' ? ` • صياغة ${Number(it.makingPerGram || 0).toLocaleString('en-US')}/غ` : ''}</div>
         </div>
-      `;
-    }).join('');
-  }
+        <strong class="text-slate-900">${formatIQD(it.lineTotal)}</strong>
+      </div>
+    `;
+  }).join('');
 
-  const usdRate = Number(db.prices.usd || 150000) || 150000;
   setTextSafe('inv-total-iqd', formatIQD(inv.totalIqd));
-  setTextSafe('inv-total-alt', currencyMode === 'iraqi'
-    ? ((inv.totalIqd / usdRate / 100).toFixed(2) + ' ورقة')
-    : ('$' + (inv.totalIqd / (usdRate / 100)).toFixed(2)));
-
-  const payParts = [];
-  if (inv.payIqd) payParts.push(`كاش: ${formatIQD(inv.payIqd)}`);
-  if (inv.payUsd) payParts.push(`دولار: $${inv.payUsd}`);
-  if (inv.payCard) payParts.push(`ماستر/زين كاش: ${formatIQD(inv.payCard)}`);
-  if (inv.remainingDebtIqd > 0) payParts.push(`متبقي آجل: ${formatIQD(inv.remainingDebtIqd)}`);
-  setTextSafe('inv-payment-details', payParts.length ? ('المدفوع: ' + payParts.join(' | ')) : '');
-  setTextSafe('inv-notes-row', inv.notes ? ('ملاحظات: ' + inv.notes) : '');
-
+  const usdRate = Number(db.prices.usd || 150000) || 150000;
+  setTextSafe('inv-total-alt', ((inv.totalIqd || 0) / usdRate / 100).toFixed(2) + ' ورقة ($' + (((inv.totalIqd || 0) / (usdRate / 100))).toFixed(2) + ')');
+  setTextSafe('inv-payment-details', `المدفوع: كاش ${formatIQD(inv.payIqd || 0)} | دولار $${inv.payUsd || 0} | إلكتروني ${formatIQD(inv.payCard || 0)}${(inv.remaining || 0) > 0 ? ' | متبقي آجل: ' + formatIQD(inv.remaining) : ''}`);
+  setTextSafe('inv-notes-row', inv.notes ? `ملاحظات: ${inv.notes}` : '');
   setInvoicePaperWidth(invoicePaperWidth);
   document.getElementById('invoice-modal').classList.remove('hidden');
 }
@@ -2613,27 +2606,8 @@ function closeInvoiceModal() {
   document.getElementById('invoice-modal').classList.add('hidden');
 }
 
-function setInvoicePaperWidth(mm) {
-  invoicePaperWidth = mm === 58 ? 58 : 80;
-  const b80 = document.getElementById('paper-btn-80');
-  const b58 = document.getElementById('paper-btn-58');
-  if (b80 && b58) {
-    if (invoicePaperWidth === 58) {
-      b58.className = 'bg-slate-900 text-amber-300 px-2.5 py-1.5 rounded-lg font-bold';
-      b80.className = 'bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-lg font-bold';
-    } else {
-      b80.className = 'bg-slate-900 text-amber-300 px-2.5 py-1.5 rounded-lg font-bold';
-      b58.className = 'bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-lg font-bold';
-    }
-  }
-}
-
 function printCurrentInvoice() {
-  if (CORE && typeof CORE.printReceiptOnly === 'function') {
-    CORE.printReceiptOnly(invoicePaperWidth);
-  } else {
-    window.print();
-  }
+  window.print();
 }
 
 function openReturnModal() {
@@ -2653,50 +2627,49 @@ function processInvoiceReturn() {
     showToast('يرجى إدخال رمز الفاتورة', 'error');
     return;
   }
-  const saleLog = db.logs.find(l => l.type === 'عملية بيع' && (String(l.details || '').includes(code) || (l.meta && l.meta.invoiceId === code)));
-  if (!saleLog) {
-    showToast('لم يتم العثور على فاتورة بيع بهذا الرمز', 'error');
+  const logEntry = db.logs.find(l => l.type === 'عملية بيع' && l.meta && l.meta.invoiceCode === code);
+  if (!logEntry || !logEntry.meta) {
+    showToast('لم يتم العثور على الفاتورة المطلوبة', 'error');
     return;
   }
-  const refundAmt = Number(saleLog.amount || 0);
-  if (saleLog.meta && Array.isArray(saleLog.meta.items)) {
-    saleLog.meta.items.forEach(it => {
-      const invItem = typeof it.invIndex === 'number' && db.inventory[it.invIndex]
-        ? db.inventory[it.invIndex]
-        : db.inventory.find(x => x.id === it.id || x.name === it.name);
-      if (invItem) invItem.qty = Number(invItem.qty || 0) + Number(it.qty || 1);
-    });
-    if (saleLog.meta.makingProfit) {
-      db.makingProfit = Math.max(0, Number(db.makingProfit || 0) - Number(saleLog.meta.makingProfit || 0));
-    }
+  if (logEntry.meta.returned) {
+    showToast('تم إرجاع هذه الفاتورة مسبقاً', 'warning');
+    return;
   }
+  logEntry.meta.returned = true;
+  (logEntry.meta.items || []).forEach(it => {
+    const invItem = db.inventory[it.invIndex];
+    if (invItem) invItem.qty = Number(invItem.qty || 0) + Number(it.qty || 1);
+  });
+  const refundAmt = Number(logEntry.amount || 0);
   db.cash = Math.max(0, Number(db.cash || 0) - refundAmt);
-  addLog('إرجاع فاتورة', `إرجاع الفاتورة ${code} | السبب: ${reason}`, -refundAmt);
+  db.makingProfit = Math.max(0, Number(db.makingProfit || 0) - Number(logEntry.meta.totalMaking || 0));
+  addLog('إرجاع فاتورة', `إرجاع الفاتورة ${code} — السبب: ${reason}`, refundAmt);
   saveTenantData();
   renderAll();
   closeReturnModal();
-  showToast(`تم إرجاع الفاتورة ${code} بنجاح`, 'success');
+  showToast(`تم إرجاع الفاتورة ${code} وإعادة القطع للمخزن`, 'success');
 }
 
 function autoFillScrapMithqal() {
-  const input = document.getElementById('scrap-mithqal-price');
   const karat = document.getElementById('scrap-karat')?.value || '21';
-  if (input && input.dataset.manual !== '1') {
+  const input = document.getElementById('scrap-mithqal-price');
+  if (!input) return;
+  if (!input.dataset.manual) {
     input.value = getMithqalPriceByKarat(karat);
   }
 }
 
 function updateScrapPreview() {
-  const karat = document.getElementById('scrap-karat')?.value || '21';
-  const mqPrice = parseFloat(document.getElementById('scrap-mithqal-price')?.value) || getMithqalPriceByKarat(karat);
+  const mqPrice = parseFloat(document.getElementById('scrap-mithqal-price')?.value) || 0;
   const weight = parseFloat(document.getElementById('scrap-weight')?.value) || 0;
   const deductPerGram = parseFloat(document.getElementById('scrap-deduct')?.value) || 0;
-  const gramPriceAfterDeduct = Math.max(0, (mqPrice / MITHQAL_GRAMS) - deductPerGram);
-  const totalIqd = Math.round(weight * gramPriceAfterDeduct);
+  const baseGram = mqPrice / MITHQAL_GRAMS;
+  const adjGram = Math.max(0, baseGram - deductPerGram);
+  const totalIqd = Math.round(weight * adjGram);
   const usdRate = Number(db.prices.usd || 150000) || 150000;
   const totalUsd = totalIqd / (usdRate / 100);
-
-  setTextSafe('scrap-prev-gram', formatIQD(Math.round(gramPriceAfterDeduct)));
+  setTextSafe('scrap-prev-gram', formatIQD(Math.round(adjGram)));
   setTextSafe('scrap-prev-net-weight', formatGrams(weight));
   setTextSafe('scrap-prev-iqd', formatIQD(totalIqd));
   setTextSafe('scrap-prev-usd', '$' + totalUsd.toFixed(2));
@@ -2706,20 +2679,19 @@ function buyScrapGold() {
   const customer = document.getElementById('scrap-customer').value.trim() || 'بائع كسر';
   const phone = document.getElementById('scrap-phone').value.trim();
   const karat = document.getElementById('scrap-karat').value || '21';
-  const mqPrice = parseFloat(document.getElementById('scrap-mithqal-price').value) || getMithqalPriceByKarat(karat);
+  const mqPrice = parseFloat(document.getElementById('scrap-mithqal-price').value) || 0;
   const weight = parseFloat(document.getElementById('scrap-weight').value) || 0;
   const deductPerGram = parseFloat(document.getElementById('scrap-deduct').value) || 0;
   const notes = document.getElementById('scrap-notes').value.trim();
 
   if (weight <= 0 || mqPrice <= 0) {
-    showToast('يرجى إدخال الوزن وسعر المثقال بشكل صحيح', 'error');
+    showToast('يرجى إدخال وزن الكسر وسعر المثقال بشكل صحيح', 'error');
     return;
   }
 
-  const gramPriceAfterDeduct = Math.max(0, (mqPrice / MITHQAL_GRAMS) - deductPerGram);
-  const totalIqd = Math.round(weight * gramPriceAfterDeduct);
+  const adjGram = Math.max(0, (mqPrice / MITHQAL_GRAMS) - deductPerGram);
+  const totalIqd = Math.round(weight * adjGram);
 
-  db.cash = Number(db.cash || 0) - totalIqd;
   db.inventory.push({
     id: 'SCR-' + Date.now().toString().slice(-6),
     name: `ذهب كسر عيار ${karat} (${customer})`,
@@ -2729,12 +2701,26 @@ function buyScrapGold() {
     qty: 1,
     makingPerGram: 0,
     published: false,
-    notes: notes || `شراء كسر من ${customer}${phone ? ' - ' + phone : ''}`,
+    notes: `كسر من ${customer}${notes ? ' — ' + notes : ''}`,
     images: [],
     updatedAt: new Date().toISOString()
   });
 
-  addLog('شراء كسر', `شراء كسر عيار ${karat} وزن ${weight}غ من ${customer}${phone ? ' (' + phone + ')' : ''} خصم صياغة ${deductPerGram}/غ${notes ? ' | ' + notes : ''}`, -totalIqd);
+  db.cash = Number(db.cash || 0) - totalIqd;
+  saveCustomerLedgerEntry(customer, phone, {
+    type: 'scrap_buy',
+    unit: 'money',
+    karat,
+    weight,
+    amount: totalIqd,
+    notes
+  });
+
+  addLog('شراء كسر', `شراء ذهب كسر عيار ${karat} وزن ${weight}غ من ${customer} (خصم ${deductPerGram}/غ)${notes ? ' | ' + notes : ''}`, totalIqd, {
+    karat,
+    weight
+  });
+
   saveTenantData();
   renderAll();
   document.getElementById('scrap-customer').value = '';
@@ -2742,7 +2728,7 @@ function buyScrapGold() {
   document.getElementById('scrap-weight').value = '';
   document.getElementById('scrap-deduct').value = '';
   document.getElementById('scrap-notes').value = '';
-  showToast('تم شراء الذهب الكسر وتحديث الخزينة والمخزن', 'success');
+  showToast('تم تسجيل شراء الذهب الكسر وتحديث الصندوق', 'success');
 }
 
 function addExpense() {
@@ -2750,11 +2736,11 @@ function addExpense() {
   const amount = parseFloat(document.getElementById('exp-amount').value) || 0;
   const notes = document.getElementById('exp-notes').value.trim();
   if (!reason || amount <= 0) {
-    showToast('يرجى إدخال سبب المصروف والمبلغ بشكل صحيح', 'error');
+    showToast('يرجى إدخال سبب المصروف والمبلغ', 'error');
     return;
   }
   db.cash = Number(db.cash || 0) - amount;
-  addLog('صرف مصروف', `${reason}${notes ? ' | ' + notes : ''}`, -amount);
+  addLog('صرف مصروف', `مصروف: ${reason}${notes ? ' — ' + notes : ''}`, amount);
   saveTenantData();
   renderAll();
   document.getElementById('exp-reason').value = '';
@@ -2763,51 +2749,15 @@ function addExpense() {
   showToast('تم تسجيل المصروف اليومي', 'success');
 }
 
-function setDebtFilter(filter) {
-  activeDebtFilter = filter;
-  applyDebtTabIsolationState();
-  renderDebts();
-}
-
-function applyDebtTabIsolationState() {
-  const f = ['all', 'on_them', 'on_us'].includes(activeDebtFilter) ? activeDebtFilter : 'all';
-  activeDebtFilter = f;
-
-  const btnAll = document.getElementById('debt-filter-all');
-  const btnThem = document.getElementById('debt-filter-them');
-  const btnUs = document.getElementById('debt-filter-us');
-
-  if (btnAll) {
-    btnAll.className = f === 'all'
-      ? 'bg-gold text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow cursor-pointer'
-      : 'bg-darkbg text-slate-300 border border-slate-700 px-4 py-2 rounded-2xl text-xs font-black cursor-pointer';
-  }
-  if (btnThem) {
-    btnThem.className = f === 'on_them'
-      ? 'bg-emerald-500 text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow cursor-pointer'
-      : 'bg-darkbg text-emerald-300 border border-emerald-500/50 px-4 py-2 rounded-2xl text-xs font-black cursor-pointer';
-  }
-  if (btnUs) {
-    btnUs.className = f === 'on_us'
-      ? 'bg-rose-500 text-white px-4 py-2 rounded-2xl text-xs font-black shadow cursor-pointer'
-      : 'bg-darkbg text-rose-300 border border-rose-500/50 px-4 py-2 rounded-2xl text-xs font-black cursor-pointer';
-  }
-
-  const wrapper = document.getElementById('debt-sections-wrapper');
-  if (wrapper) wrapper.setAttribute('data-active-filter', f);
-
-  const secThem = document.getElementById('section-debts-them');
-  const secUs = document.getElementById('section-debts-us');
-  if (secThem) secThem.classList.toggle('hidden', f === 'on_us');
-  if (secUs) secUs.classList.toggle('hidden', f === 'on_them');
-}
-
-function selectLuxuryDebtType(typeValue, labelText) {
+function selectLuxuryDebtType(typeVal, labelText) {
   const input = document.getElementById('debt-type');
-  const lbl = document.getElementById('selected-debt-type-label');
-  if (input) input.value = typeValue;
-  if (lbl) lbl.textContent = labelText;
-
+  const label = document.getElementById('selected-debt-type-label');
+  if (input) input.value = typeVal;
+  if (label) {
+    label.textContent = labelText;
+    const isUs = typeVal.includes('يطلبوني');
+    label.className = isUs ? 'text-rose-400 font-black' : 'text-emerald-400 font-black';
+  }
   const map = {
     'يطلبهم أموال زيادة (+)': 'btn-dmode-plus-money',
     'يطلبهم أموال نقصان (-)': 'btn-dmode-minus-money',
@@ -2818,353 +2768,547 @@ function selectLuxuryDebtType(typeValue, labelText) {
     'يطلبوني ذهب زيادة (+)': 'btn-dmode-us-plus-gold',
     'يطلبوني ذهب نقصان (-)': 'btn-dmode-us-minus-gold'
   };
-  Object.values(map).forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('ring-2', 'ring-white', 'scale-[1.02]');
+  Object.entries(map).forEach(([k, id]) => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    if (k === typeVal) {
+      btn.classList.add('ring-2', 'ring-gold', 'scale-[1.02]');
+    } else {
+      btn.classList.remove('ring-2', 'ring-gold', 'scale-[1.02]');
+    }
   });
-  const activeBtn = document.getElementById(map[typeValue]);
-  if (activeBtn) activeBtn.classList.add('ring-2', 'ring-white', 'scale-[1.02]');
-
-  closeLuxuryDebtTypeModal();
+  document.getElementById('luxury-debt-type-modal')?.classList.add('hidden');
   updateDebtLivePreview();
 }
 
-function openLuxuryDebtTypeModal() {
-  document.getElementById('luxury-debt-type-modal').classList.remove('hidden');
-}
-
 function closeLuxuryDebtTypeModal() {
-  document.getElementById('luxury-debt-type-modal').classList.add('hidden');
+  document.getElementById('luxury-debt-type-modal')?.classList.add('hidden');
 }
 
 function updateDebtLivePreview() {
+  const previewEl = document.getElementById('debt-live-preview');
+  if (!previewEl) return;
   const name = (document.getElementById('debt-customer')?.value || '').trim();
-  const amt = parseFloat(document.getElementById('debt-amount')?.value) || 0;
+  const rawAmt = parseFloat(document.getElementById('debt-amount')?.value || '0') || 0;
   const typeVal = document.getElementById('debt-type')?.value || 'يطلبهم أموال زيادة (+)';
-  const parsed = parseDebtMovement({ type: typeVal, amount: amt, absAmount: Math.abs(amt) });
-  const prevEl = document.getElementById('debt-live-preview');
-  if (!prevEl) return;
-  if (!name && !amt) {
-    prevEl.textContent = 'أدخل الاسم والقيمة لمعاينة الأثر الفوري على الرصيد';
+  const parsed = parseDebtMovement({ type: typeVal, amount: rawAmt });
+
+  if (!name && !rawAmt) {
+    previewEl.textContent = 'أدخل الاسم والقيمة لمعاينة الأثر الفوري على الرصيد';
     return;
   }
-  const valTxt = parsed.unit === 'gold' ? formatGrams(Math.abs(amt)) : formatIQD(Math.abs(amt));
-  prevEl.textContent = `${name || 'حساب'} • ${parsed.label} • القيمة: ${valTxt}`;
+  const unitLabel = parsed.unit === 'gold' ? formatGrams(rawAmt) : formatIQD(rawAmt);
+  previewEl.textContent = `${name || 'الحساب'} • ${parsed.label} • القيمة: ${unitLabel}`;
 }
 
 function addDebtMovement() {
   const customer = document.getElementById('debt-customer').value.trim();
   const phone = document.getElementById('debt-phone').value.trim();
-  const rawAmt = parseFloat(document.getElementById('debt-amount').value);
-  const typeVal = document.getElementById('debt-type').value || 'يطلبهم أموال زيادة (+)';
+  const amount = parseFloat(document.getElementById('debt-amount').value);
+  const type = document.getElementById('debt-type').value || 'يطلبهم أموال زيادة (+)';
   const notes = document.getElementById('debt-notes').value.trim();
 
-  if (!customer || isNaN(rawAmt) || rawAmt <= 0) {
-    showToast('يرجى إدخال اسم الزبون/التاجر وقيمة صحيحة أكبر من صفر', 'error');
+  if (!customer || isNaN(amount) || amount <= 0) {
+    showToast('يرجى إدخال اسم الزبون / التاجر والقيمة بشكل صحيح', 'error');
     return;
   }
 
-  const parsed = parseDebtMovement({ type: typeVal, amount: rawAmt, absAmount: Math.abs(rawAmt) });
+  const parsed = parseDebtMovement({ type, amount });
   const entry = {
     id: 'DBT-' + Date.now().toString().slice(-6),
     customer,
     phone,
-    type: typeVal,
-    unit: parsed.unit,
+    type,
     category: parsed.side,
-    direction: parsed.dir,
+    unit: parsed.unit,
+    dir: parsed.dir,
+    absAmount: amount,
     amount: parsed.signedEffect,
-    absAmount: parsed.absAmt,
-    actionKind: parsed.dir === 'dec' ? 'نقصان (-)' : 'زيادة (+)',
     notes,
-    time: new Date().toLocaleString('ar-IQ'),
     date: new Date().toISOString()
   };
 
   db.debts.unshift(entry);
-  saveCustomerLedgerEntry(customer, phone, {
-    type: 'debt',
-    unit: parsed.unit,
-    category: parsed.side,
-    direction: parsed.dir,
-    amount: parsed.signedEffect,
-    absAmount: parsed.absAmt,
-    notes
-  });
-
-  const valLabel = parsed.unit === 'gold' ? formatGrams(parsed.absAmt) : formatIQD(parsed.absAmt);
-  addLog('حركة ديون', `${customer}${phone ? ' (' + phone + ')' : ''} — ${parsed.label} — القيمة: ${valLabel}${notes ? ' | ' + notes : ''}`, parsed.unit === 'money' ? parsed.signedEffect : 0);
-
+  saveCustomerLedgerEntry(customer, phone, entry);
+  addLog('حركة ديون', `${customer} (${parsed.label}) — القيمة: ${parsed.unit === 'gold' ? formatGrams(amount) : formatIQD(amount)}${notes ? ' | ' + notes : ''}`, parsed.signedEffect);
   saveTenantData();
-  renderAll();
+  renderDebts();
+  updateDebtLivePreview();
+  filterLogs();
   document.getElementById('debt-customer').value = '';
   document.getElementById('debt-phone').value = '';
   document.getElementById('debt-amount').value = '';
   document.getElementById('debt-notes').value = '';
-  updateDebtLivePreview();
-  showToast('تم حفظ حركة الديون وتحديث الكارت بنجاح', 'success');
+  showToast('تم حفظ الحركة وتحديث الكارت وجرد الحركات', 'success');
 }
 
-function buildDebtCardGroups() {
-  const groupsMap = new Map();
-  (db.debts || []).forEach((d, idx) => {
+function applyDebtTabIsolationState() {
+  const filter = activeDebtFilter === 'on_them' || activeDebtFilter === 'on_us' ? activeDebtFilter : 'all';
+  activeDebtFilter = filter;
+
+  const wrapper = document.getElementById('debt-sections-wrapper');
+  if (wrapper) {
+    wrapper.dataset.activeFilter = filter;
+    wrapper.setAttribute('data-active-filter', filter);
+  }
+
+  const allBtn = document.getElementById('debt-filter-all');
+  const themBtn = document.getElementById('debt-filter-them');
+  const usBtn = document.getElementById('debt-filter-us');
+
+  if (allBtn) {
+    allBtn.className = filter === 'all'
+      ? 'bg-gold text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow ring-2 ring-amber-200/70 cursor-pointer'
+      : 'bg-darkbg text-slate-300 border border-slate-700 px-4 py-2 rounded-2xl text-xs font-black cursor-pointer';
+    allBtn.setAttribute('aria-pressed', String(filter === 'all'));
+  }
+  if (themBtn) {
+    themBtn.className = filter === 'on_them'
+      ? 'bg-emerald-500 text-darkbg px-4 py-2 rounded-2xl text-xs font-black shadow ring-2 ring-emerald-200/70 cursor-pointer'
+      : 'bg-darkbg text-emerald-300 border border-emerald-500/50 px-4 py-2 rounded-2xl text-xs font-black cursor-pointer';
+    themBtn.setAttribute('aria-pressed', String(filter === 'on_them'));
+  }
+  if (usBtn) {
+    usBtn.className = filter === 'on_us'
+      ? 'bg-rose-500 text-white px-4 py-2 rounded-2xl text-xs font-black shadow ring-2 ring-rose-200/70 cursor-pointer'
+      : 'bg-darkbg text-rose-300 border border-rose-500/50 px-4 py-2 rounded-2xl text-xs font-black cursor-pointer';
+    usBtn.setAttribute('aria-pressed', String(filter === 'on_us'));
+  }
+
+  const secThem = document.getElementById('section-debts-them');
+  const secUs = document.getElementById('section-debts-us');
+  const gridThem = document.getElementById('grid-debts-them');
+  const gridUs = document.getElementById('grid-debts-us');
+
+  const showThem = filter === 'all' || filter === 'on_them';
+  const showUs = filter === 'all' || filter === 'on_us';
+
+  if (secThem) {
+    secThem.classList.toggle('hidden', !showThem);
+    secThem.style.display = showThem ? 'block' : 'none';
+    secThem.setAttribute('aria-hidden', String(!showThem));
+  }
+  if (!showThem && gridThem) gridThem.innerHTML = '';
+
+  if (secUs) {
+    secUs.classList.toggle('hidden', !showUs);
+    secUs.style.display = showUs ? 'block' : 'none';
+    secUs.setAttribute('aria-hidden', String(!showUs));
+  }
+  if (!showUs && gridUs) gridUs.innerHTML = '';
+
+  const boxThem = document.getElementById('debts-summary-box-them');
+  const boxUs = document.getElementById('debts-summary-box-us');
+  if (boxThem) {
+    boxThem.classList.toggle('hidden', filter === 'on_us');
+    boxThem.style.display = filter === 'on_us' ? 'none' : '';
+  }
+  if (boxUs) {
+    boxUs.classList.toggle('hidden', filter === 'on_them');
+    boxUs.style.display = filter === 'on_them' ? 'none' : '';
+  }
+}
+
+function setDebtFilter(filter) {
+  activeDebtFilter = filter === 'on_them' || filter === 'on_us' ? filter : 'all';
+  applyDebtTabIsolationState();
+  renderDebts();
+}
+
+function buildCustomerDebtCards() {
+  const map = new Map();
+  db.debts.forEach((d, idx) => {
     const p = parseDebtMovement(d);
-    const custKey = `${String(d.customer || 'بدون اسم').trim().toLowerCase()}|${p.side}`;
-    if (!groupsMap.has(custKey)) {
-      groupsMap.set(custKey, {
-        key: custKey,
-        customer: d.customer || 'بدون اسم',
-        phone: d.phone || '',
+    const cleanName = String(d.customer || 'بدون اسم').trim();
+    const cleanPhone = String(d.phone || '').trim();
+    const key = `${cleanName.toLowerCase()}__${cleanPhone}__${p.side}`;
+    if (!map.has(key)) {
+      map.set(key, {
+        key,
+        customer: cleanName,
+        phone: cleanPhone,
         side: p.side,
-        moneyNet: 0,
-        goldNet: 0,
-        moneyInc: 0,
-        moneyDec: 0,
-        goldInc: 0,
-        goldDec: 0,
+        themMoneyInc: 0,
+        themMoneyDec: 0,
+        themGoldInc: 0,
+        themGoldDec: 0,
+        usMoneyInc: 0,
+        usMoneyDec: 0,
+        usGoldInc: 0,
+        usGoldDec: 0,
+        lastNotes: d.notes || '',
+        lastDate: d.date || new Date().toISOString(),
         movements: []
       });
     }
-    const g = groupsMap.get(custKey);
-    if (d.phone && !g.phone) g.phone = d.phone;
-    if (p.unit === 'gold') {
-      g.goldNet += p.signedEffect;
-      if (p.dir === 'dec') g.goldDec += p.absAmt;
-      else g.goldInc += p.absAmt;
+    const card = map.get(key);
+    if (d.notes) card.lastNotes = d.notes;
+    if (d.date) card.lastDate = d.date;
+
+    if (p.side === 'on_them') {
+      if (p.unit === 'gold') {
+        if (p.dir === 'dec') card.themGoldDec += p.absAmt;
+        else card.themGoldInc += p.absAmt;
+      } else {
+        if (p.dir === 'dec') card.themMoneyDec += p.absAmt;
+        else card.themMoneyInc += p.absAmt;
+      }
     } else {
-      g.moneyNet += p.signedEffect;
-      if (p.dir === 'dec') g.moneyDec += p.absAmt;
-      else g.moneyInc += p.absAmt;
+      if (p.unit === 'gold') {
+        if (p.dir === 'dec') card.usGoldDec += p.absAmt;
+        else card.usGoldInc += p.absAmt;
+      } else {
+        if (p.dir === 'dec') card.usMoneyDec += p.absAmt;
+        else card.usMoneyInc += p.absAmt;
+      }
     }
-    g.movements.push({ item: d, idx, parsed: p });
+
+    card.movements.push({ ...d, rawIndex: idx, parsed: p });
   });
-  return Array.from(groupsMap.values());
+
+  return Array.from(map.values()).map(card => {
+    const netThemMoney = card.themMoneyInc - card.themMoneyDec;
+    const netThemGold = card.themGoldInc - card.themGoldDec;
+    const netUsMoney = card.usMoneyInc - card.usMoneyDec;
+    const netUsGold = card.usGoldInc - card.usGoldDec;
+    return {
+      ...card,
+      netThemMoney,
+      netThemGold,
+      netUsMoney,
+      netUsGold
+    };
+  });
+}
+
+function renderDebtCardHtml(card) {
+  const isThem = card.side === 'on_them';
+  const borderCls = isThem ? 'border-emerald-500/45 hover:border-emerald-400' : 'border-rose-500/45 hover:border-rose-400';
+  const badgeCls = isThem ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border-rose-500/40';
+  const titleCls = isThem ? 'text-emerald-300' : 'text-rose-300';
+  const mainMoney = isThem ? card.netThemMoney : card.netUsMoney;
+  const mainGold = isThem ? card.netThemGold : card.netUsGold;
+  const moneyInc = isThem ? card.themMoneyInc : card.usMoneyInc;
+  const moneyDec = isThem ? card.themMoneyDec : card.usMoneyDec;
+  const goldInc = isThem ? card.themGoldInc : card.usGoldInc;
+  const goldDec = isThem ? card.themGoldDec : card.usGoldDec;
+  const encodedKey = encodeURIComponent(card.key);
+
+  return `
+    <div data-debt-side="${card.side}" class="system-card p-5 rounded-3xl border ${borderCls} flex flex-col justify-between gap-3.5 shadow-xl transition">
+      <div class="space-y-2.5">
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <h5 class="font-black text-base ${titleCls}">${card.customer}</h5>
+            <div class="text-[11px] text-slate-400 font-mono">${card.phone || 'بدون رقم هاتف'}</div>
+          </div>
+          <span class="px-2.5 py-1 rounded-full text-[10px] font-black border ${badgeCls}">
+            ${isThem ? 'تطلبهم (+)' : 'يطلبوك (-)'}
+          </span>
+        </div>
+
+        <div class="bg-darkbg/90 p-3 rounded-2xl border border-slate-800 space-y-1.5 text-xs">
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">صافي الأموال (${isThem ? 'تطلبهم' : 'يطلبوك'}):</span>
+            <strong class="font-black ${isThem ? 'text-emerald-400' : 'text-rose-400'}">${formatIQD(mainMoney)}</strong>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">صافي الذهب (${isThem ? 'تطلبهم' : 'يطلبوك'}):</span>
+            <strong class="font-black text-amber-300">${formatGrams(mainGold)}</strong>
+          </div>
+        </div>
+
+        <div class="bg-darkbg/70 p-3 rounded-2xl border border-slate-800/80 space-y-1.5 text-[11px]">
+          <div class="font-bold text-gold">جرد كامل لكل حركة داخل الكارت:</div>
+          <div class="flex justify-between text-emerald-300 font-mono">
+            <span>أموال (+ زيادة / - نقصان):</span>
+            <span>+${Number(moneyInc).toLocaleString('en-US')} / -${Number(moneyDec).toLocaleString('en-US')}</span>
+          </div>
+          <div class="flex justify-between text-amber-300 font-mono">
+            <span>ذهب (+ زيادة / - نقصان):</span>
+            <span>+${Number(goldInc).toFixed(2)}غ / -${Number(goldDec).toFixed(2)}غ</span>
+          </div>
+          <div class="flex justify-between text-slate-400 pt-1 border-t border-slate-800">
+            <span>عدد الحركات الموثقة:</span>
+            <strong class="text-slate-200 font-mono">${card.movements.length} حركة</strong>
+          </div>
+        </div>
+
+        ${card.lastNotes ? `<p class="text-[11px] text-slate-300 bg-darkbg/60 px-3 py-2 rounded-xl border border-slate-800/70 truncate">آخر ملاحظة: ${card.lastNotes}</p>` : ''}
+      </div>
+
+      <button type="button" onclick="openDebtCardDetailsModal('${encodedKey}')" class="w-full gold-gradient text-darkbg font-black py-2.5 rounded-2xl text-xs shadow-lg flex items-center justify-center gap-1.5 cursor-pointer">
+        <i class="fa-solid fa-list-check"></i> <span>فتح الكارت، الجرد الكامل والتعديل</span>
+      </button>
+    </div>
+  `;
 }
 
 function renderDebts() {
   applyDebtTabIsolationState();
-  const groups = buildDebtCardGroups();
-  const themGroups = groups.filter(g => g.side === 'on_them');
-  const usGroups = groups.filter(g => g.side === 'on_us');
+  const cards = buildCustomerDebtCards();
+  const themCards = cards.filter(c => c.side === 'on_them');
+  const usCards = cards.filter(c => c.side === 'on_us');
 
-  const totalThemMoney = themGroups.reduce((s, g) => s + g.moneyNet, 0);
-  const totalUsMoney = usGroups.reduce((s, g) => s + g.moneyNet, 0);
-  const totalThemGold = themGroups.reduce((s, g) => s + g.goldNet, 0);
-  const totalUsGold = usGroups.reduce((s, g) => s + g.goldNet, 0);
+  const showThem = activeDebtFilter === 'all' || activeDebtFilter === 'on_them';
+  const showUs = activeDebtFilter === 'all' || activeDebtFilter === 'on_us';
+
+  const activeThemCards = showThem ? themCards : [];
+  const activeUsCards = showUs ? usCards : [];
+
+  const totalThemMoney = activeThemCards.reduce((s, c) => s + c.netThemMoney, 0);
+  const totalThemGold = activeThemCards.reduce((s, c) => s + c.netThemGold, 0);
+  const totalUsMoney = activeUsCards.reduce((s, c) => s + c.netUsMoney, 0);
+  const totalUsGold = activeUsCards.reduce((s, c) => s + c.netUsGold, 0);
+
+  const netMoney = activeDebtFilter === 'on_them'
+    ? totalThemMoney
+    : (activeDebtFilter === 'on_us' ? -totalUsMoney : (totalThemMoney - totalUsMoney));
+  const netGold = activeDebtFilter === 'on_them'
+    ? totalThemGold
+    : (activeDebtFilter === 'on_us' ? -totalUsGold : (totalThemGold - totalUsGold));
 
   setTextSafe('debts-summary-them', formatIQD(totalThemMoney));
   setTextSafe('debts-summary-gold-plus', `ذهب تطلبهم: ${formatGrams(totalThemGold)}`);
   setTextSafe('debts-summary-us', formatIQD(totalUsMoney));
   setTextSafe('debts-summary-gold-minus', `ذهب يطلبوك: ${formatGrams(totalUsGold)}`);
-  setTextSafe('debts-summary-net', formatIQD(totalThemMoney - totalUsMoney));
-  setTextSafe('debts-summary-gold-net', `صافي ذمة الذهب: ${formatGrams(totalThemGold - totalUsGold)}`);
+  setTextSafe('debts-summary-net', formatIQD(netMoney));
+  setTextSafe('debts-summary-gold-net', `صافي ذمة الذهب: ${formatGrams(netGold)}`);
 
-  setTextSafe('count-debts-them', `${themGroups.length} كارت`);
-  setTextSafe('count-debts-us', `${usGroups.length} كارت`);
-
-  const renderCardHtml = (g) => {
-    const isThem = g.side === 'on_them';
-    const borderCls = isThem ? 'border-emerald-500/40 hover:border-emerald-400' : 'border-rose-500/40 hover:border-rose-400';
-    const badgeCls = isThem ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300';
-    const badgeTxt = isThem ? 'تطلبهم (+)' : 'يطلبوك (-)';
-    const safeKey = encodeURIComponent(g.key);
-    return `
-      <div class="system-card p-4 rounded-2xl border ${borderCls} space-y-3 shadow-xl transition">
-        <div class="flex items-start justify-between gap-2">
-          <div>
-            <h5 class="font-black text-sm text-slate-100">${g.customer}</h5>
-            <p class="text-[11px] text-slate-400 font-mono">${g.phone || 'بدون هاتف'}</p>
-          </div>
-          <span class="${badgeCls} px-2.5 py-0.5 rounded-full text-[10px] font-black">${badgeTxt}</span>
-        </div>
-        <div class="bg-darkbg/90 p-3 rounded-xl border border-slate-800 space-y-1 text-xs">
-          <div class="flex justify-between"><span class="text-slate-400">رصيد الأموال:</span><strong class="${isThem ? 'text-emerald-400' : 'text-rose-400'} font-black">${formatIQD(g.moneyNet)}</strong></div>
-          <div class="flex justify-between"><span class="text-slate-400">رصيد الذهب:</span><strong class="text-amber-300 font-black">${formatGrams(g.goldNet)}</strong></div>
-        </div>
-        <div class="flex items-center justify-between text-[10px] text-slate-400">
-          <span>+${formatIQD(g.moneyInc)} / -${formatIQD(g.moneyDec)}</span>
-          <span>+${formatGrams(g.goldInc)} / -${formatGrams(g.goldDec)}</span>
-        </div>
-        <button type="button" onclick="openDebtCardDetailsModal(decodeURIComponent('${safeKey}'))" class="w-full gold-gradient text-darkbg font-black py-2.5 rounded-xl text-xs shadow">
-          فتح الكارت والجرد (${g.movements.length} حركة)
-        </button>
-      </div>
-    `;
-  };
+  setTextSafe('count-debts-them', `${themCards.length} كارت`);
+  setTextSafe('count-debts-us', `${usCards.length} كارت`);
 
   const gridThem = document.getElementById('grid-debts-them');
   const gridUs = document.getElementById('grid-debts-us');
+
   if (gridThem) {
-    gridThem.innerHTML = themGroups.length
-      ? themGroups.map(renderCardHtml).join('')
-      : '<div class="col-span-full bg-darkbg/60 border border-slate-800 p-6 rounded-2xl text-center text-xs text-slate-500">لا توجد كارتات ضمن (يطلبهم) حالياً.</div>';
+    gridThem.innerHTML = showThem
+      ? (themCards.length
+          ? themCards.map(renderDebtCardHtml).join('')
+          : '<div class="md:col-span-2 lg:col-span-3 bg-darkbg/70 border border-slate-800 rounded-2xl p-6 text-center text-xs text-slate-500">لا توجد كارتات في خانة (تطلبهم) حالياً.</div>')
+      : '';
   }
+
   if (gridUs) {
-    gridUs.innerHTML = usGroups.length
-      ? usGroups.map(renderCardHtml).join('')
-      : '<div class="col-span-full bg-darkbg/60 border border-slate-800 p-6 rounded-2xl text-center text-xs text-slate-500">لا توجد كارتات ضمن (يطلبوك) حالياً.</div>';
+    gridUs.innerHTML = showUs
+      ? (usCards.length
+          ? usCards.map(renderDebtCardHtml).join('')
+          : '<div class="md:col-span-2 lg:col-span-3 bg-darkbg/70 border border-slate-800 rounded-2xl p-6 text-center text-xs text-slate-500">لا توجد كارتات في خانة (يطلبوك) حالياً.</div>')
+      : '';
   }
+
+  applyDebtTabIsolationState();
 }
 
-function openDebtCardDetailsModal(cardKey) {
-  activeDebtCardKey = cardKey;
-  renderDebtCardDetailsModal();
+function openDebtCardDetailsModal(encodedKey) {
+  activeDebtCardKey = decodeURIComponent(encodedKey || '');
+  const card = buildCustomerDebtCards().find(c => c.key === activeDebtCardKey);
+  if (!card) return;
+
+  const isThem = card.side === 'on_them';
+  setTextSafe('dcm-customer-name', card.customer);
+  const badge = document.getElementById('dcm-side-badge');
+  if (badge) {
+    badge.textContent = isThem ? 'كارت تطلبهم (+)' : 'كارت يطلبوك (-)';
+    badge.className = isThem
+      ? 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+      : 'px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/40';
+  }
+  setTextSafe('dcm-customer-meta', `الهاتف: ${card.phone || 'غير مسجل'} • إجمالي الحركات: ${card.movements.length}`);
+
+  const netM = isThem ? card.netThemMoney : card.netUsMoney;
+  const netG = isThem ? card.netThemGold : card.netUsGold;
+  const mInc = isThem ? card.themMoneyInc : card.usMoneyInc;
+  const mDec = isThem ? card.themMoneyDec : card.usMoneyDec;
+  const gInc = isThem ? card.themGoldInc : card.usGoldInc;
+  const gDec = isThem ? card.themGoldDec : card.usGoldDec;
+
+  const balBox = document.getElementById('dcm-balances-summary');
+  if (balBox) {
+    balBox.innerHTML = `
+      <div class="bg-darkbg p-3.5 rounded-2xl border border-gold/30">
+        <span class="text-[10px] text-slate-400 block">صافي رصيد الأموال في الكارت:</span>
+        <strong class="text-base font-black ${isThem ? 'text-emerald-400' : 'text-rose-400'}">${formatIQD(netM)}</strong>
+      </div>
+      <div class="bg-darkbg p-3.5 rounded-2xl border border-amber-500/40">
+        <span class="text-[10px] text-slate-400 block">صافي رصيد الذهب في الكارت:</span>
+        <strong class="text-base font-black text-amber-300">${formatGrams(netG)}</strong>
+      </div>
+    `;
+  }
+
+  const incDecBox = document.getElementById('dcm-inc-dec-summary');
+  if (incDecBox) {
+    incDecBox.innerHTML = `
+      <div class="bg-emerald-950/30 p-2.5 rounded-2xl border border-emerald-500/30">
+        <span class="text-[10px] text-emerald-300 block">زيادة أموال (+)</span>
+        <strong class="font-mono text-emerald-300">${formatIQD(mInc)}</strong>
+      </div>
+      <div class="bg-rose-950/30 p-2.5 rounded-2xl border border-rose-500/30">
+        <span class="text-[10px] text-rose-300 block">نقصان أموال (-)</span>
+        <strong class="font-mono text-rose-300">${formatIQD(mDec)}</strong>
+      </div>
+      <div class="bg-amber-950/30 p-2.5 rounded-2xl border border-amber-500/30">
+        <span class="text-[10px] text-amber-300 block">زيادة ذهب (+)</span>
+        <strong class="font-mono text-amber-300">${formatGrams(gInc)}</strong>
+      </div>
+      <div class="bg-slate-900 p-2.5 rounded-2xl border border-slate-700">
+        <span class="text-[10px] text-slate-300 block">نقصان ذهب (-)</span>
+        <strong class="font-mono text-slate-200">${formatGrams(gDec)}</strong>
+      </div>
+    `;
+  }
+
+  const histEl = document.getElementById('dcm-history-list');
+  if (histEl) {
+    histEl.innerHTML = card.movements.map(m => {
+      const p = m.parsed;
+      const valTxt = p.unit === 'gold' ? formatGrams(p.absAmt) : formatIQD(p.absAmt);
+      const signBadge = p.dir === 'dec'
+        ? '<span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-bold">نقصان (-)</span>'
+        : '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">زيادة (+)</span>';
+      return `
+        <div class="bg-darkbg/90 border border-slate-800 p-3 rounded-2xl flex items-center justify-between gap-2">
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <strong class="text-slate-100">${p.label}</strong>
+              ${signBadge}
+            </div>
+            <div class="text-[10px] text-slate-400 mt-0.5">${new Date(m.date || Date.now()).toLocaleString('ar-IQ')}${m.notes ? ' • ' + m.notes : ''}</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <strong class="font-mono ${p.dir === 'dec' ? 'text-rose-300' : 'text-gold'}">${p.dir === 'dec' ? '-' : '+'}${valTxt}</strong>
+            <button type="button" onclick="deleteDebtMovementByIndex(${m.rawIndex})" class="text-rose-400 hover:text-rose-300 px-2 py-1"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  presetCardModalAction('inc', 'money');
+  document.getElementById('dcm-action-amount').value = '';
+  document.getElementById('dcm-action-notes').value = '';
   document.getElementById('debt-card-details-modal').classList.remove('hidden');
 }
 
 function closeDebtCardDetailsModal() {
-  activeDebtCardKey = null;
   document.getElementById('debt-card-details-modal').classList.add('hidden');
+  activeDebtCardKey = null;
+}
+
+function syncCardModalModeUi() {
+  const dir = document.getElementById('dcm-action-dir')?.value === 'dec' ? 'dec' : 'inc';
+  const unit = document.getElementById('dcm-action-unit')?.value === 'gold' ? 'gold' : 'money';
+
+  const dirIncBtn = document.getElementById('dcm-dir-btn-inc');
+  const dirDecBtn = document.getElementById('dcm-dir-btn-dec');
+  if (dirIncBtn && dirDecBtn) {
+    if (dir === 'inc') {
+      dirIncBtn.className = 'bg-emerald-600/35 border-2 border-emerald-400 text-emerald-100 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition';
+      dirDecBtn.className = 'bg-darkbg border border-rose-500/40 text-rose-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
+    } else {
+      dirDecBtn.className = 'bg-rose-600/35 border-2 border-rose-400 text-rose-100 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition';
+      dirIncBtn.className = 'bg-darkbg border border-emerald-500/40 text-emerald-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
+    }
+  }
+
+  const unitMoneyBtn = document.getElementById('dcm-unit-btn-money');
+  const unitGoldBtn = document.getElementById('dcm-unit-btn-gold');
+  if (unitMoneyBtn && unitGoldBtn) {
+    if (unit === 'money') {
+      unitMoneyBtn.className = 'gold-gradient text-darkbg font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition';
+      unitGoldBtn.className = 'bg-darkbg border border-amber-400/40 text-amber-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
+    } else {
+      unitGoldBtn.className = 'gold-gradient text-darkbg font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition';
+      unitMoneyBtn.className = 'bg-darkbg border border-gold/40 text-gold font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
+    }
+  }
+
+  const badge = document.getElementById('dcm-mode-badge');
+  if (badge) {
+    const dirTxt = dir === 'dec' ? 'نقصان (-)' : 'زيادة (+)';
+    const unitTxt = unit === 'gold' ? 'ذهب' : 'أموال';
+    badge.textContent = `${unitTxt} ${dirTxt}`;
+    badge.className = dir === 'dec'
+      ? 'px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-bold'
+      : 'px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold';
+  }
 }
 
 function setCardModalDirection(dir) {
   const input = document.getElementById('dcm-action-dir');
-  const btnInc = document.getElementById('dcm-dir-btn-inc');
-  const btnDec = document.getElementById('dcm-dir-btn-dec');
   if (input) input.value = dir === 'dec' ? 'dec' : 'inc';
-  if (btnInc && btnDec) {
-    if (dir === 'dec') {
-      btnDec.className = 'bg-rose-600/35 border-2 border-rose-400 text-rose-200 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
-      btnInc.className = 'bg-darkbg border border-emerald-500/40 text-emerald-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
-    } else {
-      btnInc.className = 'bg-emerald-600/35 border-2 border-emerald-400 text-emerald-200 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
-      btnDec.className = 'bg-darkbg border border-rose-500/40 text-rose-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
-    }
-  }
-  updateCardModalBadge();
+  syncCardModalModeUi();
 }
 
 function setCardModalUnit(unit) {
   const input = document.getElementById('dcm-action-unit');
-  const btnMoney = document.getElementById('dcm-unit-btn-money');
-  const btnGold = document.getElementById('dcm-unit-btn-gold');
   if (input) input.value = unit === 'gold' ? 'gold' : 'money';
-  if (btnMoney && btnGold) {
-    if (unit === 'gold') {
-      btnGold.className = 'gold-gradient text-darkbg font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition';
-      btnMoney.className = 'bg-darkbg border border-gold/40 text-gold font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
-    } else {
-      btnMoney.className = 'gold-gradient text-darkbg font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 shadow transition';
-      btnGold.className = 'bg-darkbg border border-amber-400/40 text-amber-300 font-black py-2 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1 transition';
-    }
-  }
-  updateCardModalBadge();
+  syncCardModalModeUi();
 }
 
 function presetCardModalAction(dir, unit) {
   setCardModalDirection(dir);
   setCardModalUnit(unit);
-}
-
-function updateCardModalBadge() {
-  const dir = document.getElementById('dcm-action-dir')?.value || 'inc';
-  const unit = document.getElementById('dcm-action-unit')?.value || 'money';
-  const badge = document.getElementById('dcm-mode-badge');
-  if (!badge) return;
-  badge.textContent = `${dir === 'dec' ? 'نقصان' : 'زيادة'} ${unit === 'gold' ? 'ذهب' : 'أموال'} (${dir === 'dec' ? '-' : '+'})`;
-}
-
-function renderDebtCardDetailsModal() {
-  const groups = buildDebtCardGroups();
-  const g = groups.find(x => x.key === activeDebtCardKey);
-  if (!g) return;
-
-  const isThem = g.side === 'on_them';
-  setTextSafe('dcm-customer-name', g.customer);
-  setTextSafe('dcm-side-badge', isThem ? 'كارت تطلبهم (+)' : 'كارت يطلبوك (-)');
-  setTextSafe('dcm-customer-meta', `الهاتف: ${g.phone || '--'} • عدد الحركات: ${g.movements.length}`);
-
-  document.getElementById('dcm-balances-summary').innerHTML = `
-    <div class="bg-darkbg p-3.5 rounded-2xl border border-gold/30">
-      <span class="text-slate-400 block text-[10px]">الرصيد الصافي للأموال:</span>
-      <strong class="text-base font-black ${isThem ? 'text-emerald-400' : 'text-rose-400'}">${formatIQD(g.moneyNet)}</strong>
-    </div>
-    <div class="bg-darkbg p-3.5 rounded-2xl border border-amber-500/30">
-      <span class="text-slate-400 block text-[10px]">الرصيد الصافي للذهب:</span>
-      <strong class="text-base font-black text-amber-300">${formatGrams(g.goldNet)}</strong>
-    </div>
-  `;
-
-  document.getElementById('dcm-inc-dec-summary').innerHTML = `
-    <div class="bg-darkbg p-2.5 rounded-xl border border-emerald-500/30"><span class="text-[10px] text-slate-400 block">زيادة أموال (+)</span><strong class="text-emerald-400">${formatIQD(g.moneyInc)}</strong></div>
-    <div class="bg-darkbg p-2.5 rounded-xl border border-rose-500/30"><span class="text-[10px] text-slate-400 block">نقصان أموال (-)</span><strong class="text-rose-400">${formatIQD(g.moneyDec)}</strong></div>
-    <div class="bg-darkbg p-2.5 rounded-xl border border-amber-500/30"><span class="text-[10px] text-slate-400 block">زيادة ذهب (+)</span><strong class="text-amber-300">${formatGrams(g.goldInc)}</strong></div>
-    <div class="bg-darkbg p-2.5 rounded-xl border border-slate-700"><span class="text-[10px] text-slate-400 block">نقصان ذهب (-)</span><strong class="text-slate-200">${formatGrams(g.goldDec)}</strong></div>
-  `;
-
-  updateCardModalBadge();
-
-  const histEl = document.getElementById('dcm-history-list');
-  histEl.innerHTML = g.movements.map(({ item, idx, parsed }) => {
-    const valStr = parsed.unit === 'gold' ? formatGrams(parsed.absAmt) : formatIQD(parsed.absAmt);
-    return `
-      <div class="bg-darkbg/90 border border-slate-800 p-3 rounded-2xl flex items-center justify-between gap-2">
-        <div>
-          <div class="font-bold ${parsed.dir === 'dec' ? 'text-rose-300' : 'text-emerald-300'}">${parsed.label} — ${valStr}</div>
-          <div class="text-[11px] text-slate-400">${item.time || '--'}${item.notes ? ' • ' + item.notes : ''}</div>
-        </div>
-        <button type="button" onclick="deleteDebtMovement(${idx})" class="bg-rose-600/20 border border-rose-500/40 text-rose-300 px-2.5 py-1.5 rounded-lg text-[10px] font-bold">حذف</button>
-      </div>
-    `;
-  }).join('');
+  document.getElementById('dcm-action-amount')?.focus();
 }
 
 function applyQuickCardAdjustment() {
-  const groups = buildDebtCardGroups();
-  const g = groups.find(x => x.key === activeDebtCardKey);
-  if (!g) return;
-  const dir = document.getElementById('dcm-action-dir').value || 'inc';
-  const unit = document.getElementById('dcm-action-unit').value || 'money';
-  const rawAmt = parseFloat(document.getElementById('dcm-action-amount').value);
-  const notes = document.getElementById('dcm-action-notes').value.trim();
+  if (!activeDebtCardKey) return;
+  const card = buildCustomerDebtCards().find(c => c.key === activeDebtCardKey);
+  if (!card) return;
+  const dir = document.getElementById('dcm-action-dir')?.value === 'dec' ? 'dec' : 'inc';
+  const unit = document.getElementById('dcm-action-unit')?.value === 'gold' ? 'gold' : 'money';
+  const amount = parseFloat(document.getElementById('dcm-action-amount')?.value || '0');
+  const notes = document.getElementById('dcm-action-notes')?.value.trim() || 'تعديل مباشر من داخل الكارت';
 
-  if (isNaN(rawAmt) || rawAmt <= 0) {
+  if (isNaN(amount) || amount <= 0) {
     showToast('يرجى إدخال قيمة صحيحة أكبر من صفر', 'error');
     return;
   }
 
-  const sideLabel = g.side === 'on_us' ? 'يطلبوني' : 'يطلبهم';
-  const unitLabel = unit === 'gold' ? 'ذهب' : 'أموال';
-  const dirLabel = dir === 'dec' ? 'نقصان (-)' : 'زيادة (+)';
-  const fullType = `${sideLabel} ${unitLabel} ${dirLabel}`;
-  const signedEffect = dir === 'dec' ? -rawAmt : rawAmt;
+  const sideWord = card.side === 'on_us' ? 'يطلبوني' : 'يطلبهم';
+  const unitWord = unit === 'gold' ? 'ذهب' : 'أموال';
+  const dirWord = dir === 'dec' ? 'نقصان (-)' : 'زيادة (+)';
+  const typeLabel = `${sideWord} ${unitWord} ${dirWord}`;
+  const signedEffect = dir === 'dec' ? -amount : amount;
 
   db.debts.unshift({
     id: 'DBT-' + Date.now().toString().slice(-6),
-    customer: g.customer,
-    phone: g.phone,
-    type: fullType,
+    customer: card.customer,
+    phone: card.phone,
+    type: typeLabel,
+    category: card.side,
     unit,
-    category: g.side,
-    direction: dir,
+    dir,
+    absAmount: amount,
     amount: signedEffect,
-    absAmount: rawAmt,
-    actionKind: dir === 'dec' ? 'نقصان (-)' : 'زيادة (+)',
     notes,
-    time: new Date().toLocaleString('ar-IQ'),
     date: new Date().toISOString()
   });
 
-  const valLabel = unit === 'gold' ? formatGrams(rawAmt) : formatIQD(rawAmt);
-  addLog('حركة ديون', `${g.customer} — ${fullType} — القيمة: ${valLabel}${notes ? ' | ' + notes : ''}`, unit === 'money' ? signedEffect : 0);
-
+  addLog('حركة ديون', `${card.customer} (${sideWord} • ${unitWord} ${dirWord}) — القيمة: ${unit === 'gold' ? formatGrams(amount) : formatIQD(amount)} | ${notes}`, signedEffect);
   saveTenantData();
-  document.getElementById('dcm-action-amount').value = '';
-  document.getElementById('dcm-action-notes').value = '';
-  renderAll();
-  renderDebtCardDetailsModal();
-  showToast('تم توثيق التعديل في الكارت والجرد بنجاح', 'success');
+  renderDebts();
+  filterLogs();
+  openDebtCardDetailsModal(encodeURIComponent(activeDebtCardKey));
+  showToast('تم تطبيق الحركة وتوثيقها في الكارت والجرد', 'success');
 }
 
-function deleteDebtMovement(idx) {
+function deleteDebtMovementByIndex(idx) {
   const item = db.debts[idx];
   if (!item) return;
   db.debts.splice(idx, 1);
-  addLog('حذف حركة ديون', `حذف حركة للعميل ${item.customer || '--'} (${item.type || ''})`, 0);
+  addLog('حركة ديون', `حذف حركة ديون لحساب (${item.customer}) كانت بقيمة ${item.amount}`, 0);
   saveTenantData();
-  renderAll();
-  if (activeDebtCardKey) renderDebtCardDetailsModal();
-  showToast('تم حذف الحركة', 'warning');
+  renderDebts();
+  filterLogs();
+  if (activeDebtCardKey && buildCustomerDebtCards().some(c => c.key === activeDebtCardKey)) {
+    openDebtCardDetailsModal(encodeURIComponent(activeDebtCardKey));
+  } else {
+    closeDebtCardDetailsModal();
+  }
+  showToast('تم حذف الحركة وتحديث الكارت', 'warning');
 }
 
 function openLuxuryMithqalFilterModal() {
@@ -3175,14 +3319,19 @@ function closeLuxuryMithqalFilterModal() {
   document.getElementById('luxury-mithqal-filter-modal').classList.add('hidden');
 }
 
-function selectLuxuryMithqalFilter(val, labelText) {
-  document.getElementById('mithqal-audit-karat').value = val;
-  document.getElementById('selected-mithqal-filter-label').textContent = labelText;
+function selectLuxuryMithqalFilter(karatVal, labelTxt) {
+  document.getElementById('mithqal-audit-karat').value = karatVal;
+  setTextSafe('selected-mithqal-filter-label', labelTxt);
   closeLuxuryMithqalFilterModal();
   renderMithqalMakingAudit();
 }
 
 function openLuxuryMithqalTestModal() {
+  const currentKarat = document.getElementById('mithqal-audit-karat')?.value || '21';
+  const selectEl = document.getElementById('test-mq-karat');
+  if (selectEl && ['24', '22', '21', '18', '9'].includes(currentKarat)) {
+    selectEl.value = currentKarat;
+  }
   syncTestMithqalDefault();
   calculateLuxuryMithqalTest();
   document.getElementById('luxury-mithqal-test-modal').classList.remove('hidden');
@@ -3194,15 +3343,17 @@ function closeLuxuryMithqalTestModal() {
 
 function syncTestMithqalDefault() {
   const karat = document.getElementById('test-mq-karat')?.value || '21';
+  const customPrice = parseFloat(document.getElementById('mithqal-audit-custom-price')?.value || '0') || 0;
   const priceInput = document.getElementById('test-mq-price');
-  if (priceInput) priceInput.value = getMithqalPriceByKarat(karat);
+  if (priceInput) {
+    priceInput.value = customPrice > 0 ? customPrice : getMithqalPriceByKarat(karat);
+  }
 }
 
 function calculateLuxuryMithqalTest() {
-  const karat = document.getElementById('test-mq-karat')?.value || '21';
-  const mqPrice = parseFloat(document.getElementById('test-mq-price')?.value) || getMithqalPriceByKarat(karat);
-  const weight = parseFloat(document.getElementById('test-mq-weight')?.value) || 0;
-  const gramAdj = parseFloat(document.getElementById('test-mq-gram-adj')?.value) || 0;
+  const mqPrice = parseFloat(document.getElementById('test-mq-price')?.value || '0') || 0;
+  const weight = parseFloat(document.getElementById('test-mq-weight')?.value || '0') || 0;
+  const gramAdj = parseFloat(document.getElementById('test-mq-gram-adj')?.value || '0') || 0;
 
   const baseGram = mqPrice / MITHQAL_GRAMS;
   const adjGram = baseGram + gramAdj;
@@ -3218,53 +3369,62 @@ function calculateLuxuryMithqalTest() {
 }
 
 function applyTestMithqalToAudit() {
-  const karat = document.getElementById('test-mq-karat')?.value || 'all';
-  const mqPrice = parseFloat(document.getElementById('test-mq-price')?.value) || '';
+  const karat = document.getElementById('test-mq-karat')?.value || '21';
+  const mqPrice = parseFloat(document.getElementById('test-mq-price')?.value || '0') || 0;
   document.getElementById('mithqal-audit-karat').value = karat;
-  document.getElementById('selected-mithqal-filter-label').textContent = karat === 'all' ? 'جميع المثاقيل (كل العيارات)' : `مثقال عيار ${karat}`;
-  if (mqPrice) document.getElementById('mithqal-audit-custom-price').value = mqPrice;
+  setTextSafe('selected-mithqal-filter-label', `مثقال عيار ${karat}`);
+  const auditPriceEl = document.getElementById('mithqal-audit-custom-price');
+  if (auditPriceEl && mqPrice > 0) auditPriceEl.value = mqPrice;
   closeLuxuryMithqalTestModal();
   renderMithqalMakingAudit();
+  showToast(`تم اعتماد مثقال عيار ${karat} في الجرد`, 'success');
 }
 
 function renderMithqalMakingAudit() {
   const selectedKarat = document.getElementById('mithqal-audit-karat')?.value || 'all';
+  const customPrice = parseFloat(document.getElementById('mithqal-audit-custom-price')?.value || '0') || 0;
   const tbody = document.getElementById('mithqal-audit-tbody');
   if (!tbody) return;
 
-  const saleLogs = (db.logs || []).filter(l => l.type === 'عملية بيع' && l.meta && Array.isArray(l.meta.items));
+  const saleLogs = db.logs.filter(l => l.type === 'عملية بيع' && l.meta && Array.isArray(l.meta.items) && !l.meta.returned);
   const rows = [];
+  let totalCount = 0;
+  let totalWeight = 0;
+  let totalMaking = 0;
+
   saleLogs.forEach(l => {
-    l.meta.items.forEach(it => {
+    (l.meta.items || []).forEach(it => {
       if (selectedKarat !== 'all' && String(it.karat) !== String(selectedKarat)) return;
-      const w = Number(it.weight || 0) * Number(it.qty || 1);
-      const mProfit = Number(it.lineMaking || (w * Number(it.makingPerGram || 0)));
+      const qty = Number(it.qty || 1);
+      const w = Number(it.weight || 0) * qty;
       const mqCount = w / MITHQAL_GRAMS;
-      const makingPerMq = mqCount > 0 ? Math.round(mProfit / mqCount) : 0;
+      const making = Math.round(Number(it.weight || 0) * Number(it.makingPerGram || 0) * qty);
+      const makingPerMq = mqCount > 0 ? Math.round(making / mqCount) : Math.round(Number(it.makingPerGram || 0) * MITHQAL_GRAMS);
+
+      totalCount += qty;
+      totalWeight += w;
+      totalMaking += making;
       rows.push({
-        label: `${it.name} (${l.meta.invoiceId || ''})`,
+        label: `${it.name} (${l.meta.invoiceCode || ''})`,
         karat: it.karat,
         weight: w,
         mqCount,
         makingPerMq,
-        mProfit
+        making
       });
     });
   });
 
-  const soldCount = rows.length;
-  const totalWeight = rows.reduce((s, r) => s + r.weight, 0);
   const totalMithqals = totalWeight / MITHQAL_GRAMS;
-  const totalMaking = rows.reduce((s, r) => s + r.mProfit, 0);
-  const makingPerMqAvg = totalMithqals > 0 ? Math.round(totalMaking / totalMithqals) : 0;
+  const avgMakingPerMq = totalMithqals > 0 ? Math.round(totalMaking / totalMithqals) : 0;
 
-  setTextSafe('audit-sold-count', String(soldCount));
-  setTextSafe('audit-sold-weight', `${formatGrams(totalWeight)} (${totalMithqals.toFixed(2)} مثقال)`);
+  setTextSafe('audit-sold-count', String(totalCount));
+  setTextSafe('audit-sold-weight', `${totalWeight.toFixed(2)} غ (${totalMithqals.toFixed(2)} مثقال)`);
   setTextSafe('audit-making-total', formatIQD(totalMaking));
-  setTextSafe('audit-making-per-mithqal', formatIQD(makingPerMqAvg));
+  setTextSafe('audit-making-per-mithqal', formatIQD(customPrice > 0 ? avgMakingPerMq : avgMakingPerMq));
 
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">لا توجد قطع مباعة ضمن الفلتر المختار.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">لا توجد مبيعات مسجلة ضمن هذا المثقال حالياً.</td></tr>';
     return;
   }
 
@@ -3272,23 +3432,23 @@ function renderMithqalMakingAudit() {
     <tr>
       <td class="p-2.5 font-bold text-slate-100">${r.label}</td>
       <td class="p-2.5 text-gold font-bold">عيار ${r.karat}</td>
-      <td class="p-2.5">${formatGrams(r.weight)}</td>
-      <td class="p-2.5 text-emerald-400 font-mono">${r.mqCount.toFixed(3).replace(/\.?0+$/, '')}</td>
+      <td class="p-2.5">${r.weight.toFixed(2)} غ</td>
+      <td class="p-2.5 text-emerald-400 font-mono">${r.mqCount.toFixed(2)}</td>
       <td class="p-2.5 text-amber-300 font-bold">${formatIQD(r.makingPerMq)}</td>
-      <td class="p-2.5 text-emerald-400 font-black">${formatIQD(r.mProfit)}</td>
+      <td class="p-2.5 text-emerald-400 font-black">${formatIQD(r.making)}</td>
     </tr>
   `).join('');
 }
 
 function addLog(type, details, amount = 0, meta = null) {
+  const code = 'LOG-' + Date.now().toString().slice(-6);
   db.logs.unshift({
-    id: 'LOG-' + Date.now().toString().slice(-6),
+    code,
     type,
     details,
-    amount: Number(amount || 0),
-    time: new Date().toLocaleString('ar-IQ'),
-    date: new Date().toISOString(),
-    meta
+    amount,
+    meta,
+    date: new Date().toISOString()
   });
 }
 
@@ -3309,8 +3469,7 @@ function setDayFilter(dayLabel) {
   const dateInput = document.getElementById('search-date');
   if (dateInput) dateInput.value = '';
   document.querySelectorAll('.day-filter-btn').forEach(btn => {
-    const isActive = btn.id === `day-btn-${dayLabel}`;
-    btn.className = isActive
+    btn.className = btn.id === `day-btn-${dayLabel}`
       ? 'day-filter-btn bg-gold text-darkbg font-bold px-3 py-1.5 rounded-xl'
       : 'day-filter-btn bg-cardbg text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl';
   });
@@ -3323,21 +3482,19 @@ function setCustomDateFilter() {
   filterLogs();
 }
 
-function matchesDateFilter(log) {
-  const ts = Date.parse(log.date || '');
+function matchesDateFilter(isoDate) {
+  const d = new Date(isoDate || Date.now());
   if (customFilterDate) {
-    if (!ts) return false;
-    const dStr = new Date(ts).toISOString().slice(0, 10);
-    return dStr === customFilterDate;
+    const ymd = d.toISOString().slice(0, 10);
+    return ymd === customFilterDate;
   }
-  if (!activeDayFilter || activeDayFilter === 'الكل' || !ts) return true;
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const startOfYesterday = startOfToday - 86400000;
-  if (activeDayFilter === 'اليوم') return ts >= startOfToday;
-  if (activeDayFilter === 'البارحة') return ts >= startOfYesterday && ts < startOfToday;
-  if (activeDayFilter === 'الأسبوع') return ts >= (Date.now() - 7 * 86400000);
-  if (activeDayFilter === 'الشهر') return ts >= (Date.now() - 30 * 86400000);
+  const oneDay = 86400000;
+  if (activeDayFilter === 'اليوم') return d.getTime() >= startOfToday;
+  if (activeDayFilter === 'البارحة') return d.getTime() >= (startOfToday - oneDay) && d.getTime() < startOfToday;
+  if (activeDayFilter === 'الأسبوع') return d.getTime() >= (startOfToday - 7 * oneDay);
+  if (activeDayFilter === 'الشهر') return d.getTime() >= (startOfToday - 30 * oneDay);
   return true;
 }
 
@@ -3346,12 +3503,22 @@ function filterLogs() {
   const tbody = document.getElementById('logs-table-body');
   if (!tbody) return;
 
-  const dateFiltered = (db.logs || []).filter(matchesDateFilter);
+  const dateFiltered = db.logs.filter(l => matchesDateFilter(l.date));
+  let salesTotal = 0;
+  let profitTotal = 0;
+  let scrapTotal = 0;
+  let expTotal = 0;
 
-  const salesTotal = dateFiltered.filter(l => l.type === 'عملية بيع').reduce((s, l) => s + Number(l.amount || 0), 0);
-  const profitTotal = dateFiltered.filter(l => l.type === 'عملية بيع').reduce((s, l) => s + Number((l.meta && l.meta.makingProfit) || 0), 0);
-  const scrapTotal = dateFiltered.filter(l => l.type === 'شراء كسر').reduce((s, l) => s + Math.abs(Number(l.amount || 0)), 0);
-  const expTotal = dateFiltered.filter(l => l.type === 'صرف مصروف').reduce((s, l) => s + Math.abs(Number(l.amount || 0)), 0);
+  dateFiltered.forEach(l => {
+    if (l.type === 'عملية بيع' && !(l.meta && l.meta.returned)) {
+      salesTotal += Number(l.amount || 0);
+      profitTotal += Number((l.meta && l.meta.totalMaking) || 0);
+    } else if (l.type === 'شراء كسر') {
+      scrapTotal += Number(l.amount || 0);
+    } else if (l.type === 'صرف مصروف') {
+      expTotal += Number(l.amount || 0);
+    }
+  });
 
   setTextSafe('period-sales-total', formatIQD(salesTotal));
   setTextSafe('period-profit-total', formatIQD(profitTotal));
@@ -3361,7 +3528,7 @@ function filterLogs() {
   const visible = dateFiltered.filter(l => {
     if (activeLogCategory !== 'all' && l.type !== activeLogCategory) return false;
     if (!q) return true;
-    return String(l.id || '').toLowerCase().includes(q)
+    return String(l.code || '').toLowerCase().includes(q)
       || String(l.type || '').toLowerCase().includes(q)
       || String(l.details || '').toLowerCase().includes(q);
   });
@@ -3373,61 +3540,120 @@ function filterLogs() {
 
   tbody.innerHTML = visible.map(l => {
     const meta = getOperationMeta(l);
+    const amtNum = Number(l.amount || 0);
+    const isWeightLog = l.type === 'إضافة مخزن' || l.type === 'تعديل مخزن' || l.type === 'حذف مخزن';
+    const amtText = isWeightLog ? formatGrams(amtNum) : formatIQD(amtNum);
     return `
       <tr>
-        <td class="p-3 text-slate-400 whitespace-nowrap">${l.time || '--'}</td>
-        <td class="p-3 font-mono text-gold">${l.id || '--'}</td>
-        <td class="p-3"><span class="border px-2.5 py-0.5 rounded-full text-[10px] font-bold ${meta.badgeClass}">${meta.category}</span></td>
+        <td class="p-3 text-slate-400 whitespace-nowrap">${new Date(l.date || Date.now()).toLocaleString('ar-IQ')}</td>
+        <td class="p-3 font-mono text-gold">${l.code || '--'}</td>
+        <td class="p-3 whitespace-nowrap">
+          <span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold border ${meta.badgeClass}">${meta.category}</span>
+          <span class="block text-[10px] text-slate-400 mt-0.5">${meta.direction}</span>
+        </td>
         <td class="p-3 text-slate-200">${l.details || '--'}</td>
-        <td class="p-3 font-bold ${Number(l.amount || 0) < 0 ? 'text-rose-400' : 'text-emerald-400'}">${formatIQD(l.amount || 0)}</td>
+        <td class="p-3 font-bold text-emerald-400 whitespace-nowrap">${amtText}</td>
       </tr>
     `;
   }).join('');
 }
 
 function exportLogsToExcel() {
-  const buildSheetXml = (sheetName, headers, rows) => {
-    const headerRow = `<Row>${headers.map(h => `<Cell><Data ss:Type="String">${escapeXml(h)}</Data></Cell>`).join('')}</Row>`;
-    const bodyRows = rows.map(r => `<Row>${r.map(c => {
-      const isNum = typeof c === 'number' && !isNaN(c);
-      return `<Cell><Data ss:Type="${isNum ? 'Number' : 'String'}">${escapeXml(isNum ? c : String(c ?? ''))}</Data></Cell>`;
-    }).join('')}</Row>`).join('');
-    return `<Worksheet ss:Name="${escapeXml(sheetName)}"><Table>${headerRow}${bodyRows}</Table></Worksheet>`;
-  };
-
-  const logsRows = (db.logs || []).map(l => [l.time || '', l.id || '', l.type || '', l.details || '', Number(l.amount || 0)]);
-  const invRows = (db.inventory || []).map(it => [it.id || '', it.name || '', it.condition === 'used' ? 'مستعمل' : 'جديد', it.karat || '', Number(it.weight || 0), Number(it.makingPerGram || 0), Number(it.qty || 0), it.notes || '']);
-  const debtRows = (db.debts || []).map(d => {
-    const p = parseDebtMovement(d);
-    return [d.time || '', d.customer || '', d.phone || '', p.side === 'on_us' ? 'يطلبوك (-)' : 'تطلبهم (+)', p.unit === 'gold' ? 'ذهب' : 'أموال', p.dir === 'dec' ? 'نقصان (-)' : 'زيادة (+)', Number(p.signedEffect || 0), d.notes || ''];
-  });
-  const summaryRows = [
-    ['صندوق الكاش (د.ع)', Number(db.cash || 0)],
-    ['صندوق الدولار ($)', Number(db.usd || 0)],
-    ['زين كاش والماستر (د.ع)', Number(db.zain || 0)],
-    ['صافي أرباح الصياغة (د.ع)', Number(db.makingProfit || 0)]
-  ];
-
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+  const wbXml = `<?xml version="1.0"?>
 <?mso-application progid="Excel.Sheet"?>
 <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
-  ${buildSheetXml('السجل والمالية', ['التاريخ', 'الرمز', 'النوع', 'التفاصيل', 'المبلغ'], logsRows)}
-  ${buildSheetXml('المخزن', ['الرمز', 'الصنف', 'الحالة', 'العيار', 'الوزن (غ)', 'صياغة الغرام', 'الكمية', 'ملاحظات'], invRows)}
-  ${buildSheetXml('دفتر الديون', ['التاريخ', 'الاسم', 'الهاتف', 'الجهة', 'النوع', 'الاتجاه', 'القيمة', 'ملاحظات'], debtRows)}
-  ${buildSheetXml('الملخص', ['البند', 'القيمة'], summaryRows)}
+  <Styles>
+    <Style ss:ID="Header"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#1E293B" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="RowSale"><Interior ss:Color="#EFF6FF" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="RowScrap"><Interior ss:Color="#FFFBEB" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="RowExp"><Interior ss:Color="#FAF5FF" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="RowDebtThem"><Interior ss:Color="#ECFDF5" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="RowDebtUs"><Interior ss:Color="#FFF1F2" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="RowInv"><Interior ss:Color="#F0FDFA" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="RowReturn"><Interior ss:Color="#FFF7ED" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="RowDefault"/>
+  </Styles>
+  <Worksheet ss:Name="سجل الحركات">
+    <Table>
+      <Row ss:StyleID="Header">
+        <Cell><Data ss:Type="String">التاريخ</Data></Cell>
+        <Cell><Data ss:Type="String">الرمز</Data></Cell>
+        <Cell><Data ss:Type="String">نوع العملية</Data></Cell>
+        <Cell><Data ss:Type="String">الاتجاه</Data></Cell>
+        <Cell><Data ss:Type="String">التفاصيل</Data></Cell>
+        <Cell><Data ss:Type="String">القيمة</Data></Cell>
+      </Row>
+      ${db.logs.map(l => {
+        const m = getOperationMeta(l);
+        return `<Row ss:StyleID="${m.xmlRow}">
+          <Cell><Data ss:Type="String">${escapeXml(new Date(l.date || Date.now()).toLocaleString('ar-IQ'))}</Data></Cell>
+          <Cell><Data ss:Type="String">${escapeXml(l.code || '')}</Data></Cell>
+          <Cell><Data ss:Type="String">${escapeXml(m.category)}</Data></Cell>
+          <Cell><Data ss:Type="String">${escapeXml(m.direction)}</Data></Cell>
+          <Cell><Data ss:Type="String">${escapeXml(l.details || '')}</Data></Cell>
+          <Cell><Data ss:Type="Number">${Number(l.amount || 0)}</Data></Cell>
+        </Row>`;
+      }).join('')}
+    </Table>
+  </Worksheet>
+  <Worksheet ss:Name="المخزون">
+    <Table>
+      <Row ss:StyleID="Header">
+        <Cell><Data ss:Type="String">الصنف</Data></Cell>
+        <Cell><Data ss:Type="String">الحالة</Data></Cell>
+        <Cell><Data ss:Type="String">العيار</Data></Cell>
+        <Cell><Data ss:Type="String">الوزن</Data></Cell>
+        <Cell><Data ss:Type="String">صياغة الغرام</Data></Cell>
+        <Cell><Data ss:Type="String">الكمية</Data></Cell>
+      </Row>
+      ${db.inventory.map(it => `<Row>
+        <Cell><Data ss:Type="String">${escapeXml(it.name || '')}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(it.condition === 'used' ? 'مستعمل' : 'جديد')}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(it.karat || '')}</Data></Cell>
+        <Cell><Data ss:Type="Number">${Number(it.weight || 0)}</Data></Cell>
+        <Cell><Data ss:Type="Number">${Number(it.makingPerGram || 0)}</Data></Cell>
+        <Cell><Data ss:Type="Number">${Number(it.qty || 0)}</Data></Cell>
+      </Row>`).join('')}
+    </Table>
+  </Worksheet>
+  <Worksheet ss:Name="كارتات الديون">
+    <Table>
+      <Row ss:StyleID="Header">
+        <Cell><Data ss:Type="String">الاسم</Data></Cell>
+        <Cell><Data ss:Type="String">الهاتف</Data></Cell>
+        <Cell><Data ss:Type="String">الجهة</Data></Cell>
+        <Cell><Data ss:Type="String">صافي الأموال</Data></Cell>
+        <Cell><Data ss:Type="String">صافي الذهب</Data></Cell>
+      </Row>
+      ${buildCustomerDebtCards().map(c => `<Row>
+        <Cell><Data ss:Type="String">${escapeXml(c.customer)}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(c.phone)}</Data></Cell>
+        <Cell><Data ss:Type="String">${escapeXml(c.side === 'on_us' ? 'يطلبوك' : 'تطلبهم')}</Data></Cell>
+        <Cell><Data ss:Type="Number">${Number(c.side === 'on_us' ? c.netUsMoney : c.netThemMoney)}</Data></Cell>
+        <Cell><Data ss:Type="Number">${Number(c.side === 'on_us' ? c.netUsGold : c.netThemGold)}</Data></Cell>
+      </Row>`).join('')}
+    </Table>
+  </Worksheet>
+  <Worksheet ss:Name="ملخص الخزينة">
+    <Table>
+      <Row ss:StyleID="Header"><Cell><Data ss:Type="String">البند</Data></Cell><Cell><Data ss:Type="String">القيمة</Data></Cell></Row>
+      <Row><Cell><Data ss:Type="String">صندوق الكاش</Data></Cell><Cell><Data ss:Type="Number">${Number(db.cash || 0)}</Data></Cell></Row>
+      <Row><Cell><Data ss:Type="String">صندوق الدولار</Data></Cell><Cell><Data ss:Type="Number">${Number(db.usd || 0)}</Data></Cell></Row>
+      <Row><Cell><Data ss:Type="String">زين كاش والماستر</Data></Cell><Cell><Data ss:Type="Number">${Number(db.zain || 0)}</Data></Cell></Row>
+      <Row><Cell><Data ss:Type="String">صافي أرباح الصياغة</Data></Cell><Cell><Data ss:Type="Number">${Number(db.makingProfit || 0)}</Data></Cell></Row>
+    </Table>
+  </Worksheet>
 </Workbook>`;
 
-  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const blob = new Blob([wbXml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `ARAMKY_${activeTenantCode}_${new Date().toISOString().slice(0, 10)}.xls`;
-  document.body.appendChild(a);
+  a.download = `ARAMKY_Gold_Report_${activeTenantCode}_${new Date().toISOString().slice(0, 10)}.xls`;
   a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  showToast('تم تصدير ملف Excel بنجاح', 'success');
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast('تم تصدير ملف Excel المنظم بنجاح', 'success');
 }
 
 function openLuxuryTransferMethodModal() {
@@ -3438,19 +3664,22 @@ function closeLuxuryTransferMethodModal() {
   document.getElementById('luxury-transfer-method-modal').classList.add('hidden');
 }
 
-function selectLuxuryTransferMethod(val, labelText) {
+function selectLuxuryTransferMethod(val, labelTxt) {
   document.getElementById('sup-pay-method').value = val;
-  document.getElementById('selected-transfer-method-label').textContent = labelText;
+  setTextSafe('selected-transfer-method-label', labelTxt);
   closeLuxuryTransferMethodModal();
 }
 
-async function previewSupportReceipt(event) {
-  const imgs = await readFilesAsDataUrls(event.target.files);
-  const imgEl = document.getElementById('sup-receipt-preview');
-  if (imgEl && imgs[0]) {
-    imgEl.src = imgs[0];
-    imgEl.classList.remove('hidden');
-  }
+function previewSupportReceipt(event) {
+  const file = event.target.files && event.target.files[0];
+  const img = document.getElementById('sup-receipt-preview');
+  if (!file || !img) return;
+  readFilesAsDataUrls([file]).then(imgs => {
+    if (imgs[0]) {
+      img.src = imgs[0];
+      img.classList.remove('hidden');
+    }
+  });
 }
 
 async function submitSupportTransfer() {
@@ -3458,10 +3687,9 @@ async function submitSupportTransfer() {
   const ref = document.getElementById('sup-trans-ref').value.trim();
   const msg = document.getElementById('sup-message').value.trim();
   const imgs = await readFilesAsDataUrls(document.getElementById('sup-receipt-img').files);
-  const imgData = imgs[0] || '';
 
-  if (!msg && !ref && !imgData) {
-    showToast('يرجى كتابة رسالة أو إدخال مرجع أو إرفاق صورة', 'error');
+  if (!ref && !msg && !imgs.length) {
+    showToast('يرجى كتابة رسالة أو إدخال رقم عملية أو إرفاق صورة', 'error');
     return;
   }
 
@@ -3470,38 +3698,41 @@ async function submitSupportTransfer() {
     tenant: activeTenantCode,
     storeName: (db.store && db.store.name) || activeTenantCode,
     method,
-    ref,
-    msg,
-    image: imgData,
+    ref: ref || '--',
+    msg: msg || method,
+    image: imgs[0] || '',
     time: new Date().toLocaleString('ar-IQ'),
     date: new Date().toISOString()
   };
 
   db.supportTickets.unshift(ticket);
-  if (CORE) CORE.pushSupportTicketToAdmin(ticket);
   saveTenantData();
+  if (CORE) CORE.pushSupportTicketToAdmin(ticket);
   renderSupportTickets();
 
   document.getElementById('sup-trans-ref').value = '';
   document.getElementById('sup-message').value = '';
   document.getElementById('sup-receipt-img').value = '';
-  const prev = document.getElementById('sup-receipt-preview');
-  if (prev) { prev.src = ''; prev.classList.add('hidden'); }
+  const prevImg = document.getElementById('sup-receipt-preview');
+  if (prevImg) { prevImg.src = ''; prevImg.classList.add('hidden'); }
   showToast('تم إرسال رسالتك إلى لوحة الأدمن بنجاح', 'success');
 }
 
 function renderSupportTickets() {
-  const listEl = document.getElementById('support-tickets-list');
-  if (!listEl) return;
-  const tickets = db.supportTickets || [];
-  if (!tickets.length) {
-    listEl.innerHTML = '<p class="text-xs text-slate-500">لا توجد رسائل مرسلة بعد.</p>';
+  const list = document.getElementById('support-tickets-list');
+  if (!list) return;
+  if (!db.supportTickets.length) {
+    list.innerHTML = '<p class="text-xs text-slate-500">لا توجد رسائل مرسلة بعد.</p>';
     return;
   }
-  listEl.innerHTML = tickets.map(t => `
-    <div class="bg-darkbg border border-slate-800 p-3 rounded-2xl text-xs space-y-1">
-      <div class="flex justify-between font-bold text-gold"><span>${t.method || 'دعم'} • ${t.ref || t.id}</span><span class="text-slate-400 font-normal">${t.time || ''}</span></div>
-      <p class="text-slate-200">${t.msg || '--'}</p>
+  list.innerHTML = db.supportTickets.map(t => `
+    <div class="bg-darkbg border border-slate-800 p-3.5 rounded-2xl text-xs space-y-1.5">
+      <div class="flex justify-between items-center">
+        <strong class="text-gold">${t.method}</strong>
+        <span class="text-[10px] text-slate-400 font-mono">${t.id} • ${t.time}</span>
+      </div>
+      <div class="text-slate-300">${t.msg || '--'}</div>
+      ${t.image ? `<img src="${t.image}" onerror="handleBrandImageError(this)" onclick="openImageLightbox('${String(t.image).replace(/'/g, "\\'")}', '${String(t.method || '').replace(/'/g, "\\'")}')" class="w-20 h-20 rounded-xl object-cover border border-gold/40 cursor-pointer mt-1">` : ''}
     </div>
   `).join('');
 }
@@ -3521,35 +3752,34 @@ function closePriceModal() {
 }
 
 function saveGoldPrices() {
-  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || 150000;
-  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || 640000;
-  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || 585000;
-  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || 560000;
-  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || 480000;
-  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || 240000;
+  db.prices.usd = parseFloat(document.getElementById('modal-p-usd').value) || db.prices.usd;
+  db.prices.m24 = parseFloat(document.getElementById('modal-p-m24').value) || db.prices.m24;
+  db.prices.m22 = parseFloat(document.getElementById('modal-p-m22').value) || db.prices.m22;
+  db.prices.m21 = parseFloat(document.getElementById('modal-p-m21').value) || db.prices.m21;
+  db.prices.m18 = parseFloat(document.getElementById('modal-p-m18').value) || db.prices.m18;
+  db.prices.m9 = parseFloat(document.getElementById('modal-p-m9').value) || db.prices.m9;
   const scrapPriceInput = document.getElementById('scrap-mithqal-price');
   if (scrapPriceInput) delete scrapPriceInput.dataset.manual;
+  addLog('تحديث أسعار', `تحديث أسعار المثاقيل والدولار (الورقة: ${db.prices.usd}، مثقال 21: ${db.prices.m21})`, db.prices.m21);
   saveTenantData();
   renderAll();
   closePriceModal();
-  showToast('تم حفظ أسعار المثاقيل الخمسة والدولار', 'success');
+  showToast('تم حفظ أسعار الذهب والدولار وتحديث الحسابات', 'success');
 }
 
 function toggleCalcModal() {
   const m = document.getElementById('calc-modal');
-  if (!m) return;
   m.classList.toggle('hidden');
   if (!m.classList.contains('hidden')) {
-    const mqInput = document.getElementById('c-mithqal');
-    if (mqInput && !mqInput.value) mqInput.value = db.prices.m21 || 560000;
+    document.getElementById('c-mithqal').value = db.prices.m21 || 560000;
     calcAramkyQuick();
   }
 }
 
 function calcAramkyQuick() {
-  const mq = parseFloat(document.getElementById('c-mithqal')?.value) || 0;
-  const w = parseFloat(document.getElementById('c-weight')?.value) || 0;
-  const mk = parseFloat(document.getElementById('c-making')?.value) || 0;
+  const mq = parseFloat(document.getElementById('c-mithqal').value) || 0;
+  const w = parseFloat(document.getElementById('c-weight').value) || 0;
+  const mk = parseFloat(document.getElementById('c-making').value) || 0;
   const total = Math.round(w * ((mq / MITHQAL_GRAMS) + mk));
   setTextSafe('c-result-iqd', formatIQD(total));
 }
@@ -3568,111 +3798,40 @@ function executeSystemReset(mode) {
     db.usd = 0;
     db.zain = 0;
     db.makingProfit = 0;
-    addLog('تصفير الخزينة', 'تصفير صناديق الكاش والدولار والماستر وأرباح الصياغة', 0);
+    addLog('تصفير خزينة', 'تصفير صناديق الكاش والدولار والماستر وأرباح الصياغة', 0);
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تم تصفير الخزينة والأرباح بنجاح', 'success');
+    showToast('تم تصفير الخزينة والأرباح بنجاح', 'warning');
   } else if (mode === 'full_factory') {
     const fresh = defaultTenantData(activeTenantCode);
-    fresh.store = Object.assign({}, db.store || fresh.store);
-    fresh.prices = Object.assign({}, db.prices || fresh.prices);
+    fresh.store = Object.assign({}, db.store);
+    fresh.prices = Object.assign({}, db.prices);
     db = fresh;
     cart = [];
     saveTenantData();
     renderAll();
     closeResetSystemModal();
-    showToast('تم ضبط المصنع وتصفير النظام بالكامل', 'warning');
+    showToast('تم تصفير النظام بالكامل وإرجاعه للوضع الافتراضي', 'warning');
   }
 }
 
 function handleGlobalZeroKey(event) {
-  if (event.key === '0' && event.altKey) {
-    event.preventDefault();
+  if (event.key === '0' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
     openResetSystemModal();
   }
 }
 
-function handleInventoryAdminTrigger() {
-  inventorySecretClicks += 1;
-  if (inventorySecretTimer) clearTimeout(inventorySecretTimer);
-  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 1800);
-  if (inventorySecretClicks >= 5) {
-    inventorySecretClicks = 0;
-    document.getElementById('admin-secret-password').value = '';
-    document.getElementById('admin-secret-modal').classList.remove('hidden');
-  }
-}
-
-function closeAdminSecretModal() {
-  document.getElementById('admin-secret-modal').classList.add('hidden');
-}
-
-function verifyAdminSecretPassword() {
-  const pass = document.getElementById('admin-secret-password').value.trim();
-  const ok = CORE && typeof CORE.verifyAdminPassword === 'function'
-    ? CORE.verifyAdminPassword(pass)
-    : (pass === 'waadsdsd' || pass === 'ARAMKY-ADMIN-2026');
-  if (!ok) {
-    showToast('كلمة مرور الأدمن غير صحيحة', 'error');
-    return;
-  }
-  closeAdminSecretModal();
-  if (CORE) CORE.setAdminSession(true);
-  showToast('تم تفعيل وضع الأدمن', 'success');
-  window.location.href = 'admin.html';
-}
-
-function openAdminPanel() {
-  if (CORE) CORE.setAdminSession(true);
-  window.location.href = 'admin.html';
-}
-
-function switchTenantPrompt() {
-  document.getElementById('login-tenant-code').value = activeTenantCode || 'ARAMKY';
-  document.getElementById('login-tenant-phone').value = '';
-  document.getElementById('login-tenant-pass').value = '';
-  document.getElementById('tenant-login-screen').classList.remove('hidden');
-}
-
-function loginTenant() {
-  const code = (document.getElementById('login-tenant-code').value || 'ARAMKY').trim().toUpperCase();
-  const phone = document.getElementById('login-tenant-phone').value.trim();
-  const pass = document.getElementById('login-tenant-pass').value.trim();
-
-  if (isDedicatedAdminLogin(code, phone, pass)) {
-    activateDedicatedAdminState(code || 'ARAMKY');
-    document.getElementById('tenant-login-screen').classList.add('hidden');
-    checkSubscriptionLock();
-    renderAll();
-    showToast('تم تسجيل الدخول وتفعيل صلاحيات الأدمن', 'success');
-    return;
-  }
-
-  if (CORE && typeof CORE.authenticateTenant === 'function') {
-    const res = CORE.authenticateTenant(code, phone, pass);
-    if (!res.ok) {
-      showToast(res.reason || res.message || 'تعذر تسجيل الدخول', 'error');
-      return;
-    }
-    loadTenantData(res.code || code);
-  } else {
-    loadTenantData(code);
-  }
-
-  document.getElementById('tenant-login-screen').classList.add('hidden');
-  checkSubscriptionLock();
-  renderAll();
-  showToast(`تم تسجيل الدخول إلى الحساب: ${activeTenantCode}`, 'success');
-}
-
 function checkSubscriptionLock() {
+  if (isPublicCatalogOnly) return;
   const lockScreen = document.getElementById('subscription-lock-screen');
   if (!lockScreen) return;
-  const locked = isCurrentTenantLocked();
-  lockScreen.classList.toggle('hidden', !locked);
-  if (locked) {
-    setTextSafe('locked-tenant-info', `رقم المعرض: ${activeTenantCode}`);
+  if (isCurrentTenantLocked()) {
+    const refTag = CORE ? CORE.encodeCatalogRef(activeTenantCode).slice(0, 8).toUpperCase() : activeTenantCode;
+    setTextSafe('locked-tenant-info', `رقم المعرض: REF-${refTag}`);
+    lockScreen.classList.remove('hidden');
+  } else {
+    lockScreen.classList.add('hidden');
   }
 }
 
@@ -3681,75 +3840,186 @@ function openSupportFromLock() {
   switchTab('support');
 }
 
-async function refreshAppAndClearCache() {
-  try {
-    if ('caches' in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map(k => caches.delete(k)));
-    }
-    if (CORE && typeof CORE.syncAllFromSupabase === 'function' && CORE.isSupabaseReady()) {
-      await CORE.syncAllFromSupabase(activeTenantCode);
-      loadTenantData(activeTenantCode);
-    }
+function switchTenantPrompt() {
+  if (CORE) CORE.clearActiveSubscriberSession();
+  document.getElementById('subscription-lock-screen')?.classList.add('hidden');
+  document.getElementById('login-tenant-code').value = activeTenantCode || 'ARAMKY';
+  document.getElementById('login-tenant-phone').value = '';
+  document.getElementById('login-tenant-pass').value = '';
+  document.getElementById('tenant-login-screen').classList.remove('hidden');
+}
+
+function loginTenant() {
+  const code = document.getElementById('login-tenant-code').value.trim().toUpperCase();
+  const phone = document.getElementById('login-tenant-phone').value.trim();
+  const pass = document.getElementById('login-tenant-pass').value.trim();
+
+  if (!code || !phone || !pass) {
+    showToast('يرجى إدخال معرف الحساب ورقم الهاتف وكلمة المرور', 'error');
+    return;
+  }
+
+  if (isDedicatedAdminLogin(code, phone, pass)) {
+    document.getElementById('tenant-login-screen').classList.add('hidden');
+    activateDedicatedAdminState(code);
     renderAll();
-    showToast('تم تحديث الذاكرة والمزامنة بنجاح', 'success');
-  } catch (_) {
-    window.location.reload();
+    checkSubscriptionLock();
+    showToast('تم تسجيل دخول الأدمن وتفعيل لوحة الإدارة بنجاح 👑', 'success');
+    return;
+  }
+
+  if (CORE) {
+    const auth = CORE.authenticateSubscriber(code, phone, pass);
+    if (!auth.ok) {
+      showToast(auth.reason || 'بيانات الدخول غير صحيحة', 'error');
+      return;
+    }
+    if (CORE && typeof CORE.setActiveSubscriberSession === 'function') {
+      CORE.setActiveSubscriberSession(auth.tenant.code);
+    }
+    loadTenantData(auth.tenant.code);
+    document.getElementById('tenant-login-screen').classList.add('hidden');
+    renderAll();
+    checkSubscriptionLock();
+    showToast(`مرحباً بك في ${db.store.name}`, 'success');
+    return;
+  }
+
+  showToast('تعذر التحقق من بيانات الحساب', 'error');
+}
+
+function openAdminPanel() {
+  const cleanTenant = String(activeTenantCode || 'ARAMKY').trim().toUpperCase() || 'ARAMKY';
+  if (CORE) {
+    if (typeof CORE.setAdminSession === 'function') CORE.setAdminSession(true);
+    if (typeof CORE.setActiveSubscriberSession === 'function') CORE.setActiveSubscriberSession(cleanTenant);
+    if (typeof CORE.syncAdminUiVisibility === 'function') CORE.syncAdminUiVisibility();
+  }
+  saveTenantData();
+  window.location.href = `admin.html?tenant=${encodeURIComponent(cleanTenant)}&admin=1`;
+}
+
+function handleInventoryAdminTrigger() {
+  inventorySecretClicks += 1;
+  clearTimeout(inventorySecretTimer);
+  inventorySecretTimer = setTimeout(() => { inventorySecretClicks = 0; }, 1800);
+  if (inventorySecretClicks >= 5) {
+    inventorySecretClicks = 0;
+    const modal = document.getElementById('admin-secret-modal');
+    const input = document.getElementById('admin-secret-password');
+    if (modal && input) {
+      input.value = '';
+      modal.classList.remove('hidden');
+      input.focus();
+    } else {
+      openAdminPanel();
+    }
+  }
+}
+
+function closeAdminSecretModal() {
+  document.getElementById('admin-secret-modal')?.classList.add('hidden');
+}
+
+function verifyAdminSecretPassword() {
+  const input = document.getElementById('admin-secret-password');
+  const pass = (input?.value || '').trim();
+  const matchesCore = CORE && typeof CORE.verifyAdminPassword === 'function' && CORE.verifyAdminPassword(pass);
+  const matchesDedicated = pass === DEDICATED_ADMIN_CREDENTIALS.pass;
+  if (matchesCore || matchesDedicated) {
+    closeAdminSecretModal();
+    activateDedicatedAdminState(activeTenantCode || 'ARAMKY');
+    openAdminPanel();
+  } else {
+    showToast('كلمة مرور الأدمن غير صحيحة', 'error');
   }
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
+  const btn = document.getElementById('pwa-install-btn');
+  if (btn) btn.classList.remove('hidden');
 });
 
-function installPWA() {
+async function installPWA() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
-    deferredPrompt.userChoice.finally(() => { deferredPrompt = null; });
-    return;
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+  } else {
+    showToast('يمكنك تثبيت التطبيق من قائمة المتصفح (إضافة إلى الشاشة الرئيسية)', 'info');
   }
-  showToast('يمكنك تثبيت التطبيق من قائمة المتصفح (إضافة إلى الشاشة الرئيسية)', 'info');
+}
+
+async function refreshAppAndClearCache() {
+  try {
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+  } catch (_) {}
+  window.location.reload();
+}
+
+function applyPublicCatalogOnlyMode(code) {
+  isPublicCatalogOnly = true;
+  ['app-header', 'app-ticker', 'app-main', 'subscription-lock-screen', 'tenant-login-screen'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+  });
+  loadTenantData(code || 'ARAMKY');
+  openStorefrontView();
 }
 
 function initApp() {
   if (appInitialized) return;
   appInitialized = true;
 
-  const params = new URLSearchParams(window.location.search);
-  const storeParam = params.get('store');
-  const resolved = CORE && typeof CORE.resolveActiveTenantOnLoad === 'function'
-    ? CORE.resolveActiveTenantOnLoad()
-    : { code: 'ARAMKY', publicOnly: false };
+  if (CORE && typeof CORE.initSupabase === 'function') {
+    CORE.initSupabase();
+  }
 
-  if (storeParam && storeParam.trim().toUpperCase() === 'ARAMKY') {
-    isPublicCatalogOnly = true;
-    loadTenantData(resolved.code || 'ARAMKY');
-    renderAll();
-    openStorefrontView();
+  const params = new URLSearchParams(window.location.search);
+  const storeParam = (params.get('store') || '').trim();
+  if (storeParam) {
+    applyPublicCatalogOnlyMode('ARAMKY');
     dismissSplashScreen();
     return;
   }
 
-  isPublicCatalogOnly = Boolean(resolved.publicOnly);
-  loadTenantData(resolved.code || 'ARAMKY');
-  checkSubscriptionLock();
-  renderAll();
-  dismissSplashScreen();
+  let savedTenant = 'ARAMKY';
+  if (CORE && typeof CORE.getActiveSubscriberSession === 'function') {
+    savedTenant = CORE.getActiveSubscriberSession() || 'ARAMKY';
+  } else {
+    try {
+      savedTenant = localStorage.getItem(CORE ? CORE.keys.activeTenant : 'aramky_active_tenant') || 'ARAMKY';
+    } catch (_) {}
+  }
 
-  if (CORE && typeof CORE.hydrateCloudConfigFromServer === 'function') {
-    CORE.hydrateCloudConfigFromServer().then(() => {
-      if (CORE.isSupabaseReady() && typeof CORE.syncAllFromSupabase === 'function') {
-        CORE.syncAllFromSupabase(activeTenantCode).then((res) => {
-          if (res && res.ok) {
-            loadTenantData(activeTenantCode);
-            checkSubscriptionLock();
-            renderAll();
-          }
-        }).catch(() => {});
+  loadTenantData(savedTenant);
+  renderAll();
+  checkSubscriptionLock();
+
+  if (CORE && typeof CORE.pullTenantFromSupabase === 'function' && CORE.isSupabaseReady()) {
+    CORE.pullTenantFromSupabase(activeTenantCode).then(remoteData => {
+      if (remoteData && typeof remoteData === 'object') {
+        const localUpdated = Date.parse(db.updatedAt || 0) || 0;
+        const remoteUpdated = Date.parse(remoteData.updatedAt || 0) || 0;
+        if (remoteUpdated > localUpdated) {
+          loadTenantData(activeTenantCode);
+          renderAll();
+          checkSubscriptionLock();
+        }
       }
     }).catch(() => {});
   }
+
+  dismissSplashScreen();
 }
 
 if (document.readyState === 'loading') {
