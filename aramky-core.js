@@ -112,23 +112,23 @@
     }
   }
 
+  function normalizeCloudKeys(obj) {
+    const out = Object.assign({}, DEFAULT_CLOUD, obj || {});
+    if (!out.supabaseKey && out.supabaseAnonKey) out.supabaseKey = out.supabaseAnonKey;
+    if (!out.supabaseAnonKey && out.supabaseKey) out.supabaseAnonKey = out.supabaseKey;
+    if (!out.supabaseTable) out.supabaseTable = 'aramky_stores_data';
+    return out;
+  }
+
   function getCloudConfig() {
     const saved = readSecureStorage(KEYS.cloudConfig, 'CLOUD_CFG', {});
     const injected = (global.ARAMKY_ENV && typeof global.ARAMKY_ENV === 'object') ? global.ARAMKY_ENV : {};
-    const merged = Object.assign({}, DEFAULT_CLOUD, saved || {}, injected);
-    if (!merged.supabaseKey && merged.supabaseAnonKey) merged.supabaseKey = merged.supabaseAnonKey;
-    if (!merged.supabaseAnonKey && merged.supabaseKey) merged.supabaseAnonKey = merged.supabaseKey;
-    return merged;
+    return normalizeCloudKeys(Object.assign({}, saved || {}, injected));
   }
 
   function saveCloudConfig(partialCfg) {
     const current = readSecureStorage(KEYS.cloudConfig, 'CLOUD_CFG', {});
-    const next = Object.assign({}, DEFAULT_CLOUD, current || {}, partialCfg || {});
-    if (partialCfg && partialCfg.supabaseKey && !partialCfg.supabaseAnonKey) {
-      next.supabaseAnonKey = partialCfg.supabaseKey;
-    } else if (partialCfg && partialCfg.supabaseAnonKey && !partialCfg.supabaseKey) {
-      next.supabaseKey = partialCfg.supabaseAnonKey;
-    }
+    const next = normalizeCloudKeys(Object.assign({}, current || {}, partialCfg || {}));
     return writeSecureStorage(KEYS.cloudConfig, next, 'CLOUD_CFG');
   }
 
@@ -154,7 +154,7 @@
           const url = data.supabaseUrl || data.url || data.SUPABASE_URL || '';
           const key = data.supabaseAnonKey || data.supabaseKey || data.anonKey || data.key || data.SUPABASE_ANON_KEY || '';
           const table = data.supabaseTable || data.table || data.SUPABASE_TABLE || current.supabaseTable || 'aramky_stores_data';
-          const renderBase = data.renderApiBase || data.apiBase || current.renderApiBase || '';
+          const renderBase = data.renderApiBase || data.apiBase || data.RENDER_API_BASE || current.renderApiBase || '';
           if (url && key) {
             saveCloudConfig({
               supabaseUrl: url,
@@ -190,33 +190,8 @@
 
   function normalizeTenantPayload(payloadObj, tenantCode) {
     const code = String(tenantCode || (payloadObj && payloadObj.code) || 'ARAMKY').trim().toUpperCase();
-    const base = Object.assign({
-      code,
-      status: 'نشط',
-      cash: 0,
-      usd: 0,
-      zain: 0,
-      makingProfit: 0,
-      prices: { usd: 150000, m24: 640000, m22: 585000, m21: 560000, m18: 480000, m9: 240000 },
-      inventory: [],
-      debts: [],
-      logs: [],
-      supportTickets: [],
-      store: {
-        name: 'ARAMKY | أرامكي للحلول الرقمية — فرع نواة الذهب',
-        phone: DEFAULT_CONTACT.supportPhone,
-        address: 'بغداد — سوق الكاظمية',
-        openTime: '09:00 صباحاً',
-        closeTime: '09:00 مساءً',
-        bio: 'نظام إدارة صياغة الذهب والمعرض الرقمي الذكي',
-        logo: 'icon.png',
-        cover: 'icon.png'
-      }
-    }, payloadObj || {});
-
-    base.code = code;
-    base.prices = Object.assign({}, { usd: 150000, m24: 640000, m22: 585000, m21: 560000, m18: 480000, m9: 240000 }, base.prices || {});
-    base.store = Object.assign({}, {
+    const defaultPrices = { usd: 150000, m24: 640000, m22: 585000, m21: 560000, m18: 480000, m9: 240000 };
+    const defaultStore = {
       name: 'ARAMKY | أرامكي للحلول الرقمية — فرع نواة الذهب',
       phone: DEFAULT_CONTACT.supportPhone,
       address: 'بغداد — سوق الكاظمية',
@@ -225,7 +200,30 @@
       bio: 'نظام إدارة صياغة الذهب والمعرض الرقمي الذكي',
       logo: 'icon.png',
       cover: 'icon.png'
-    }, base.store || {});
+    };
+
+    const base = Object.assign({
+      code,
+      status: 'نشط',
+      cash: 0,
+      usd: 0,
+      zain: 0,
+      makingProfit: 0,
+      prices: defaultPrices,
+      inventory: [],
+      debts: [],
+      logs: [],
+      supportTickets: [],
+      store: defaultStore
+    }, payloadObj || {});
+
+    base.code = code;
+    base.cash = Number(base.cash || 0);
+    base.usd = Number(base.usd || 0);
+    base.zain = Number(base.zain || 0);
+    base.makingProfit = Number(base.makingProfit || 0);
+    base.prices = Object.assign({}, defaultPrices, base.prices || {});
+    base.store = Object.assign({}, defaultStore, base.store || {});
     base.inventory = Array.isArray(base.inventory) ? base.inventory : [];
     base.debts = Array.isArray(base.debts) ? base.debts.map(d => {
       const amt = Number(d.amount || 0);
