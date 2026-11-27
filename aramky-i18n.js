@@ -1,430 +1,351 @@
-/**
- * ARAMKY Gold OS — Tri-Lingual Engine (العربية / کوردی / English)
- * أرامكي للحلول الرقمية — فرع نواة الذهب
- */
 (function (global) {
   'use strict';
 
-  const STORAGE_KEY = 'aramky_gold_v28_lang';
+  const STORAGE_KEY = 'aramky_lang_v28';
+  const ORDER = ['ar', 'ku', 'en'];
 
-  const DICTIONARY = {
+  const DICTS = {
     ar: {
+      label: 'العربية (AR)',
       dir: 'rtl',
-      langTag: 'ar',
-      label: 'العربية',
-      shortCode: 'AR',
-      badge: '⚜️ أرامكي v28.3',
+      lang: 'ar',
       statusActive: 'نشط',
       statusLocked: 'متوقف',
-      installBtn: 'تثبيت / APK ⚜️',
-      installedBtn: 'مثبت على الجهاز ✓',
-      refreshBtn: 'تحديث الذاكرة',
-      adminBtn: 'لوحة الأدمن 👑',
-      switchTenantBtn: 'تبديل الحساب',
-      storefrontBtn: 'معرض الزبائن',
-      returnBtn: 'إرجاع فاتورة',
-      calcBtn: 'حاسبة آرامكي',
-      pricesBtn: 'الأسعار (5)',
-      resetBtn: 'تصفير (0)',
-      tickerTitle: 'الأسعار والمثاقيل:',
-      tickerUsd: 'الورقة (100$):',
-      tickerM24: 'عيار 24:',
-      tickerM22: 'عيار 22:',
-      tickerM21: 'عيار 21:',
-      tickerM18: 'عيار 18:',
-      tickerM9: 'عيار 9:',
-      sidebarTitle: 'لوحة التحكم المؤسسية',
-      tabDashboard: 'الرئيسية والخزينة',
-      tabPos: 'نقطة البيع (الكاسير)',
-      tabScrap: 'شراء ذهب كسر',
-      tabInventory: 'المخزن (تعديل وحذف)',
-      tabStoreSettings: 'إعدادات المعرض والشعار',
-      tabDebts: 'دفتر الديون (تطلبهم ويطلبوك)',
-      tabLogs: 'الأرباح وجرد Excel',
-      tabSupport: 'الدعم ومراسلة الأدمن',
-      dashCash: 'صندوق الكاش (دينار)',
-      dashUsd: 'صندوق الدولار ($)',
-      dashZain: 'زين كاش والماستر',
-      dashProfit: 'صافي أرباح الصياغة',
-      expTitle: 'تسجيل مصروف يومي',
-      expReasonPh: 'سبب المصروف',
-      expAmountPh: 'المبلغ (دينار)',
-      expNotesPh: 'ملاحظات...',
-      expSaveBtn: 'تسجيل المصروف',
-      debtsTitle: 'دفتر الديون الفخم (تطلبهم + ويطلبوك -)',
-      debtsSubtitle: 'كارتات مفصولة بوضوح بين ما تطلبه أنت (تطلبهم +) وما هو مطلوب منك (يطلبوك -)، مع زيادة ونقصان للأموال والذهب وتفاصيل كاملة وجرد لكل حركة',
-      debtsAllBtn: 'الكل',
-      debtsThemBtn: 'كارتات تطلبهم (+)',
-      debtsUsBtn: 'كارتات يطلبوك (-)',
-      debtsSummaryThem: 'إجمالي ما تطلبه (تطلبهم — لنا عند الناس +)',
-      debtsSummaryUs: 'إجمالي ما يطلبوك (مطلوب منك — علينا للناس -)',
-      debtsSummaryNet: 'صافي ميزان الديون العام (تطلبهم - يطلبوك)',
-      debtsCustomerPh: 'اسم الزبون / التاجر',
-      debtsPhonePh: 'رقم الهاتف (07XXXXXXXXX)',
-      debtsAmountPh: 'المبلغ (د.ع) أو الوزن (غرام)',
-      debtsNotesPh: 'ملاحظات إضافية للحركة أو الحساب...',
-      debtsSaveBtn: 'حفظ الحركة وتحديث كارت الديون الفخم 📖',
-      lockTitle: 'الاشتراك متوقف!',
-      lockDesc: 'اشتراكك متوقف أو منتهي في نظام ARAMKY Gold OS. يمكنك فقط التواصل مع الدعم الفني.',
-      lockSupportBtn: 'التواصل مع الدعم الفني 🛟',
-      lockSwitchBtn: 'تبديل الحساب / تسجيل الخروج 🔄',
-      loginTitle: 'تسجيل دخول المعرض / المشترك',
-      loginDesc: 'الدخول متاح فقط للحسابات المعتمدة من الأدمن (الكود، رقم الهاتف، وكلمة المرور)',
-      loginCodeLabel: 'معرف الحساب / الكود',
-      loginPhoneLabel: 'رقم الهاتف المرتبط بالحساب',
-      loginPassLabel: 'كلمة المرور',
-      loginSubmitBtn: 'دخول إلى النظام 🔓'
+      'i18n-lang-label': 'العربية (AR)',
+      'pwa-install-label': 'تثبيت / APK ⚜️',
+      'i18n-refresh-label': 'تحديث الذاكرة',
+      'i18n-admin-label': 'لوحة الأدمن 👑',
+      'i18n-switch-label': 'تبديل الحساب',
+      'i18n-storefront-label': 'معرض الزبائن',
+      'i18n-return-label': 'إرجاع فاتورة',
+      'i18n-calc-label': 'حاسبة آرامكي',
+      'i18n-prices-label': 'الأسعار (5)',
+      'i18n-reset-label': 'تصفير (0)',
+      'i18n-ticker-title': 'الأسعار والمثاقيل:',
+      'i18n-ticker-usd': 'الورقة (100$):',
+      'i18n-ticker-m24': 'عيار 24:',
+      'i18n-ticker-m22': 'عيار 22:',
+      'i18n-ticker-m21': 'عيار 21:',
+      'i18n-ticker-m18': 'عيار 18:',
+      'i18n-ticker-m9': 'عيار 9:',
+      'i18n-sidebar-title': 'لوحة التحكم المؤسسية',
+      'i18n-tab-dashboard': 'الرئيسية والخزينة',
+      'i18n-tab-pos': 'نقطة البيع (الكاسير)',
+      'i18n-tab-scrap': 'شراء ذهب كسر',
+      'i18n-tab-inventory': 'المخزن (تعديل وحذف)',
+      'i18n-tab-store-settings': 'إعدادات المعرض والشعار',
+      'i18n-tab-debts': 'دفتر الديون (يطلبهم ويطلبوني)',
+      'i18n-tab-logs': 'الأرباح وجرد Excel',
+      'i18n-tab-support': 'الدعم ومراسلة الأدمن',
+      'i18n-dash-cash': 'صندوق الكاش (دينار)',
+      'i18n-dash-usd': 'صندوق الدولار ($)',
+      'i18n-dash-zain': 'زين كاش والماستر',
+      'i18n-dash-profit': 'صافي أرباح الصياغة',
+      'i18n-exp-title': 'تسجيل مصروف يومي',
+      'i18n-exp-save-btn': 'تسجيل المصروف',
+      'i18n-debts-title': 'دفتر الديون الفخم (يطلبهم + ويطلبوني -)',
+      'i18n-debts-subtitle': 'تنظيم واضح لكارتات (يطلبهم) و(يطلبوني) مع زيادة (+) ونقصان (-) للذهب والأموال وجرد كامل داخل كل كرت',
+      'i18n-debts-summary-them': 'إجمالي ما يطلبهم (لنا عند الناس +)',
+      'i18n-debts-summary-us': 'إجمالي ما يطلبوني (علينا للناس -)',
+      'i18n-debts-summary-net': 'صافي ميزان الديون العام (يطلبهم - يطلبوني)',
+      'i18n-debts-save-btn': 'حفظ الحركة وتحديث كارت الديون الفخم 📖',
+      'i18n-lock-title': 'الاشتراك متوقف!',
+      'i18n-lock-desc': 'اشتراكك متوقف أو منتهي في نظام ARAMKY Gold OS. يمكنك فقط التواصل مع الدعم الفني.',
+      'i18n-lock-support-btn': 'التواصل مع الدعم الفني 🛟',
+      'i18n-lock-switch-btn': 'تبديل الحساب / تسجيل الخروج 🔄',
+      'i18n-login-title': 'تسجيل دخول المعرض / المشترك',
+      'i18n-login-desc': 'الدخول متاح فقط للحسابات المعتمدة من الأدمن (الكود، رقم الهاتف، وكلمة المرور)',
+      'i18n-login-code-label': 'معرف الحساب / الكود',
+      'i18n-login-phone-label': 'رقم الهاتف المرتبط بالحساب',
+      'i18n-login-pass-label': 'كلمة المرور',
+      'i18n-login-submit-btn': 'دخول إلى النظام 🔓'
     },
     ku: {
+      label: 'کوردی (KU)',
       dir: 'rtl',
-      langTag: 'ckb',
-      label: 'کوردی',
-      shortCode: 'KU',
-      badge: '⚜️ ئارامکی v28.3',
+      lang: 'ku',
       statusActive: 'چالاکە',
-      statusLocked: 'ڕاگیراوە',
-      installBtn: 'دامەزراندن / APK ⚜️',
-      installedBtn: 'دامەزراوە ✓',
-      refreshBtn: 'نوێکردنەوەی بیرگە',
-      adminBtn: 'پانێڵی ئەدمین 👑',
-      switchTenantBtn: 'گۆڕینی هەژمار',
-      storefrontBtn: 'پێشانگای کڕیاران',
-      returnBtn: 'گەڕاندنەوەی پسوولە',
-      calcBtn: 'ژمێرەری ئارامکی',
-      pricesBtn: 'نرخەکان (5)',
-      resetBtn: 'سفرکردن (0)',
-      tickerTitle: 'نرخ و مسقاڵەکان:',
-      tickerUsd: 'وەرەقە (100$):',
-      tickerM24: 'عیار 24:',
-      tickerM22: 'عیار 22:',
-      tickerM21: 'عیار 21:',
-      tickerM18: 'عیار 18:',
-      tickerM9: 'عیار 9:',
-      sidebarTitle: 'پانێڵی بەڕێوەبردنی دامەزراوەیی',
-      tabDashboard: 'سەرەکی و قاسە',
-      tabPos: 'خاڵی فرۆشتن (کاشێر)',
-      tabScrap: 'کڕینی زێڕی شکاو',
-      tabInventory: 'کۆگا (دەستکاری و سڕینەوە)',
-      tabStoreSettings: 'ڕێکخستنی پێشانگا و لۆگۆ',
-      tabDebts: 'دەفتەری قەرز (داوایان دەکەیت / داوات دەکەن)',
-      tabLogs: 'قازانج و جەردی Excel',
-      tabSupport: 'پشتیوانی و پەیوەندی بە ئەدمین',
-      dashCash: 'قاسەی کاش (دینار)',
-      dashUsd: 'قاسەی دۆلار ($)',
-      dashZain: 'زین کاش و ماستەر',
-      dashProfit: 'پاکێتی قازانجی دارشتن',
-      expTitle: 'تۆمارکردنی خەرجی ڕۆژانە',
-      expReasonPh: 'هۆکاری خەرجی',
-      expAmountPh: 'بڕی پارە (دینار)',
-      expNotesPh: 'تێبینی...',
-      expSaveBtn: 'تۆمارکردنی خەرجی',
-      debtsTitle: 'دەفتەری قەرزی شاهانە (داوایان دەکەیت + / داوات دەکەن -)',
-      debtsSubtitle: 'کارتەکان جیاکراونەتەوە لە نێوان ئەوەی داوایان دەکەیت (+) و ئەوەی لەسەرتە (-)، لەگەڵ زیادکردن و کەمکردنەوەی پارە و زێڕ و وردەکاری هەر جووڵەیەک',
-      debtsAllBtn: 'هەمووی',
-      debtsThemBtn: 'کارتەکانی داوایان دەکەیت (+)',
-      debtsUsBtn: 'کارتەکانی داوات دەکەن (-)',
-      debtsSummaryThem: 'کۆی ئەوەی داوایان دەکەیت (بۆ ئێمە لای خەڵک +)',
-      debtsSummaryUs: 'کۆی ئەوەی داوات دەکەن (لەسەر ئێمە بۆ خەڵک -)',
-      debtsSummaryNet: 'پوختەی باڵانسی قەرزەکان',
-      debtsCustomerPh: 'ناوی کڕیار / بازرگان',
-      debtsPhonePh: 'ژمارەی مۆبایل (07XXXXXXXXX)',
-      debtsAmountPh: 'بڕ (دینار) یان کێش (گرام)',
-      debtsNotesPh: 'تێبینی زیادە بۆ جووڵە یان هەژمار...',
-      debtsSaveBtn: 'پاشەکەوتکردنی جووڵە و نوێکردنەوەی کارتی قەرز 📖',
-      lockTitle: 'بەشداریکردن ڕاگیراوە!',
-      lockDesc: 'بەشداریکردنەکەت لە سیستەمی ARAMKY Gold OS ڕاگیراوە یان بەسەرچووە. تەنها دوگمەی پشتیوانی کارایە.',
-      lockSupportBtn: 'پەیوەندی بە پشتیوانی 🛟',
-      lockSwitchBtn: 'گۆڕینی هەژمار / چوونەدەرەوە 🔄',
-      loginTitle: 'چوونەژوورەوەی پێشانگا / بەشداربوو',
-      loginDesc: 'چوونەژوورەوە تەنها بۆ هەژمارە پەسەندکراوەکانی ئەدمینە (کۆد، ژمارەی مۆبایل، وشەی نهێنی)',
-      loginCodeLabel: 'ناسنامەی هەژمار / کۆد',
-      loginPhoneLabel: 'ژمارەی مۆبایلی هەژمار',
-      loginPassLabel: 'وشەی نهێنی',
-      loginSubmitBtn: 'چوونە ناو سیستەم 🔓'
+      statusLocked: 'وەستاوە',
+      'i18n-lang-label': 'کوردی (KU)',
+      'pwa-install-label': 'دامەزراندن / APK ⚜️',
+      'i18n-refresh-label': 'نوێکردنەوەی یادگە',
+      'i18n-admin-label': 'پانێڵی ئەدمین 👑',
+      'i18n-switch-label': 'گۆڕینی هەژمار',
+      'i18n-storefront-label': 'پیشانگای کڕیاران',
+      'i18n-return-label': 'گەڕاندنەوەی پسوولە',
+      'i18n-calc-label': 'ژمێرەری ئارامکی',
+      'i18n-prices-label': 'نرخەکان (5)',
+      'i18n-reset-label': 'سفرکردن (0)',
+      'i18n-ticker-title': 'نرخ و مسقاڵەکان:',
+      'i18n-ticker-usd': 'وەرەقە (100$):',
+      'i18n-ticker-m24': 'عەیار 24:',
+      'i18n-ticker-m22': 'عەیار 22:',
+      'i18n-ticker-m21': 'عەیار 21:',
+      'i18n-ticker-m18': 'عەیار 18:',
+      'i18n-ticker-m9': 'عەیار 9:',
+      'i18n-sidebar-title': 'پانێڵی بەڕێوەبردنی دامەزراوەیی',
+      'i18n-tab-dashboard': 'سەرەکی و قاسە',
+      'i18n-tab-pos': 'خاڵی فرۆشتن (کاشێر)',
+      'i18n-tab-scrap': 'کڕینی زێڕی شکاو',
+      'i18n-tab-inventory': 'کۆگا (دەستکاریکردن و سڕینەوە)',
+      'i18n-tab-store-settings': 'ڕێکخستنی پێشانگا و لۆگۆ',
+      'i18n-tab-debts': 'تۆماری قەرزەکان (+ داوایان دەکەین / - داوامان دەکەن)',
+      'i18n-tab-logs': 'قازانج و ڕاپۆرتی Excel',
+      'i18n-tab-support': 'پشتگیری و پەیوەندی بە ئەدمین',
+      'i18n-dash-cash': 'قاسەی کاش (دینار)',
+      'i18n-dash-usd': 'قاسەی دۆلار ($)',
+      'i18n-dash-zain': 'زەین کاش و ماستەر',
+      'i18n-dash-profit': 'پاکێتی قازانجی دەستکرد',
+      'i18n-exp-title': 'تۆمارکردنی خەرجی ڕۆژانە',
+      'i18n-exp-save-btn': 'تۆمارکردنی خەرجی',
+      'i18n-debts-title': 'تۆماری قەرزەکان (+ داوایان دەکەین / - داوامان دەکەن)',
+      'i18n-debts-subtitle': 'ڕێکخستنی کارتی قەرزەکان بە زیادکردن (+) و کەمکردنەوە (-) بۆ زێڕ و پارە و هەژماردنی تەواو',
+      'i18n-debts-summary-them': 'کۆی ئەوەی داوایان دەکەین (+)',
+      'i18n-debts-summary-us': 'کۆی ئەوەی داوامان دەکەن (-)',
+      'i18n-debts-summary-net': 'پاکێتی هاوسەنگی گشتی قەرزەکان',
+      'i18n-debts-save-btn': 'پاشەکەوتکردن و نوێکردنەوەی کارتی قەرز 📖',
+      'i18n-lock-title': 'بەشداریکردن وەستاوە!',
+      'i18n-lock-desc': 'بەشداریکردنەکەت لە سیستەمی ARAMKY Gold OS وەستاوە یان بەسەرچووە. تەنها دەتوانیت پەیوەندی بە پشتگیری بکەیت.',
+      'i18n-lock-support-btn': 'پەیوەندی بە پشتگیری هونەری 🛟',
+      'i18n-lock-switch-btn': 'گۆڕینی هەژمار / چوونەدەرەوە 🔄',
+      'i18n-login-title': 'چوونەژوورەوەی پێشانگا / بەشداربوو',
+      'i18n-login-desc': 'چوونەژوورەوە تەنها بۆ هەژمارە پەسەندکراوەکانی ئەدمینە (کۆد، ژمارەی مۆبایل، وشەی نهێنی)',
+      'i18n-login-code-label': 'ناسنامەی هەژمار / کۆد',
+      'i18n-login-phone-label': 'ژمارەی مۆبایلی پەیوەست بە هەژمار',
+      'i18n-login-pass-label': 'وشەی نهێنی',
+      'i18n-login-submit-btn': 'چوونە ناو سیستەم 🔓'
     },
     en: {
+      label: 'English (EN)',
       dir: 'ltr',
-      langTag: 'en',
-      label: 'English',
-      shortCode: 'EN',
-      badge: '⚜️ ARAMKY v28.3',
+      lang: 'en',
       statusActive: 'Active',
       statusLocked: 'Suspended',
-      installBtn: 'Install / APK ⚜️',
-      installedBtn: 'Installed ✓',
-      refreshBtn: 'Clear & Sync',
-      adminBtn: 'Admin Console 👑',
-      switchTenantBtn: 'Switch Account',
-      storefrontBtn: 'Customer Showcase',
-      returnBtn: 'Return Invoice',
-      calcBtn: 'ARAMKY Calc',
-      pricesBtn: 'Rates (5)',
-      resetBtn: 'Reset (0)',
-      tickerTitle: 'Rates & Mithqals:',
-      tickerUsd: '100 USD:',
-      tickerM24: '24K:',
-      tickerM22: '22K:',
-      tickerM21: '21K:',
-      tickerM18: '18K:',
-      tickerM9: '9K:',
-      sidebarTitle: 'Enterprise Control Panel',
-      tabDashboard: 'Overview & Vault',
-      tabPos: 'Point of Sale (POS)',
-      tabScrap: 'Buy Scrap Gold',
-      tabInventory: 'Inventory (Edit & Delete)',
-      tabStoreSettings: 'Store & Branding',
-      tabDebts: 'Debt Ledger (Owed to You / You Owe)',
-      tabLogs: 'Profits & Excel Audit',
-      tabSupport: 'Support & Admin Chat',
-      dashCash: 'Cash Vault (IQD)',
-      dashUsd: 'USD Vault ($)',
-      dashZain: 'ZainCash & MasterCard',
-      dashProfit: 'Net Craftsmanship Profit',
-      expTitle: 'Record Daily Expense',
-      expReasonPh: 'Expense reason',
-      expAmountPh: 'Amount (IQD)',
-      expNotesPh: 'Notes...',
-      expSaveBtn: 'Save Expense',
-      debtsTitle: 'Luxury Debt Ledger (Owed to You + / You Owe -)',
-      debtsSubtitle: 'Clear cards separating amounts owed to you (+) and amounts you owe (-), with money & gold adjustments, full card details, and movement audit',
-      debtsAllBtn: 'All',
-      debtsThemBtn: 'Owed to You (+)',
-      debtsUsBtn: 'You Owe (-)',
-      debtsSummaryThem: 'Total Owed to You (Receivables +)',
-      debtsSummaryUs: 'Total You Owe (Payables -)',
-      debtsSummaryNet: 'Net Debt Balance (Receivables - Payables)',
-      debtsCustomerPh: 'Customer / Merchant Name',
-      debtsPhonePh: 'Phone Number (07XXXXXXXXX)',
-      debtsAmountPh: 'Amount (IQD) or Weight (Grams)',
-      debtsNotesPh: 'Additional movement or account notes...',
-      debtsSaveBtn: 'Save Movement & Update Debt Card 📖',
-      lockTitle: 'Subscription Suspended!',
-      lockDesc: 'Your ARAMKY Gold OS subscription is expired or suspended. Only Support remains accessible.',
-      lockSupportBtn: 'Contact Support 🛟',
-      lockSwitchBtn: 'Switch Account / Logout 🔄',
-      loginTitle: 'Store / Subscriber Login',
-      loginDesc: 'Access is restricted to admin-approved accounts (Code, Phone, and Password)',
-      loginCodeLabel: 'Account Code / ID',
-      loginPhoneLabel: 'Registered Phone Number',
-      loginPassLabel: 'Password',
-      loginSubmitBtn: 'Sign In to System 🔓'
+      'i18n-lang-label': 'English (EN)',
+      'pwa-install-label': 'Install / APK ⚜️',
+      'i18n-refresh-label': 'Clear Cache',
+      'i18n-admin-label': 'Admin Panel 👑',
+      'i18n-switch-label': 'Switch Account',
+      'i18n-storefront-label': 'Storefront',
+      'i18n-return-label': 'Invoice Return',
+      'i18n-calc-label': 'ARAMKY Calc',
+      'i18n-prices-label': 'Rates (5)',
+      'i18n-reset-label': 'Reset (0)',
+      'i18n-ticker-title': 'Gold & Rates:',
+      'i18n-ticker-usd': '100 USD:',
+      'i18n-ticker-m24': '24K:',
+      'i18n-ticker-m22': '22K:',
+      'i18n-ticker-m21': '21K:',
+      'i18n-ticker-m18': '18K:',
+      'i18n-ticker-m9': '9K:',
+      'i18n-sidebar-title': 'Enterprise Control',
+      'i18n-tab-dashboard': 'Dashboard & Vault',
+      'i18n-tab-pos': 'Point of Sale (POS)',
+      'i18n-tab-scrap': 'Buy Scrap Gold',
+      'i18n-tab-inventory': 'Inventory & Edit',
+      'i18n-tab-store-settings': 'Store & Brand Settings',
+      'i18n-tab-debts': 'Debts Ledger (+/-)',
+      'i18n-tab-logs': 'Profits & Excel Audit',
+      'i18n-tab-support': 'Support & Admin',
+      'i18n-dash-cash': 'Cash Vault (IQD)',
+      'i18n-dash-usd': 'USD Vault ($)',
+      'i18n-dash-zain': 'ZainCash & Master',
+      'i18n-dash-profit': 'Net Making Profit',
+      'i18n-exp-title': 'Record Daily Expense',
+      'i18n-exp-save-btn': 'Save Expense',
+      'i18n-debts-title': 'Debts Ledger (+ Owed to Us / - We Owe)',
+      'i18n-debts-subtitle': 'Organized debt cards with (+) increase and (-) decrease for gold and cash with full audit',
+      'i18n-debts-summary-them': 'Total Owed to Us (+)',
+      'i18n-debts-summary-us': 'Total We Owe (-)',
+      'i18n-debts-summary-net': 'Net Debt Balance',
+      'i18n-debts-save-btn': 'Save Entry & Update Debt Card 📖',
+      'i18n-lock-title': 'Subscription Suspended!',
+      'i18n-lock-desc': 'Your subscription in ARAMKY Gold OS is inactive or expired. You can only contact technical support.',
+      'i18n-lock-support-btn': 'Contact Technical Support 🛟',
+      'i18n-lock-switch-btn': 'Switch Account / Sign Out 🔄',
+      'i18n-login-title': 'Store / Subscriber Sign In',
+      'i18n-login-desc': 'Access is restricted to admin-approved accounts (Code, Phone, Password)',
+      'i18n-login-code-label': 'Account ID / Code',
+      'i18n-login-phone-label': 'Registered Phone Number',
+      'i18n-login-pass-label': 'Password',
+      'i18n-login-submit-btn': 'Sign In 🔓'
     }
   };
 
-  const PHRASE_MAP = {
+  const PHRASES = {
     ku: {
-      'نظام إدارة صياغة الذهب والمعرض الرقمي الذكي': 'سیستەمی بەڕێوەبردنی زێڕنگەری و پێشانگای زیرەکی دیجیتاڵی',
-      'إضافة أو تحديث حساب مشترك': 'زیادکردن یان نوێکردنەوەی هەژماری بەشداربوو',
-      'حفظ المشترك': 'پاشەکەوتکردنی بەشداربوو',
-      'تفريغ': 'بەتاڵکردنەوە',
+      'تحديث التطبيق وتفريغ الكاش من الذاكرة': 'نوێکردنەوەی ئەپ و پاککردنەوەی کاش لە یادگە',
+      'الدخول إلى لوحة إدارة الأدمن': 'چوونە ناو پانێڵی بەڕێوەبردنی ئەدمین',
+      'تصفير النظام (0)': 'سفرکردنی سیستەم (0)',
+      'تصفير النظام وإعادة الضبط الذكي (0)': 'سفرکردنی سیستەم و ڕێکخستنەوەی زیرەک (0)',
+      'اختر نوع التصفير المطلوب:': 'جۆری سفرکردنی داواکراو هەڵبژێرە:',
+      '1. تصفير الخزينة والأرباح فقط (جرد يومي):': '1. سفرکردنی قاسە و قازانج تەنها (حسابی ڕۆژانە):',
+      'تصفير صناديق الكاش، الدولار، الماستر، وأرباح الصياغة مع بقاء المخزن والديون.': 'سفرکردنی قاسەی کاش، دۆلار، ماستەر، و قازانجی دەستکرد لەگەڵ مانەوەی کۆگا و قەرزەکان.',
+      'تصفير الخزينة فقط 🔄': 'سفرکردنی قاسە تەنها 🔄',
+      '2. تصفير النظام بالكامل (ضبط مصنع):': '2. سفرکردنی تەواوی سیستەم (دۆخی کارگە):',
+      'مسح كل شيء وإرجاع النظام كأنه جديد تماماً.': 'سڕینەوەی هەموو شتێک و گەڕاندنەوەی سیستەم وەک سەرەتا.',
+      'تصفير النظام بالكامل 🗑️': 'سفرکردنی تەواوی سیستەم 🗑️',
+      'إلغاء': 'هەڵوەشاندنەوە',
       'إغلاق': 'داخستن',
-      'نسخ': 'لەبەرگرتنەوە',
-      'تعديل': 'دەستکاری',
-      'حذف': 'سڕینەوە',
-      'تفعيل': 'چالاککردن',
-      'إيقاف': 'ڕاگرتن',
-      'إضافة للسلة': 'زیادکردن بۆ سەبەتە',
       'تصفح المخزن': 'گەڕان لە کۆگا',
+      'إضافة للسلة': 'زیادکردن بۆ سەبەتە',
+      'غرام الصافي:': 'گرامی پاک:',
+      'أرباح المثقال الواحد (5غ):': 'قازانجی یەک مسقاڵ (5گ):',
+      'إجمالي أرباح الصياغة:': 'کۆی قازانجی دەستکرد:',
+      'السعر بالدينار:': 'نرخ بە دینار:',
+      'المقابل:': 'بەرانبەر:',
+      'القطع المضافة للسلة:': 'پارچە زیادکراوەکان بۆ سەبەتە:',
+      'السلة فارغة.': 'سەبەتە بەتاڵە.',
+      'إجمالي الفاتورة:': 'کۆی گشتی پسوولە:',
       'إتمام البيع النقدي وطباعة': 'تەواوکردنی فرۆشتنی کاش و چاپکردن',
-      'تسجيل آجل (تطلبهم +)': 'تۆمارکردنی قەرز (داوایان دەکەیت +)',
-      'إتمام شراء الكسر وتسجيله': 'تەواوکردنی کڕینی زێڕی شکاو و تۆمارکردنی',
-      'حفظ وإضافة للمخزن والمعرض 📦': 'پاشەکەوت و زیادکردن بۆ کۆگا و پێشانگا 📦',
-      'حفظ الإعدادات وإشعار الإدارة بالتحديث 🌐': 'پاشەکەوتکردنی ڕێکخستنەکان و ئاگادارکردنەوەی بەڕێوەبەر 🌐',
+      'تسجيل آجل (يطلبهم +)': 'تۆمارکردنی قەرز (+ داوایان دەکەین)',
+      'سبب المصروف': 'هۆکاری خەرجی',
+      'المبلغ (دينار)': 'بڕی پارە (دینار)',
+      'ملاحظات...': 'تێبینی...',
+      'اسم الزبون / التاجر': 'ناوی کڕیار / بازرگان',
+      'رقم الهاتف (07XXXXXXXXX)': 'ژمارەی مۆبایل (07XXXXXXXXX)',
+      'ملاحظات إضافية للحركة أو الحساب...': 'تێبینی زیاتر بۆ جووڵە یان هەژمار...',
+      'أدخل الاسم والقيمة لمعاينة الأثر الفوري على الرصيد': 'ناو و بڕ بنووسە بۆ بینینی کاریگەری ڕاستەوخۆ لەسەر باڵانس',
+      'الكل': 'هەمووی',
+      'كارتات تطلبهم (+)': 'کارتەکانی داوایان دەکەین (+)',
+      'كارتات يطلبوك (-)': 'کارتەکانی داوامان دەکەن (-)',
+      'حفظ الإعدادات وإشعار الإدارة بالتحديث 🌐': 'پاشەکەوتکردنی ڕێکخستنەکان و ئاگادارکردنەوەی بەڕێوەبەرایەتی 🌐',
       'إرسال مباشر إلى لوحة الأدمن': 'ناردنی ڕاستەوخۆ بۆ پانێڵی ئەدمین',
       'إرسال عبر واتساب': 'ناردن لە ڕێگەی وەتسئەپ'
     },
     en: {
-      'نظام إدارة صياغة الذهب والمعرض الرقمي الذكي': 'Gold Craftsmanship Management & Smart Showcase OS',
-      'إضافة أو تحديث حساب مشترك': 'Add or Update Subscriber Account',
-      'حفظ المشترك': 'Save Subscriber',
-      'تفريغ': 'Clear',
+      'تحديث التطبيق وتفريغ الكاش من الذاكرة': 'Refresh app and clear memory cache',
+      'الدخول إلى لوحة إدارة الأدمن': 'Open Admin Management Panel',
+      'تصفير النظام (0)': 'Reset System (0)',
+      'تصفير النظام وإعادة الضبط الذكي (0)': 'System Reset & Smart Restore (0)',
+      'اختر نوع التصفير المطلوب:': 'Select the required reset mode:',
+      '1. تصفير الخزينة والأرباح فقط (جرد يومي):': '1. Reset Vault & Profits Only (Daily Audit):',
+      'تصفير صناديق الكاش، الدولار، الماستر، وأرباح الصياغة مع بقاء المخزن والديون.': 'Reset cash, USD, ZainCash/Master, and making profit while keeping inventory and debts.',
+      'تصفير الخزينة فقط 🔄': 'Reset Vault Only 🔄',
+      '2. تصفير النظام بالكامل (ضبط مصنع):': '2. Full System Reset (Factory Reset):',
+      'مسح كل شيء وإرجاع النظام كأنه جديد تماماً.': 'Erase everything and restore the system to its initial state.',
+      'تصفير النظام بالكامل 🗑️': 'Full System Reset 🗑️',
+      'إلغاء': 'Cancel',
       'إغلاق': 'Close',
-      'نسخ': 'Copy',
-      'تعديل': 'Edit',
-      'حذف': 'Delete',
-      'تفعيل': 'Enable',
-      'إيقاف': 'Disable',
-      'إضافة للسلة': 'Add to Cart',
       'تصفح المخزن': 'Browse Inventory',
+      'إضافة للسلة': 'Add to Cart',
+      'غرام الصافي:': 'Net Gram:',
+      'أرباح المثقال الواحد (5غ):': 'Profit per Mithqal (5g):',
+      'إجمالي أرباح الصياغة:': 'Total Making Profit:',
+      'السعر بالدينار:': 'Price in IQD:',
+      'المقابل:': 'Equivalent:',
+      'القطع المضافة للسلة:': 'Items in Cart:',
+      'السلة فارغة.': 'Cart is empty.',
+      'إجمالي الفاتورة:': 'Invoice Total:',
       'إتمام البيع النقدي وطباعة': 'Complete Cash Sale & Print',
-      'تسجيل آجل (تطلبهم +)': 'Record Credit (Owed to You +)',
-      'إتمام شراء الكسر وتسجيله': 'Complete Scrap Purchase & Save',
-      'حفظ وإضافة للمخزن والمعرض 📦': 'Save & Add to Inventory & Showcase 📦',
+      'تسجيل آجل (يطلبهم +)': 'Record Credit (+ Owed to Us)',
+      'سبب المصروف': 'Expense reason',
+      'المبلغ (دينار)': 'Amount (IQD)',
+      'ملاحظات...': 'Notes...',
+      'اسم الزبون / التاجر': 'Customer / Merchant name',
+      'رقم الهاتف (07XXXXXXXXX)': 'Phone number (07XXXXXXXXX)',
+      'ملاحظات إضافية للحركة أو الحساب...': 'Additional notes for transaction or account...',
+      'أدخل الاسم والقيمة لمعاينة الأثر الفوري على الرصيد': 'Enter name and amount to preview live balance impact',
+      'الكل': 'All',
+      'كارتات تطلبهم (+)': 'Owed to Us Cards (+)',
+      'كارتات يطلبوك (-)': 'We Owe Cards (-)',
       'حفظ الإعدادات وإشعار الإدارة بالتحديث 🌐': 'Save Settings & Notify Admin 🌐',
       'إرسال مباشر إلى لوحة الأدمن': 'Send Directly to Admin Panel',
       'إرسال عبر واتساب': 'Send via WhatsApp'
     }
   };
 
-  let activeLang = 'ar';
-
-  function normalizeLang(lang) {
-    const l = String(lang || '').toLowerCase().trim();
-    if (l === 'ku' || l === 'ckb' || l.startsWith('ku')) return 'ku';
-    if (l === 'en' || l.startsWith('en')) return 'en';
-    return 'ar';
-  }
-
   function getLanguage() {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) activeLang = normalizeLang(saved);
-    } catch (_) {}
-    return activeLang;
-  }
-
-  function setLanguage(lang) {
-    activeLang = normalizeLang(lang);
-    try {
-      localStorage.setItem(STORAGE_KEY, activeLang);
-    } catch (_) {}
-    applyLanguageToDom(activeLang);
-    return activeLang;
-  }
-
-  function cycleLanguage() {
-    const order = ['ar', 'ku', 'en'];
-    const idx = order.indexOf(getLanguage());
-    const next = order[(idx + 1) % order.length];
-    return setLanguage(next);
-  }
-
-  function t(key, fallback = '') {
-    const pack = DICTIONARY[getLanguage()] || DICTIONARY.ar;
-    return pack[key] !== undefined ? pack[key] : (DICTIONARY.ar[key] !== undefined ? DICTIONARY.ar[key] : fallback);
-  }
-
-  function translatePhrase(text) {
-    const code = normalizeLang(getLanguage());
-    if (code === 'ar' || !text) return text;
-    const dict = PHRASE_MAP[code] || {};
-    const trimmed = String(text).trim();
-    return dict[trimmed] || text;
-  }
-
-  function translateDomNodes() {
-    const code = normalizeLang(getLanguage());
-    if (code === 'ar' || !document.body) return;
-    const dict = PHRASE_MAP[code] || {};
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    let node;
-    while ((node = walker.nextNode())) {
-      const parent = node.parentElement;
-      if (!parent || ['SCRIPT', 'STYLE', 'INPUT', 'TEXTAREA'].includes(parent.tagName)) continue;
-      const raw = node.nodeValue;
-      if (!raw) continue;
-      const trimmed = raw.trim();
-      if (dict[trimmed]) {
-        node.nodeValue = raw.replace(trimmed, dict[trimmed]);
-      }
+      const saved = global.localStorage.getItem(STORAGE_KEY);
+      return DICTS[saved] ? saved : 'ar';
+    } catch (_) {
+      return 'ar';
     }
   }
 
-  function setTextById(id, value) {
-    const el = document.getElementById(id);
-    if (el && value) el.textContent = value;
+  function setLanguage(lang) {
+    const clean = DICTS[lang] ? lang : 'ar';
+    try {
+      global.localStorage.setItem(STORAGE_KEY, clean);
+    } catch (_) {}
+    applyLanguageToDom(clean);
+    return clean;
   }
 
-  function setPlaceholderById(id, value) {
-    const el = document.getElementById(id);
-    if (el && value) el.placeholder = value;
+  function cycleLanguage() {
+    const cur = getLanguage();
+    const idx = ORDER.indexOf(cur);
+    const next = ORDER[(idx + 1) % ORDER.length];
+    return setLanguage(next);
+  }
+
+  function t(key, lang) {
+    const active = lang || getLanguage();
+    const dict = DICTS[active] || DICTS.ar;
+    return dict[key] !== undefined ? dict[key] : (DICTS.ar[key] !== undefined ? DICTS.ar[key] : key);
+  }
+
+  function translateTextValue(text, lang) {
+    if (!text) return text;
+    if (lang === 'ar') return text;
+    const map = PHRASES[lang] || {};
+    const trimmed = String(text).trim();
+    if (map[trimmed]) {
+      return String(text).replace(trimmed, map[trimmed]);
+    }
+    return text;
   }
 
   function applyLanguageToDom(lang) {
-    const code = normalizeLang(lang || getLanguage());
-    const pack = DICTIONARY[code] || DICTIONARY.ar;
+    const active = lang || getLanguage();
+    const dict = DICTS[active] || DICTS.ar;
+    if (global.document && global.document.documentElement) {
+      global.document.documentElement.lang = dict.lang || 'ar';
+      global.document.documentElement.dir = dict.dir || 'rtl';
+    }
+    Object.keys(dict).forEach(id => {
+      if (['label', 'dir', 'lang', 'statusActive', 'statusLocked'].includes(id)) return;
+      const el = global.document && global.document.getElementById(id);
+      if (el) el.textContent = dict[id];
+    });
 
-    document.documentElement.setAttribute('lang', pack.langTag);
-    document.documentElement.setAttribute('dir', pack.dir);
-    document.body.setAttribute('dir', pack.dir);
+    if (global.document && global.document.body && active !== 'ar') {
+      const walker = global.document.createTreeWalker(
+        global.document.body,
+        NodeFilter.SHOW_TEXT,
+        null,
+        false
+      );
+      let node;
+      while ((node = walker.nextNode())) {
+        const parentTag = node.parentElement && node.parentElement.tagName;
+        if (!parentTag || ['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT'].includes(parentTag)) continue;
+        const translated = translateTextValue(node.nodeValue, active);
+        if (translated !== node.nodeValue) {
+          node.nodeValue = translated;
+        }
+      }
 
-    setTextById('aramky-install-badge', pack.badge);
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    setTextById('pwa-install-label', isStandalone ? pack.installedBtn : pack.installBtn);
+      global.document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(inp => {
+        const ph = inp.getAttribute('placeholder');
+        const translatedPh = translateTextValue(ph, active);
+        if (translatedPh !== ph) inp.setAttribute('placeholder', translatedPh);
+      });
 
-    setTextById('i18n-refresh-label', pack.refreshBtn);
-    setTextById('i18n-admin-label', pack.adminBtn);
-    setTextById('i18n-switch-label', pack.switchTenantBtn);
-    setTextById('i18n-storefront-label', pack.storefrontBtn);
-    setTextById('i18n-return-label', pack.returnBtn);
-    setTextById('i18n-calc-label', pack.calcBtn);
-    setTextById('i18n-prices-label', pack.pricesBtn);
-    setTextById('i18n-reset-label', pack.resetBtn);
-    setTextById('i18n-lang-label', `${pack.label} (${pack.shortCode})`);
-
-    setTextById('i18n-ticker-title', pack.tickerTitle);
-    setTextById('i18n-ticker-usd', pack.tickerUsd);
-    setTextById('i18n-ticker-m24', pack.tickerM24);
-    setTextById('i18n-ticker-m22', pack.tickerM22);
-    setTextById('i18n-ticker-m21', pack.tickerM21);
-    setTextById('i18n-ticker-m18', pack.tickerM18);
-    setTextById('i18n-ticker-m9', pack.tickerM9);
-
-    setTextById('i18n-sidebar-title', pack.sidebarTitle);
-    setTextById('i18n-tab-dashboard', pack.tabDashboard);
-    setTextById('i18n-tab-pos', pack.tabPos);
-    setTextById('i18n-tab-scrap', pack.tabScrap);
-    setTextById('i18n-tab-inventory', pack.tabInventory);
-    setTextById('i18n-tab-store-settings', pack.tabStoreSettings);
-    setTextById('i18n-tab-debts', pack.tabDebts);
-    setTextById('i18n-tab-logs', pack.tabLogs);
-    setTextById('i18n-tab-support', pack.tabSupport);
-
-    setTextById('i18n-dash-cash', pack.dashCash);
-    setTextById('i18n-dash-usd', pack.dashUsd);
-    setTextById('i18n-dash-zain', pack.dashZain);
-    setTextById('i18n-dash-profit', pack.dashProfit);
-    setTextById('i18n-exp-title', pack.expTitle);
-    setPlaceholderById('exp-reason', pack.expReasonPh);
-    setPlaceholderById('exp-amount', pack.expAmountPh);
-    setPlaceholderById('exp-notes', pack.expNotesPh);
-    setTextById('i18n-exp-save-btn', pack.expSaveBtn);
-
-    setTextById('i18n-debts-title', pack.debtsTitle);
-    setTextById('i18n-debts-subtitle', pack.debtsSubtitle);
-    setTextById('debt-filter-all', pack.debtsAllBtn);
-    setTextById('debt-filter-them', pack.debtsThemBtn);
-    setTextById('debt-filter-us', pack.debtsUsBtn);
-    setTextById('i18n-debts-summary-them', pack.debtsSummaryThem);
-    setTextById('i18n-debts-summary-us', pack.debtsSummaryUs);
-    setTextById('i18n-debts-summary-net', pack.debtsSummaryNet);
-    setPlaceholderById('debt-customer', pack.debtsCustomerPh);
-    setPlaceholderById('debt-phone', pack.debtsPhonePh);
-    setPlaceholderById('debt-amount', pack.debtsAmountPh);
-    setPlaceholderById('debt-notes', pack.debtsNotesPh);
-    setTextById('i18n-debts-save-btn', pack.debtsSaveBtn);
-
-    setTextById('i18n-lock-title', pack.lockTitle);
-    setTextById('i18n-lock-desc', pack.lockDesc);
-    setTextById('i18n-lock-support-btn', pack.lockSupportBtn);
-    setTextById('i18n-lock-switch-btn', pack.lockSwitchBtn);
-
-    setTextById('i18n-login-title', pack.loginTitle);
-    setTextById('i18n-login-desc', pack.loginDesc);
-    setTextById('i18n-login-code-label', pack.loginCodeLabel);
-    setTextById('i18n-login-phone-label', pack.loginPhoneLabel);
-    setTextById('i18n-login-pass-label', pack.loginPassLabel);
-    setTextById('i18n-login-submit-btn', pack.loginSubmitBtn);
-
-    translateDomNodes();
+      global.document.querySelectorAll('[title]').forEach(el => {
+        const titleVal = el.getAttribute('title');
+        const translatedTitle = translateTextValue(titleVal, active);
+        if (translatedTitle !== titleVal) el.setAttribute('title', translatedTitle);
+      });
+    }
   }
 
-  function init() {
-    applyLanguageToDom(getLanguage());
-  }
-
-  const api = {
-    version: '1.2',
-    languages: ['ar', 'ku', 'en'],
-    init,
+  global.ARAMKY_I18N = {
     getLanguage,
     setLanguage,
     cycleLanguage,
-    applyLanguageToDom,
-    translatePhrase,
-    translateDomNodes,
-    t
+    t,
+    applyLanguageToDom
   };
-
-  global.ARAMKY_I18N = api;
 })(window);
