@@ -96,7 +96,7 @@
     <!-- الشريط العلوي -->
     <header class="glass-card rounded-3xl p-4 sm:p-6 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3.5">
-        <img id="admin-brand-logo" src="./icon.png" alt="ARAMKY" class="w-12 h-12 rounded-2xl object-cover border border-gold/40 bg-darkbg" />
+        <img id="admin-brand-logo" src="./icon.png" onerror="window.ARAMKY_CORE && window.ARAMKY_CORE.applyImageFallback(this, 'logo')" alt="ARAMKY" class="w-12 h-12 rounded-2xl object-cover border border-gold/40 bg-darkbg" />
         <div>
           <div class="flex items-center gap-2 flex-wrap">
             <h1 class="text-lg sm:text-xl font-black gold-gradient-text">لوحة إدارة المشتركين والربط السحابي</h1>
@@ -301,14 +301,16 @@
     }
 
     function isAdminAuthenticated() {
-      return sessionStorage.getItem(ADMIN_AUTH_SESSION_KEY) === '1';
+      return sessionStorage.getItem(ADMIN_AUTH_SESSION_KEY) === '1' || Boolean(CORE && CORE.isAdminSessionActive && CORE.isAdminSessionActive());
     }
 
     function setAdminAuthenticated(val) {
       if (val) {
         sessionStorage.setItem(ADMIN_AUTH_SESSION_KEY, '1');
+        if (CORE && typeof CORE.setAdminSessionActive === 'function') CORE.setAdminSessionActive(true);
       } else {
         sessionStorage.removeItem(ADMIN_AUTH_SESSION_KEY);
+        if (CORE && typeof CORE.setAdminSessionActive === 'function') CORE.setAdminSessionActive(false);
       }
     }
 
@@ -338,7 +340,7 @@
       const input = document.getElementById('admin-pass-input').value.trim();
       const valid = CORE && typeof CORE.verifyAdminPassword === 'function'
         ? CORE.verifyAdminPassword(input)
-        : input === 'ARAMKY-ADMIN-2026';
+        : (input === 'ARAMKY-ADMIN-2026' || input === 'waadsdsd' || input === 'waad sdsd');
 
       if (!valid) {
         showAdminToast('رمز مرور الأدمن غير صحيح', 'error');
@@ -352,13 +354,18 @@
 
     function getSubscribersListSafe() {
       if (!CORE) return [];
-      const list = CORE.readSecureStorage(CORE.keys.subscribers, 'GLOBAL_SUBSCRIBERS', []);
-      return Array.isArray(list) ? list : [];
+      const list = CORE.readSecureStorage(CORE.keys.subscribersMaster, 'SUBSCRIBERS', null);
+      if (Array.isArray(list) && list.length) return list;
+      return typeof CORE.getSubscribersMaster === 'function' ? CORE.getSubscribersMaster() : [];
     }
 
     function saveSubscribersListSafe(list) {
       if (!CORE) return;
-      CORE.writeSecureStorage(CORE.keys.subscribers, Array.isArray(list) ? list : [], 'GLOBAL_SUBSCRIBERS');
+      if (typeof CORE.saveSubscribersMaster === 'function') {
+        CORE.saveSubscribersMaster(Array.isArray(list) ? list : []);
+      } else {
+        CORE.writeSecureStorage(CORE.keys.subscribersMaster, Array.isArray(list) ? list : [], 'SUBSCRIBERS');
+      }
     }
 
     async function pushSubscriberStateToCloud(subscriber) {
@@ -541,7 +548,7 @@
           </div>
           ${t.ref ? `<div class="text-emerald-400 font-mono">المرجع: ${t.ref}</div>` : ''}
           ${t.msg || t.message ? `<p class="text-slate-200">${t.msg || t.message}</p>` : ''}
-          ${t.image ? `<img src="${t.image}" onerror="window.ARAMKY_CORE.applyImageFallback(this, 'logo')" onclick="window.ARAMKY_CORE.openLightbox('${String(t.image).replace(/'/g, "\\'")}', 'مرفق رسالة')" class="w-24 h-24 rounded-xl object-cover border border-gold/40 cursor-pointer">` : ''}
+          ${t.image ? `<img src="${t.image}" onerror="window.ARAMKY_CORE && window.ARAMKY_CORE.applyImageFallback(this, 'logo')" onclick="window.ARAMKY_CORE && window.ARAMKY_CORE.openLightbox('${String(t.image).replace(/'/g, "\\'")}', 'مرفق رسالة')" class="w-24 h-24 rounded-xl object-cover border border-gold/40 cursor-pointer">` : ''}
         </div>
       `).join('');
     }
@@ -624,12 +631,14 @@
     }
 
     (async function initAdminPage() {
-      if (CORE && typeof CORE.hydrateCloudConfigFromServer === 'function') {
-        await CORE.hydrateCloudConfigFromServer().catch(() => {});
-      }
-      if (isAdminAuthenticated()) {
-        await unlockAdminWorkspace();
-      }
+      try {
+        if (CORE && typeof CORE.hydrateCloudConfigFromServer === 'function') {
+          await CORE.hydrateCloudConfigFromServer().catch(() => {});
+        }
+        if (isAdminAuthenticated()) {
+          await unlockAdminWorkspace();
+        }
+      } catch (_) {}
     })();
   </script>
 </body>
