@@ -1,5 +1,6 @@
 import os
-from flask import Flask, jsonify, send_from_directory, abort, make_response
+import re
+from flask import Flask, jsonify, send_from_directory, abort, make_response, request
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -12,27 +13,15 @@ app = Flask(
 ALLOWED_STATIC_FILES = {
     "index.html",
     "admin.html",
-    "admin_3.html",
     "aramky-core.js",
     "aramky-i18n.js",
     "main.js",
     "sw.js",
     "icon.png",
     "manifest.json",
-    "manifest_5.json",
 }
 
-MIME_OVERRIDES = {
-    ".js": "application/javascript; charset=utf-8",
-    ".css": "text/css; charset=utf-8",
-    ".html": "text/html; charset=utf-8",
-    ".json": "application/json; charset=utf-8",
-    ".png": "image/png",
-    ".jpg": "image/jpeg",
-    ".jpeg": "image/jpeg",
-    ".svg": "image/svg+xml",
-    ".ico": "image/x-icon",
-}
+SAFE_SHOWCASE_ID_RE = re.compile(r"^[A-Za-z0-9_-]{4,48}$")
 
 
 def _serve_html_file(filename):
@@ -40,14 +29,36 @@ def _serve_html_file(filename):
     if not os.path.isfile(filepath):
         abort(404)
     with open(filepath, "r", encoding="utf-8") as f:
-        content = f.read()
-    resp = make_response(content, 200)
-    resp.headers["Content-Type"] = "text/html; charset=utf-8"
-    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    return resp
+        return f.read(), 200, {"Content-Type": "text/html; charset=utf-8"}
 
 
-@app.route("/", methods=["GET", "HEAD"])
+def _read_supabase_env():
+    supabase_url = os.environ.get("SUPABASE_URL", "").strip()
+    supabase_key = (
+        os.environ.get("SUPABASE_KEY", "").strip()
+        or os.environ.get("SUPABASE_ANON_KEY", "").strip()
+    )
+    supabase_table = os.environ.get("SUPABASE_TABLE", "aramky_stores_data").strip() or "aramky_stores_data"
+    render_api_base = os.environ.get("RENDER_API_BASE", "").strip()
+
+    missing = []
+    if not supabase_url:
+        missing.append("SUPABASE_URL")
+    if not supabase_key:
+        missing.append("SUPABASE_KEY")
+
+    return {
+        "configured": len(missing) == 0,
+        "missing": missing,
+        "supabaseUrl": supabase_url,
+        "supabaseKey": supabase_key,
+        "supabaseAnonKey": supabase_key,
+        "supabaseTable": supabase_table,
+        "renderApiBase": render_api_base,
+    }
+
+
+@app.route("/")
 def home():
     index_path = os.path.join(BASE_DIR, "index.html")
     if os.path.isfile(index_path):
@@ -55,53 +66,71 @@ def home():
     return "ARAMKY Gold OS Online", 200, {"Content-Type": "text/plain; charset=utf-8"}
 
 
-@app.route("/health", methods=["GET", "HEAD"])
-def health_check():
-    return jsonify({"ok": True, "service": "ARAMKY Gold OS v28.3"}), 200
-
-
-@app.route("/admin.html", methods=["GET", "HEAD"])
+@app.route("/admin.html")
 def admin_page():
-    filepath = os.path.join(BASE_DIR, "admin.html")
-    if os.path.isfile(filepath):
-        return _serve_html_file("admin.html")
-    return _serve_html_file("admin_3.html")
+    return _serve_html_file("admin.html")
 
 
-@app.route("/admin_3.html", methods=["GET", "HEAD"])
-def admin_v3_page():
-    return _serve_html_file("admin_3.html")
+@app.route("/ARAMKY/<showcase_id>")
+def aramky_showcase_route(showcase_id):
+    clean_id = (showcase_id or "").strip()
+    if not SAFE_SHOWCASE_ID_RE.match(clean_id):
+        abort(404)
+    return _serve_html_file("index.html")
 
 
-@app.route("/sw.js", methods=["GET", "HEAD"])
+@app.route("/api/showcase/ARAMKY/<showcase_id>", methods=["GET"])
+def api_aramky_showcase_meta(showcase_id):
+    clean_id = (showcase_id or "").strip()
+    if not SAFE_SHOWCASE_ID_RE.match(clean_id):
+        return jsonify({"ok": False, "error": "invalid_showcase_id"}), 400
+    env = _read_supabase_env()
+    return jsonify({
+        "ok": True,
+        "brand": "ARAMKY",
+        "showcaseId": clean_id,
+        "cloudReady": env["configured"],
+    }), 200
+
+
+@app.route("/sw.js")
 def service_worker():
     sw_path = os.path.join(BASE_DIR, "sw.js")
     if not os.path.isfile(sw_path):
         abort(404)
-    resp = make_response(send_from_directory(BASE_DIR, "sw.js", mimetype="application/javascript; charset=utf-8"))
+    resp = make_response(send_from_directory(BASE_DIR, "sw.js", mimetype="application/javascript"))
     resp.headers["Service-Worker-Allowed"] = "/"
-    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    resp.headers["Cache-Control"] = "no-cache"
     return resp
 
 
-@app.route("/api/supabase-config", methods=["GET", "HEAD"])
+@app.route("/api/supabase-config", methods=["GET"])
+@app.route("/api/config", methods=["GET"])
 def api_supabase_config():
-    supabase_url = os.environ.get("SUPABASE_URL", "").strip()
-    supabase_key = (
-        os.environ.get("SUPABASE_KEY", "").strip()
-        or os.environ.get("SUPABASE_ANON_KEY", "").strip()
-    )
-    supabase_table = os.environ.get("SUPABASE_TABLE", "aramky_stores_data").strip() or "aramky_stores_data"
-
+    env = _read_supabase_env()
     return jsonify({
-        "ok": bool(supabase_url and supabase_key),
-        "supabaseUrl": supabase_url,
-        "supabaseKey": supabase_key,
-        "supabaseTable": supabase_table,
+        "ok": env["configured"],
+        "configured": env["configured"],
+        "missing": env["missing"],
+        "supabaseUrl": env["supabaseUrl"],
+        "supabaseKey": env["supabaseKey"],
+        "supabaseAnonKey": env["supabaseAnonKey"],
+        "supabaseTable": env["supabaseTable"],
+        "renderApiBase": env["renderApiBase"],
     }), 200
 
 
-@app.route("/<path:filename>", methods=["GET", "HEAD"])
+@app.route("/api/health", methods=["GET"])
+def api_health():
+    env = _read_supabase_env()
+    return jsonify({
+        "status": "ok",
+        "supabaseConfigured": env["configured"],
+        "missingEnv": env["missing"],
+    }), 200
+
+
+@app.route("/<path:filename>")
 def serve_static_asset(filename):
     clean_name = os.path.basename(filename)
     if clean_name not in ALLOWED_STATIC_FILES:
@@ -109,16 +138,12 @@ def serve_static_asset(filename):
     filepath = os.path.join(BASE_DIR, clean_name)
     if not os.path.isfile(filepath):
         abort(404)
-    if clean_name.endswith(".html"):
-        return _serve_html_file(clean_name)
-    ext = os.path.splitext(clean_name)[1].lower()
-    mimetype = MIME_OVERRIDES.get(ext)
-    resp = make_response(send_from_directory(BASE_DIR, clean_name, mimetype=mimetype))
-    if clean_name in {"aramky-core.js", "aramky-i18n.js", "manifest.json", "manifest_5.json"}:
-        resp.headers["Cache-Control"] = "no-cache, must-revalidate"
-    return resp
+    return send_from_directory(BASE_DIR, clean_name)
 
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
+    env = _read_supabase_env()
+    if not env["configured"]:
+        print(f"[ARAMKY WARN] متغيرات البيئة ناقصة في Render: {', '.join(env['missing'])} — سيعمل الخادم بالوضع الآمن دون توقف.")
     app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
