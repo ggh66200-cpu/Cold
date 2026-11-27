@@ -59,7 +59,11 @@
       const xored = xorCipher(binary, secret);
       return 'ARMK1:' + btoa(xored);
     } catch (_) {
-      return null;
+      try {
+        return 'PLAIN:' + JSON.stringify(obj);
+      } catch (__) {
+        return null;
+      }
     }
   }
 
@@ -76,6 +80,9 @@
         }
         const json = new TextDecoder().decode(bytes);
         return JSON.parse(json);
+      }
+      if (raw.startsWith('PLAIN:')) {
+        return JSON.parse(raw.slice(6));
       }
       return JSON.parse(raw);
     } catch (_) {
@@ -138,7 +145,10 @@
       const endpoints = ['/api/supabase-config', '/api/config'];
       for (const ep of endpoints) {
         try {
-          const res = await fetch(ep, { cache: 'no-store' });
+          const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+          const timer = controller ? setTimeout(() => controller.abort(), 3500) : null;
+          const res = await fetch(ep, { cache: 'no-store', signal: controller ? controller.signal : undefined });
+          if (timer) clearTimeout(timer);
           if (!res.ok) continue;
           const data = await res.json();
           const url = data.supabaseUrl || data.url || data.SUPABASE_URL || '';
@@ -179,7 +189,7 @@
   }
 
   function normalizeTenantPayload(payloadObj, tenantCode) {
-    const code = String(tenantCode || (payloadObj && payloadObj.code) || 'ARAMKY-01').trim().toUpperCase();
+    const code = String(tenantCode || (payloadObj && payloadObj.code) || 'ARAMKY').trim().toUpperCase();
     const base = Object.assign({
       code,
       status: 'نشط',
@@ -337,7 +347,7 @@
     if (!cfg.supabaseUrl || !(cfg.supabaseKey || cfg.supabaseAnonKey)) {
       return { ok: false, skipped: true };
     }
-    const cleanCode = String(targetCode || getActiveTenantCode() || 'ARAMKY-01').trim().toUpperCase();
+    const cleanCode = String(targetCode || getActiveTenantCode() || 'ARAMKY').trim().toUpperCase();
     const remote = await pullTenantFromSupabase(cleanCode);
     if (!remote) return { ok: false, empty: true };
 
@@ -356,6 +366,31 @@
     return { ok: true, data: merged };
   }
 
+  async function testSupabaseConnection() {
+    const cfg = await hydrateCloudConfigFromServer();
+    const apiKey = cfg.supabaseKey || cfg.supabaseAnonKey;
+    if (!cfg.supabaseUrl || !apiKey) {
+      return { ok: false, message: 'لم يتم إدخال رابط Supabase أو المفتاح بعد' };
+    }
+    const baseUrl = String(cfg.supabaseUrl).replace(/\/+$/, '');
+    const table = encodeURIComponent(cfg.supabaseTable || 'aramky_stores_data');
+    try {
+      const res = await fetch(`${baseUrl}/rest/v1/${table}?select=tenant_code&limit=1`, {
+        method: 'GET',
+        headers: {
+          'apikey': apiKey,
+          'Authorization': `Bearer ${apiKey}`
+        }
+      });
+      if (!res.ok) {
+        return { ok: false, message: `رمز استجابة السحابة: ${res.status}` };
+      }
+      return { ok: true, message: 'الاتصال بـ Supabase ناجح' };
+    } catch (err) {
+      return { ok: false, message: `تعذر الوصول للسحابة: ${err && err.message ? err.message : err}` };
+    }
+  }
+
   async function postToRenderBackend(path, bodyObj) {
     const url = getRenderEndpoint(path);
     if (!url) return { ok: false, skipped: true };
@@ -372,24 +407,24 @@
   }
 
   function getTenantDataKey(code) {
-    const clean = String(code || 'ARAMKY-01').trim().toUpperCase();
+    const clean = String(code || 'ARAMKY').trim().toUpperCase();
     return `${STORAGE_PREFIX}tenant_data_${clean}`;
   }
 
   function getCustomerLedgerKey(tenantCode, customerKey) {
-    const tClean = String(tenantCode || 'ARAMKY-01').trim().toUpperCase();
+    const tClean = String(tenantCode || 'ARAMKY').trim().toUpperCase();
     const cClean = encodeCatalogRef(customerKey || 'GENERAL').replace(/[^A-Za-z0-9]/g, '').slice(0, 24);
     return `${STORAGE_PREFIX}ledger_${tClean}_${cClean}`;
   }
 
   function encodeCatalogRef(text) {
     try {
-      const bytes = new TextEncoder().encode(String(text || 'ARAMKY-01'));
+      const bytes = new TextEncoder().encode(String(text || 'ARAMKY'));
       let bin = '';
       bytes.forEach(b => (bin += String.fromCharCode(b)));
       return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     } catch (_) {
-      return 'QVJBTUtZLTAx';
+      return 'QVJBTUtZ';
     }
   }
 
@@ -402,23 +437,23 @@
       for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
       return new TextDecoder().decode(bytes);
     } catch (_) {
-      return 'ARAMKY-01';
+      return 'ARAMKY';
     }
   }
 
   function getPublicStorefrontUrl(tenantCode) {
     const baseUrl = window.location.href.split('#')[0].split('?')[0];
-    const ref = encodeCatalogRef(String(tenantCode || 'ARAMKY-01').trim().toUpperCase());
+    const ref = encodeCatalogRef(String(tenantCode || 'ARAMKY').trim().toUpperCase());
     return `${baseUrl}?view=showcase&ref=${encodeURIComponent(ref)}`;
   }
 
   function getDefaultTenantsList() {
     return [
       {
-        code: 'ARAMKY-01',
-        phone: '07766083622',
+        code: 'ARAMKY',
+        phone: '07801103129',
         password: '',
-        ownerName: 'المعرض الرئيسي — أرامكي',
+        ownerName: 'ARAMKY',
         storeName: 'ARAMKY | أرامكي للحلول الرقمية — فرع نواة الذهب',
         status: 'نشط',
         expiryDate: '2027-12-31',
@@ -427,11 +462,11 @@
         createdAt: new Date().toISOString()
       },
       {
-        code: 'ARAMKY',
-        phone: '07801103129',
-        password: 'waadsdsd',
-        ownerName: 'ARAMKY',
-        storeName: 'ARAMKY | أرامكي للحلول الرقمية',
+        code: 'ARAMKY-01',
+        phone: '07766083622',
+        password: '',
+        ownerName: 'المعرض الرئيسي — أرامكي',
+        storeName: 'ARAMKY | أرامكي للحلول الرقمية — فرع نواة الذهب',
         status: 'نشط',
         expiryDate: '2027-12-31',
         expiry: '2027-12-31',
@@ -584,7 +619,7 @@
   }
 
   function persistTenantSession(code) {
-    const clean = String(code || 'ARAMKY-01').trim().toUpperCase();
+    const clean = String(code || 'ARAMKY').trim().toUpperCase();
     try {
       localStorage.setItem(KEYS.activeTenant, clean);
       sessionStorage.setItem(KEYS.tenantSession, clean);
@@ -630,10 +665,10 @@
       return String(
         sessionStorage.getItem(KEYS.tenantSession) ||
         localStorage.getItem(KEYS.activeTenant) ||
-        'ARAMKY-01'
+        'ARAMKY'
       ).trim().toUpperCase();
     } catch (_) {
-      return 'ARAMKY-01';
+      return 'ARAMKY';
     }
   }
 
@@ -657,9 +692,9 @@
     const refParam = params.get('ref');
 
     if (viewParam === 'showcase') {
-      const decodedCode = refParam ? decodeCatalogRef(refParam) : (localStorage.getItem(KEYS.activeTenant) || 'ARAMKY-01');
+      const decodedCode = refParam ? decodeCatalogRef(refParam) : (localStorage.getItem(KEYS.activeTenant) || 'ARAMKY');
       return {
-        code: String(decodedCode || 'ARAMKY-01').toUpperCase(),
+        code: String(decodedCode || 'ARAMKY').toUpperCase(),
         publicOnly: true,
         requireLogin: false
       };
@@ -674,9 +709,9 @@
       };
     }
 
-    localStorage.setItem(KEYS.activeTenant, 'ARAMKY-01');
+    localStorage.setItem(KEYS.activeTenant, 'ARAMKY');
     return {
-      code: 'ARAMKY-01',
+      code: 'ARAMKY',
       publicOnly: false,
       requireLogin: false
     };
@@ -779,6 +814,10 @@
   function openAdminPanelModal() {
     setAdminSessionActive(true);
     navigateToAdmin();
+  }
+
+  function pushSupportTicketToAdmin(ticketObj) {
+    return submitSupportTicket(ticketObj);
   }
 
   function submitSupportTicket(ticketObj) {
@@ -971,6 +1010,7 @@
     syncTenantToSupabase,
     pullTenantFromSupabase,
     syncAllFromSupabase,
+    testSupabaseConnection,
     postToRenderBackend,
     getTenantDataKey,
     getCustomerLedgerKey,
@@ -1009,6 +1049,7 @@
     navigateToAdmin,
     openAdminDashboard,
     openAdminPanelModal,
+    pushSupportTicketToAdmin,
     submitSupportTicket,
     setLanguage,
     getLanguage,
